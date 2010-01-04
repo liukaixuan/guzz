@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+
+<guzz-mapping>
+    <class name="org.guzz.test.Book" table="TB_BOOK" dynamic-update="true">
+        <id name="id" type="int">
+        	<generator class="native" />
+        </id>
+        <property name="title" type="varchar(255)" lazy="false" column="NAME">
+        </property>
+        <property name="content" type="string" lazy="true" column="DESCRIPTION">
+        </property>
+        <property name="createdTime" type="datetime" column="createdTime" />
+        <property name="ISDN" type="string" column="ISDN" />
+    </class>
+</guzz-mapping>
