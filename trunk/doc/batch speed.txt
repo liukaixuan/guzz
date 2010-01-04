@@ -1,0 +1,49 @@
+
+
+useServerPrepStmts=false:
+batch size 10: 24250 ms
+batch size 50: 10047 ms
+batch size 100: 5671 ms
+batch size 256: 4063 ms
+batch size 512: 2703 ms
+batch size 1024: 1891 ms
+batch size 2048: 1468 ms
+
+
+
+useServerPrepStmts=true
+1万次操作，耗时：
+batch size 10: 24125 ms
+batch size 50: 10406 ms
+batch size 100: 5938 ms
+batch size 256: 3000 ms
+batch size 512: 3031 ms
+batch size 1024: 2078 ms
+batch size 2048: 1625 ms
+
+
+
+useServerPrepStmts=true&amp;cachePrepStmts=truee&amp;prepStmtCacheSize=4096&amp;prepStmtCacheSqlLimit=4096
+1万次操作，耗时：
+batch size 10: 23359 ms
+batch size 50: 10969 ms
+batch size 100: 5078 ms
+batch size 256: 3266 ms
+batch size 512: 3000 ms
+batch size 1024: 1625 ms
+batch size 2048: 1547 ms
+batch size 4096: 1672 ms
+
+
+
+useServerPrepStmts=true&amp;cachePrepStmts=truee&amp;prepStmtCacheSize=4096&amp;prepStmtCacheSqlLimit=4096&amp;rewriteBatchedStatements=true
+1万次操作，耗时：
+batch size 10: 24703 ms
+batch size 50: 10797 ms
+batch size 100: 5203 ms
+batch size 256: 3187 ms
+batch size 512: 2188 ms
+batch size 1024: 2078 ms
+batch size 2048: 1640 ms
+batch size 4096: 1875 ms
+
