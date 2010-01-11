@@ -55,7 +55,7 @@ public class ShortSQLDataType implements SQLDataType {
 		if(value instanceof String){
 			value = Short.valueOf((String) value) ;
 		}
-		short v = ((Short) value).shortValue() ;
+		short v = ((Number) value).shortValue() ;
 		
 		pstm.setShort(parameterIndex, v) ;
 	}

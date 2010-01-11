@@ -28,14 +28,14 @@ public class H2Dialect extends AbstractDialect {
 		StringBuffer sb = new StringBuffer(sql.length() + 16) ;
 		sb.append(sql) ;
 		
-		if(offset <= 1){
+		if(offset <= 0){
 			if(limit >= Integer.MAX_VALUE){ //读取所有，不需要Limit.
 				
 			}else{
 				sb.append(" limit ").append(limit) ;
 			}
 		}else{
-			sb.append(" limit ").append((offset - 1)).append(", ").append(limit) ;
+			sb.append(" limit ").append((offset)).append(", ").append(limit) ;
 		}
 		
 		return sb.toString() ;

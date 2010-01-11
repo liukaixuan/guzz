@@ -121,6 +121,10 @@ public class CompiledSQL {
 		return new BindedCompiledSQL(this).bind(paramName, paramValue) ;
 	}
 	
+	public BindedCompiledSQL bind(String paramName, long paramValue){
+		return new BindedCompiledSQL(this).bind(paramName, new Long(paramValue)) ;
+	}
+	
 	public BindedCompiledSQL bind(Map params){
 		return new BindedCompiledSQL(this).bind(params) ;
 	}
