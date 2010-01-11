@@ -55,7 +55,7 @@ public class DoubleSQLDataType implements SQLDataType {
 		if(value instanceof String){
 			value = Double.valueOf((String) value) ;
 		}
-		double v = ((Double) value).doubleValue() ;
+		double v = ((Number) value).doubleValue() ;
 		
 		pstm.setDouble(parameterIndex, v) ;
 	}

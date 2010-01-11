@@ -55,7 +55,7 @@ public class FloatSQLDataType implements SQLDataType {
 		if(value instanceof String){
 			value = Float.valueOf((String) value) ;
 		}
-		float v = ((Float) value).floatValue() ;
+		float v = ((Number) value).floatValue() ;
 		
 		pstm.setFloat(parameterIndex, v) ;
 	}

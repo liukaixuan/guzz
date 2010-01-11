@@ -38,6 +38,7 @@ import org.guzz.orm.sql.SQLQueryCallBack;
 import org.guzz.orm.type.BigIntSQLDataType;
 import org.guzz.orm.type.IntegerSQLDataType;
 import org.guzz.orm.type.SQLDataType;
+import org.guzz.orm.type.ShortSQLDataType;
 import org.guzz.orm.type.StringSQLDataType;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.impl.AbstractService;
@@ -135,7 +136,7 @@ public class SlowUpdateServerImpl extends AbstractService implements GuzzContext
 			
 			try{
 				LinkedList updates = new LinkedList() ;				
-				int maxIdNum = 0 ;
+				long maxIdNum = 0 ;
 				
 				readSession = tm.openDelayReadTran() ;
 				
@@ -256,7 +257,7 @@ public class SlowUpdateServerImpl extends AbstractService implements GuzzContext
 					JDBCTemplate masterJDBC = writeMasterSession.createJDBCTemplateByDbGroup(obj.getDbGroup()) ;
 					
 					String sql = "select " + pkColName + " from " + tableName ;
-					sql = group.getDialect().getLimitedString(sql, 1, 1) ;
+					sql = group.getDialect().getLimitedString(sql, 0, 1) ;
 					
 					dataType = (SQLDataType) masterJDBC.executeQuery(sql, 
 						new SQLQueryCallBack(){
@@ -267,12 +268,14 @@ public class SlowUpdateServerImpl extends AbstractService implements GuzzContext
 								
 								if(pkType == Types.INTEGER){
 									return new IntegerSQLDataType() ;
-								}else if(pkType == Types.BIGINT){
+								}else if(pkType == Types.BIGINT|| pkType == Types.NUMERIC){
 									return new BigIntSQLDataType() ;
+								}else if(pkType == Types.SMALLINT || pkType == Types.TINYINT){
+									return new ShortSQLDataType() ;
 								}else if(pkType == Types.CHAR || pkType == Types.VARCHAR){
 									return new StringSQLDataType() ;
 								}else{
-									throw new DataTypeException("unknown primary key column type. only support:int, bigint, char, varchar") ;
+									throw new DataTypeException("unknown primary key column type. only support:int, bigint, smallint, char, varchar, numeric#as_bigint") ;
 								}
 							}
 						}

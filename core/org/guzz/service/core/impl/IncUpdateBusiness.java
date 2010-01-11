@@ -26,7 +26,7 @@ import java.io.Serializable;
  */
 public class IncUpdateBusiness implements Serializable{
 
-	private int id ;
+	private long id ;
 
 	/**要更新表所在的数据库分组*/
 	private String dbGroup ;
@@ -55,11 +55,11 @@ public class IncUpdateBusiness implements Serializable{
 		countToInc += incValue ;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

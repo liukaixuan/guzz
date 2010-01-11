@@ -60,7 +60,7 @@ public class IntegerSQLDataType implements SQLDataType {
 			value = Integer.valueOf((String) value) ;
 		}
 		
-		int v = ((Integer) value).intValue() ;
+		int v = ((Number) value).intValue() ;
 		
 		pstm.setInt(parameterIndex, v) ;
 	}

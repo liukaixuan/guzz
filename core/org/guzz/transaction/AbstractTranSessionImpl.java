@@ -137,7 +137,7 @@ public class AbstractTranSessionImpl {
 		//TODO: check if the defaultDialect supports prepared bind in limit clause, and put the limit to compiledSQL
 				
 		//add limit clause.		
-		rawSQL = db.getDialect().getLimitedString(rawSQL, startPos, maxSize) ;
+		rawSQL = db.getDialect().getLimitedString(rawSQL, startPos - 1, maxSize) ;
 		
 		if(this.debugService.isLogParams()){
 			this.debugService.logSQL(rawSQL, bsql.getBindedParams().values().toArray()) ;
@@ -340,7 +340,7 @@ public class AbstractTranSessionImpl {
 		DBGroup db = m.getDbGroup() ;
 		//TODO: check if the defaultDialect supports prepared bind in limit clause, and put the limit to compiledSQL
 		
-		rawSQL = db.getDialect().getLimitedString(rawSQL, 1, 1) ;
+		rawSQL = db.getDialect().getLimitedString(rawSQL, 0, 1) ;
 		
 		if(this.debugService.isLogParams()){
 			this.debugService.logSQL(rawSQL, bsql.getBindedParams().values().toArray()) ;

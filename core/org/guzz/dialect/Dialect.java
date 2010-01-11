@@ -40,7 +40,7 @@ public interface Dialect {
 	/**
 	 * 
 	 * @param sql
-	 * @param offset no offset = 0, offset one = 1, ...
+	 * @param offset no offset = 0, skip one = 1, ...
 	 * @param limit 
 	 */
 	public String getLimitedString(String sql, int offset, int limit) ;

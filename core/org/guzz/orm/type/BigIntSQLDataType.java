@@ -57,7 +57,7 @@ public class BigIntSQLDataType implements SQLDataType {
 			value = Long.valueOf((String) value) ;
 		}
 		
-		long v = ((Long) value).longValue() ;
+		long v = ((Number) value).longValue() ;
 		
 		pstm.setLong(parameterIndex, v) ;
 	}
