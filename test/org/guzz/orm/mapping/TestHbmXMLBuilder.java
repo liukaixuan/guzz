@@ -71,7 +71,7 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		c.set(2009, 7, 26, 13, 45, 9) ;
 		c.set(Calendar.MILLISECOND, 0) ;
 		
-		assertEquals(a.getCreatedTime(), c.getTime()) ;		
+		assertEquals(a.getCreatedTime().getTime(), c.getTime().getTime()) ;		
 	}
 	
 	public void testAddUserHxml() throws Exception{
