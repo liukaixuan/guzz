@@ -44,18 +44,18 @@ public class TestInnerSQLBuilder extends TestCase {
 		
 		//test insert
 		CompiledSQL cs = csm.buildInsertSQLWithPK(map) ;
-		assertEquals(cs.getSql(), "insert into TB_USER(pk, userName, password, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?, ?)") ;
+		assertEquals(cs.getSql(), "insert into TB_USER(pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?, ?)") ;
 		assertEquals(cs.getOrderedParams().length, 6) ;
 		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[id, userName, password, vip, favCount, createdTime]") ;
 		
 		cs = csm.buildInsertSQLWithoutPK(map) ;
-		assertEquals(cs.getSql(), "insert into TB_USER(userName, password, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?)") ;
+		assertEquals(cs.getSql(), "insert into TB_USER(userName, MyPSW, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?)") ;
 		assertEquals(cs.getOrderedParams().length, 5) ;
 		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[userName, password, vip, favCount, createdTime]") ;
 		
 		//update
 		cs = csm.buildUpdateSQL(map) ; 
-		assertEquals(cs.getSql(), "update TB_USER set userName=?, password=?, VIP_USER=?, FAV_COUNT=?, createdTime=? where pk=?") ;
+		assertEquals(cs.getSql(), "update TB_USER set userName=?, MyPSW=?, VIP_USER=?, FAV_COUNT=?, createdTime=? where pk=?") ;
 		assertEquals(cs.getOrderedParams().length, 6) ;
 		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[userName, password, vip, favCount, createdTime, id]") ;
 				
@@ -67,7 +67,7 @@ public class TestInnerSQLBuilder extends TestCase {
 		
 		//select
 		cs = csm.buildSelectSQL(map) ;
-		assertEquals(cs.getSql(), "select pk, userName, password, VIP_USER, FAV_COUNT, createdTime from TB_USER where pk=?") ;
+		assertEquals(cs.getSql(), "select pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime from TB_USER where pk=?") ;
 		assertEquals(cs.getOrderedParams().length, 1) ;
 		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[id]") ;
 		

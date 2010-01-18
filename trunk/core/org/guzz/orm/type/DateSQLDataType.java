@@ -19,7 +19,6 @@ package org.guzz.orm.type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 
 import org.guzz.exception.DataTypeException;
@@ -27,15 +26,13 @@ import org.guzz.util.DateUtil;
 
 /**
  * 
- * datetime/timestamp
  * 
- * 完成数据库的timestamp字段类型数据和@link java.util.Date 类型的对象的转换。
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class DateTimeSQLDataType implements SQLDataType {
+public class DateSQLDataType implements SQLDataType {
 	
-	private Timestamp nullDate = null ;
+	private Date nullDate = null ;
 	
 	private boolean saveAsNow = false ;
 	
@@ -44,54 +41,52 @@ public class DateTimeSQLDataType implements SQLDataType {
 			if("now()".equalsIgnoreCase(nullValue)){
 				this.saveAsNow = true ;
 			}else{
-				Date d = DateUtil.stringToDate(nullValue, "yyyy-MM-dd HH:mm:ss") ;
-				if(d != null){
-					this.nullDate = new Timestamp(d.getTime()) ;
-				}
+				this.nullDate = DateUtil.stringToDate(nullValue, "yyyy-MM-dd") ;
 			}
 		}
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		Timestamp ts =  rs.getTimestamp(colName) ;
+		Date d = rs.getDate(colName) ;
 		
-		if(ts == null){
+		if(d == null){
 			return this.nullDate ;
 		}
 		
-		return ts ;
+		return d ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		Timestamp ts =  rs.getTimestamp(colIndex) ;
-		if(ts == null){
+		Date d = rs.getDate(colIndex) ;
+		
+		if(d == null){
 			return this.nullDate ;
 		}
 		
-		return ts ;
+		return d ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value == null){
 			if(this.saveAsNow){
-				pstm.setTimestamp(parameterIndex, new Timestamp(new Date().getTime())) ;
+				pstm.setDate(parameterIndex, new java.sql.Date(new Date().getTime())) ;
 			}else{
-				pstm.setTimestamp(parameterIndex, this.nullDate) ;
+				if(this.nullDate == null){
+					pstm.setDate(parameterIndex, null) ;
+				}else{
+					pstm.setDate(parameterIndex, new java.sql.Date(this.nullDate.getTime())) ;
+				}
 			}
 			
 			return ;
 		}
 		
-		if(value instanceof java.sql.Timestamp){
-			pstm.setTimestamp(parameterIndex, (Timestamp) value) ;
-		}else if(value instanceof java.util.Date){
-			Timestamp ts = new Timestamp(((Date) value).getTime()) ;
-			pstm.setTimestamp(parameterIndex, ts) ;
+		if(value instanceof java.util.Date){
+			pstm.setDate(parameterIndex, new java.sql.Date(((Date) value).getTime())) ;
 		}else if(value instanceof java.sql.Date){
-			Timestamp ts = new Timestamp(((java.sql.Date) value).getTime()) ;
-			pstm.setTimestamp(parameterIndex, ts) ;
+			pstm.setDate(parameterIndex, (java.sql.Date) value) ;
 		}else{
-			throw new DataTypeException("unknown datetime type:" + value.getClass()) ;
+			throw new DataTypeException("unknown date type:" + value.getClass()) ;
 		}
 	}
 

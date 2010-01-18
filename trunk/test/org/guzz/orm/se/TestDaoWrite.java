@@ -40,7 +40,7 @@ public class TestDaoWrite extends DBBasedTestCase {
 
 	protected void prepareEnv() throws Exception{
 		for(int i = 1 ; i < 1000 ; i++){
-			executeUpdate("insert into TB_USER values(" + i + ", 'name " + i + "', 'psw " + i + "', " + (i%2==0) + ", " + i + ", now())") ;		
+			executeUpdate("insert into TB_USER values(" + i + ", 'name " + i + "', 'psw " + i + "', " + ((i%2==0)?1:0) + ", " + i + ", " + getDateFunction() + ")") ;		
 		}		
 	}
 	
@@ -69,7 +69,7 @@ public class TestDaoWrite extends DBBasedTestCase {
 		assertEquals(a.getContent(), b.getContent()) ;
 		assertEquals(a.getTitle(), b.getTitle()) ;
 		assertEquals(a.getCreatedTime(), b.getCreatedTime()) ;
-		assertEquals(b.getCreatedTime(), now) ;
+		assertEquals(b.getCreatedTime().getTime(), now.getTime()) ;
 				
 		session.close() ;
 	}
@@ -95,7 +95,7 @@ public class TestDaoWrite extends DBBasedTestCase {
 		
 		assertEquals(user2.getId(), 100) ;
 		assertEquals(user2.getUserName(), "new name of me") ;
-		assertEquals(user2.getCreatedTime(), now) ;
+		assertEquals(user2.getCreatedTime().getTime(), now.getTime()) ;
 				
 		session.close() ;
 	}

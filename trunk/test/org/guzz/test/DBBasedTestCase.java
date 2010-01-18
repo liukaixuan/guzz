@@ -52,6 +52,21 @@ public abstract class DBBasedTestCase extends TestCase {
 		}
 	}
 	
+	protected int executeUpdateNoException(String sql){
+		Statement st = null ;
+		
+		try{
+			st = conn.createStatement() ;
+			return st.executeUpdate(sql) ;
+		}catch(Exception e){
+			e.printStackTrace() ;
+		}finally{
+			CloseUtil.close(st) ;
+		}
+		
+		return 0 ;
+	}
+	
 	protected ResultSet executeQuery(String sql) throws SQLException{
 		Statement st = conn.createStatement() ;
 		
@@ -67,10 +82,22 @@ public abstract class DBBasedTestCase extends TestCase {
 	protected void rollbackEnv() throws Exception{
 		
 	}
+	
+	protected String getDateFunction(){
+//		return "sysdate" ;
+		return "now()" ;
+	}
 
 	protected void setUp() throws Exception {
 		super.setUp();
 		
+//		setUpForOracle10G() ;
+		setUpForH2() ;
+		
+		prepareEnv() ;
+	}
+	
+	protected void setUpForH2() throws Exception {
 		Class.forName("org.h2.Driver");
 		this.conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
 		
@@ -84,13 +111,31 @@ public abstract class DBBasedTestCase extends TestCase {
 		executeUpdate("insert into TB_ARTICLE values(4, 'title 4', 'content 4', now())") ;
 		
 		executeUpdate("drop table if exists TB_USER") ;
-		executeUpdate("create table TB_USER(pk int not null auto_increment primary key , userName varchar(128), password varchar(255), VIP_USER bit, FAV_COUNT int, createdTime TIMESTAMP)") ;
+		executeUpdate("create table TB_USER(pk int not null auto_increment primary key , userName varchar(128), MyPSW varchar(255), VIP_USER bit, FAV_COUNT int, createdTime TIMESTAMP)") ;
 		
 		executeUpdate("drop table if exists TB_BOOK") ;
 		executeUpdate("create table TB_BOOK(id int not null AUTO_INCREMENT primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP, ISDN varchar(64))") ;
 		executeUpdate("insert into TB_BOOK values(1, 'book title 1', 'book content 1', now(), 'isdn-b1')") ;
-				
-		prepareEnv() ;
+	}
+	
+	protected void setUpForOracle10G() throws Exception {
+		Class.forName("oracle.jdbc.driver.OracleDriver");
+		this.conn = DriverManager.getConnection("jdbc:oracle:thin:@10.64.4.31:1521:orcl", "vote", "vote");
+		
+		//创建一个表，插入一些测试数据。
+		executeUpdateNoException("drop table TB_ARTICLE") ;
+		executeUpdate("create table TB_ARTICLE(id number(10) not null primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP)") ;
+		executeUpdate("insert into TB_ARTICLE values(1, 'title 1', 'content 1', sysdate)") ;
+		executeUpdate("insert into TB_ARTICLE values(2, 'title 2', 'content 2', to_date('2009-08-26 13:45:09', 'yyyy-MM-DD HH24:MI:SS'))") ;
+		executeUpdate("insert into TB_ARTICLE values(3, 'title 3', 'content 3', sysdate)") ;
+		executeUpdate("insert into TB_ARTICLE values(4, 'title 4', 'content 4', sysdate)") ;
+		
+		executeUpdateNoException("drop table TB_USER") ;
+		executeUpdate("create table TB_USER(pk number(10) not null primary key , userName varchar(128), MyPSW varchar(255), VIP_USER number(1), FAV_COUNT number(10), createdTime TIMESTAMP)") ;
+		
+		executeUpdateNoException("drop table TB_BOOK") ;
+		executeUpdate("create table TB_BOOK(id number(10) not null primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP, ISDN varchar(64))") ;
+		executeUpdate("insert into TB_BOOK values(1, 'book title 1', 'book content 1', sysdate, 'isdn-b1')") ;
 	}
 
 	protected void tearDown() throws Exception {

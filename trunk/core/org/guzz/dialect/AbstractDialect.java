@@ -16,14 +16,18 @@
  */
 package org.guzz.dialect;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.guzz.exception.DataTypeException;
+import org.guzz.orm.type.BigDecimalSQLDataType;
 import org.guzz.orm.type.BigIntSQLDataType;
+import org.guzz.orm.type.BinarySQLDataType;
 import org.guzz.orm.type.BooleanSQLDataType;
+import org.guzz.orm.type.DateSQLDataType;
 import org.guzz.orm.type.DateTimeSQLDataType;
 import org.guzz.orm.type.DoubleSQLDataType;
 import org.guzz.orm.type.FloatSQLDataType;
@@ -31,6 +35,7 @@ import org.guzz.orm.type.IntegerSQLDataType;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.orm.type.ShortSQLDataType;
 import org.guzz.orm.type.StringSQLDataType;
+import org.guzz.orm.type.TimeSQLDataType;
 
 /**
  * 
@@ -62,7 +67,12 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put("datetime", new DateTimeSQLDataType()) ;
 		sqlTypes.put("timestamp", new DateTimeSQLDataType()) ;
 		sqlTypes.put(java.util.Date.class.getName(), new DateTimeSQLDataType()) ;
-		sqlTypes.put(java.sql.Timestamp.class.getName(), new DateTimeSQLDataType()) ;	
+		sqlTypes.put(java.sql.Timestamp.class.getName(), new DateTimeSQLDataType()) ;
+
+		sqlTypes.put("date", new DateSQLDataType()) ;
+		sqlTypes.put("time", new TimeSQLDataType()) ;
+		sqlTypes.put(java.sql.Time.class.getName(), new TimeSQLDataType()) ;
+		
 		
 		sqlTypes.put("bool", new BooleanSQLDataType()) ;
 		sqlTypes.put("boolean", new BooleanSQLDataType()) ;	
@@ -73,7 +83,10 @@ public abstract class AbstractDialect implements Dialect {
 		
 		sqlTypes.put("double", new DoubleSQLDataType()) ;
 		sqlTypes.put(Double.class.getName(), new DoubleSQLDataType()) ;
-		sqlTypes.put("money", new DoubleSQLDataType()) ;		
+		
+		sqlTypes.put("money", new BigDecimalSQLDataType()) ;	
+		sqlTypes.put("decimal", new BigDecimalSQLDataType()) ;
+		sqlTypes.put(BigDecimal.class.getName(), new BigDecimalSQLDataType()) ;		
 
 		sqlTypes.put("float", new FloatSQLDataType()) ;
 		sqlTypes.put(Float.class.getName(), new FloatSQLDataType()) ;
@@ -82,6 +95,9 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put("smallint", new ShortSQLDataType()) ;
 		sqlTypes.put("tinyint", new ShortSQLDataType()) ;
 		sqlTypes.put(Short.class.getName(), new ShortSQLDataType()) ;
+		
+		sqlTypes.put("bytes", new BinarySQLDataType()) ;
+		sqlTypes.put("binary", new ShortSQLDataType()) ;
 		
 	}
 	

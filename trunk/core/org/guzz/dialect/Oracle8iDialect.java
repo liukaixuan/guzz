@@ -16,7 +16,6 @@
  */
 package org.guzz.dialect;
 
-import org.guzz.orm.type.DateTimeSQLDataType;
 import org.guzz.orm.type.StringSQLDataType;
 
 /**
@@ -32,7 +31,6 @@ public class Oracle8iDialect extends AbstractDialect {
 		
 		this.registerUserDefinedTypes("long", new StringSQLDataType()) ;
 		this.registerUserDefinedTypes("varchar2", new StringSQLDataType()) ;
-		this.registerUserDefinedTypes("date", new DateTimeSQLDataType()) ;
 		
 		//raw/blob/clob is not supported yet.
 	}

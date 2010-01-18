@@ -118,11 +118,11 @@ public class GuzzContextImpl implements GuzzContext{
 		//1. 加载dialect初始化数据类型
 		Map ds = builder.getConfiguredDialect() ;
 		if(ds == null){
-			throw new GuzzException("dialect(s) not found.") ;
+			log.warn("dialect(s) not found.") ;
+		}else{
+			this.dialects = ds ;
+			this.defaultDialect = (Dialect) ds.get("default") ;
 		}
-		
-		this.dialects = ds ;
-		this.defaultDialect = (Dialect) ds.get("default") ;
 		
 		//2. 加载config-server信息，与配置服务器进行通讯.
 		//需要先建立数据库连接池，根据连接池情况水平分布数据库表。
@@ -140,14 +140,15 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		//2. 加载数据库连接池
 		List groups = builder.listDBGroups() ;
-		if(groups == null) throw new GuzzException("no dbgroup found.") ;
-		
-		for(int i = 0 ; i < groups.size() ; i++){
-			DBGroup m_group = (DBGroup) groups.get(i) ;
-			
-			this.dbGroupManager.put(m_group.getGroupName(), m_group) ;
-		}
-		
+		if(groups == null){
+			log.warn("no dbgroup found.") ;
+		}else{
+			for(int i = 0 ; i < groups.size() ; i++){
+				DBGroup m_group = (DBGroup) groups.get(i) ;
+				
+				this.dbGroupManager.put(m_group.getGroupName(), m_group) ;
+			}
+		}		
 		
 		//2. 加载全局ORM
 		List globalORMs = builder.listGlobalORMs() ;
