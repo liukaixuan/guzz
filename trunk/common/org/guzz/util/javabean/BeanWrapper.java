@@ -68,14 +68,14 @@ public class BeanWrapper {
 			try {
 				writeMethod.invoke(beanInstance, new Object[]{value});
 			} catch (IllegalArgumentException e) {
-				throw new ORMException("property:" + propName + " no writable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not writable in :" + this.beanClass, e) ;
 			} catch (IllegalAccessException e) {
-				throw new ORMException("property:" + propName + " no writable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not writable in :" + this.beanClass, e) ;
 			} catch (InvocationTargetException e) {
-				throw new ORMException("property:" + propName + " no writable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not writable in :" + this.beanClass, e) ;
 			}
 		}else{
-			throw new ORMException("property:" + propName + " no writable in :" + this.beanClass) ;
+			throw new ORMException("property:" + propName + " not writable in :" + this.beanClass) ;
 		}
 	}
 	
@@ -100,10 +100,10 @@ public class BeanWrapper {
 			try {
 				((GuzzProxy) beanInstance).invokeProxiedMethod(writeMethod, new Object[]{value}) ;
 			} catch (IllegalArgumentException e) {
-				throw new ORMException("property:" + propName + " no writable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not writable in :" + this.beanClass, e) ;
 			}
 		}else{
-			throw new ORMException("property:" + propName + " no writable in :" + this.beanClass) ;
+			throw new ORMException("property:" + propName + " not writable in :" + this.beanClass) ;
 		}
 	}
 	
@@ -120,14 +120,14 @@ public class BeanWrapper {
 			try {
 				writeMethod.invoke(beanInstance, new Object[]{JavaTypeHandlers.convertValueToType(value, paramClass.getName())});
 			} catch (IllegalArgumentException e) {
-				throw new ORMException("property:" + propName + " no writable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not writable in :" + this.beanClass, e) ;
 			} catch (IllegalAccessException e) {
-				throw new ORMException("property:" + propName + " no writable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not writable in :" + this.beanClass, e) ;
 			} catch (InvocationTargetException e) {
-				throw new ORMException("property:" + propName + " no writable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not writable in :" + this.beanClass, e) ;
 			}
 		}else{
-			throw new ORMException("property:" + propName + " no writable in :" + this.beanClass) ;
+			throw new ORMException("property:" + propName + " not writable in :" + this.beanClass) ;
 		}
 	}
 	
@@ -142,19 +142,19 @@ public class BeanWrapper {
 			try {
 				return readMethod.invoke(beanInstance, new Object[0]);
 			} catch (IllegalArgumentException e) {
-				throw new ORMException("property:" + propName + " no readable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not readable in :" + this.beanClass, e) ;
 			} catch (IllegalAccessException e) {
-				throw new ORMException("property:" + propName + " no readable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not readable in :" + this.beanClass, e) ;
 			} catch (InvocationTargetException e) {
-				throw new ORMException("property:" + propName + " no readable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not readable in :" + this.beanClass, e) ;
 			}
 		}else{
-			throw new ORMException("property:" + propName + " no readable in :" + this.beanClass) ;
+			throw new ORMException("property:" + propName + " not readable in :" + this.beanClass) ;
 		}
 	}
 	
 	/**
-	 * 跳过proxy的方法拦截，直接获取对象的原始值。
+	 * 跳过proxy的方法拦截，直接获取对象的原始值。避免lazy方法进行lazy调用。
 	 */
 	public Object getValueUnderProxy(Object beanInstance, String propName){
 		if(!(beanInstance instanceof GuzzProxy)){ //not proxy
@@ -163,7 +163,7 @@ public class BeanWrapper {
 		
 		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
 		if(pd == null){
-			throw new ORMException("unknow property[" + propName + "] in :" + this.beanClass) ;
+			throw new ORMException("unknown property[" + propName + "] in :" + this.beanClass) ;
 		}
 		
 		Method readMethod = pd.getReadMethod();
@@ -171,17 +171,17 @@ public class BeanWrapper {
 			try {
 				return ((GuzzProxy) beanInstance).invokeProxiedMethod(readMethod, new Object[0]) ;
 			} catch (IllegalArgumentException e) {
-				throw new ORMException("property:" + propName + " no readable in :" + this.beanClass, e) ;
+				throw new ORMException("property:" + propName + " not readable in :" + this.beanClass, e) ;
 			}
 		}else{
-			throw new ORMException("property:" + propName + " no readable in :" + this.beanClass) ;
+			throw new ORMException("property:" + propName + " not readable in :" + this.beanClass) ;
 		}
 	}
 	
 	public Method getReadMethod(String propName){
 		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
 		if(pd == null){
-			throw new ORMException("unknow property[" + propName + "] in :" + this.beanClass) ;
+			throw new ORMException("unknown property[" + propName + "] in :" + this.beanClass) ;
 		}
 		
 		return pd.getReadMethod();
@@ -190,7 +190,7 @@ public class BeanWrapper {
 	public Method getWriteMethod(String propName){
 		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
 		if(pd == null){
-			throw new ORMException("unknow property[" + propName + "] in :" + this.beanClass) ;
+			throw new ORMException("unknown property[" + propName + "] in :" + this.beanClass) ;
 		}
 		
 		return pd.getWriteMethod() ;

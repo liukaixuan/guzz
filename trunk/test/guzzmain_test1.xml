@@ -15,6 +15,7 @@
 	<tran>
 		<dbgroup name="default" masterDBConfigName="masterDB" />
 		<dbgroup name="log" masterDBConfigName="masterDB" dialectName="mysql5dialect" />
+		<dbgroup name="oracle" masterDBConfigName="oracleDB" dialectName="oracle10gdialect" />
 	</tran>
 	
 	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
@@ -24,9 +25,11 @@
 
 	<business name="user" dbgroup="default" class="org.guzz.test.User" interpret="" file="classpath:org/guzz/test/User.hbm.xml" />
 	<business name="book" class="org.guzz.test.Book" file="classpath:org/guzz/test/Book.hbm.xml" />
+	<business name="userInfo" dbgroup="oracle" class="org.guzz.test.UserInfo" file="classpath:org/guzz/test/UserInfo.hbm.xml" />
 	
 	<dialect class="org.guzz.dialect.H2Dialect"></dialect>
 	<dialect name="mysql5dialect" class="org.guzz.dialect.Mysql5Dialect" />
+	<dialect name="oracle10gdialect" class="org.guzz.dialect.Oracle10gDialect" />
 	
 	<sqlMap dbgroup="default">
 		<select id="selectUser" orm="user" dbgroup="default">

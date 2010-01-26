@@ -352,7 +352,7 @@ public class GuzzContextImpl implements GuzzContext{
 	}
 	
 	public DebugService getDebugService(){
-		return (DebugService) this.serviceManager.getService("debugService");
+		return (DebugService) this.serviceManager.getService(Service.FAMOUSE_SERVICE.GUZZ_DEBUG);
 	}
 	
 	public Dialect getDialect(String name) {

@@ -49,11 +49,13 @@ public class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 		beanWrapper = new BeanWrapper(domainClass) ;
 	}
 	
-	public void addPropertyMap(String propName, String colName, String dataType, String nullValue, ColumnDataLoader columnDataLoader){
+	public x$ORM addPropertyMap(String propName, String colName, String dataType, String nullValue, ColumnDataLoader columnDataLoader){
 		super.addPropertyMap(propName, colName, dataType, nullValue, columnDataLoader) ;
 		
 		x$ORM orm = (x$ORM) this.prop2ColsMapping.get(propName) ;
 		props.add(orm) ;
+		
+		return orm ;
 	}
 
 	protected String getColDataType(String propName, String colName, String dataType) {
@@ -81,6 +83,10 @@ public class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 		}
 		
 		return obj ;
+	}
+
+	public BeanWrapper getBeanWrapper() {
+		return beanWrapper;
 	}
 
 

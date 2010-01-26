@@ -49,6 +49,14 @@ public interface CompiledSQLManager {
 
 	public CompiledSQL buildUpdateSQL(POJOBasedObjectMapping mapping, String[] propsToUpdate) ;
 	
+	/**
+	 * build a sql to load cell00 by primary key.<br> named param for pk is:guzz_pk
+	 * 
+	 * @param object mapping 
+	 * @param columnName the column name of the database.
+	 */
+	public CompiledSQL buildLoadColumnByPkSQL(POJOBasedObjectMapping mapping, String columnName) ;
+	
 	public void addCompliedSQL(String id, CompiledSQL cs) ;
 	
 	/**

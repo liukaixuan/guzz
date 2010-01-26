@@ -26,5 +26,4 @@ package org.guzz.dialect;
 public class Oracle10gDialect extends Oracle9iDialect {
 	//same as 9i
 	
-	//FIXME: offset bug! cann't read the first row.
 }

@@ -27,6 +27,7 @@ import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.jdbc.SQLBatcher;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
+import org.guzz.pojo.ColumnDataLoader;
 
 /**
  * 
@@ -77,6 +78,13 @@ public interface WriteTranSession {
 	public Object findObjectByPK(Class domainClass, Serializable pk) ;
 	
 	public Object findObjectByPK(Class domainClass, int pk) ;
+	
+	public Object refresh(Object object, LockMode lockMode) ;
+	
+	/**
+	 * fetch the first column of the first row in the query.
+	 */
+	public Object findCell00(BindedCompiledSQL bsql, String returnType) ;
 		
 	//insert
 	public Serializable insert(Object domainObject) ;
@@ -90,6 +98,18 @@ public interface WriteTranSession {
 	public int executeUpdate(String id, Map params) ;
 	
 	public int executeUpdate(BindedCompiledSQL bsql) ;
+	
+	/**
+	 * 读取lazy属性的值。读取时，使用本tran的事务进行控制，并从主库读取数据。
+	 * <p>
+	 * 读取操作从数据库直接读取，不会查询任何缓存，也不会将读取到的结果赋值给@param domainObject
+	 * </p>
+	 * 
+	 * @param domainObject 要读取属性的对象。将根据此对象的主键进行读取。
+	 * @param propName 属性名称。属性必须是lazy属性或{@link ColumnDataLoader}，否则报错。
+	 * @throws DaoException 如果对象或者属性在数据库中不存在，抛出异常。
+	 */
+	public Object loadLazyPropForUpdate(Object domainObject, String propName) throws DaoException ;
 	
 	public void commit() ;
 	

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
+import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
@@ -327,6 +328,25 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		cs.addParamPropMapping(primaryProp, primaryProp) ;
 		
 		return cs ;
+	}
+	
+	public CompiledSQL buildLoadColumnByPkSQL(POJOBasedObjectMapping mapping, String columnName){
+		Table table = mapping.getTable() ;
+		
+		StringBuffer sb = new StringBuffer(64) ;
+		
+		sb.append("select ")
+		  .append(columnName)
+		  .append(" from ")
+		  .append(table.getTableName())
+		  .append(" where ")
+		  .append(table.getPKColName())
+		  .append("=:guzz_pk");
+		
+		CompiledSQL sqlForLoadProp = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()) ;
+		sqlForLoadProp.addParamPropMapping("guzz_pk", table.getPKPropName()) ;
+		
+		return sqlForLoadProp ;
 	}
 
 }

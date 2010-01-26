@@ -31,6 +31,7 @@ import org.dom4j.Visitor;
 import org.dom4j.VisitorSupport;
 import org.dom4j.io.SAXReader;
 import org.guzz.GuzzContextImpl;
+import org.guzz.dao.PersistListener;
 import org.guzz.exception.GuzzException;
 import org.guzz.id.AssignedIdGenerator;
 import org.guzz.id.AutoIncrementIdGenerator;
@@ -42,6 +43,7 @@ import org.guzz.id.SlientIdGenerator;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
+import org.guzz.orm.ObjectMapping.x$ORM;
 import org.guzz.orm.interpreter.AbstractBusinessInterpreter;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.SimpleTable;
@@ -165,7 +167,8 @@ public class HbmXMLBuilder {
 					
 					st.addColumn(col) ;
 					
-					map.addPropertyMap(name, column, type, null, null) ;
+					x$ORM orm = map.addPropertyMap(name, column, type, null, null) ;
+					col.setSqlDataType(orm.sqlDataType) ;
 				}else if("property".equalsIgnoreCase(e.getName())){
 					String name = e.attributeValue("name") ;
 					String type = e.attributeValue("type") ;
@@ -203,7 +206,13 @@ public class HbmXMLBuilder {
 					
 					st.addColumn(col) ;
 					
-					map.addPropertyMap(name, column, type, nullValue, col.getDataLoader()) ;
+					x$ORM orm = map.addPropertyMap(name, column, type, nullValue, col.getDataLoader()) ;
+					col.setSqlDataType(orm.sqlDataType) ;
+					
+					//是否实现了PersistListener
+					if(col.getDataLoader() instanceof PersistListener){
+						st.addPersistListener((PersistListener) col.getDataLoader()) ;
+					}
 				}
 			}
 		};

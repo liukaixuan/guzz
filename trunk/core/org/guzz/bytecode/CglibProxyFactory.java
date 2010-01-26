@@ -155,7 +155,7 @@ public class CglibProxyFactory implements ProxyFactory{
 			
 			if(lc != null){
 				//do lazy loading
-				return lc.loadObject(obj) ;
+				return lc.loadProperty(obj) ;
 			}
 			
 			if(this.recordingPropChange){

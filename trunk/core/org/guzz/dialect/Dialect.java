@@ -46,6 +46,12 @@ public interface Dialect {
 	public String getLimitedString(String sql, int offset, int limit) ;
 	
 	
+	public String getForUpdateString(String sql) ;
+	
+	
+	public String getForUpdateNoWaitString(String sql) ;
+	
+	
 	public String getSelectInsertedAutoIdClause() ;
 	
 	

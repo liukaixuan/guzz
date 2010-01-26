@@ -53,7 +53,7 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		assertEquals(map.prop2ColsMapping.size(), 4) ;
 		
 		//测试可以正确的进行db->object映射
-		ResultSet rs = executeQuery("select * from TB_ARTICLE order by id asc limit 10 " ) ;
+		ResultSet rs = executeQuery(getDefaultConn(), "select * from TB_ARTICLE order by id asc limit 10 " ) ;
 		LinkedList obs = new LinkedList() ;
 		while(rs.next()){
 			obs.add(map.rs2Object(rs)) ;

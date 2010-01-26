@@ -61,4 +61,14 @@ public class H2Dialect extends AbstractDialect {
 		return "increment";
 	}
 
+	public String getForUpdateNoWaitString(String sql) {
+		// TODO Auto-generated method stub
+		return sql;
+	}
+
+	public String getForUpdateString(String sql) {
+		// TODO Auto-generated method stub
+		return sql;
+	}
+
 }

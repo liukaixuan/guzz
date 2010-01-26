@@ -16,6 +16,7 @@
  */
 package org.guzz.orm.rdms;
 
+import org.guzz.orm.type.SQLDataType;
 import org.guzz.pojo.ColumnDataLoader;
 
 /**
@@ -41,6 +42,8 @@ public class TableColumn {
 	private boolean lazy ;
 	
 	private ColumnDataLoader columnDataLoader ;
+	
+	private SQLDataType sqlDataType ;
 
 	public String getColName() {
 		return colName;
@@ -104,6 +107,14 @@ public class TableColumn {
 
 	public void setNullValue(String nullValue) {
 		this.nullValue = nullValue;
+	}
+
+	public SQLDataType getSqlDataType() {
+		return sqlDataType;
+	}
+
+	public void setSqlDataType(SQLDataType sqlDataType) {
+		this.sqlDataType = sqlDataType;
 	}
 	
 }

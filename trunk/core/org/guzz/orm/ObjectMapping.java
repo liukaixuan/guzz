@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.pojo.ColumnDataLoader;
 import org.guzz.transaction.DBGroup;
+import org.guzz.util.javabean.BeanWrapper;
 
 /**
  * 
@@ -85,5 +86,6 @@ public interface ObjectMapping {
 	
 	public DBGroup getDbGroup() ;
 	
+	public BeanWrapper getBeanWrapper() ;
 		
 }
