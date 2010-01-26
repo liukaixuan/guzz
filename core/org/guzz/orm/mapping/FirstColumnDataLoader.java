@@ -17,39 +17,63 @@
 package org.guzz.orm.mapping;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import org.guzz.exception.DataTypeException;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.ObjectMapping.x$ORM;
+import org.guzz.orm.type.SQLDataType;
 
 /**
  * 
- * 以Object方式读取查询请求的第1列。使得ORM的结果为List<ColumnType>，如：List<Integer>等。
- *
- * TODO: support "null" attribute in hbm.xml, and finsih clob/blob loader, finish smallblob/smallclob SQLDataType
+ * 读取查询请求的第1列。使得ORM的结果为List<ColumnType>，如：List<Integer>等。
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class FirstColumnDataLoader implements RowDataLoader {
+	
+	private String propName ;
+	
+	private SQLDataType dataType ;
+	
+	private String typeName ;
+	
+	public static FirstColumnDataLoader newInstanceForProperty(String propName){
+		FirstColumnDataLoader l = new FirstColumnDataLoader() ;
+		l.propName = propName ;
+		return l ;
+	}
+	
+	public static FirstColumnDataLoader newInstanceForReturnType(String dataType){
+		FirstColumnDataLoader l = new FirstColumnDataLoader() ;
+		l.typeName = dataType ;
+		return l ;
+	}
+	
+	public static FirstColumnDataLoader newInstanceForReturnType(SQLDataType dataType){
+		FirstColumnDataLoader l = new FirstColumnDataLoader() ;
+		l.dataType = dataType ;
+		return l ;
+	}
+	
+	protected FirstColumnDataLoader(){}
 
 	public Object rs2Object(ObjectMapping mapping, ResultSet rs) throws SQLException {
-		ResultSetMetaData  meta = rs.getMetaData() ;
-		String colName = meta.getColumnName(1) ;
+		if(this.propName != null){
+			x$ORM orm = mapping.getORMByProperty(propName) ;
+			
+			return orm.loadResult(rs, null, 1) ;
+		}
 		
-		if(colName != null){
-			try{
-				x$ORM orm = mapping.getORMByColumn(colName) ;
-				return orm.loadResult(rs, null, 1) ;
-			}catch(DataTypeException e){
-				//ignore and continue
+		if(this.dataType == null){
+			this.dataType = mapping.getDbGroup().getDialect().getDataType(typeName) ;
+			
+			if(this.dataType == null){
+				throw new DataTypeException("unknown dataType:" + typeName) ;
 			}
 		}
 		
-		//TODO: using meta.getType() and dialect to find the SQLDataType.
-		//including ObjectMapping implmentments.
-		return rs.getObject(1) ;
+		return this.dataType.getSQLValue(rs, 1) ;
 	}
 
 }

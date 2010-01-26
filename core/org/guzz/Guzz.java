@@ -19,13 +19,11 @@ package org.guzz;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.sql.Blob;
-import java.sql.Clob;
 
-import org.guzz.pojo.TranBlob;
-import org.guzz.pojo.TranClob;
 import org.guzz.pojo.lob.BlobImpl;
 import org.guzz.pojo.lob.ClobImpl;
+import org.guzz.pojo.lob.TranBlob;
+import org.guzz.pojo.lob.TranClob;
 
 /**
  * 
@@ -42,7 +40,7 @@ public class Guzz {
 	 * @param bytes a byte array
 	 * @return the Blob
 	 */
-	public static Blob createBlob(byte[] bytes) {
+	public static TranBlob createBlob(byte[] bytes) {
 		return new TranBlob(new BlobImpl(bytes)) ;
 	}
 
@@ -54,7 +52,7 @@ public class Guzz {
 	 * @param length the number of bytes in the stream
 	 * @return the Blob
 	 */
-	public static Blob createBlob(InputStream stream, int length) {
+	public static TranBlob createBlob(InputStream stream, int length) {
 		return new TranBlob(new BlobImpl(stream, length)) ;
 	}
 
@@ -66,7 +64,7 @@ public class Guzz {
 	 * @return the Blob
 	 * @throws IOException
 	 */
-	public static Blob createBlob(InputStream stream) throws IOException {
+	public static TranBlob createBlob(InputStream stream) throws IOException {
 		return new TranBlob(new BlobImpl(stream, stream.available())) ;
 	}
 
@@ -76,7 +74,7 @@ public class Guzz {
 	 * 
 	 * @param string a <tt>String</tt>
 	 */
-	public static Clob createClob(String string) {
+	public static TranClob createClob(String string) {
 		return new TranClob(new ClobImpl(string)) ;
 	}
 
@@ -87,7 +85,7 @@ public class Guzz {
 	 * @param reader a character stream
 	 * @param length the number of characters in the stream
 	 */
-	public static Clob createClob(Reader reader, int length) {
+	public static TranClob createClob(Reader reader, int length) {
 		return new TranClob(new ClobImpl(reader, length)) ;
 	}
 

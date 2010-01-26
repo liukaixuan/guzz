@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.pojo;
+package org.guzz.pojo.lob;
 
 import java.io.IOException;
 import java.io.InputStream;

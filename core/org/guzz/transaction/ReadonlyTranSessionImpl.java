@@ -19,8 +19,6 @@ package org.guzz.transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.guzz.exception.DaoException;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.sql.CompiledSQLManager;
@@ -35,7 +33,7 @@ import org.guzz.util.CloseUtil;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class ReadonlyTranSessionImpl extends AbstractTranSessionImpl implements ReadonlyTranSession {
-	private static transient final Log log = LogFactory.getLog(ReadonlyTranSessionImpl.class) ;	
+//	private static transient final Log log = LogFactory.getLog(ReadonlyTranSessionImpl.class) ;	
 	
 	private boolean allowDelay ;
 	

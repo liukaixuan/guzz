@@ -36,7 +36,7 @@ import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.pojo.ColumnDataLoader;
-import org.guzz.pojo.TranBlob;
+import org.guzz.pojo.lob.TranBlob;
 import org.guzz.service.core.DebugService;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.ReadonlyTranSession;

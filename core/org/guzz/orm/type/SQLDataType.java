@@ -52,5 +52,3 @@ public interface SQLDataType {
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException ;
 
 }
-
-//TODO: 增加clob, blob类型实现。

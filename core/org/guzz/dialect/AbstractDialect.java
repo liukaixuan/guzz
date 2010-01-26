@@ -26,7 +26,9 @@ import org.guzz.exception.DataTypeException;
 import org.guzz.orm.type.BigDecimalSQLDataType;
 import org.guzz.orm.type.BigIntSQLDataType;
 import org.guzz.orm.type.BinarySQLDataType;
+import org.guzz.orm.type.BlobSQLDataType;
 import org.guzz.orm.type.BooleanSQLDataType;
+import org.guzz.orm.type.ClobSQLDataType;
 import org.guzz.orm.type.DateSQLDataType;
 import org.guzz.orm.type.DateTimeSQLDataType;
 import org.guzz.orm.type.DoubleSQLDataType;
@@ -98,6 +100,16 @@ public abstract class AbstractDialect implements Dialect {
 		
 		sqlTypes.put("bytes", new BinarySQLDataType()) ;
 		sqlTypes.put("binary", new ShortSQLDataType()) ;
+		
+		//clob
+		sqlTypes.put("clob", new ClobSQLDataType()) ;
+		sqlTypes.put(java.sql.Clob.class.getName(), new ClobSQLDataType()) ;
+		sqlTypes.put(org.guzz.pojo.lob.TranClob.class.getName(), new ClobSQLDataType()) ;
+		
+		//blob
+		sqlTypes.put("blob", new BlobSQLDataType()) ;
+		sqlTypes.put(java.sql.Blob.class.getName(), new BlobSQLDataType()) ;
+		sqlTypes.put(org.guzz.pojo.lob.TranBlob.class.getName(), new BlobSQLDataType()) ;
 		
 	}
 	

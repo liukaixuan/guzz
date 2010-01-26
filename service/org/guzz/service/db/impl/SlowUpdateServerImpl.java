@@ -43,6 +43,7 @@ import org.guzz.orm.type.StringSQLDataType;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.impl.AbstractService;
 import org.guzz.service.core.impl.IncUpdateBusiness;
+import org.guzz.service.db.SlowUpdateServer;
 import org.guzz.transaction.DBGroup;
 import org.guzz.transaction.ReadonlyTranSession;
 import org.guzz.transaction.TransactionManager;
@@ -57,7 +58,7 @@ import org.guzz.web.context.GuzzContextAware;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class SlowUpdateServerImpl extends AbstractService implements GuzzContextAware {
+public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateServer, GuzzContextAware {
 	private static transient final Log log = LogFactory.getLog(SlowUpdateServerImpl.class) ;
 	
 	private TransactionManager tm ;
