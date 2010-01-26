@@ -92,7 +92,7 @@ public class DemonQueuedThread  extends Thread{
 		this.keepRunning = false ;
 		
 		try {
-			doWithTheQueue() ;
+			this.notify() ;
 		} catch (Exception e) {
 		}
 		

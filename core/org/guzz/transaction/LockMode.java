@@ -14,30 +14,39 @@
  * limitations under the License.
  *
  */
-package org.guzz.service.core;
-
-import org.guzz.orm.sql.BindedCompiledSQL;
+package org.guzz.transaction;
 
 /**
  * 
  * 
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface DebugService {
+public class LockMode {
 	
-	public static final String DEMON_NAME_PREFIX = "gz_demon_t_" ;
+	private final int level ;
 	
-	public boolean isDebugMode() ;
+	private final String name ;
 	
-	public boolean isLogParams() ;
+	protected LockMode(String name, int level){
+		this.name = name ;
+		this.level = level ;
+	}
 	
-	public void onErrorProcess(String msg, Exception e) ;
+	public static final LockMode NONE = new LockMode("NONE", 0) ;
+	
+	public static final LockMode READ = new LockMode("READ", 5) ;
+	
+	public static final LockMode UPGRADE = new LockMode("UPGRADE", 10) ;
+	
+	public static final LockMode UPGRADE_NOWAIT = new LockMode("UPGRADE_NOWAIT", 10) ;
 
-	public void logSQL(String sql, Object[] params) ;
-	
-	public void logSQL(BindedCompiledSQL bsql) ;
-	
-	public void logSQL(BindedCompiledSQL bsql, String sqlStatment) ;
-	
+	public int getLevel() {
+		return level;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 }

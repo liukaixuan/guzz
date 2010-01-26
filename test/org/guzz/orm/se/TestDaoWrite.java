@@ -40,7 +40,7 @@ public class TestDaoWrite extends DBBasedTestCase {
 
 	protected void prepareEnv() throws Exception{
 		for(int i = 1 ; i < 1000 ; i++){
-			executeUpdate("insert into TB_USER values(" + i + ", 'name " + i + "', 'psw " + i + "', " + ((i%2==0)?1:0) + ", " + i + ", " + getDateFunction() + ")") ;		
+			executeUpdate(getDefaultConn(), "insert into TB_USER values(" + i + ", 'name " + i + "', 'psw " + i + "', " + ((i%2==0)?1:0) + ", " + i + ", " + getDateFunction() + ")") ;		
 		}		
 	}
 	
@@ -65,13 +65,22 @@ public class TestDaoWrite extends DBBasedTestCase {
 		assertEquals(a.getId(), 5) ;
 		
 		Article b = (Article) session.findObjectByPK(Article.class, new Integer(5)) ;
+		
+		session.close() ;
+		
 		assertNotNull(b) ;
 		assertEquals(a.getContent(), b.getContent()) ;
 		assertEquals(a.getTitle(), b.getTitle()) ;
 		assertEquals(a.getCreatedTime(), b.getCreatedTime()) ;
 		assertEquals(b.getCreatedTime().getTime(), now.getTime()) ;
-				
-		session.close() ;
+		
+		try{
+			assertEquals(b.getCreatedTime(), now) ;
+			
+			fail("java.sql.Timestamp shouldn't equals to java.util.Date") ;
+		}catch(Throwable e){
+			
+		}
 	}
 	
 	public void testUpdate() throws Exception{

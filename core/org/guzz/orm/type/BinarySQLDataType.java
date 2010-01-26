@@ -40,7 +40,9 @@ public class BinarySQLDataType implements SQLDataType {
 	}
 
 	public void setNullToValue(String nullValue) {
-		throw new DataTypeException("null value unsupported. nullValue is:" + nullValue) ;
+		if(nullValue != null){
+			throw new DataTypeException("null value unsupported. nullValue is:" + nullValue) ;
+		}
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {

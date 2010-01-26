@@ -27,6 +27,7 @@ import org.guzz.pojo.DynamicUpdatable;
 import org.guzz.pojo.GuzzProxy;
 import org.guzz.transaction.ReadonlyTranSession;
 import org.guzz.transaction.TransactionManager;
+import org.guzz.transaction.WriteTranSession;
 import org.guzz.util.ArrayUtil;
 import org.guzz.util.javabean.BeanWrapper;
 
@@ -88,8 +89,8 @@ public class BusinessDescriptor {
 		props.put(wrapper.getReadMethod(orm.propName).getName(), lc) ;
 	}
 	
-	public LazyColumn match(String name){
-		return (LazyColumn) props.get(name) ;
+	public LazyColumn match(String propName){
+		return (LazyColumn) props.get(propName) ;
 	}
 	
 	/**
@@ -135,11 +136,10 @@ public class BusinessDescriptor {
 		return (Integer) this.setLazyPropsMap.get(methodName) ;
 	}
 	
-	static class LazyColumn{
+	public static class LazyColumn{
 		private CompiledSQL sqlForLoadLazy ;
 		private ObjectMapping.x$ORM orm ;
 		private Table table ;
-		private String businessName ;
 		private BeanWrapper wrap ;
 		
 		private TransactionManager tm ;
@@ -147,12 +147,14 @@ public class BusinessDescriptor {
 		public LazyColumn(TransactionManager tm, Table table, String businessName, BeanWrapper wrap, ObjectMapping.x$ORM orm){
 			this.tm = tm ;
 			this.table = table ;
-			this.businessName = businessName ;
 			this.wrap = wrap ;
 			this.orm = orm ;
+			
+			String sql = "select " + orm.colName + " from " + table.getTableName() + " where " + table.getPKColName() + "=:id" ;
+			sqlForLoadLazy = tm.getCompiledSQLBuilder().buildCompiledSQL(businessName, sql) ;
 		}
 		
-		public Object loadObject(Object fetchedObject){
+		public Object loadProperty(Object fetchedObject){
 			String propToLoad = orm.propName ;
 			Object value = wrap.getValueUnderProxy(fetchedObject, propToLoad) ;
 			
@@ -171,9 +173,6 @@ public class BusinessDescriptor {
 			}else{
 				Object pkValue = wrap.getValue(fetchedObject, table.getPKPropName()) ;
 				
-				String sql = "select " + orm.colName + " from " + table.getTableName() + " where " + table.getPKColName() + "=:id" ;
-				sqlForLoadLazy = tm.getCompiledSQLBuilder().buildCompiledSQL(businessName, sql) ;
-				
 				ReadonlyTranSession session = tm.openDelayReadTran() ;
 				try{
 					value = session.findCell00(sqlForLoadLazy.bind("id", pkValue), orm.dataTypeName) ;
@@ -184,6 +183,26 @@ public class BusinessDescriptor {
 			
 			//set to cache
 			wrap.setValueUnderProxy(fetchedObject, propToLoad, value) ;
+			
+			return value ;
+		}
+		
+		/**
+		 * 从主数据库读取，不进行缓存。供写操作使用。属性读取后，不会自动set到 @param fetchedObject 中。
+		 * <p/>
+		 * 数据库异常由调用者处理。
+		 */
+		public Object getPropertyForWrite(WriteTranSession tran, Object fetchedObject){
+			Object value = null ;
+			
+			//load the value from db
+			if(orm.columnDataLoader != null){
+				value = orm.columnDataLoader.loadLazyDataForWrite(tran, fetchedObject) ;
+			}else{
+				Object pkValue = wrap.getValue(fetchedObject, table.getPKPropName()) ;
+				
+				value = tran.findCell00(sqlForLoadLazy.bind("id", pkValue), orm.dataTypeName) ;
+			}
 			
 			return value ;
 		}

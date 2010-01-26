@@ -16,6 +16,7 @@
  */
 package org.guzz.orm.rdms;
 
+import org.guzz.dao.PersistListener;
 import org.guzz.id.IdentifierGenerator;
 
 /**
@@ -55,5 +56,9 @@ public interface Table {
 	public boolean hasLazy() ;
 	
 	public boolean isDynamicUpdateEnable() ;
+	
+	public TableColumn getColumnByPropName(String propName) ;
+
+	public PersistListener[] getPersistListeners() ;
 	
 }

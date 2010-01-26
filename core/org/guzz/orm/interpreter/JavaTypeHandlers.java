@@ -63,6 +63,10 @@ public class JavaTypeHandlers {
 		}
 	}
 	
+	public static IDataTypeHandler getUnsupportedDataHandler(Class fieldType){
+		return new UnsupportedDataHandler(fieldType) ;
+	}
+	
 	/**
 	 * 将字符串转换为指定的数据类型。
 	 * @param value 要转换的字符串
@@ -140,3 +144,18 @@ class BooleanHandler implements IDataTypeHandler{
 	}
 	
 }
+
+class UnsupportedDataHandler implements IDataTypeHandler{
+	
+	private Class fieldType ;
+	
+	public UnsupportedDataHandler(Class fieldType){
+		this.fieldType = fieldType ;
+	}
+
+	public Object getValue(String fieldValue) {
+		throw new DataTypeException("unknown data type :" + fieldType) ;
+	}
+	
+}
+

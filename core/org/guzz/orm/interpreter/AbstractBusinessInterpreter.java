@@ -83,8 +83,9 @@ public abstract class AbstractBusinessInterpreter implements BusinessInterpreter
 				Class retType = m.getReturnType() ;
 				
 				try{
-					fieldHandlers.put(guessedFieldName, getConvert(retType)) ;
-					fieldHandlers.put(guessedOrginalName, getConvert(retType)) ; //避免一些全大写的变量命名，如IP。
+					IDataTypeHandler dth = getConvert(retType) ;
+					fieldHandlers.put(guessedFieldName, dth) ;
+					fieldHandlers.put(guessedOrginalName, dth) ; //避免一些全大写的变量命名，如IP。
 				}catch(Throwable e){
 					throw new InvalidConfigurationException("error while init class:[" + domainClass + "]'s method:[" + m + "], guessed field is:" + guessedFieldName, e) ;
 				}
@@ -188,14 +189,14 @@ public abstract class AbstractBusinessInterpreter implements BusinessInterpreter
 		IDataTypeHandler ihandler = (IDataTypeHandler) registeredDataTypeHandlers.get(type) ;
 		
 		if(ihandler == null){
-			throw new InvalidConfigurationException("no IDataTypeHandler found for class:" + fieldType + " in ghost:" + this.getClass()) ;
-		}				
+			if(log.isInfoEnabled()){
+				log.info("no IDataTypeHandler found for class:" + fieldType + " in ghost:" + this.getClass()) ;
+			}
+			
+			return JavaTypeHandlers.getUnsupportedDataHandler(fieldType) ;
+		}
 		
 		return ihandler ;
 	}
 
 }
-
-//TODO：添加具体ghost实例注册自己类型的Convert的接口。例如加入：registerUserType(Object... vars)
-
-

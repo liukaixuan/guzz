@@ -16,10 +16,14 @@
  */
 package org.guzz.orm.rdms;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.guzz.dao.PersistListener;
 import org.guzz.id.IdentifierGenerator;
+import org.guzz.util.ArrayUtil;
 
 /**
  * 
@@ -42,6 +46,7 @@ public class SimpleTable implements Table {
 	private IdentifierGenerator ig ;
 	
 	private List columns = new LinkedList() ;
+	private Map propColumns = new HashMap() ;
 	
 	/** 用于guzz执行领域对象select操作的属性名称 */
 	private String[] cache_columnsForSelect ;
@@ -56,7 +61,9 @@ public class SimpleTable implements Table {
 	
 	private String[] cache_lazyUpdatableProps ;
 	
-	private String[] cache_lazyProps ;	
+	private String[] cache_lazyProps ;
+	
+	private PersistListener[] persistListeners = new PersistListener[0] ;
 	
 	public SimpleTable(){
 	}
@@ -96,12 +103,18 @@ public class SimpleTable implements Table {
 	public void addColumn(TableColumn column){
 		synchronized(lock){
 			this.columns.add(column) ;
+			this.propColumns.put(column.getPropName(), column) ;
+			
 			cache_columnsForUpdate = null ;
 			cache_propsForUpdate = null ;
 			cache_columnsForInsert = null ;
 			cache_lazyUpdatableProps = null ;
 			cache_lazyProps = null ;
 		}
+	}
+	
+	public TableColumn getColumnByPropName(String propName){
+		return (TableColumn) this.propColumns.get(propName) ;
 	}
 	
 	public String[] getColumnsForUpdate() {
@@ -168,6 +181,14 @@ public class SimpleTable implements Table {
 				for(int i = 0 ; i < this.columns.size() ; i++){
 					TableColumn col = (TableColumn) this.columns.get(i) ;
 					
+					//TODO: 在配置文件中增加select属性，如果select=false，则也不加入选择。用于
+					//某些自定义加载数据源中根本没有对应数据库字段的属性。
+					//如用户头像存储在文件中，数据库并不会设计一个portraitImgData空字段与之对应。	
+					
+					//反对观点：在这种情形下，自定义属性只能是lazy模式，否则无法加载到
+					//（guzz没有办法知道那些属性需要加载，因为guzz执行的是sql语句，而不是属性查询语句。）
+					//这是guzz的一个限制。除非设计类似hql的属性查询，否则并不能解决问题。
+					
 					//should not load lazy column.
 					if(!col.isLazy()){
 						temp.addLast(col.getColName()) ;
@@ -233,6 +254,14 @@ public class SimpleTable implements Table {
 
 	public void setDynamicUpdate(boolean dynamicUpdate) {
 		this.dynamicUpdate = dynamicUpdate;
+	}
+	
+	public void addPersistListener(PersistListener listener){
+		this.persistListeners = (PersistListener[]) ArrayUtil.addToArray(this.persistListeners, listener) ;
+	}
+
+	public PersistListener[] getPersistListeners() {
+		return persistListeners;
 	}
 
 }

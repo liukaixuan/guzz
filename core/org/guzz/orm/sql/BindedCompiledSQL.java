@@ -29,6 +29,7 @@ import org.guzz.orm.mapping.FirstColumnDataLoader;
 import org.guzz.orm.mapping.MapDataLoader;
 import org.guzz.orm.mapping.RowDataLoader;
 import org.guzz.orm.type.SQLDataType;
+import org.guzz.transaction.LockMode;
 
 /**
  * 
@@ -47,6 +48,12 @@ public class BindedCompiledSQL {
 	private Map bindedParams = new HashMap() ;
 	
 	private RowDataLoader rowDataLoader ;
+	
+	private boolean exceptionOnNoRecordFound ;
+	
+	private int bindStartIndex = 1 ;
+	
+	private LockMode lockMode ;
 	
 	public BindedCompiledSQL(CompiledSQL cs){
 		this.compiledSQL = cs ;
@@ -111,9 +118,9 @@ public class BindedCompiledSQL {
 			
 			if(propName != null){
 				SQLDataType type = compiledSQL.getMapping().getSQLDataTypeOfProperty(propName) ;
-				type.setSQLValue(pstm, i + 1, value) ;
+				type.setSQLValue(pstm, i + bindStartIndex, value) ;
 			}else{ //使用jdbc自己的方式绑定。
-				pstm.setObject(i + 1, value) ;
+				pstm.setObject(i + bindStartIndex, value) ;
 			}
 			
 			
@@ -150,8 +157,46 @@ public class BindedCompiledSQL {
 	/**
 	 * 指定特殊的ORM策略，将临时覆盖在配置文件中配置默认ORM。
 	 */
-	public void setRowDataLoader(RowDataLoader rowDataLoader) {
+	public BindedCompiledSQL setRowDataLoader(RowDataLoader rowDataLoader) {
 		this.rowDataLoader = rowDataLoader;
+		return this ;
+	}
+
+	/**
+	 * throw exception if record doesn't exsit in the database. the TranSession should return null if this value is false.
+	 * <p>
+	 * affect the findCell/findObject methods.
+	 * </p>
+	 */
+	public boolean isExceptionOnNoRecordFound() {
+		return exceptionOnNoRecordFound;
+	}
+
+	/**
+	 * throw exception if record doesn't exsit in the database. the TranSession should return null if this value is false.
+	 * <p>
+	 * affect the findCell/findObject methods.
+	 * </p>
+	 */
+	public BindedCompiledSQL setExceptionOnNoRecordFound(boolean exceptionOnNoRecordFound) {
+		this.exceptionOnNoRecordFound = exceptionOnNoRecordFound;
+		return this ;
+	}
+
+	/**
+	 * set the first named param's index to bind. default is 1
+	 */
+	public void setBindStartIndex(int bindStartIndex) {
+		this.bindStartIndex = bindStartIndex;
+	}
+
+	public LockMode getLockMode() {
+		return lockMode;
+	}
+
+	public BindedCompiledSQL setLockMode(LockMode lockMode) {
+		this.lockMode = lockMode;
+		return this ;
 	}
 
 }

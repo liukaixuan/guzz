@@ -40,9 +40,10 @@ public class TestLocalFileConfigServer extends TestCase {
 		
 		Map map = PropertyUtil.loadGroupedProps(r) ;
 		assertNotNull(map) ;
-		assertEquals(map.keySet().size(), 3) ;
+		assertEquals(map.keySet().size(), 4) ;
 		assertNotNull(map.get("masterDB")) ;
 		assertNotNull(map.get("slaveDB")) ;
+		assertNotNull(map.get("oracleDB")) ;
 		assertNotNull(map.get("guzzDebug")) ;
 		assertNull(map.get("mailService")) ;
 		

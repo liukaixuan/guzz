@@ -40,7 +40,7 @@ public class TestSQLBatcher extends DBBasedTestCase {
 
 	protected void prepareEnv() throws Exception{
 		for(int i = 1 ; i < 1000 ; i++){
-			executeUpdate("insert into TB_USER values(" + i + ", 'name " + i + "', 'psw " + i + "', " + ((i%2==0)?1:0) + ", " + i + ", " + getDateFunction() + ")") ;		
+			executeUpdate(getDefaultConn(), "insert into TB_USER values(" + i + ", 'name " + i + "', 'psw " + i + "', " + ((i%2==0)?1:0) + ", " + i + ", " + getDateFunction() + ")") ;		
 		}		
 	}
 	

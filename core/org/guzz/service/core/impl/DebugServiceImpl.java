@@ -91,6 +91,18 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 			logInfo("sql:[" + sql.getSql() + "]") ;
 		}
 	}
+	
+	public void logSQL(BindedCompiledSQL bsql, String sqlStatment){
+		if(this.ignoreDemonThreadSQL && isDemonThread()){
+			return ;
+		}
+		
+		if(printSQLParams){
+			logInfo("sql:[" + sqlStatment + "], params is:[" + bsql.getBindedParams() + "]") ;
+		}else if(printSQL){
+			logInfo("sql:[" + sqlStatment + "]") ;
+		}
+	}
 
 	public void onErrorProcess(String msg, Exception e) {
 		if(this.logOnError){

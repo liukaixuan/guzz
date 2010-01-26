@@ -42,7 +42,7 @@ public interface Service {
 	static class _FamousService{
 		public final String MASTER_DATABASE = "masterDB" ;
 		public final String SLAVE_DATABASE = "slaveDB" ;
-		public final String GUZZ_DEBUG = "guzzDebug" ;
+		public final String GUZZ_DEBUG = "debugService" ;
 		public final String SLOW_UPDATE = "slowUpdate" ;
 	}
 	

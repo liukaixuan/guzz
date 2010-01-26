@@ -56,7 +56,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertNotNull(md) ;
 //		System.out.println(md.asXML()) ;
 		List elements = md.selectNodes("//business") ;
-		assertEquals(elements.size(), 3) ;
+		assertEquals(elements.size(), 4) ;
 		assertEquals(((Element) elements.get(0)).attributeValue("name"), "article") ;
 		assertEquals(((Element) elements.get(1)).attributeValue("name"), "user") ;		
 		
@@ -71,7 +71,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		Map ds = b.getConfiguredDialect() ;
 		assertNotNull(ds) ;
-		assertEquals(ds.size(), 2) ;
+		assertEquals(ds.size(), 3) ;
 		
 		Dialect d = (Dialect) ds.get("default") ;		
 		assertEquals(d.getClass().getName(), H2Dialect.class.getName()) ;
@@ -143,7 +143,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		List objects = b.listBusinessObjectMappings() ;
 		
-		assertEquals(objects.size(), 3) ;		
+		assertEquals(objects.size(), 4) ;		
 	}
 	
 	public void testLoadConfigServer() throws Exception{
@@ -207,7 +207,7 @@ public class TestMainConfigBuilder extends TestCase {
 		List gs = b.listDBGroups() ;
 		
 		assertNotNull(gs) ;
-		assertEquals(gs.size(),2) ;
+		assertEquals(gs.size(),3) ;
 		
 		//test load order
 		DBGroup g1 = (DBGroup) gs.get(0) ;

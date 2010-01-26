@@ -49,7 +49,7 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 		
 	protected abstract String getColDataType(String propName, String colName, String dataType) ;
 		
-	public void addPropertyMap(String propName, String colName, String dataType, String nullValue, ColumnDataLoader columnDataLoader){
+	public x$ORM addPropertyMap(String propName, String colName, String dataType, String nullValue, ColumnDataLoader columnDataLoader){
 		String dataType2 = getColDataType(propName, colName, dataType) ;
 		x$ORM o = null ;
 		
@@ -75,6 +75,8 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 		
 		//数据库的column名称不区分大小写。检索时全部按照小写检索。
 		col2PropsMapping.put(colName.toLowerCase(), o) ;
+		
+		return o ;
 	}
 	
 	public SQLDataType getSQLDataTypeOfColumn(String colName){

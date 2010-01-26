@@ -17,10 +17,13 @@
 package org.guzz.pojo;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.guzz.GuzzContext;
+import org.guzz.exception.DaoException;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
+import org.guzz.transaction.WriteTranSession;
 import org.guzz.web.context.GuzzContextAware;
 
 /**
@@ -62,10 +65,10 @@ public interface ColumnDataLoader {
 	 * @param indexToLoad the propName index in the resultset.
 	 * @return the returned object will be set to the pojo property.
 	 */
-	public Object loadData(ResultSet rs, Object objectFetching, int indexToLoad) ;
+	public Object loadData(ResultSet rs, Object objectFetching, int indexToLoad) throws SQLException ;
 	
 	/**
-	 * lazily load the property.
+	 * eagerly load the lazied property for read. invoked by pojo.getXXX()
 	 * <p/>
 	 * guzz would never know what you have done to fetch the property, so it could <b>NOT</b> help you release any related resources acquired. 
 	 * 
@@ -74,6 +77,19 @@ public interface ColumnDataLoader {
 	 * @return the loaded object. the object will be setted to the fetchedObject automatically.
 	 */
 	public Object loadLazyData(Object fetchedObject) ;
+
+	/**
+	 * eagerly load the lazied property for write inside a read-write transaction.
+	 * <p/>
+	 * guzz would never know what you have done to fetch the property, so it could <b>NOT</b> help you release any related resources acquired. 
+	 * 
+	 * @param tran the current opened read-write database transactional environment.
+	 * @param fetchedObject the already loaded pojo.
+	 * 
+	 * @return the loaded object. the object will <b>NOT</b> be setted to the fetchedObject automatically.
+	 * @param DaoException throw exception on @param fetchedObject doesn't exsit in the database.
+	 */
+	public Object loadLazyDataForWrite(WriteTranSession tran, Object fetchedObject) throws DaoException ;
 	
 	public void startup() ;
 	

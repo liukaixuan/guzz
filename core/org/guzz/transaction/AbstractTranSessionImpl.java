@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.dao.PageFlip;
+import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
@@ -40,6 +41,7 @@ import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.mapping.RowDataLoader;
+import org.guzz.orm.rdms.Table;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.SearchParams;
 import org.guzz.orm.sql.BindedCompiledSQL;
@@ -48,9 +50,11 @@ import org.guzz.orm.sql.CompiledSQLManager;
 import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.orm.sql.impl.SQLCompiler;
 import org.guzz.orm.type.SQLDataType;
+import org.guzz.pojo.GuzzProxy;
 import org.guzz.service.core.DebugService;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.javabean.BeanCreator;
+import org.guzz.util.javabean.BeanWrapper;
 
 /**
  * 
@@ -85,6 +89,14 @@ public class AbstractTranSessionImpl {
 		this.debugService = debugService ;
 		this.dbGroupManager = dbGroupManager ;
 		this.isReadonly = isReadonly ;
+	}
+	
+	protected String getDomainClassName(Object domainObject){
+		if(domainObject instanceof GuzzProxy){
+			return ((GuzzProxy) domainObject).getProxiedClassName() ;
+		}else{
+			return domainObject.getClass().getName() ;
+		}
 	}
 
 	public void close() {
@@ -132,18 +144,23 @@ public class AbstractTranSessionImpl {
 		}
 		RowDataLoader loader = bsql.getRowDataLoader() ;		
 		
-		DBGroup db = m.getDbGroup() ;
+		DBGroup db = m.getDbGroup() ;		
+		Dialect dialect = m.getDbGroup().getDialect() ;
+
+		//强制锁机制
+		LockMode lock = bsql.getLockMode() ;
+		
+		if(lock == LockMode.UPGRADE){
+			rawSQL = dialect.getForUpdateString(rawSQL) ;
+		}else if(lock == LockMode.UPGRADE_NOWAIT){
+			rawSQL = dialect.getForUpdateNoWaitString(rawSQL) ;
+		}
 		
 		//TODO: check if the defaultDialect supports prepared bind in limit clause, and put the limit to compiledSQL
 				
 		//add limit clause.		
 		rawSQL = db.getDialect().getLimitedString(rawSQL, startPos - 1, maxSize) ;
-		
-		if(this.debugService.isLogParams()){
-			this.debugService.logSQL(rawSQL, bsql.getBindedParams().values().toArray()) ;
-		}else{
-			this.debugService.logSQL(rawSQL, null) ;
-		}
+		this.debugService.logSQL(bsql, rawSQL) ;
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
@@ -251,11 +268,22 @@ public class AbstractTranSessionImpl {
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
 		
+		Dialect dialect = m.getDbGroup().getDialect() ;
+
+		//强制锁机制
+		LockMode lock = bsql.getLockMode() ;
+		
+		if(lock == LockMode.UPGRADE){
+			rawSQL = dialect.getForUpdateString(rawSQL) ;
+		}else if(lock == LockMode.UPGRADE_NOWAIT){
+			rawSQL = dialect.getForUpdateNoWaitString(rawSQL) ;
+		}
+		
 		RowDataLoader loader = bsql.getRowDataLoader() ;
 		
 		DBGroup db = m.getDbGroup() ;
 		
-		this.debugService.logSQL(bsql) ;
+		this.debugService.logSQL(bsql, rawSQL) ;
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
@@ -267,21 +295,25 @@ public class AbstractTranSessionImpl {
 			
 			rs = pstm.executeQuery() ;
 			
-			if(loader != null){
-				return loader.rs2Object(m, rs) ;
-			}else{
-				if(rs.next()){
-					if(returnType != null){
-						SQLDataType type = db.getDialect().getDataType(returnType) ;
-						
-						if(type == null){
-							throw new DataTypeException("unknown type:[" + returnType + "]") ;
-						}
-						
-						return type.getSQLValue(rs, 1) ;
-					}else{
-						return rs.getObject(1) ;
+			if(rs.next()){
+				if(loader != null){
+					return loader.rs2Object(m, rs) ;
+				}else if(returnType != null){
+					SQLDataType type = db.getDialect().getDataType(returnType) ;
+							
+					if(type == null){
+						throw new DataTypeException("unknown type:[" + returnType + "]") ;
 					}
+							
+					return type.getSQLValue(rs, 1) ;
+				}else{
+					return rs.getObject(1) ;
+				}
+			}else{
+				if(bsql.isExceptionOnNoRecordFound()){
+					throw new DaoException("record not found for the query:[" + rawSQL + "], params:[" + bsql.getBindedParams() + "].") ;
+				}else{
+					return null ;
 				}
 			}
 		}catch(SQLException e){
@@ -290,8 +322,69 @@ public class AbstractTranSessionImpl {
 			CloseUtil.close(rs) ;
 			CloseUtil.close(pstm) ;
 		}
+	}
+	
+	/**
+	 * @param bsql
+	 * @param returnType
+	 */
+	protected Object findCell00(BindedCompiledSQL bsql, SQLDataType returnType){
+		CompiledSQL sql = bsql.getCompiledSQL() ;
 		
-		return null ;
+		String rawSQL = sql.getSql() ;
+		ObjectMapping m = sql.getMapping() ;
+		if(m == null){
+			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
+		}
+		
+		Dialect dialect = m.getDbGroup().getDialect() ;
+
+		//强制锁机制
+		LockMode lock = bsql.getLockMode() ;
+		
+		if(lock == LockMode.UPGRADE){
+			rawSQL = dialect.getForUpdateString(rawSQL) ;
+		}else if(lock == LockMode.UPGRADE_NOWAIT){
+			rawSQL = dialect.getForUpdateNoWaitString(rawSQL) ;
+		}
+		
+		RowDataLoader loader = bsql.getRowDataLoader() ;
+		
+		DBGroup db = m.getDbGroup() ;
+		
+		this.debugService.logSQL(bsql, rawSQL) ;
+		
+		PreparedStatement pstm = null ;
+		ResultSet rs = null ;
+		
+		try{
+			Connection conn = getConnection(db) ;
+			pstm = conn.prepareStatement(rawSQL) ;
+			bsql.prepareNamedParams(db.getDialect(), pstm) ;
+			
+			rs = pstm.executeQuery() ;
+			
+			if(rs.next()){
+				if(loader != null){
+					return loader.rs2Object(m, rs) ;
+				}else if(returnType != null){
+					return returnType.getSQLValue(rs, 1) ;
+				}else{
+					return rs.getObject(1) ;
+				}
+			}else{
+				if(bsql.isExceptionOnNoRecordFound()){
+					throw new DaoException("record not found for the query:[" + rawSQL + "], params:[" + bsql.getBindedParams() + "].") ;
+				}else{
+					return null ;
+				}
+			}
+		}catch(SQLException e){
+			throw new DaoException(rawSQL, e) ;
+		}finally{
+			CloseUtil.close(rs) ;
+			CloseUtil.close(pstm) ;
+		}
 	}
 	
 	public long count(SearchExpression se) {
@@ -338,15 +431,20 @@ public class AbstractTranSessionImpl {
 		RowDataLoader loader = bsql.getRowDataLoader() ;
 		
 		DBGroup db = m.getDbGroup() ;
-		//TODO: check if the defaultDialect supports prepared bind in limit clause, and put the limit to compiledSQL
+		Dialect dialect = db.getDialect() ;
 		
-		rawSQL = db.getDialect().getLimitedString(rawSQL, 0, 1) ;
+		//强制锁机制
+		LockMode lock = bsql.getLockMode() ;
 		
-		if(this.debugService.isLogParams()){
-			this.debugService.logSQL(rawSQL, bsql.getBindedParams().values().toArray()) ;
-		}else{
-			this.debugService.logSQL(rawSQL, null) ;
+		if(lock == LockMode.UPGRADE){
+			rawSQL = dialect.getForUpdateString(rawSQL) ;
+		}else if(lock == LockMode.UPGRADE_NOWAIT){
+			rawSQL = dialect.getForUpdateNoWaitString(rawSQL) ;
 		}
+		
+		//TODO: check if the defaultDialect supports prepared bind in limit clause, and put the limit to compiledSQL
+		rawSQL = db.getDialect().getLimitedString(rawSQL, 0, 1) ;
+		this.debugService.logSQL(bsql, rawSQL) ;
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
@@ -366,6 +464,12 @@ public class AbstractTranSessionImpl {
 				}else{
 					return loader.rs2Object(m, rs) ;
 				}
+			}else{
+				if(bsql.isExceptionOnNoRecordFound()){
+					throw new DaoException("record not found for the query:[" + rawSQL + "], params:[" + bsql.getBindedParams() + "].") ;
+				}else{
+					return null ;
+				}
 			}
 		}catch(SQLException e){
 			throw new DaoException(rawSQL, e) ;
@@ -373,8 +477,6 @@ public class AbstractTranSessionImpl {
 			CloseUtil.close(rs) ;
 			CloseUtil.close(pstm) ;
 		}
-		
-		return null ;
 	}
 
 	public Object findObject(SearchExpression se) {
@@ -391,6 +493,9 @@ public class AbstractTranSessionImpl {
 	
 	public Object findObjectByPK(String businessName, Serializable pk){
 		CompiledSQL cs = this.compiledSQLManager.getDefinedSelectSQL(businessName) ;
+		if(cs == null){
+			throw new DaoException("no defined sql found for class:[" + businessName + "]. forget to register it in guzz.xml?") ;
+		}
 		
 		String[] orderedParams = cs.getOrderedParams() ;
 		
@@ -407,6 +512,31 @@ public class AbstractTranSessionImpl {
 	
 	public Object findObjectByPK(Class domainClass, int pk){
 		return findObjectByPK(domainClass.getName(), new Integer(pk)) ;
+	}
+	
+	public Object refresh(Object domainObject, LockMode lockMode){
+		String className = getDomainClassName(domainObject) ;
+		CompiledSQL cs = this.compiledSQLManager.getDefinedSelectSQL(className) ;
+		if(cs == null){
+			throw new DaoException("no defined sql found for class:[" + className + "]. forget to register it in guzz.xml?") ;
+		}
+		
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
+		Table table = mapping.getTable() ;
+		
+		BeanWrapper bw = mapping.getBeanWrapper() ;
+		Object pk = bw.getValueUnderProxy(domainObject, table.getPKPropName()) ;
+		
+		String[] orderedParams = cs.getOrderedParams() ;
+		
+		if(orderedParams.length != 1){
+			throw new DaoException("error orm! too many params in findObjectByPK. class is:" + className) ;
+		}
+		
+		BindedCompiledSQL bsql = cs.bind(orderedParams[0], pk) ;
+		bsql.setLockMode(lockMode) ;
+		
+		return findObject(bsql) ;
 	}
 
 	public JDBCTemplate createJDBCTemplate(Class domainClass) {				

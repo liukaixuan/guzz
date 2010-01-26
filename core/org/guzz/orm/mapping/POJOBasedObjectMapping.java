@@ -64,22 +64,28 @@ public class POJOBasedObjectMapping extends AbstractObjectMapping {
 		Object obj = null ;
 		
 		if(table.hasLazy() || table.isDynamicUpdateEnable()){
-			if(businessDescriptor == null){
-				BusinessDescriptor ld = new BusinessDescriptor(guzzContext.getTransactionManager(), business) ;
-				String[] lazyProps = table.getLazyProps() ;
-				for(int i = 0 ; i < lazyProps.length ; i++){
-					ld.addLazyColumn((x$ORM) this.prop2ColsMapping.get(lazyProps[i])) ;
-				}
-				
-				this.businessDescriptor = ld ;
-			}
-			
-			obj = proxyFactory.proxy(this.businessDescriptor) ;
+			obj = proxyFactory.proxy(getBusinessDescriptor()) ;
 		}else{
 			obj = BeanCreator.newBeanInstance(this.business.getDomainClass()) ;
 		}
 		
 		return obj ;
+	}
+
+	public BusinessDescriptor getBusinessDescriptor() {
+		if(businessDescriptor == null){
+			Table table = this.business.getTable() ;
+			
+			BusinessDescriptor ld = new BusinessDescriptor(guzzContext.getTransactionManager(), business) ;
+			String[] lazyProps = table.getLazyProps() ;
+			for(int i = 0 ; i < lazyProps.length ; i++){
+				ld.addLazyColumn((x$ORM) this.prop2ColsMapping.get(lazyProps[i])) ;
+			}
+			
+			this.businessDescriptor = ld ;
+		}
+		
+		return this.businessDescriptor;
 	}
 	
 	/**将当前@rs行的记录转换成Object对象并返回

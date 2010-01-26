@@ -42,6 +42,12 @@ public class Oracle8iDialect extends AbstractDialect {
 			sql = sql.substring( 0, sql.length() - 11) ;
 			isForUpdate = true ;
 		}
+		
+		boolean isForUpdateNoWait = false ;
+		if( sql.toLowerCase().endsWith(" for update nowait") ){
+			sql = sql.substring( 0, sql.length() - 18) ;
+			isForUpdateNoWait = true ;
+		}
 
 		StringBuffer sb = new StringBuffer(sql.length() + 128) ;
 		
@@ -63,6 +69,10 @@ public class Oracle8iDialect extends AbstractDialect {
 
 		if(isForUpdate ) {
 			sb.append( " for update" ) ;
+		}
+		
+		if(isForUpdateNoWait){
+			sb.append(" for update nowait") ;
 		}
 
 		return sb.toString() ;
@@ -93,6 +103,14 @@ public class Oracle8iDialect extends AbstractDialect {
 
 	public String getNativeIDGenerator() {
 		return "sequence";
+	}
+
+	public String getForUpdateNoWaitString(String sql) {
+		return sql + " for update nowait";
+	}
+
+	public String getForUpdateString(String sql) {
+		return sql + " for update";
 	}
 
 }
