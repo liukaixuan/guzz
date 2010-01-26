@@ -25,7 +25,7 @@ import org.guzz.pojo.lob.TranClob;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class UserInfo {
+public class UserInfoH2 {
 	
 	private int id ;
 	

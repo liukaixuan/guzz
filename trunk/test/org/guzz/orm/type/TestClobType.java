@@ -14,16 +14,19 @@
  * limitations under the License.
  *
  */
-package org.guzz.pojo.loader;
+package org.guzz.orm.type;
 
 import org.guzz.Configuration;
+import org.guzz.Guzz;
 import org.guzz.GuzzContext;
+import org.guzz.dialect.H2Dialect;
 import org.guzz.pojo.lob.TranClob;
 import org.guzz.test.DBBasedTestCase;
-import org.guzz.test.UserInfo;
+import org.guzz.test.UserInfoH2;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
+import org.guzz.transaction.WriteTranSessionImpl;
 
 /**
  * 
@@ -31,13 +34,14 @@ import org.guzz.transaction.WriteTranSession;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class TestClobLoader extends DBBasedTestCase {
+public class TestClobType extends DBBasedTestCase {
 
 	protected void prepareEnv() throws Exception{
 	}
 	
 	public void testInsert() throws Exception{
 		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
+		
 		TransactionManager tm = gf.getTransactionManager() ;
 				
 		WriteTranSession tran = tm.openRWTran(false) ;
@@ -50,26 +54,25 @@ public class TestClobLoader extends DBBasedTestCase {
 		String bigString = sb.toString() ;
 		sb.setLength(0) ;
 		
-		int userId = 0 ;
-		
 		try{
-			UserInfo info = new UserInfo() ;
+			UserInfoH2 info = new UserInfoH2() ;
 			info.setUserId("lily") ;
+			info.setAboutMe(Guzz.createClob(bigString)) ;
+			
 			tran.insert(info) ;
-			
-			userId = info.getId() ;
-			
+			tran.commit() ;
+		
 			assertTrue(info.getId() > 0) ;
 			
-			TranClob clob = (TranClob) tran.loadLazyPropForUpdate(info, "aboutMe") ;
+			info = (UserInfoH2) tran.refresh(info, LockMode.NONE) ;
+			TranClob clob = info.getAboutMe() ;
 			
 			assertTrue(clob != null) ;
+			assertEquals(clob.length(), bigString.length()) ;
+			assertEquals(clob.getContent(), bigString) ;
 			
-			int count = clob.setString(1, bigString) ;
+			clob.close() ;
 			
-			assertEquals(bigString.length(), count) ;
-			
-			tran.commit() ;			
 		}catch(Exception e){
 			tran.rollback() ;
 			tran.close() ;
@@ -77,24 +80,16 @@ public class TestClobLoader extends DBBasedTestCase {
 			e.printStackTrace() ;
 			fail(e.getMessage()) ;
 		}
-		
-		//test lazy load
-		try{
-			UserInfo info = (UserInfo) tran.findObjectByPK(UserInfo.class, userId) ;
-			assertTrue(info != null) ;
-			
-			assertEquals(bigString.length(), info.getAboutMe().length()) ;
-		}catch(Exception e){
-			e.printStackTrace() ;
-			fail(e.getMessage()) ;
-		}finally{
-			tran.close() ;
-		}
-		
-	}
+	}	
 	
 	public void testUpdate() throws Exception{
 		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
+		
+		//H2数据库不支lob字段update。如果使用H2进行测试，此用例无法通过为正常。
+		if( gf.getDBGroup("default").getDialect() instanceof H2Dialect){
+			return ;
+		}
+		
 		TransactionManager tm = gf.getTransactionManager() ;
 				
 		WriteTranSession tran = tm.openRWTran(false) ;
@@ -106,34 +101,16 @@ public class TestClobLoader extends DBBasedTestCase {
 		
 		String bigString = sb.toString() ;
 		sb.setLength(0) ;
-		
-		int userId = 0 ;
-		
-		UserInfo info = new UserInfo() ;
+	
+		UserInfoH2 info = new UserInfoH2() ;
 		
 		try{
 			info.setUserId("lily") ;
+			info.setAboutMe(Guzz.createClob(bigString)) ;
+			
 			tran.insert(info) ;
-			
-			userId = info.getId() ;
-			
-			assertTrue(info.getId() > 0) ;
-			
-			TranClob clob = (TranClob) tran.loadLazyPropForUpdate(info, "aboutMe") ;
-			
-			assertTrue(clob != null) ;
-			
-			int count = clob.setString(1, bigString) ;
-			
-			assertEquals(bigString.length(), count) ;
-			
 			tran.commit() ;
-			
-			info = (UserInfo) tran.refresh(info, LockMode.READ) ;
-			
-			assertEquals(info.getAboutMe().getContent(), bigString) ;
-			
-			
+		
 		}catch(Exception e){
 			tran.rollback() ;
 			
@@ -153,7 +130,7 @@ public class TestClobLoader extends DBBasedTestCase {
 			
 			tran.commit() ;
 			
-			info = (UserInfo) tran.refresh(info, LockMode.READ) ;
+			info = (UserInfoH2) tran.refresh(info, LockMode.READ) ;
 			
 			assertEquals(info.getAboutMe().getContent(), "hello world!") ;
 			

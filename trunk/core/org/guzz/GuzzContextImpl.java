@@ -218,7 +218,6 @@ public class GuzzContextImpl implements GuzzContext{
 	 * @return 如果不存在对应的服务配置：如果为dubug模式返回null，否则抛出{@link GuzzException}
 	 */
 	public DatabaseService getOrCreateDataService(String serviceName) throws GuzzException{
-		//TODO: add cache here. add destory methods.
 		try {
 			ServiceConfig[] scs = this.configServer.queryConfig(serviceName) ;
 			

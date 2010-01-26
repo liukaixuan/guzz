@@ -32,6 +32,8 @@ import org.guzz.orm.se.TestDaoWrite;
 import org.guzz.orm.se.TestSearchExpression;
 import org.guzz.orm.sql.impl.TestInnerSQLBuilder;
 import org.guzz.orm.sql.impl.TestSQLCompiler;
+import org.guzz.orm.type.TestBlobType;
+import org.guzz.orm.type.TestClobType;
 import org.guzz.pojo.loader.TestBlobLoader;
 import org.guzz.pojo.loader.TestClobLoader;
 import org.guzz.transaction.TestTranSession;
@@ -62,9 +64,12 @@ public class TestGuzz extends TestCase {
 		s.addTestSuite(TestObjectBatcher.class) ;
 		s.addTestSuite(TestSQLBatcher.class) ;
 		s.addTestSuite(TestLazyLoad.class) ;
+		
 		s.addTestSuite(TestClobLoader.class) ;
 		s.addTestSuite(TestBlobLoader.class) ;
-		
+
+		s.addTestSuite(TestBlobType.class) ;
+		s.addTestSuite(TestClobType.class) ;
 		
 		return s ;
 	}

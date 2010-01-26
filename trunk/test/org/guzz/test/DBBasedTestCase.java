@@ -123,8 +123,8 @@ public abstract class DBBasedTestCase extends TestCase {
 		executeUpdate(H2Conn, "insert into TB_BOOK values(1, 'book title 1', 'book content 1', now(), 'isdn-b1')") ;
 		
 		//prepare for clob/blob
-		executeUpdate(H2Conn, "drop table if exists TB_USER_INFO") ;
-		executeUpdate(H2Conn, "create table TB_USER_INFO(pk int not null AUTO_INCREMENT primary key , userId varchar(64), aboutMe CLOB, portraitImg BLOB)") ;
+		executeUpdate(H2Conn, "drop table if exists TB_USER_INFO2") ;
+		executeUpdate(H2Conn, "create table TB_USER_INFO2(pk int not null AUTO_INCREMENT primary key , userId varchar(64), aboutMe CLOB, portraitImg BLOB)") ;
 		
 	}
 	
@@ -133,6 +133,7 @@ public abstract class DBBasedTestCase extends TestCase {
 		this.oracleConn = DriverManager.getConnection("jdbc:oracle:thin:@10.64.4.31:1521:orcl", "vote", "vote");
 		
 		//创建seq
+		executeUpdateNoException(oracleConn, "drop SEQUENCE guzzSeq") ;
 		executeUpdateNoException(oracleConn, "CREATE SEQUENCE guzzSeq INCREMENT BY 1 START WITH 100000") ;		
 		
 		//创建一个表，插入一些测试数据。

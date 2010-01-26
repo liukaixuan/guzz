@@ -22,10 +22,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.lang.NullValue;
-import org.guzz.orm.mapping.FirstColumnDataLoader;
 import org.guzz.orm.mapping.MapDataLoader;
 import org.guzz.orm.mapping.RowDataLoader;
 import org.guzz.orm.type.SQLDataType;
@@ -39,9 +40,9 @@ import org.guzz.transaction.LockMode;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class BindedCompiledSQL {
+	private static final Log log = LogFactory.getLog(BindedCompiledSQL.class) ;
 	
 	public static final RowDataLoader MAP_ROW_DATA_LOADER = new MapDataLoader() ;
-	public static final RowDataLoader FIRST_COLUMN_ROW_DATA_LOADER = new FirstColumnDataLoader() ;
 	
 	private CompiledSQL compiledSQL ;
 	
@@ -120,11 +121,15 @@ public class BindedCompiledSQL {
 				SQLDataType type = compiledSQL.getMapping().getSQLDataTypeOfProperty(propName) ;
 				type.setSQLValue(pstm, i + bindStartIndex, value) ;
 			}else{ //使用jdbc自己的方式绑定。
+				if(log.isDebugEnabled()){
+					log.debug("bind named params without SQLDataType found, try CompiledSQL#addParamPropMapping(,) for better binding. bind param is:[" + orderParam + "], value is :[" + value + "]. sql is:" + compiledSQL.getSql()) ;
+				}
+				
 				pstm.setObject(i + bindStartIndex, value) ;
 			}
 			
 			
-//			//FIXME: This IS a BUG!! null object is not supported!!! fix it to use ObjectMapping's SQLDataType for all cases.
+//			//The code belowed warning: This IS a BUG!! null object is not supported!!! fix it to use ObjectMapping's SQLDataType for all cases.
 //			
 //			if(value instanceof NullValue){
 //				//this method only works for pojo's insert/update/delete methods

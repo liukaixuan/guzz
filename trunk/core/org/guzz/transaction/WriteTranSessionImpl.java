@@ -44,7 +44,6 @@ import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLManager;
 import org.guzz.pojo.DynamicUpdatable;
-import org.guzz.pojo.GuzzProxy;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
 import org.guzz.util.ArrayUtil;
