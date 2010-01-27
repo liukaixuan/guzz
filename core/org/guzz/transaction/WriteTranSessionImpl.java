@@ -306,7 +306,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		}
 	}
 
-	public Object loadLazyPropForUpdate(Object domainObject, String propName) {
+	public Object loadPropForUpdate(Object domainObject, String propName) {
 		String domainClassName = getDomainClassName(domainObject) ;
 		
 		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) this.omm.getObjectMappingByName(domainClassName) ;

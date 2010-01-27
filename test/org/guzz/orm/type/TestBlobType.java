@@ -176,7 +176,7 @@ public class TestBlobType extends DBBasedTestCase {
 		try{
 			
 			//测试byte[] update
-			TranBlob blob = (TranBlob) tran.loadLazyPropForUpdate(info, "portraitImg") ;
+			TranBlob blob = (TranBlob) tran.loadPropForUpdate(info, "portraitImg") ;
 			assertTrue(blob != null) ;
 			blob.truncate(0) ;
 			blob.setBytes(1, fileData) ;
@@ -188,7 +188,7 @@ public class TestBlobType extends DBBasedTestCase {
 			info.getPortraitImg().close() ;
 			
 			//测试流写入
-			blob = (TranBlob) tran.loadLazyPropForUpdate(info, "portraitImg") ;
+			blob = (TranBlob) tran.loadPropForUpdate(info, "portraitImg") ;
 			assertTrue(blob != null) ;
 			blob.truncate(0) ;
 			blob.writeIntoBlob(fis, 1) ;
