@@ -109,7 +109,7 @@ public interface WriteTranSession {
 	 * @param propName 属性名称。属性必须是lazy属性或{@link ColumnDataLoader}，否则报错。
 	 * @throws DaoException 如果对象或者属性在数据库中不存在，抛出异常。
 	 */
-	public Object loadLazyPropForUpdate(Object domainObject, String propName) throws DaoException ;
+	public Object loadPropForUpdate(Object domainObject, String propName) throws DaoException ;
 	
 	public void commit() ;
 	

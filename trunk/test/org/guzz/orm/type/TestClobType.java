@@ -123,7 +123,7 @@ public class TestClobType extends DBBasedTestCase {
 		tran = tm.openRWTran(false) ;
 		//test lazy load
 		try{
-			TranClob clob = (TranClob) tran.loadLazyPropForUpdate(info, "aboutMe") ;
+			TranClob clob = (TranClob) tran.loadPropForUpdate(info, "aboutMe") ;
 			clob.truncate(0) ;
 			
 			clob.setString(1, "hello world!") ;
