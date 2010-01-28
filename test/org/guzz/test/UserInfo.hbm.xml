@@ -10,6 +10,6 @@
         </id>
         <property name="userId" type="string" column="userId"></property> 
         <property name="aboutMe" type="string" column="aboutMe" lazy="true" loader="org.guzz.pojo.loader.TwoPhaseClobDataLoader" />
-        <property name="portraitImg" type="bytes" column="portraitImg" lazy="true" loader="org.guzz.pojo.loader.TwoPhaseBlobDataLoader"></property> 
+        <property name="portraitImg" type="bytes" column="portraitImg" lazy="false" loader="org.guzz.pojo.loader.TwoPhaseBlobDataLoader"></property> 
     </class>
 </guzz-mapping>
