@@ -24,6 +24,7 @@ import org.guzz.GuzzContext;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;
+import org.guzz.test.UserInfoH2;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
@@ -97,6 +98,11 @@ public class TestBlobLoader extends DBBasedTestCase {
 			
 			assertEquals(fileData.length, info.getPortraitImg().getContent().length) ;
 			assertArrayEquals(fileData, dataInDB) ;
+			
+			//blob不是lazy的，我们测试blob能够正常读取到。
+			info = (UserInfo) tran.findObjectByPK(UserInfo.class, userId) ;
+			assertTrue(info.getPortraitImg() != null) ;
+			
 		}catch(Exception e){
 			e.printStackTrace() ;
 			fail(e.getMessage()) ;

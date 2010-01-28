@@ -10,6 +10,6 @@
         </id>
         <property name="userId" type="string" column="userId"></property> 
         <property name="aboutMe" type="clob" column="aboutMe" lazy="true" />
-        <property name="portraitImg" type="blob" column="portraitImg" lazy="true"></property> 
+        <property name="portraitImg" type="blob" column="portraitImg" lazy="false"></property> 
     </class>
 </guzz-mapping>
