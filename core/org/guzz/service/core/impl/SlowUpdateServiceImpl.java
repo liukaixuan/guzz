@@ -28,6 +28,7 @@ import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
+import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.SlowUpdateService;
 import org.guzz.transaction.TransactionManager;
