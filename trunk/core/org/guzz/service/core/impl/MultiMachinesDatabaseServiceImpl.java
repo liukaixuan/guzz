@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.guzz.connection.DataSourceProvicer;
 import org.guzz.connection.DataSourceProviderFactory;
 import org.guzz.exception.GuzzException;
+import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.util.ArrayUtil;

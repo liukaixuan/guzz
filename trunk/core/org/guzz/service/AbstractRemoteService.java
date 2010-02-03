@@ -14,12 +14,11 @@
  * limitations under the License.
  *
  */
-package org.guzz.service.core.impl;
+package org.guzz.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.exception.GuzzException;
-import org.guzz.service.ServiceConfig;
 import org.guzz.service.remote.RemoteServiceProxy;
 import org.guzz.util.javabean.BeanCreator;
 

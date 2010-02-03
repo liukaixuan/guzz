@@ -14,11 +14,9 @@
  * limitations under the License.
  *
  */
-package org.guzz.service.core.impl;
+package org.guzz.service;
 
 import org.guzz.Service;
-import org.guzz.service.ServiceChangeCommand;
-import org.guzz.service.ServiceInfo;
 
 
 /**

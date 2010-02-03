@@ -24,6 +24,7 @@ import org.guzz.Service;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
+import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.DebugService;
 import org.guzz.util.ArrayUtil;
