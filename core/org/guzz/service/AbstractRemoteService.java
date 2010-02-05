@@ -16,8 +16,6 @@
  */
 package org.guzz.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.guzz.exception.GuzzException;
 import org.guzz.service.remote.RemoteServiceProxy;
 import org.guzz.util.javabean.BeanCreator;
@@ -29,7 +27,6 @@ import org.guzz.util.javabean.BeanCreator;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public abstract class AbstractRemoteService extends AbstractService {
-	protected transient final Log log = LogFactory.getLog(this.getClass()) ;
 	
 	protected RemoteServiceProxy remoteServiceProxy ;	
 	
