@@ -16,6 +16,8 @@
  */
 package org.guzz.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.guzz.Service;
 
 
@@ -26,6 +28,7 @@ import org.guzz.Service;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public abstract class AbstractService implements Service {
+	protected transient final Log log = LogFactory.getLog(this.getClass()) ;
 	
 	private ServiceInfo serviceInfo ;
 
