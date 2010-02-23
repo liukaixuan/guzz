@@ -35,7 +35,7 @@ import org.guzz.transaction.ReadonlyTranSession;
  */
 public class TranClob implements Clob, Serializable {
 
-	protected ReadonlyTranSession tran ;
+	protected transient ReadonlyTranSession tran ;
 	protected Clob clob ;
 	private int blobBufferSize ;
 

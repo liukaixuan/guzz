@@ -121,8 +121,8 @@ public class BindedCompiledSQL {
 				SQLDataType type = compiledSQL.getMapping().getSQLDataTypeOfProperty(propName) ;
 				type.setSQLValue(pstm, i + bindStartIndex, value) ;
 			}else{ //使用jdbc自己的方式绑定。
-				if(log.isDebugEnabled()){
-					log.debug("bind named params without SQLDataType found, try CompiledSQL#addParamPropMapping(,) for better binding. bind param is:[" + orderParam + "], value is :[" + value + "]. sql is:" + compiledSQL.getSql()) ;
+				if(log.isInfoEnabled()){
+					log.info("bind named params without SQLDataType found, try CompiledSQL#addParamPropMapping(,) for better binding. bind param is:[" + orderParam + "], value is :[" + value + "]. sql is:" + compiledSQL.getSql()) ;
 				}
 				
 				pstm.setObject(i + bindStartIndex, value) ;

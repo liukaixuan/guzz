@@ -155,13 +155,14 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 			boolean processSomething = false ;
 								
 			WriteTranSession tran = null ;
+			IncUpdateBusiness ut = null ;
 			
 			try{
 				ObjectBatcher batcher = null ;
 				int addedCount = 0 ;
 				
 				for(int i = 0 ; i < length; i++){
-					IncUpdateBusiness ut = (IncUpdateBusiness) queues[i] ;
+					ut = (IncUpdateBusiness) queues[i] ;
 					if(ut == null) continue ;
 					queues[i] = null ; //释放队列空间
 										
@@ -190,7 +191,7 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 					tran.commit() ;
 				}
 			}catch(Exception e){
-				log.equals(e) ;
+				log.error(ut, e) ;
 				
 				if(tran != null){
 					tran.rollback() ;

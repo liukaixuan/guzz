@@ -184,6 +184,7 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 				
 				//从临时表删除数据				
 				CompiledSQL deleteTempSQL = tm.getCompiledSQLBuilder().buildCompiledSQL(IncUpdateBusiness.class, "delete from @@" + IncUpdateBusiness.class.getName() + " where @id <= :id") ;
+				deleteTempSQL.addParamPropMapping("id", "id") ;
 				
 				writeSession.executeUpdate(deleteTempSQL.bind("id", maxIdNum)) ;
 				

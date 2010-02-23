@@ -16,46 +16,82 @@
  */
 package org.guzz.service;
 
-import org.guzz.exception.GuzzException;
-import org.guzz.service.remote.RemoteServiceProxy;
-import org.guzz.util.javabean.BeanCreator;
+import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import org.guzz.util.StringUtil;
 
 /**
  * 
- * 
+ * prepare {@link ExecutorService}
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public abstract class AbstractRemoteService extends AbstractService {
+public abstract class AbstractRemoteService<T> extends AbstractService {
 	
-	protected RemoteServiceProxy remoteServiceProxy ;	
+	protected ExecutorService executorService ;
+	
+	private Properties config ;
 	
 	public boolean configure(ServiceConfig[] scs) {
 		if(scs == null || scs.length == 0){
-			log.warn("remoteServiceProxy proxy not started. no configuration found.") ;
+			log.warn("remoteRPCProxy proxy not started. no configuration found.") ;
 			return false;
 		}
 		
-		//TODO: add support for many servers.
-		ServiceConfig sc = scs[0] ;
-		String protocol = (String) sc.getProps().remove("protocol") ;
-		if(protocol == null){
-			throw new GuzzException("property:[protocol] is required. it should be fcn implements RemoteServiceProxy") ;
-		}
-		
-		remoteServiceProxy = (RemoteServiceProxy) BeanCreator.newBeanInstance(protocol) ;
-		remoteServiceProxy.startup(sc.getProps()) ;
+		this.config = scs[0].getProps() ;
 		
 		return true ;
 	}
+	
+	protected ThreadFactory createThreadFactory(Properties config){
+		return Executors.defaultThreadFactory() ;
+	}
+	
+	/**
+	 * 默认使用ArrayBlockingQueue
+	 */
+	protected BlockingQueue<Runnable> createBlockingQueue(Properties config){
+		int queueSize = StringUtil.toInt(config.getProperty("queueSize"), 2048) ;
+		
+		return new ArrayBlockingQueue<Runnable>(queueSize) ;
+	}
+	
+	protected ExecutorService createExecutorService(Properties config){
+		int corePoolSize = StringUtil.toInt(config.getProperty("corePoolSize"), 5) ;
+		int maximumPoolSize = StringUtil.toInt(config.getProperty("maxPoolSize"), 50) ;
+		int keepAliveMilSeconds = StringUtil.toInt(config.getProperty("keepAliveMilSeconds"), 60000) ;
+		
+		ThreadPoolExecutor e = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveMilSeconds, TimeUnit.MILLISECONDS, createBlockingQueue(config), createThreadFactory(config)) ;
+
+		return e ;
+	}
+	
+	/**
+	 * 创建一个新的任务
+	 */
+	public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher){
+		return new FutureResult<T>(executorService, fetcher) ;
+	}
+
+	public void startup() {
+		this.executorService = createExecutorService(config) ;
+	}
 
 	public boolean isAvailable() {
-		return remoteServiceProxy != null ;
+		return executorService != null ;
 	}
 
 	public void shutdown() {
-		if(remoteServiceProxy != null){
-			remoteServiceProxy.close() ;
+		if(executorService != null){
+			executorService.shutdown() ;
+			executorService = null ;
 		}
 	}
 

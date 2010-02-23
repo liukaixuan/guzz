@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,9 +73,7 @@ import org.guzz.util.CloseUtil;
 public class GuzzContextImpl implements GuzzContext{
 	
 	private transient static final Log log = LogFactory.getLog(GuzzContext.class) ;
-	
-	Dialect defaultDialect ;
-	
+		
 	private Map dialects ;
 		
 	private DBGroupManager dbGroupManager = null ;
@@ -121,7 +120,6 @@ public class GuzzContextImpl implements GuzzContext{
 			log.warn("dialect(s) not found.") ;
 		}else{
 			this.dialects = ds ;
-			this.defaultDialect = (Dialect) ds.get("default") ;
 		}
 		
 		//2. 加载config-server信息，与配置服务器进行通讯.
@@ -164,11 +162,13 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		//4. 加载配置的sql语句
 		Map predefinedSQLs = builder.listConfiguedCompiledSQLs() ;
-		Iterator keys = predefinedSQLs.keySet().iterator() ;
+		Iterator entries = predefinedSQLs.entrySet().iterator() ;
 		
-		while(keys.hasNext()){
-			String key = (String) keys.next() ;
-			CompiledSQL cs = (CompiledSQL) predefinedSQLs.get(key) ;
+		while(entries.hasNext()){
+			Entry entry = (Entry) entries.next() ;
+			String key = (String) entry.getKey() ;
+			CompiledSQL cs = (CompiledSQL) entry.getValue() ;
+			
 			this.compiledSQLManager.addCompliedSQL(key, cs) ;
 		}			
 		

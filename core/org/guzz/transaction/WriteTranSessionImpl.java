@@ -425,7 +425,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 				//所有连接全部忽略错误，并且rollback。
 				conn.rollback() ;				
 			} catch (SQLException e) {
-				if(sb == null){
+				if(sb == null){//combine all exceptions together, and rethrow the last one.
 					sb = new StringBuffer() ;
 				}
 				
@@ -435,7 +435,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 			}
 		}
 		
-		if(ex != null){
+		if(ex != null){//if ex is not null, sb won't be null too.
 			throw new DaoException(sb.toString(), ex) ;
 		}
 	}

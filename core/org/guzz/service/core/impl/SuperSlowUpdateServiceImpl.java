@@ -244,10 +244,11 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 			Iterator i = oldOperations.values().iterator() ;			
 			ObjectBatcher batcher = null ;
 			int addedCount = 0 ;
+			IncUpdateBusiness ut = null ;
 			
 			try{
 				while(i.hasNext()){
-					IncUpdateBusiness ut = (IncUpdateBusiness) i.next() ;
+					ut = (IncUpdateBusiness) i.next() ;
 					if(ut == null) continue ;
 					
 					//执行一次同步等待，使得没有来得及完成CPU指令周期的更新操作得以执行。
@@ -275,7 +276,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 					tran.commit() ;
 				}
 			}catch(Exception e){
-				log.equals(e) ;
+				log.error(ut, e) ;
 				//成功1个是1个，不进行回滚。
 			}finally{
 				if(tran != null){

@@ -16,15 +16,16 @@
  */
 package org.guzz.service;
 
+import java.util.concurrent.Callable;
+
 /**
  * 
  * 用于实际的读取耗时操作的数据。如从网络中查询服务获取数据。
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface IFutureDataFetcher {
-	
-	/**实际的读取数据并返回，如果有错误，抛出异常。*/
-	public Object fetchData() throws Exception ;
+public interface FutureDataFetcher<T> extends Callable<T>{
+		
+	public T getDefaultData() ;
 
 }
