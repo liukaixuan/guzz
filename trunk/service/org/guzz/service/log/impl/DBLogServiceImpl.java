@@ -129,6 +129,7 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 				}
 			}catch(Exception e){
 				tran.rollback() ;
+				throw e ;
 			}finally{
 				tran.close() ;
 			}

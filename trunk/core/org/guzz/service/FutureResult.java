@@ -16,7 +16,11 @@
  */
 package org.guzz.service;
 
-import java.io.Serializable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import org.guzz.exception.ServiceExecutionException;
 
 /**
  * 
@@ -27,36 +31,104 @@ import java.io.Serializable;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class FutureResult implements Serializable {
+public class FutureResult<T> {
+		
+	protected FutureDataFetcher<T> fecther ;
 	
-	private Object result ;
+	protected Future<T> f ;
 	
-	private IFutureDataFetcher fecther ;
-	
-	public FutureResult(IFutureDataFetcher fecther){
+	public FutureResult(ExecutorService executor, FutureDataFetcher<T> fecther){
 		this.fecther = fecther ;
+		f = executor.submit(fecther) ;
 	}
 	
-	//TODO: add result waiting code, and ThreadPool/maybe SocketPool here.
-
-	public Object getResult() throws Exception{
-		return fecther.fetchData();
+	protected FutureResult(){
+	}
+	
+	//
+	public T get() throws Exception{
+		return f.get() ;
 	}
 	
 	/**
-	 * 如果出现异常，忽略异常并返回null
+	 * 如果出现异常，忽略异常并返回{@link FutureDataFetcher#getDefaultData()}
 	 */
-	public Object getResultIgnoreException(){
+	public T getIgnoreException(){
 		try {
-			return fecther.fetchData();
+			return f.get() ;
 		} catch (Exception e) {
-			//TODO: log errors
-			return null ;
 		}
+		
+		return this.fecther.getDefaultData() ;
 	}
-
-	public void setResult(Object result) {
-		this.result = result;
+	
+	public T get(long timeout, TimeUnit unit) throws Exception{
+		return f.get(timeout, unit) ;
+	}
+	
+	/**
+	 * 立即获取结果。如果任务还没有执行，或者正在执行，撤销任务。
+	 * 
+	 * @param suppressException 是否忽略异常信息。
+	 */
+	public T getNoWait(boolean suppressException){
+		if(!f.isDone()){
+			f.cancel(true) ;
+		}
+		
+		try {
+			return f.get() ;
+		} catch (Exception e) {
+			if(!suppressException){
+				throw new ServiceExecutionException(e) ;
+			}
+		}
+		
+		return fecther.getDefaultData() ;
+	}
+	
+	/**
+	 * 立即获取结果。如果任务还没有执行，撤销任务并返回。如果任务已经开始执行，等待任务完成并返回。
+	 * 
+	 * @param suppressException 是否忽略异常信息。
+	 */
+	public T getNoQueue(boolean suppressException){
+		if(!f.isDone()){
+			f.cancel(false) ;
+		}
+		
+		try {
+			return f.get() ;
+		} catch (Exception e) {
+			if(!suppressException){
+				throw new ServiceExecutionException(e) ;
+			}
+		}
+		
+		return fecther.getDefaultData() ;
+	}
+	
+	/**
+	 * 立即获取结果。如果任务还没有执行，撤销任务并返回。如果任务已经开始执行，等待指定的时间并返回。
+	 * 
+	 * @param timeout 时间
+	 * @param unit 时间单位
+	 * @param suppressException 是否忽略异常信息。
+	 */
+	public T getNoQueue(long timeout, TimeUnit unit, boolean suppressException){
+		if(!f.isDone()){
+			f.cancel(false) ;
+		}
+		
+		try {
+			return f.get(timeout, unit) ;
+		} catch (Exception e) {
+			if(!suppressException){
+				throw new ServiceExecutionException(e) ;
+			}
+		}
+		
+		return fecther.getDefaultData() ;
 	}
 
 }

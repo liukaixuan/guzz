@@ -26,7 +26,7 @@ import org.phprpc.PHPRPC_Client;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class PHPRPCServiceProxyImpl implements RemoteServiceProxy{
+public class PHPRPCServiceProxyImpl implements RemoteRPCProxy{
 	
 	private String serviceURL ;
 	
@@ -34,7 +34,7 @@ public class PHPRPCServiceProxyImpl implements RemoteServiceProxy{
 		serviceURL = props.getProperty("serviceURL") ;
 	}
 
-	public Object getRemoteService(Class serviceInterface) {
+	public Object getRemoteStub(Class serviceInterface) {
 		PHPRPC_Client client = new PHPRPC_Client(serviceURL); 
 		
 		return client.useService(serviceInterface);

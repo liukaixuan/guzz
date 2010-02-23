@@ -33,7 +33,7 @@ import org.guzz.transaction.ReadonlyTranSession;
  */
 public class TranBlob implements Blob, Serializable {
 
-	protected ReadonlyTranSession tran ;
+	protected transient ReadonlyTranSession tran ;
 	protected Blob blob ;
 	
 	private int blobBufferSize = 4096 ;

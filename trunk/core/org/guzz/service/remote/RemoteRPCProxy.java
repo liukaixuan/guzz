@@ -24,14 +24,14 @@ import java.util.Properties;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface RemoteServiceProxy {
+public interface RemoteRPCProxy {
 	
 	public void startup(Properties props) ;
 
 	/**
 	 * 获取远程对象的调用方法。返回的对象可能会被调用者缓存，并多次重复使用。
 	 */
-	public Object getRemoteService(Class serviceInterface) ;
+	public Object getRemoteStub(Class serviceInterface) ;
 	
 	/**关闭此proxy，释放相关的资源。*/
 	public void close() ;

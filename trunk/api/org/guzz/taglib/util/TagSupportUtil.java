@@ -50,7 +50,7 @@ public class TagSupportUtil {
 		}
 	}
 	
-	private static HashMap primaryTypes = new HashMap() ;
+	private static final HashMap primaryTypes = new HashMap() ;
 	static{
 		primaryTypes.put("int", int.class) ;
 		primaryTypes.put("boolean", boolean.class) ;
@@ -100,7 +100,7 @@ public class TagSupportUtil {
 	
     public static final int HIGHEST_SPECIAL = '>';
     
-    public static char[][] specialCharactersRepresentation = new char[HIGHEST_SPECIAL + 1][];
+    public static final char[][] specialCharactersRepresentation = new char[HIGHEST_SPECIAL + 1][];
     static {
         specialCharactersRepresentation['&'] = "&amp;".toCharArray();
         specialCharactersRepresentation['<'] = "&lt;".toCharArray();
