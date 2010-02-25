@@ -32,8 +32,9 @@ import org.guzz.transaction.WriteTranSessionImpl;
 import org.guzz.util.javabean.BeanWrapper;
 
 /**
- * 
- * 
+ *
+ * batcher to perform batch operations for insert/update/delete ONE domain object's instances.
+ * <p>a batcher can only be used for one single domain object's one single operation(insert, or update, or delete.</p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -42,25 +43,27 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	private WriteTranSessionImpl sessionImpl ;
 	private DebugService debugService ;
 	protected String domainClassName ;
-	
+
 	private PreparedStatement ps ;
 	private Dialect dialect ;
 	private CompiledSQL cs ;
 	private Connection conn ;
-	
+
 	//inited in the construct method to protect add/delete/update passing wrong instances.
 	private BeanWrapper bw ;
 	private String[] props ;
-	
+
+	private Class domainCls ;
+
 	/**
 	 * add:1
 	 * update:2
-	 * delelte:3 
+	 * delelte:3
 	 */
 	private int mark = 0 ;
-	
+
 	private String[] markMsg = new String[]{"", "add", "update", "delete"} ;
-	
+
 	public ObjectBatcherImpl(CompiledSQLManager compiledSQLManager, WriteTranSessionImpl sessionImpl, DebugService debugService, Dialect dialect, Connection conn, String domainClassName){
 		this.compiledSQLManager = compiledSQLManager ;
 		this.sessionImpl = sessionImpl ;
@@ -69,7 +72,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		this.conn = conn ;
 		this.domainClassName = domainClassName ;
 	}
-	
+
 	protected void preparePS(Object domainObject, int operation){
 		switch (operation) {
 			case 1:
@@ -84,25 +87,28 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			default:
 				break;
 		}
-		
+
 		if(this.cs == null){
 			throw new DaoException("no defined sql found for class:[" + domainClassName + "]. forget to register it in guzz.xml?") ;
 		}
-		
+
 		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
 		this.bw = mapping.getBeanWrapper() ;
 		this.props = cs.getOrderedParams() ;
-		
+
+		//? get the real class under (maybe) proxy ?
+		this.domainCls = domainObject.getClass() ;
+
 		String rawSQL = cs.getSql() ;
 		this.debugService.logSQL("batch:" + rawSQL, null) ;
-		
+
 		try {
 			this.ps = this.conn.prepareStatement(cs.getSql()) ;
 		} catch (SQLException e) {
 			throw new DaoException("error prepare sql:" + rawSQL + ", domainObject is:" + domainObject.getClass()) ;
 		}
 	}
-	
+
 	public void insert(Object domainObject) {
 		if(mark == 0){
 			mark = 1 ;
@@ -110,28 +116,32 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		}else if(mark != 1){
 			throw new DaoException("duplicate operations. the batch has already started for:" + markMsg[mark]) ;
 		}
-		
+
+		if(!this.domainCls.isInstance(domainObject)){
+			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
+		}
+
 		BindedCompiledSQL bsql = cs.bindNoParams() ;
-						
+
 		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
-		IdentifierGenerator ig = mapping.getTable().getIdentifierGenerator() ;		
-			
+		IdentifierGenerator ig = mapping.getTable().getIdentifierGenerator() ;
+
 		ig.preInsert(this.sessionImpl, domainObject) ;
-		
+
 		BeanWrapper bw = new BeanWrapper(domainObject.getClass()) ;
-		
+
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
 			bsql.bind(props[i], value) ;
 		}
-		
+
 		try {
 			bsql.prepareNamedParams(dialect, ps) ;
 			this.ps.addBatch() ;
 		} catch (SQLException e) {
 			throw new DaoException("error execute add. param type is:" + domainObject.getClass(), e) ;
 		}
-		
+
 		//POST ID is not supported
 //		if(pk == null){
 //			pk = ig.postInsert(this, domainObject) ;
@@ -147,14 +157,18 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		}else if(mark != 2){
 			throw new DaoException("duplicate operations. the batch has already started for:" + markMsg[mark]) ;
 		}
-		
+
+		if(!this.domainCls.isInstance(domainObject)){
+			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
+		}
+
 		BindedCompiledSQL bsql = cs.bindNoParams() ;
-			
+
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
 			bsql.bind(props[i], value) ;
 		}
-		
+
 		try {
 			bsql.prepareNamedParams(dialect, ps) ;
 			this.ps.addBatch() ;
@@ -170,14 +184,18 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		}else if(mark != 3){
 			throw new DaoException("duplicate operations. the batch has already started for:" + markMsg[mark]) ;
 		}
-		
+
+		if(!this.domainCls.isInstance(domainObject)){
+			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
+		}
+
 		BindedCompiledSQL bsql = cs.bindNoParams() ;
-		
+
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
 			bsql.bind(props[i], value) ;
 		}
-		
+
 		try {
 			bsql.prepareNamedParams(dialect, ps) ;
 			this.ps.addBatch() ;
@@ -201,7 +219,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			throw new DaoException("error execute batch update. CompiledSQL is:" + cs, e) ;
 		}
 	}
-	
+
 	public PreparedStatement getPreparedStatement(){
 		return ps ;
 	}

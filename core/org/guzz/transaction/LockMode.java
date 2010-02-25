@@ -17,28 +17,28 @@
 package org.guzz.transaction;
 
 /**
- * 
- * 
+ *
+ * row lock mode. see hibernate's LockMode for detail.
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class LockMode {
-	
+
 	private final int level ;
-	
+
 	private final String name ;
-	
+
 	protected LockMode(String name, int level){
 		this.name = name ;
 		this.level = level ;
 	}
-	
+
 	public static final LockMode NONE = new LockMode("NONE", 0) ;
-	
+
 	public static final LockMode READ = new LockMode("READ", 5) ;
-	
+
 	public static final LockMode UPGRADE = new LockMode("UPGRADE", 10) ;
-	
+
 	public static final LockMode UPGRADE_NOWAIT = new LockMode("UPGRADE_NOWAIT", 10) ;
 
 	public int getLevel() {
