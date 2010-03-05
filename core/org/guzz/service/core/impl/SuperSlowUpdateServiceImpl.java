@@ -24,13 +24,13 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.guzz.Guzz;
 import org.guzz.GuzzContext;
 import org.guzz.exception.GuzzException;
 import org.guzz.exception.ORMException;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
-import org.guzz.orm.rdms.Table;
 import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.SlowUpdateService;
@@ -77,7 +77,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 	
 	private Object insertLock = new Object() ;
 	
-	public void updateCount(String businessName, String propToUpdate, Serializable pkValue, int countToInc){
+	public void updateCount(String businessName, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc){
 		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) omm.getObjectMappingByName(businessName) ;
 		
 		if(mapping == null){
@@ -90,14 +90,16 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 			throw new ORMException("unknown property:[" + propToUpdate + "], business name:[" + businessName + "]") ;
 		}
 		
-		updateCount(mapping.getDbGroup().getGroupName(), mapping.getTable(), columnToUpdate, pkValue, countToInc) ;
+		tableCondition = tableCondition == null ? Guzz.getTableCondition() : tableCondition ;
+		
+		updateCount(mapping.getDbGroup().getGroupName(), mapping.getTable().getTableName(tableCondition), columnToUpdate, mapping.getTable().getPKColName(), pkValue, countToInc) ;
 	}
 	
-	public void updateCount(Class domainClass, String propToUpdate, Serializable pkValue, int countToInc){
-		updateCount(domainClass.getName(), propToUpdate, pkValue, countToInc) ;
+	public void updateCount(Class domainClass, Object tableCondtion, String propToUpdate, Serializable pkValue, int countToInc){
+		updateCount(domainClass.getName(), tableCondtion, propToUpdate, pkValue, countToInc) ;
 	}
 	
-	public void updateCount(String dbGroup, Table table, String columnToUpdate, Serializable pkValue, int countToInc) {
+	public void updateCount(String dbGroup, String tableName, String columnToUpdate, String pkColName, Serializable pkValue, int countToInc) {
 		if(!isAvailable()){
 			throw new GuzzException("superSlowUpdateService is not available. use the config server's [slowUpdate] to active this service.") ;
 		}
@@ -106,7 +108,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 		StringBuffer sb = new StringBuffer(32) ;		
 		sb.append(pkValue)
 		  .append(columnToUpdate) 
-		  .append(table.getTableName())
+		  .append(tableName)
 		  .append(dbGroup) ;
 		
 		String key = sb.toString() ;
@@ -130,8 +132,8 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 			}
 			
 			//release lock as soon as possible.
-			ut.setTableName(table.getTableName()) ;
-			ut.setPkColunName(table.getPKColName()) ;
+			ut.setTableName(tableName) ;
+			ut.setPkColunName(pkColName) ;
 			
 			ut.setColumnToUpdate(columnToUpdate) ;
 			ut.setPkValue(pkValue.toString()) ;

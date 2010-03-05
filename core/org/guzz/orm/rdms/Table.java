@@ -27,7 +27,18 @@ import org.guzz.id.IdentifierGenerator;
  */
 public interface Table {
 	
-	public String getTableName() ;
+	/**
+	 * get the table name. if the table is not a shadow one, pass null as the parameter.
+	 */
+	public String getTableName(Object tableCondition) ;
+	
+	public boolean isShadow() ;
+	
+	/**
+	 * return the configured tabled name 
+	 * 
+	 */
+	public String getConfigTableName() ;
 	
 	public String getPKColName() ;
 	
@@ -60,5 +71,10 @@ public interface Table {
 	public TableColumn getColumnByPropName(String propName) ;
 
 	public PersistListener[] getPersistListeners() ;
+	
+	/**
+	 * 获得对象形式的表名称。如：@@user
+	 */
+	public String getBusinessShape() ;
 	
 }

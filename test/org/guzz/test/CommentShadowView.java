@@ -14,25 +14,30 @@
  * limitations under the License.
  *
  */
-package org.guzz.jdbc;
+package org.guzz.test;
 
-import java.sql.PreparedStatement;
-
+import org.guzz.exception.GuzzException;
+import org.guzz.orm.AbstractShadowTableView;
 
 /**
  * 
- * 批处理执行器，用于执行批量操作。
+ * 
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface Batcher {
-	
-	/**
-	 * @see PreparedStatement#executeBatch()
-	 */
-	public int[] executeUpdate() ;
-	
-	/**@see PreparedStatement#clearBatch()*/
-	public void clearBatch() ;
+public class CommentShadowView extends AbstractShadowTableView {
+
+	public String toTableName(Object tableCondition) {
+		if(tableCondition == null){ //强制要求必须设置表分切条件，避免编程时疏忽。
+			throw new GuzzException("null table conditon not allowed.") ;
+		}
 		
+		User u = (User) tableCondition ;
+		
+		//如果用户ID为偶数，记入TB_COMMENT1, 否则写入TB_COMMENT2
+		int i = u.getId() % 2 + 1 ;
+		
+		return super.getConfiguredTableName() + i;
+	}
+
 }

@@ -18,8 +18,6 @@ package org.guzz.service.core;
 
 import java.io.Serializable;
 
-import org.guzz.orm.rdms.Table;
-
 /**
  * 
  * 延迟更新数据库服务，用于更新有大量操作的计数器。<br>
@@ -38,17 +36,18 @@ public interface SlowUpdateService {
 	 * 更新一个计数。
 	 * 
 	 * @param dbGroup 要更新的数据库表所在的数据库组
-	 * @param table 要更新的数据库表
+	 * @param tableName 要更新的数据库表名
 	 * @param columnToUpdate 要更新的字段
+	 * @param pkColName 对象的主键字段名称
 	 * @param pk 对象的主键值
 	 * @param countToInc
 	 */
-	public void updateCount(String dbGroup, Table table, String columnToUpdate, Serializable pkValue, int countToInc) ;
+	public void updateCount(String dbGroup, String tableName, String columnToUpdate, String pkColName, Serializable pkValue, int countToInc) ;
 	
 	
-	public void updateCount(String businessName, String propToUpdate, Serializable pkValue, int countToInc) ;
+	public void updateCount(String businessName, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc) ;
 	
 	
-	public void updateCount(Class domainClass, String propToUpdate, Serializable pkValue, int countToInc) ;
+	public void updateCount(Class domainClass, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc) ;
 
 }

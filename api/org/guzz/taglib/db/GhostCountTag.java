@@ -41,6 +41,7 @@ public class GhostCountTag extends SummonTag {
 
 	protected Object summonGhosts(Business business, List conditions) throws JspException, IOException {
 		SearchExpression se = SearchExpression.forBusiness(business.getName()) ;
+		se.setTableCondition(getTableCondition()) ;
 		
 		if(selectPhrase != null){
 			se.setCountSelectPhrase(selectPhrase) ;

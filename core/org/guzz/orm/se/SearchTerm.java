@@ -32,5 +32,6 @@ public interface SearchTerm {
 //	public Map getParameters() ;
 	
 	//TODO: 改进方法，使得SearchTerm直接产出CompliedSQL，避免NamedParameter的转换步骤。
+	//追加事项：注册shadow table
 
 }

@@ -45,6 +45,14 @@
     </attribute>
     <attribute>
         <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx). The boundary's tableCondtion also affects the g:inc tag insided.
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
 			is parent taglib's condition took into this tag?
         </description>
         <name>inherit</name>
@@ -139,6 +147,14 @@
         <name>business</name>
         <required>true</required>
         <rtexprvalue>true</rtexprvalue>
+    </attribute>    
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
         <description>
@@ -192,6 +208,14 @@
     </attribute>
     <attribute>
         <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
 			Condition
         </description>
         <name>limit</name>
@@ -230,6 +254,14 @@
         </description>
         <name>business</name>
         <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
         <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
@@ -308,6 +340,14 @@
         </description>
         <name>business</name>
         <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
         <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
@@ -548,6 +588,14 @@
         </description>
         <name>business</name>
         <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
         <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>

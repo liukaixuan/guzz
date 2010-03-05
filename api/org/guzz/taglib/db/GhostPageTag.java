@@ -80,6 +80,7 @@ public class GhostPageTag extends SummonTag {
 		
 		
 		SearchExpression se = SearchExpression.forBusiness(business.getName(), pageNo, pageSize) ;
+		se.setTableCondition(getTableCondition()) ;
 		se.setSkipCount(skipCount) ;
 		se.and(conditions) ;
 		if(StringUtil.notEmpty(orderBy)){

@@ -23,6 +23,7 @@ import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
+import org.guzz.util.ArrayUtil;
 
 
 /**
@@ -44,7 +45,7 @@ public class SQLCompiler {
 		CompiledSQL cs = new CompiledSQL() ;
 		cs.setMapping(ms.getMapping()) ;
 		
-		String sql = translateMark(ms) ;
+		String sql = translateMark(cs, ms) ;
 		
 		StringBuffer sb = new StringBuffer(sql) ;
 		StringBuffer newsb = new StringBuffer(sb.length() + 16) ;
@@ -94,7 +95,7 @@ public class SQLCompiler {
 	
 	
 	/**将java属性转换为sql字段，sql表等。通过此方法后，返回的string为携带named param的sql语句。*/
-	protected String translateMark(MarkedSQL ms){
+	protected String translateMark(CompiledSQL cs, MarkedSQL ms){
 		ObjectMapping mapping = ms.getMapping() ;
 		StringBuffer sb = new StringBuffer(ms.getOrginalSQL()) ;
 		StringBuffer newsb = new StringBuffer(sb.length() + 16) ;
@@ -118,9 +119,9 @@ public class SQLCompiler {
 				throw new ORMException("too many @@@ marks.") ;
 			}
 			
-			if(c == ' ' || c == '=' || c == ',' ||c == ')' ||c == '\'' ||c == '"' ||i == length - 1){//变量替换结束。
+			if(c == ' ' || c == '	' || c == '=' || c == ',' ||c == '('  ||c == ')' ||c == '\'' ||c == '"' ||i == length - 1){//变量替换结束。
 				String m_mark ;
-				if(!(c == ' ' || c == '=' || c == ',' ||c == ')' ||c == '\'' ||c == '"' )){//到达字符串最后了。不能使用if(i == length -1)判断，因为符合")"可能也是最后一个字符。
+				if(!(c == ' '  || c == '	' || c == '=' || c == ',' ||c == '(' ||c == ')' ||c == '\'' ||c == '"' )){//到达字符串最后了。不能使用if(i == length -1)判断，因为符合")"可能也是最后一个字符。
 					i++ ;//向前多走一个字符
 				}
 				
@@ -135,9 +136,24 @@ public class SQLCompiler {
 					newsb.append(colName) ;
 					
 				}else{//表替换
-					Table m_table = omm.getTableByGhostName(m_mark) ;
+					Table m_table = null ;
+					
+					//表可能是local orm的映射，而local orm在oom中并没有注册，需要从传入的ObjectMapping中获取。
+					if(ArrayUtil.inArray(mapping.getUniqueName(), m_mark)){
+						m_table = mapping.getTable() ;
+					}
+					
+					if(m_table == null){
+						m_table = omm.getTableByGhostName(m_mark) ;
+					}					
+					
 					if(m_table != null){
-						newsb.append(m_table.getTableName()) ;
+						if(m_table.isShadow()){
+							newsb.append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL).append(m_mark) ;
+							cs.addShadowMapping(m_mark, m_table) ;
+						}else{
+							newsb.append(m_table.getConfigTableName()) ;
+						}
 					}else{
 						throw new DaoException("unknown table mark:" + m_mark) ;
 					}

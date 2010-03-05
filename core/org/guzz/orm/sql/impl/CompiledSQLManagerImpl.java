@@ -25,6 +25,7 @@ import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
+import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.util.StringUtil;
 
 /**
@@ -108,8 +109,8 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		StringBuffer sb_insert = new StringBuffer() ;
 		
 		sb_insert.append("insert into ")
-				 .append(mapping.getTable()
-				 .getTableName())
+				 .append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL)
+				 .append(mapping.getBusiness().getName())
 				 .append("(") ;
 		
 		boolean firstProp = true ;
@@ -160,7 +161,9 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		HashMap paramPropMapping = new HashMap() ;
 		
 		sb_insert.append("insert into ")
-				 .append(mapping.getTable().getTableName()).append("(") ;
+				 .append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL)
+				 .append(mapping.getBusiness().getName())
+				 .append("(") ;
 		
 		for(int i = 0 ; i < columns.length ; i++){
 			if(i > 0){
@@ -194,14 +197,17 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		String primaryKey = mapping.getTable().getPKColName() ;
 		String primaryProp = mapping.getTable().getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
 		HashMap paramPropMapping = new HashMap() ;
 		
 		sb.append("update ")
-		  .append(mapping.getTable().getTableName()).append(" set ") ;
+		  .append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL)
+		  .append(mapping.getBusiness().getName())
+//		  .append(mapping.getTable().getTableName())
+		  .append(" set ") ;
 		
 		boolean firstProp = true ;
 		for(int i = 0 ; i < columns.length ; i++){
@@ -234,13 +240,15 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		String primaryKey = mapping.getTable().getPKColName() ;
 		String primaryProp = mapping.getTable().getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
 		
 		sb.append("delete from ")
-		  .append(mapping.getTable().getTableName())
+		  .append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL)
+		  .append(mapping.getBusiness().getName())
+//		  .append(mapping.getTable().getTableName())
 		  .append(" where ")		  
 		  .append(primaryKey)
 		  .append("=:")
@@ -259,7 +267,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		String[] columns = mapping.getTable().getColumnsForSelect() ;
 		
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -277,7 +285,9 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		}
 		
 		sb.append(" from ")
-		  .append(mapping.getTable().getTableName())
+		  .append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL)
+		  .append(mapping.getBusiness().getName())
+//		  .append(mapping.getTable().getTableName())
 		  .append(" where ")		  
 		  .append(primaryKey)
 		  .append("=:")
@@ -294,14 +304,17 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		String primaryKey = mapping.getTable().getPKColName() ;
 		String primaryProp = mapping.getTable().getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
 		HashMap paramPropMapping = new HashMap() ;
 		
 		sb.append("update ")
-		  .append(mapping.getTable().getTableName()).append(" set ") ;
+		  .append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL)
+		  .append(mapping.getBusiness().getName())
+//		  .append(mapping.getTable().getTableName())
+		  .append(" set ") ;
 		
 		boolean firstProp = true ;
 		for(int i = 0 ; i < propsToUpdate.length ; i++){
@@ -338,7 +351,9 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		sb.append("select ")
 		  .append(columnName)
 		  .append(" from ")
-		  .append(table.getTableName())
+		  .append(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL)
+		  .append(mapping.getBusiness().getName())
+//		  .append(table.getTableName())
 		  .append(" where ")
 		  .append(table.getPKColName())
 		  .append("=:guzz_pk");

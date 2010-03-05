@@ -142,5 +142,13 @@ public abstract class AbstractDialect implements Dialect {
 		
 		throw new DataTypeException("column type[" + colType + "] unsupported.") ;
 	}
+
+	public String getForUpdateNoWaitString(String sql) {
+		return getForUpdateString(sql) ;
+	}
+
+	public String getForUpdateString(String sql) {
+		return sql + " for update" ;
+	}
 	
 }

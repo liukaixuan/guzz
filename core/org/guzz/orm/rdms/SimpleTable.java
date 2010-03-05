@@ -23,6 +23,8 @@ import java.util.Map;
 
 import org.guzz.dao.PersistListener;
 import org.guzz.id.IdentifierGenerator;
+import org.guzz.orm.ShadowTableView;
+import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.util.ArrayUtil;
 
 /**
@@ -65,15 +67,38 @@ public class SimpleTable implements Table {
 	
 	private PersistListener[] persistListeners = new PersistListener[0] ;
 	
+	private ShadowTableView shadowTableView ;
+	
+	private String businessName ;
+	
 	public SimpleTable(){
 	}
 
+	public String getTableName(Object tableCondition) {
+		if(shadowTableView == null){
+			return tableName ;
+		}else{
+			return shadowTableView.toTableName(tableCondition) ;
+		}
+	}
+
+	public boolean isShadow() {
+		return shadowTableView != null ;
+	}
+	
+	public String getConfigTableName(){
+		return tableName ;
+	}
+	
 	public String getTableName() {
 		return tableName;
 	}
 
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
+		if(this.shadowTableView != null){
+			this.shadowTableView.setConfiguredTableName(tableName) ;
+		}
 	}
 
 	public String getPKColName() {
@@ -262,6 +287,28 @@ public class SimpleTable implements Table {
 
 	public PersistListener[] getPersistListeners() {
 		return persistListeners;
+	}
+
+
+	public ShadowTableView getShadowTableView() {
+		return shadowTableView;
+	}
+
+
+	public void setShadowTableView(ShadowTableView shadowTableView) {
+		this.shadowTableView = shadowTableView;
+	}
+
+	public String getBusinessName() {
+		return businessName;
+	}
+
+	public void setBusinessName(String businessName) {
+		this.businessName = businessName;
+	}
+	
+	public String getBusinessShape(){
+		return MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName ;
 	}
 
 }

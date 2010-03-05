@@ -54,6 +54,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	private String[] props ;
 
 	private Class domainCls ;
+	
+	private Object tableCondition ;
 
 	/**
 	 * add:1
@@ -99,13 +101,13 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		//? get the real class under (maybe) proxy ?
 		this.domainCls = domainObject.getClass() ;
 
-		String rawSQL = cs.getSql() ;
+		String rawSQL = cs.bindNoParams().setTableCondition(this.tableCondition).getSql() ;
 		this.debugService.logSQL("batch:" + rawSQL, null) ;
 
 		try {
-			this.ps = this.conn.prepareStatement(cs.getSql()) ;
+			this.ps = this.conn.prepareStatement(rawSQL) ;
 		} catch (SQLException e) {
-			throw new DaoException("error prepare sql:" + rawSQL + ", domainObject is:" + domainObject.getClass()) ;
+			throw new DaoException("error prepare sql:[" + rawSQL + "], domainObject is:" + domainObject.getClass()) ;
 		}
 	}
 
@@ -222,6 +224,18 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 
 	public PreparedStatement getPreparedStatement(){
 		return ps ;
+	}
+
+	public Object getTableCondition() {
+		return tableCondition;
+	}
+
+	public void setTableCondition(Object tableCondition) {
+		if(mark != 0){ //sql已经准备完毕了，不允许在更改。避免同一个对象映射到多个表在1个batch中执行。
+			throw new DaoException("batch has already started. please setTableCondtion before invoking insert/update/delete method.") ;
+		}
+		
+		this.tableCondition = tableCondition;
 	}
 
 }

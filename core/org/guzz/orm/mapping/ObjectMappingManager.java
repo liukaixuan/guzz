@@ -19,7 +19,6 @@ package org.guzz.orm.mapping;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 
@@ -51,13 +50,22 @@ public class ObjectMappingManager {
 			ghostVSOMs.put(names[i], map) ;
 		}
 		
-		if(map instanceof POJOBasedObjectMapping){
-			POJOBasedObjectMapping pm = (POJOBasedObjectMapping) map ;
-			Business business = pm.getBusiness() ;
-			
-			ghostVSTables.put(business.getDomainClass().getName(), pm.getTable()) ;
-			ghostVSTables.put(business.getName(), pm.getTable()) ;
+		Table table = map.getTable() ;
+		
+		if(table != null){
+			String[] ids = map.getUniqueName() ;
+			for(int i = 0 ; i < ids.length ; i++){
+				ghostVSTables.put(ids[i], table) ;
+			}
 		}
+		
+//		if(map instanceof POJOBasedObjectMapping){
+//			POJOBasedObjectMapping pm = (POJOBasedObjectMapping) map ;
+//			Business business = pm.getBusiness() ;
+//			
+//			ghostVSTables.put(business.getDomainClass().getName(), pm.getTable()) ;
+//			
+//		}
 	}
 	
 

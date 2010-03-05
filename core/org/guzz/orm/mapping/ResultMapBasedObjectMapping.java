@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.guzz.orm.rdms.Table;
 import org.guzz.pojo.ColumnDataLoader;
 import org.guzz.transaction.DBGroup;
 import org.guzz.util.StringUtil;
@@ -34,19 +35,22 @@ import org.guzz.util.javabean.BeanWrapper;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class ResultMapBasedObjectMapping extends AbstractObjectMapping {
-	private String id ;
+	private final String id ;
 	
-	private Class domainClass ;
+	private final Class domainClass ;
 	
-	private BeanWrapper beanWrapper ;
+	private final BeanWrapper beanWrapper ;
 	
-	private List props = new LinkedList() ;
+	private final List props = new LinkedList() ;
+	
+	private final Table table ;
 		
-	public ResultMapBasedObjectMapping(DBGroup dbGroup, String id, Class domainClass){
+	public ResultMapBasedObjectMapping(DBGroup dbGroup, String id, Class domainClass, Table table){
 		super(dbGroup) ;
 		this.id = id ;
 		this.domainClass = domainClass ;
 		beanWrapper = new BeanWrapper(domainClass) ;
+		this.table = table ;
 	}
 	
 	public x$ORM addPropertyMap(String propName, String colName, String dataType, String nullValue, ColumnDataLoader columnDataLoader){
@@ -88,6 +92,12 @@ public class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 	public BeanWrapper getBeanWrapper() {
 		return beanWrapper;
 	}
-
+	
+	/**
+	 * 获取ResultMap的table对象。此对象一般仅包含tableName和shadow支持，也可能为null。
+	 */
+	public Table getTable(){
+		return table ;
+	}
 
 }

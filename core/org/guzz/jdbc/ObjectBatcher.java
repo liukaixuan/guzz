@@ -23,6 +23,10 @@ import org.guzz.id.IdentifierGenerator;
  * 
  * 用于处理领域对象的批处理器。此处理器可以处理增删改操作，但是每个 {@link ObjectBatcher} 只允许进行一种操作。
  * <p/>例如已经调用了add(...)方法后，update和delete便不允许再调用。
+ * 
+ * <p>
+ * one ObjectBatcher works only for one table. If the object is shadow, every real table should apply a ObjectBatcher separately.
+ * <p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

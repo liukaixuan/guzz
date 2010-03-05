@@ -50,26 +50,30 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		
 		MarkedSQL ms = new MarkedSQL(map, sql) ;
 		
-		sql = sc.translateMark(ms) ;
+		sql = sc.translateMark(null, ms) ;
 		assertEquals(sql, "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 ") ;
 		
 		//测试@prop在sql最后的情况。
 		ms = new MarkedSQL(map, "select @id, @title, DESCRIPTION, @createdTime from TB_ARTICLE order by id asc limit 10 @title") ;
-		assertEquals(sc.translateMark(ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 NAME") ;
+		assertEquals(sc.translateMark(null, ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 NAME") ;
 		
 		//测试对表转义的支持。
 		ms = new MarkedSQL(map, "select @id, @title, DESCRIPTION, @createdTime from @@article order by id asc limit 10 @title") ;
-		assertEquals(sc.translateMark(ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 NAME") ;
+		assertEquals(sc.translateMark(null, ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 NAME") ;
 		
 		ms = new MarkedSQL(map, "select @id, @title, DESCRIPTION, @createdTime from @@" + Article.class.getName() +" order by id asc limit 10 @title") ;
-		assertEquals(sc.translateMark(ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 NAME") ;
+		assertEquals(sc.translateMark(null, ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 NAME") ;
 		
 		ms = new MarkedSQL(map, "select @id, @title, DESCRIPTION, @createdTime from @@" + Article.class.getName() +" order by id asc limit 10 (@title)") ;
-		assertEquals(sc.translateMark(ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 (NAME)") ;
+		assertEquals(sc.translateMark(null, ms), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10 (NAME)") ;
 		
 		//pure sql
 		ms = new MarkedSQL(map, "select * ,  id, title, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10") ;
-		assertEquals(sc.translateMark(ms), "select * ,  id, title, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10") ;		
+		assertEquals(sc.translateMark(null, ms), "select * ,  id, title, DESCRIPTION, createdTime from TB_ARTICLE order by id asc limit 10") ;	
+		
+		//insert. bug on '('
+		ms = new MarkedSQL(map, "insert into @@article(@id, @title, DESCRIPTION, @createdTime) values(:id, :title, :d, :c)") ;
+		assertEquals(sc.translateMark(null, ms), "insert into TB_ARTICLE(id, NAME, DESCRIPTION, createdTime) values(:id, :title, :d, :c)") ;		
 	}
 	
 	public void testSQLCompile() throws Exception{
@@ -88,7 +92,7 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		MarkedSQL ms = new MarkedSQL(map, sql) ;		
 		CompiledSQL cs = sc.compile(ms) ;
 		
-		assertEquals(cs.getSql(), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE where id=? and title=? order by id asc limit 10 ") ;
+		assertEquals(cs.getSql(null), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE where id=? and title=? order by id asc limit 10 ") ;
 		assertEquals(cs.getOrderedParams().length, 2) ;
 		assertEquals(cs.getOrderedParams()[0], "id") ;
 		assertEquals(cs.getOrderedParams()[1], "m_title") ;		
@@ -96,7 +100,7 @@ public class TestSQLCompiler extends DBBasedTestCase {
 
 		cs = sc.compile(new MarkedSQL(map, "update @@article set * = ? , title = :title,var=:var,checked=1 where id=:id")) ;
 		
-		assertEquals(cs.getSql(), "update TB_ARTICLE set * = ? , title = ?,var=?,checked=1 where id=?") ;
+		assertEquals(cs.getSql(null), "update TB_ARTICLE set * = ? , title = ?,var=?,checked=1 where id=?") ;
 		assertEquals(cs.getOrderedParams().length, 3) ;
 		assertEquals(cs.getOrderedParams()[0], "title") ;
 		assertEquals(cs.getOrderedParams()[1], "var") ;
@@ -104,7 +108,7 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		
 		cs = sc.compile(new MarkedSQL(map, "update @@article set * = ? , title = :title,var=:var,checked=1 where id=(:id)")) ;
 		
-		assertEquals(cs.getSql(), "update TB_ARTICLE set * = ? , title = ?,var=?,checked=1 where id=(?)") ;
+		assertEquals(cs.getSql(null), "update TB_ARTICLE set * = ? , title = ?,var=?,checked=1 where id=(?)") ;
 		assertEquals(cs.getOrderedParams().length, 3) ;
 		assertEquals(cs.getOrderedParams()[0], "title") ;
 		assertEquals(cs.getOrderedParams()[1], "var") ;
@@ -113,7 +117,7 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		//测试pure sql
 		cs = sc.compile(new MarkedSQL(map, "select * from TB_TABLE where id = 1")) ;
 		
-		assertEquals(cs.getSql(), "select * from TB_TABLE where id = 1") ;
+		assertEquals(cs.getSql(null), "select * from TB_TABLE where id = 1") ;
 		assertEquals(cs.getOrderedParams().length, 0) ;
 		
 	}
@@ -130,7 +134,7 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		MarkedSQL ms = new MarkedSQL(map, sql) ;		
 		CompiledSQL cs = sc.compile(ms) ;
 		
-		assertEquals(cs.getSql(), "update TB_BOOK set NAME=? where id=?") ;
+		assertEquals(cs.getSql(null), "update TB_BOOK set NAME=? where id=?") ;
 		assertEquals(cs.getOrderedParams().length, 2) ;
 		assertEquals(cs.getOrderedParams()[0], "title") ;
 		assertEquals(cs.getOrderedParams()[1], "id") ;

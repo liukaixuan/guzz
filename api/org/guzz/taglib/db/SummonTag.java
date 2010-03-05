@@ -53,7 +53,11 @@ public abstract class SummonTag extends TagSupport {
 	
 	private Object summonedData ;
 	
+	private Object tableCondition ;
+	
 	protected GuzzContext guzzContext ;
+	
+	private GhostBoundaryTag parent ;
 	
 	public SummonTag(){
 		super() ;
@@ -72,6 +76,8 @@ public abstract class SummonTag extends TagSupport {
 		this.limit = null ;
 		this.business = null ;
 		this.summonedData = null ;
+		this.tableCondition = null ;
+		this.parent = null ;
 	}
 
 	public void setPageContext(PageContext pc) {
@@ -165,10 +171,18 @@ public abstract class SummonTag extends TagSupport {
 	
 	protected abstract Object summonGhosts(Business business, List conditions) throws JspException, IOException ;
 	
+	protected GhostBoundaryTag getParentBoundary(){
+		if(parent == null){
+			parent = (GhostBoundaryTag) findAncestorWithClass(this, GhostBoundaryTag.class) ;
+		}
+		
+		return parent ;
+	}
+	
 	protected List getBoundaryLimits(){
 		LinkedList m_limits = new LinkedList() ;
 		
-		GhostBoundaryTag m_parent = (GhostBoundaryTag) findAncestorWithClass(this, GhostBoundaryTag.class) ;
+		GhostBoundaryTag m_parent = getParentBoundary() ;
 		if(m_parent != null){ //有更高层的关系。
 			List m_parentBoundaryLimits = m_parent.getBoundaryLimits() ;
 			if(m_parentBoundaryLimits != null){
@@ -227,6 +241,23 @@ public abstract class SummonTag extends TagSupport {
 
 	public Object getSummonedData() {
 		return summonedData;
+	}
+
+	public Object getTableCondition() {
+		if(tableCondition != null){
+			return tableCondition ;
+		}else{
+			GhostBoundaryTag m_parent = getParentBoundary() ;
+			if(m_parent != null){
+				return m_parent.getTableCondition() ;
+			}
+		}
+		
+		return null;
+	}
+
+	public void setTableCondition(Object tableCondition) {
+		this.tableCondition = tableCondition;
 	}
 
 }

@@ -23,6 +23,7 @@ import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.CompiledSQL;
+import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.pojo.DynamicUpdatable;
 import org.guzz.pojo.GuzzProxy;
 import org.guzz.transaction.ReadonlyTranSession;
@@ -150,7 +151,7 @@ public class BusinessDescriptor {
 			this.wrap = wrap ;
 			this.orm = orm ;
 			
-			String sql = "select " + orm.colName + " from " + table.getTableName() + " where " + table.getPKColName() + "=:id" ;
+			String sql = "select " + orm.colName + " from " + MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName + " where " + table.getPKColName() + "=:id" ;
 			sqlForLoadLazy = tm.getCompiledSQLBuilder().buildCompiledSQL(businessName, sql) ;
 		}
 		

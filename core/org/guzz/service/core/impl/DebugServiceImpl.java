@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.guzz.Service;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.sql.BindedCompiledSQL;
-import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.DebugService;
@@ -82,14 +81,12 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 	public void logSQL(BindedCompiledSQL bsql) {
 		if(this.ignoreDemonThreadSQL && isDemonThread()){
 			return ;
-		}
-		
-		CompiledSQL sql = bsql.getCompiledSQL() ;
+		}		
 		
 		if(printSQLParams){
-			logInfo("sql:[" + sql.getSql() + "], params is:[" + bsql.getBindedParams() + "]") ;
+			logInfo("sql:[" + bsql.getSql() + "], params is:[" + bsql.getBindedParams() + "]") ;
 		}else if(printSQL){
-			logInfo("sql:[" + sql.getSql() + "]") ;
+			logInfo("sql:[" + bsql.getSql() + "]") ;
 		}
 	}
 	

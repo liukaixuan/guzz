@@ -25,6 +25,20 @@ package org.guzz.dialect;
 public class H2Dialect extends AbstractDialect {
 
 	public String getLimitedString(String sql, int offset, int limit) {
+		sql = sql.trim() ;
+		String sql2 = sql.toLowerCase() ;
+		
+		boolean isForUpdate = false ;
+		boolean isForUpdateNoWait = false ;
+		
+		if( sql2.endsWith(" for update") ){
+			sql = sql.substring(0, sql.length() - 11) ;
+			isForUpdate = true ;
+		}else if( sql2.endsWith(" for update nowait") ){
+			sql = sql.substring( 0, sql.length() - 18) ;
+			isForUpdateNoWait = true ;
+		}
+		
 		StringBuffer sb = new StringBuffer(sql.length() + 16) ;
 		sb.append(sql) ;
 		
@@ -36,6 +50,12 @@ public class H2Dialect extends AbstractDialect {
 			}
 		}else{
 			sb.append(" limit ").append((offset)).append(", ").append(limit) ;
+		}
+		
+		if(isForUpdate ) {
+			sb.append( " for update" ) ;
+		}else if(isForUpdateNoWait){
+			sb.append( " for update nowait" ) ;
 		}
 		
 		return sb.toString() ;
@@ -60,15 +80,9 @@ public class H2Dialect extends AbstractDialect {
 	public String getNativeIDGenerator() {
 		return "increment";
 	}
-
+	
 	public String getForUpdateNoWaitString(String sql) {
-		// TODO Auto-generated method stub
-		return sql;
-	}
-
-	public String getForUpdateString(String sql) {
-		// TODO Auto-generated method stub
-		return sql;
+		return sql + " for update nowait";
 	}
 
 }

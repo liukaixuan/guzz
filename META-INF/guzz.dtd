@@ -72,6 +72,8 @@ properties?, (config-server? | tran? | dialect| service | import | business | sq
 <!ATTLIST orm id CDATA #REQUIRED>
 <!ATTLIST orm class CDATA #REQUIRED>
 <!ATTLIST orm dbgroup CDATA "default">
+<!ATTLIST orm table CDATA #IMPLIED>
+<!ATTLIST orm shadow CDATA #IMPLIED>
 
 <!ELEMENT generator (param*)>
 <!ATTLIST generator class CDATA "native">

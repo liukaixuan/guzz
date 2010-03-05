@@ -111,7 +111,7 @@ public class TwoPhaseClobDataLoader extends PersistListenerAdapter implements Co
 		this.debugService.logSQL(bsql) ;
 		
 		try{
-			pstm = conn.prepareStatement(bsql.getCompiledSQL().getSql()) ;
+			pstm = conn.prepareStatement(bsql.getSql()) ;
 			bsql.prepareNamedParams(mapping.getDbGroup().getDialect(), pstm) ;
 			pstm.setAsciiStream(1, threadSafeCharInputStream, 1) ;
 			
@@ -194,11 +194,11 @@ public class TwoPhaseClobDataLoader extends PersistListenerAdapter implements Co
 	}
 
 	public void startup() {
-		String sqlForLazyLoad = "select " + columnName + " from " + table.getTableName() + " where " + table.getPKColName() + " = :pkValue" ;
+		String sqlForLazyLoad = "select " + columnName + " from " + table.getBusinessShape() + " where " + table.getPKColName() + " = :pkValue" ;
 		this.sqlToLoadLazily = tm.getCompiledSQLBuilder().buildCompiledSQL(mapping, sqlForLazyLoad) ;
 		this.sqlToLoadLazily.addParamPropMapping("pkValue", table.getPKPropName()) ;
 
-		String sql = "update " + table.getTableName() + " set " + this.columnName + " = ? where " + table.getPKColName() + " = :pkValue" ;
+		String sql = "update " + table.getBusinessShape() + " set " + this.columnName + " = ? where " + table.getPKColName() + " = :pkValue" ;
 		this.sqlInsertCallback = tm.getCompiledSQLBuilder().buildCompiledSQL(mapping, sql) ;
 		this.sqlInsertCallback.addParamPropMapping("pkValue", table.getPKPropName()) ;
 	}

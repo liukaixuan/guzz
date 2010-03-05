@@ -32,6 +32,16 @@ import org.guzz.pojo.lob.TranClob;
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class Guzz {
+	
+	private static ThreadLocal tableC = new ThreadLocal() ;
+	
+	public static void setTableConditon(Object tableCondition){
+		tableC.set(tableCondition) ;
+	}
+	
+	public static Object getTableCondition(){
+		return tableC.get() ;
+	}
 
 	/**
 	 * Create a new <tt>Blob</tt>. The returned object will be initially

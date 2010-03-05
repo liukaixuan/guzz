@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.transaction.Transaction;
 
+import org.guzz.Guzz;
 import org.guzz.exception.DaoException;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.jdbc.ObjectBatcher;
@@ -54,10 +55,28 @@ public interface WriteTranSession {
 	 * <br>
 	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
 	 * 
+	 * <p>use {@link Guzz#getTableCondition()} as the tableConditon if @param sql contains shadow table.
+	 * 
 	 * @param CompiledSQL sql
 	 * @exception DaoException may raise database exception
 	 */
 	public SQLBatcher createCompiledSQLBatcher(CompiledSQL sql) ;
+	
+	
+	/**
+	 * 
+	 * create a batcher to perform jdbc batch operations based on the {@link CompiledSQL}.
+	 * 
+	 * <br>the {@link WriteTranSession} from which the batcher is created, 
+	 * share the same {@link java.sql.Connection} and {@link Transaction} with the batcher.
+	 * <br>
+	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
+	 * 
+	 * @param CompiledSQL sql
+	 * @param tableCondtion the condition to shadow table. a SQLBatch can only be used for one table even if the domainClass is the same.
+	 * @exception DaoException may raise database exception
+	 */
+	public SQLBatcher createCompiledSQLBatcher(CompiledSQL sql, Object tableCondition) ;
 	
 	/**
 	 *

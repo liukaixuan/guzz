@@ -27,14 +27,15 @@ public class Oracle9iDialect extends Oracle8iDialect {
 
 	public String getLimitedString(String sql, int offset, int limit) {
 		sql = sql.trim() ;
-		boolean isForUpdate = false ;
-		if( sql.toLowerCase().endsWith(" for update") ){
-			sql = sql.substring( 0, sql.length() - 11) ;
-			isForUpdate = true ;
-		}
+		String sql2 = sql.toLowerCase() ;
 		
+		boolean isForUpdate = false ;
 		boolean isForUpdateNoWait = false ;
-		if( sql.toLowerCase().endsWith(" for update nowait") ){
+		
+		if( sql2.endsWith(" for update") ){
+			sql = sql.substring(0, sql.length() - 11) ;
+			isForUpdate = true ;
+		}else if( sql2.endsWith(" for update nowait") ){
 			sql = sql.substring( 0, sql.length() - 18) ;
 			isForUpdateNoWait = true ;
 		}
@@ -59,10 +60,8 @@ public class Oracle9iDialect extends Oracle8iDialect {
 
 		if(isForUpdate ) {
 			sb.append( " for update" ) ;
-		}
-		
-		if(isForUpdateNoWait){
-			sb.append(" for update nowait") ;
+		}else if(isForUpdateNoWait){
+			sb.append( " for update nowait" ) ;
 		}
 
 		return sb.toString() ;

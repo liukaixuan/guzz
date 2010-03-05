@@ -56,7 +56,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertNotNull(md) ;
 //		System.out.println(md.asXML()) ;
 		List elements = md.selectNodes("//business") ;
-		assertEquals(elements.size(), 5) ;
+		assertEquals(elements.size(), 6) ;
 		assertEquals(((Element) elements.get(0)).attributeValue("name"), "article") ;
 		assertEquals(((Element) elements.get(1)).attributeValue("name"), "user") ;		
 		
@@ -87,7 +87,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		List es = md.selectNodes("//sqlMap/orm") ;
 		
-		assertEquals(es.size(), 1) ;
+		assertEquals(es.size(), 2) ;
 		
 		ResultMapBasedObjectMapping map = b.loadORM(null, (Element) es.get(0)) ;
 		assertNotNull(map) ;
@@ -121,15 +121,15 @@ public class TestMainConfigBuilder extends TestCase {
 		}		
 		
 		Map sqls = b.listConfiguedCompiledSQLs() ;
-		assertEquals(sqls.size(), 3) ;
+		assertEquals(sqls.size(), 5) ;
 		
 		CompiledSQL cs = (CompiledSQL) sqls.get("selectUsers") ;
 		assertNotNull(cs) ;
-		assertEquals(cs.getSql(), "select pk, userName, VIP_USER, FAV_COUNT from TB_USER") ;
+		assertEquals(cs.getSql(null), "select pk, userName, VIP_USER, FAV_COUNT from TB_USER") ;
 		
 		cs = (CompiledSQL) sqls.get("selectUser") ;
 		assertNotNull(cs) ;
-		assertEquals(cs.getSql(), "select * from TB_USER where pk = ?") ;
+		assertEquals(cs.getSql(null), "select * from TB_USER where pk = ?") ;
 		assertEquals(cs.getOrderedParams().length, 1) ;
 		assertEquals(cs.getOrderedParams()[0], "id") ;
 		
@@ -143,7 +143,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		List objects = b.listBusinessObjectMappings() ;
 		
-		assertEquals(objects.size(), 5) ;		
+		assertEquals(objects.size(), 6) ;		
 	}
 	
 	public void testLoadConfigServer() throws Exception{
