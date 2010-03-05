@@ -125,7 +125,7 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 					
 					doSomething = true ;
 					
-					Guzz.setTableConditon(log.tableCondition) ;
+					Guzz.setTableCondition(log.tableCondition) ;
 					tran.insert(log.logObject) ;
 					addedCount++ ;
 					
