@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.dao.PageFlip;
 import org.guzz.io.FileResource;
 import org.guzz.orm.Business;
@@ -59,6 +60,7 @@ public class TestDaoRead extends DBBasedTestCase {
 		assertEquals(articles.size(), 1) ;		
 		
 		session.close() ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testFindObjectById() throws Exception{
@@ -87,7 +89,8 @@ public class TestDaoRead extends DBBasedTestCase {
 			User user = (User) session.findObject("selectUser", params) ;
 			assertNull(user) ;
 		}
-		
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testFindListById() throws Exception{
@@ -99,7 +102,9 @@ public class TestDaoRead extends DBBasedTestCase {
 			
 		List users = session.list("selectUsers", null, 1, 10) ;
 		assertNotNull(users) ;
-		assertEquals(users.size(), 10) ;		
+		assertEquals(users.size(), 10) ;	
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testFindListBySE() throws Exception{
@@ -138,6 +143,8 @@ public class TestDaoRead extends DBBasedTestCase {
 		se.setPageNo(35) ;
 		se.setPageSize(30) ;
 		assertEquals(session.list(se).size(), 0) ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testFindPageBySE() throws Exception{
@@ -180,6 +187,8 @@ public class TestDaoRead extends DBBasedTestCase {
 		
 		//count
 		assertEquals(page.getTotalCount(), 999) ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 	protected void prepareEnv() throws Exception{

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.Terms;
 import org.guzz.test.DBBasedTestCase;
@@ -80,6 +81,8 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		
 		int count2 = countUser(tm) ;
 		assertEquals(count2, newCount * 10 + count) ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
@@ -114,6 +117,8 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		
 		int countAfter = countUser(tm) ;
 		assertEquals(countBefore, countAfter) ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testDelete() throws Exception{
@@ -151,6 +156,8 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		
 		int count2 = countUser(tm) ;
 		assertEquals(count2, count - 10 * dropCount) ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testOnlyAllowOneOP() throws Exception{
@@ -178,6 +185,7 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		}
 
 		session.close() ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }

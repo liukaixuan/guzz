@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.io.FileResource;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.Business;
@@ -55,6 +56,8 @@ public class TestTranSession extends DBBasedTestCase{
 
 		ts2 = gf.getTransactionManager().openRWTran(false) ;
 		ts2.close() ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testSEReadDB() throws SQLException, Exception{
@@ -81,6 +84,8 @@ public class TestTranSession extends DBBasedTestCase{
 		assertEquals(((Article) articles.get(2)).getTitle(), "title 3") ;
 				
 		ts.close() ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testReadDBCell00() throws SQLException, Exception{
@@ -95,6 +100,8 @@ public class TestTranSession extends DBBasedTestCase{
 		assertEquals((Long)ts.findCell00(sql.bindNoParams(), "bigint"), new Long(4)) ;
 		
 		ts.close() ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testJDBCTemplate() throws SQLException, Exception{
@@ -117,8 +124,9 @@ public class TestTranSession extends DBBasedTestCase{
 		
 		assertEquals(name2, "title 2") ;
 		
-		
 		ts.close() ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	

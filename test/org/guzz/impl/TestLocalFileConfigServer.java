@@ -53,7 +53,6 @@ public class TestLocalFileConfigServer extends TestCase {
 		//check the loading orders
 		assertEquals(ps[0].getProperty("guzz.identifer"), "db_45_36_3306") ;
 		assertEquals(ps[1].getProperty("guzz.identifer"), "db_45_37_3306") ;
-		
 	}
 	
 	public void testSCSLoad() throws IOException{
@@ -67,8 +66,6 @@ public class TestLocalFileConfigServer extends TestCase {
 		
 		scs = server.queryConfig("mail") ;
 		assertNull(scs) ;
-		
-		
 	}
 
 }

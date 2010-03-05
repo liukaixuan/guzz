@@ -18,6 +18,7 @@ package org.guzz.orm.sql.impl;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.io.FileResource;
 import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
@@ -74,6 +75,8 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		//insert. bug on '('
 		ms = new MarkedSQL(map, "insert into @@article(@id, @title, DESCRIPTION, @createdTime) values(:id, :title, :d, :c)") ;
 		assertEquals(sc.translateMark(null, ms), "insert into TB_ARTICLE(id, NAME, DESCRIPTION, createdTime) values(:id, :title, :d, :c)") ;		
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testSQLCompile() throws Exception{
@@ -119,7 +122,8 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		
 		assertEquals(cs.getSql(null), "select * from TB_TABLE where id = 1") ;
 		assertEquals(cs.getOrderedParams().length, 0) ;
-		
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testSpecial() throws Exception{
@@ -138,6 +142,8 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		assertEquals(cs.getOrderedParams().length, 2) ;
 		assertEquals(cs.getOrderedParams()[0], "title") ;
 		assertEquals(cs.getOrderedParams()[1], "id") ;
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 
 }

@@ -58,7 +58,6 @@ public class TestH2Dialect extends DBBasedTestCase {
 		assertEquals(a.getContent(), newContent) ;
 		
 		tran.close() ;
-		
 		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
@@ -81,7 +80,6 @@ public class TestH2Dialect extends DBBasedTestCase {
 		comments = read.list(cs.bind("id", "1").setLockMode(LockMode.NONE), 3, 10) ;
 		
 		read.close() ;
-		
 		((GuzzContextImpl) gf).shutdown() ;
 	}
 	

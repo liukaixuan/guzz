@@ -18,6 +18,7 @@ package org.guzz.orm.se;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.io.FileResource;
 import org.guzz.orm.Business;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
@@ -74,6 +75,7 @@ public class TestSearchExpression extends DBBasedTestCase{
 		
 		assertEqualsIDWS(se.toLoadRecordsMarkedSQL(map, new SearchParams()).getOrginalSQL(), "select id, NAME, DESCRIPTION, createdTime from TB_ARTICLE where NAME in( :title_0, :title_1, :title_2, :title_3, :title_4)") ;
 		
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testLoadGhost() throws Exception{
@@ -107,7 +109,8 @@ public class TestSearchExpression extends DBBasedTestCase{
 		se.and(Terms.biggerOrEq("title", 10)) ;
 		assertEqualsIDWS(se.toLoadRecordsMarkedSQL(map, sp).getOrginalSQL(), "select NAME , createdTime from TB_ARTICLE where  (NAME = :title_0) and (NAME >= :title_1) order by NAME desc, id asc") ;
 		assertEquals(sp.getSearchParams().size(), 2) ;
-		
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testCountGhost() throws Exception{
@@ -126,7 +129,8 @@ public class TestSearchExpression extends DBBasedTestCase{
 		
 		se.setCountSelectPhrase("max(title)") ;
 		assertEquals(se.toComputeRecordNumberSQL(map, sp).getOrginalSQL(), "select max(NAME) from TB_ARTICLE where NAME = :title_0") ;
-				
+
+		((GuzzContextImpl) f).shutdown() ;		
 	}
 	
 }

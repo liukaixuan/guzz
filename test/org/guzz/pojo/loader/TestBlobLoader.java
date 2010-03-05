@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;
@@ -110,7 +111,8 @@ public class TestBlobLoader extends DBBasedTestCase {
 			tran.close() ;
 			fis.close() ;
 		}
-		
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
@@ -212,7 +214,8 @@ public class TestBlobLoader extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-		
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }

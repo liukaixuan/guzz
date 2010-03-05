@@ -70,7 +70,8 @@ public class TestInnerSQLBuilder extends TestCase {
 		assertEquals(cs.getSql(null), "select pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime from TB_USER where pk=?") ;
 		assertEquals(cs.getOrderedParams().length, 1) ;
 		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[id]") ;
-		
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testInsertUpdateIgnoreParam() throws Exception{
@@ -112,6 +113,8 @@ public class TestInnerSQLBuilder extends TestCase {
 		assertEquals(cs.getSql(null), "select ARTICLE_ID, readCount, supportCount, opposeCount, createdTime from TB_ARTICLE_COUNT where ARTICLE_ID=?") ;
 		assertEquals(cs.getOrderedParams().length, 1) ;
 		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[articleId]") ;
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }

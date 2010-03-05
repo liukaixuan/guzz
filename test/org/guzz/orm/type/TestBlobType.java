@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import org.guzz.Configuration;
 import org.guzz.Guzz;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.dialect.H2Dialect;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
@@ -108,7 +109,8 @@ public class TestBlobType extends DBBasedTestCase {
 			tran.close() ;
 			fis.close() ;
 		}
-		
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
@@ -205,7 +207,8 @@ public class TestBlobType extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-		
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }

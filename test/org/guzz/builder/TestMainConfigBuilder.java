@@ -48,7 +48,6 @@ import org.guzz.util.CloseUtil;
 public class TestMainConfigBuilder extends TestCase {
 	
 	public void testLoadFullConfigFile() throws Exception{
-		
 		FileResource fs = new FileResource("classpath:guzzmain_test1.xml") ;
 		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(null, fs, "UTF-8") ;
 		
@@ -58,8 +57,7 @@ public class TestMainConfigBuilder extends TestCase {
 		List elements = md.selectNodes("//business") ;
 		assertEquals(elements.size(), 6) ;
 		assertEquals(((Element) elements.get(0)).attributeValue("name"), "article") ;
-		assertEquals(((Element) elements.get(1)).attributeValue("name"), "user") ;		
-		
+		assertEquals(((Element) elements.get(1)).attributeValue("name"), "user") ;
 	}
 	
 	public void testLoadDialect() throws Exception{
@@ -68,13 +66,14 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;
 		
-		
 		Map ds = b.getConfiguredDialect() ;
 		assertNotNull(ds) ;
 		assertEquals(ds.size(), 3) ;
 		
 		Dialect d = (Dialect) ds.get("default") ;		
 		assertEquals(d.getClass().getName(), H2Dialect.class.getName()) ;
+		
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLoadObjectMapping() throws Exception{		
@@ -97,6 +96,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(map.getColNameByPropName("favCount"), "FAV_COUNT") ;
 		assertEquals(map.getColNameByPropName("vip"), "VIP_USER") ;		
 		
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLoadSelectSQL() throws Exception{
@@ -133,6 +133,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(cs.getOrderedParams().length, 1) ;
 		assertEquals(cs.getOrderedParams()[0], "id") ;
 		
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLoadGhosts() throws Exception{
@@ -143,7 +144,8 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		List objects = b.listBusinessObjectMappings() ;
 		
-		assertEquals(objects.size(), 6) ;		
+		assertEquals(objects.size(), 6) ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLoadConfigServer() throws Exception{
@@ -173,6 +175,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(sc.getProps().getProperty("something.else"),null) ;
 		
 		CloseUtil.close(fs) ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLoadServices() throws Exception{
@@ -196,6 +199,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(s.getConfigName(), "onlyForTest2Config") ;
 		
 		CloseUtil.close(fs) ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLoadTrans() throws Exception{
@@ -221,6 +225,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(g2.getDialect().getClass(), Mysql5Dialect.class) ;
 		
 		CloseUtil.close(fs) ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLoadPropertyFile() throws Exception{
