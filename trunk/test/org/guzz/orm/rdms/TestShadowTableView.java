@@ -64,7 +64,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 			
 			User u = new User() ;
 			u.setId(i) ;
-			Guzz.setTableConditon(u) ;
+			Guzz.setTableCondition(u) ;
 			
 			Integer pk = (Integer) session.insert(c) ;
 			
@@ -84,7 +84,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 		
 		User u = new User() ;
 		u.setId(1) ;
-		Guzz.setTableConditon(u) ;
+		Guzz.setTableCondition(u) ;
 		
 		SearchExpression se = SearchExpression.forClass(Comment.class) ;
 		se.and(Terms.bigger("userId", 0)) ;
@@ -132,14 +132,14 @@ public class TestShadowTableView extends DBBasedTestCase {
 		User u2 = new User() ;
 		u2.setId(2) ;
 		
-		Guzz.setTableConditon(u) ;
+		Guzz.setTableCondition(u) ;
 		assertEquals(session.list(cs.bind("userName", "lily"), 1, 1000).size(), 500) ;
 		assertEquals(session.list(cs.bind("userName", "lucy"), 1, 1000).size(), 0) ;
 		//bsql.setTableCondition条件优先级高于Guzz.setTableCondition。
 		assertEquals(session.list(cs.bind("userName", "lily").setTableCondition(u2), 1, 1000).size(), 0) ;
 		assertEquals(session.list(cs.bind("userName", "lucy").setTableCondition(u2), 1, 1000).size(), 500) ;
 		
-		Guzz.setTableConditon(u2) ;
+		Guzz.setTableCondition(u2) ;
 		assertEquals(session.list(cs.bind("userName", "lily"), 1, 1000).size(), 0) ;
 		assertEquals(session.list(cs.bind("userName", "lucy"), 1, 1000).size(), 500) ;
 		//bsql.setTableCondition条件优先级高于Guzz.setTableCondition。
@@ -161,7 +161,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 		
 		User u = new User() ;
 		u.setId(1) ;
-		Guzz.setTableConditon(u) ;
+		Guzz.setTableCondition(u) ;
 				
 		for(int i = 1 ; i < 1001 ; i++){
 			Comment c = new Comment() ;
@@ -207,7 +207,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 				
 		User u = new User() ;
 		u.setId(1) ;
-		Guzz.setTableConditon(u) ;
+		Guzz.setTableCondition(u) ;
 				
 		for(int i = 1 ; i < 1001 ; i++){
 			HashMap<String, Object> params = new HashMap<String, Object>() ;
@@ -251,7 +251,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 		
 		User u = new User() ;
 		u.setId(1) ;
-		Guzz.setTableConditon(u) ;
+		Guzz.setTableCondition(u) ;
 		
 		HashMap<String, String> params = new HashMap<String, String>() ;
 		params.put("userName", "lily") ;
@@ -268,7 +268,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 		assertEquals(session.list("listCommentsByName", params, 1, 10000).size(), 0) ;
 		
 		//倒过来。
-		Guzz.setTableConditon(new User(2)) ;
+		Guzz.setTableCondition(new User(2)) ;
 		params.put("userName", "lucy") ;
 		assertEquals(session.list("listCommentsByName", params, 1, 10000).size(), 500) ;
 		params.put("userName", "lily") ;

@@ -35,7 +35,7 @@ public class Guzz {
 	
 	private static ThreadLocal tableC = new ThreadLocal() ;
 	
-	public static void setTableConditon(Object tableCondition){
+	public static void setTableCondition(Object tableCondition){
 		tableC.set(tableCondition) ;
 	}
 	
