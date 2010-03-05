@@ -18,6 +18,7 @@ package org.guzz.pojo.loader;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.pojo.lob.TranClob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;
@@ -90,7 +91,8 @@ public class TestClobLoader extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-		
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
@@ -163,7 +165,8 @@ public class TestClobLoader extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-		
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }

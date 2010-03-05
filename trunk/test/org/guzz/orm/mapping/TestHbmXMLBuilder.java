@@ -22,6 +22,7 @@ import java.util.LinkedList;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.io.FileResource;
 import org.guzz.orm.Business;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
@@ -72,6 +73,8 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		c.set(Calendar.MILLISECOND, 0) ;
 		
 		assertEquals(a.getCreatedTime().getTime(), c.getTime().getTime()) ;		
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testAddUserHxml() throws Exception{
@@ -82,7 +85,8 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		
 		ga = f.instanceNewGhost("user", null, null, null) ;
 		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/User.hbm.xml") ;
-		
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testIdentifidGeneratorCreate() throws Exception{
@@ -97,7 +101,8 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		assertNotNull(map.getTable()) ;
 		assertNotNull(map.getTable().getIdentifierGenerator()) ;
 		assertNotNull(map.getTable().getIdentifierGenerator()) ;
-		
+
+		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 }

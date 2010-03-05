@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.bytecode.LazyPropChangeDetector;
 import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.se.SearchExpression;
@@ -94,6 +95,7 @@ public class TestLazyLoad extends DBBasedTestCase {
 		
 		write.close() ;
 		session.close() ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testLazyPropNoDynamicUpdate() throws Exception{
@@ -148,6 +150,7 @@ public class TestLazyLoad extends DBBasedTestCase {
 		
 		write.close() ;
 		session.close() ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }

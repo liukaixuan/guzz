@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.guzz.Configuration;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.Terms;
 import org.guzz.test.Article;
@@ -81,6 +82,8 @@ public class TestDaoWrite extends DBBasedTestCase {
 		}catch(Throwable e){
 			
 		}
+
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
@@ -107,6 +110,7 @@ public class TestDaoWrite extends DBBasedTestCase {
 		assertEquals(user2.getCreatedTime().getTime(), now.getTime()) ;
 				
 		session.close() ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testDelete() throws Exception{
@@ -132,6 +136,9 @@ public class TestDaoWrite extends DBBasedTestCase {
 		se.and(Terms.smaller("id", 15)) ;
 		List users = rts.list(se) ;
 		assertEquals(users.size(), 13) ;
+
+		rts.close() ;
+		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }
