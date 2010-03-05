@@ -34,6 +34,7 @@ public class GhostGetTag extends SummonTag {
 		
 	protected Object summonGhosts(Business business, List conditions) throws JspException, IOException {
 		SearchExpression se = SearchExpression.forBusiness(business.getName()) ;
+		se.setTableCondition(getTableCondition()) ;
 		se.and(conditions) ;
 		
 		ReadonlyTranSession tran = guzzContext.getTransactionManager().openDelayReadTran() ;

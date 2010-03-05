@@ -16,7 +16,7 @@
  */
 package org.guzz.service.log;
 
-import java.io.Serializable;
+import org.guzz.Guzz;
 
 /**
  * 
@@ -26,6 +26,17 @@ import java.io.Serializable;
  */
 public interface LogService {
 	
-	public void log(Serializable logObject) ;
+	/**
+	 * 记录日志。如果存在shadow表，按照{@link Guzz#getTableCondition()}分表
+	 * @param logObject 日志对象
+	 **/
+	public void log(Object logObject) ;
+	
+	/**
+	 * 记录日志。
+	 * @param logObject 日志对象
+	 * @param tableCondition shadow表分表条件。如果tableCondition为null，将会使用null作为分表条件，不在读取{@link Guzz#getTableCondition()}
+	 **/
+	public void log(Object logObject, Object tableCondition) ;
 
 }

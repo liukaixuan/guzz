@@ -14,25 +14,32 @@
  * limitations under the License.
  *
  */
-package org.guzz.jdbc;
-
-import java.sql.PreparedStatement;
-
+package org.guzz.orm;
 
 /**
  * 
- * 批处理执行器，用于执行批量操作。
+ * Shadow table means table partition, the table name will change on the giving condition.
+ * <p>
+ * Builded sqls should change itself on the condition changes.
+ * </p>
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface Batcher {
+public interface ShadowTableView {
+
+	/**
+	 * retrieve the table name on the condition
+	 * @param tableCondition shadow seed conditon
+	 */
+	public String toTableName(Object tableCondition) ;
 	
 	/**
-	 * @see PreparedStatement#executeBatch()
+	 * set the table name configured in the hbm.xml file. 
 	 */
-	public int[] executeUpdate() ;
+	public void setConfiguredTableName(String tableName) ;
 	
-	/**@see PreparedStatement#clearBatch()*/
-	public void clearBatch() ;
-		
+	public void startup() ;
+	
+	public void shutdown() throws Exception ;
+	
 }

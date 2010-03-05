@@ -14,25 +14,30 @@
  * limitations under the License.
  *
  */
-package org.guzz.jdbc;
-
-import java.sql.PreparedStatement;
-
+package org.guzz.orm;
 
 /**
  * 
- * 批处理执行器，用于执行批量操作。
+ * 
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface Batcher {
+public abstract class AbstractShadowTableView implements ShadowTableView {
 	
-	/**
-	 * @see PreparedStatement#executeBatch()
-	 */
-	public int[] executeUpdate() ;
-	
-	/**@see PreparedStatement#clearBatch()*/
-	public void clearBatch() ;
-		
+	private String configuredTableName ;
+
+	public void setConfiguredTableName(String tableName) {
+		this.configuredTableName = tableName ;
+	}
+
+	public void shutdown() throws Exception {
+	}
+
+	public void startup() {
+	}
+
+	public String getConfiguredTableName() {
+		return configuredTableName;
+	}
+
 }

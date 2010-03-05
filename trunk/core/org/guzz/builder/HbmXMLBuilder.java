@@ -43,6 +43,7 @@ import org.guzz.id.SlientIdGenerator;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
+import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.ObjectMapping.x$ORM;
 import org.guzz.orm.interpreter.AbstractBusinessInterpreter;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
@@ -125,14 +126,13 @@ public class HbmXMLBuilder {
 				if("class".equalsIgnoreCase(e.getName())){
 					String className = e.attributeValue("name") ;
 					String tableName = e.attributeValue("table") ;
+					String shadow = e.attributeValue("shadow") ;
 					boolean dynamicUpdate = StringUtil.toBoolean(e.attributeValue("dynamic-update"), false) ;
 					
 					if(StringUtil.isEmpty(className)){ //如果className为空，采用ghost中携带的class
 						className = business.getDomainClass().getName() ;
 					}
-					
-					//TODO: business class should be setted here.
-					
+										
 					Assert.assertNotEmpty(className, "invalid class name") ;
 					Assert.assertNotEmpty(tableName, "invalid table name") ;
 					
@@ -140,9 +140,18 @@ public class HbmXMLBuilder {
 					
 					map.setDomainClass(cls) ;
 					
+					//shadow设置要在tableName之前。
+					if(StringUtil.notEmpty(shadow)){
+						ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
+						
+						gf.getShadowTableViewManager().addShadowView(sv) ;
+						st.setShadowTableView(sv) ;
+					}
+					
 					//TODO: 按照实际数据库具体类型，采用更加准备的子类进行初始化。
 					st.setTableName(tableName) ;
 					st.setDynamicUpdate(dynamicUpdate) ;
+					
 				}else if("id".equalsIgnoreCase(e.getName())){
 					String name = e.attributeValue("name") ;
 					String type = e.attributeValue("type") ;
@@ -260,6 +269,13 @@ public class HbmXMLBuilder {
 		}
 		
 		st.setIdentifierGenerator(ig) ;
+		
+		//关联business名称
+		if(business.getName() != null){
+			st.setBusinessName(business.getName()) ;
+		}else{
+			st.setBusinessName(business.getDomainClass().getName()) ;
+		}
 		
 		return map ;
 	}

@@ -25,6 +25,7 @@ import org.guzz.GuzzContext;
 import org.guzz.dialect.H2Dialect;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
+import org.guzz.test.UserInfo;
 import org.guzz.test.UserInfoH2;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.TransactionManager;
@@ -112,12 +113,6 @@ public class TestBlobType extends DBBasedTestCase {
 	
 	public void testUpdate() throws Exception{
 		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
-		//H2数据库不支lob字段update。如果使用H2进行测试，此用例无法通过为正常。
-		if( gf.getDBGroup("default").getDialect() instanceof H2Dialect){
-			return ;
-		}
-		
 		TransactionManager tm = gf.getTransactionManager() ;
 		
 		String classPath = this.getClass().getClassLoader().getResource(".").getFile() ;
@@ -129,7 +124,8 @@ public class TestBlobType extends DBBasedTestCase {
 		WriteTranSession tran = tm.openRWTran(false) ;		
 		int userId = 0 ;
 
-		UserInfoH2 info = new UserInfoH2() ;
+		//UserInfo located in oracle
+		UserInfo info = new UserInfo() ;
 		
 		try{
 			info.setUserId("lucy") ;
@@ -155,12 +151,11 @@ public class TestBlobType extends DBBasedTestCase {
 		
 		//test lazy load
 		try{
-			info = (UserInfoH2) tran.findObjectByPK(UserInfoH2.class, userId) ;
+			info = (UserInfo) tran.findObjectByPK(UserInfo.class, userId) ;
 			assertTrue(info != null) ;
-			byte[] dataInDB = info.getPortraitImg().getContent() ;
 			
-			assertEquals(fileData.length, info.getPortraitImg().getContent().length) ;
-			assertArrayEquals(fileData, dataInDB) ;
+			//oracle必须先插入空的，在更新。
+			assertEquals(1, info.getPortraitImg().getContent().length) ;
 		}catch(Exception e){
 			e.printStackTrace() ;
 			fail(e.getMessage()) ;
@@ -189,7 +184,7 @@ public class TestBlobType extends DBBasedTestCase {
 			
 			tran.commit() ;
 			
-			info = (UserInfoH2) tran.refresh(info, LockMode.READ) ;
+			info = (UserInfo) tran.refresh(info, LockMode.READ) ;
 			assertArrayEquals(info.getPortraitImg().getContent(), fileData) ;
 			info.getPortraitImg().close() ;
 			
@@ -200,7 +195,7 @@ public class TestBlobType extends DBBasedTestCase {
 			blob.writeIntoBlob(fis, 1) ;
 			
 			tran.commit() ;
-			info = (UserInfoH2) tran.refresh(info, LockMode.READ) ;
+			info = (UserInfo) tran.refresh(info, LockMode.READ) ;
 			assertArrayEquals(info.getPortraitImg().getContent(), fileData) ;
 			info.getPortraitImg().close() ;
 			

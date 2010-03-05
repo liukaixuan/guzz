@@ -45,6 +45,10 @@ public class GhostBoundaryTag extends TagSupport {
 	
 	private List additionConditions ;
 	
+	private Object tableCondition ;
+	
+	private GhostBoundaryTag parent ;
+	
 	public GhostBoundaryTag(){
 		super() ;
 	}
@@ -58,6 +62,8 @@ public class GhostBoundaryTag extends TagSupport {
 		this.scope = null ;
 		this.inherit = true ;
 		this.additionConditions = null ;
+		this.tableCondition = null ;
+		this.parent = null ;
 	}
 
 	public void setPageContext(PageContext pageContext) {
@@ -81,7 +87,7 @@ public class GhostBoundaryTag extends TagSupport {
 		LinkedList m_limits = new LinkedList() ;
 		
 		if(inherit){
-			GhostBoundaryTag m_parent = (GhostBoundaryTag) findAncestorWithClass(this, GhostBoundaryTag.class) ;
+			GhostBoundaryTag m_parent = getParentBoundary() ;
 			if(m_parent != null){ //有更高层的关系。
 				m_limits.addAll(m_parent.getBoundaryLimits()) ;
 			}
@@ -104,6 +110,14 @@ public class GhostBoundaryTag extends TagSupport {
 		}
 		
 		additionConditions.add(condition) ;
+	}
+	
+	protected GhostBoundaryTag getParentBoundary(){
+		if(parent == null){
+			parent = (GhostBoundaryTag) findAncestorWithClass(this, GhostBoundaryTag.class) ;
+		}
+		
+		return parent ;
 	}
 
 	public boolean isInherit() {
@@ -136,6 +150,23 @@ public class GhostBoundaryTag extends TagSupport {
 
 	public void setScope(String scope) {
 		this.scope = scope;
+	}
+
+	public Object getTableCondition() {
+		if(this.tableCondition !=  null){
+			return tableCondition;
+		}else{
+			GhostBoundaryTag m_parent = getParentBoundary() ;
+			if(m_parent != null){
+				return m_parent.getTableCondition() ;
+			}
+		}
+		
+		return null ;
+	}
+
+	public void setTableCondition(Object tableCondition) {
+		this.tableCondition = tableCondition;
 	}
 
 }

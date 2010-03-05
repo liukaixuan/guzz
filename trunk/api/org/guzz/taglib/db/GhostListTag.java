@@ -54,6 +54,7 @@ public class GhostListTag extends SummonTag {
 		
 	protected Object summonGhosts(Business business, List conditions) throws JspException, IOException {
 		SearchExpression se = SearchExpression.forBusiness(business.getName(), pageNo, pageSize) ;
+		se.setTableCondition(getTableCondition()) ;
 		se.setSkipCount(skipCount) ;
 		se.and(conditions) ;
 		if(StringUtil.notEmpty(orderBy)){

@@ -129,23 +129,4 @@ public class TestSearchExpression extends DBBasedTestCase{
 				
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 }

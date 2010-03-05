@@ -61,12 +61,4 @@ public class Mysql5Dialect extends AbstractDialect {
 		return "increment";
 	}
 
-	public String getForUpdateNoWaitString(String sql) {
-		return sql;
-	}
-
-	public String getForUpdateString(String sql) {
-		return sql;
-	}
-
 }

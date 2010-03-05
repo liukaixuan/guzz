@@ -19,6 +19,7 @@ package org.guzz.orm.type;
 import org.guzz.Configuration;
 import org.guzz.Guzz;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.dialect.H2Dialect;
 import org.guzz.pojo.lob.TranClob;
 import org.guzz.test.DBBasedTestCase;
@@ -26,7 +27,6 @@ import org.guzz.test.UserInfoH2;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
-import org.guzz.transaction.WriteTranSessionImpl;
 
 /**
  * 
@@ -80,6 +80,8 @@ public class TestClobType extends DBBasedTestCase {
 			e.printStackTrace() ;
 			fail(e.getMessage()) ;
 		}
+		
+		((GuzzContextImpl) gf).shutdown() ;
 	}	
 	
 	public void testUpdate() throws Exception{
@@ -141,6 +143,7 @@ public class TestClobType extends DBBasedTestCase {
 			tran.close() ;
 		}
 		
+		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }

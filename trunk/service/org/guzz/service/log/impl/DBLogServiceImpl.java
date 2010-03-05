@@ -16,12 +16,10 @@
  */
 package org.guzz.service.log.impl;
 
-import java.io.Serializable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.guzz.Guzz;
 import org.guzz.GuzzContext;
-import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.log.LogService;
@@ -76,15 +74,31 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 		}			
 	}
 
-	public void log(Serializable logObject) {
-		updateThread.addToQueue(logObject) ;
+	public void log(Object logObject) {
+		updateThread.addToQueue(new LogObject(logObject, Guzz.getTableCondition())) ;
+	}
+	
+	public void log(Object logObject, Object tableCondition) {
+		updateThread.addToQueue(new LogObject(logObject, tableCondition)) ;
 	}
 
-	public void shutdown() {		
+	public void shutdown() {
 		if(updateThread != null){
 			updateThread.shutdown() ;
 			updateThread = null ;
 		}
+	}
+	
+	static class LogObject{
+		
+		public LogObject(Object logObject, Object tableCondition){
+			this.logObject = logObject ;
+			this.tableCondition = tableCondition ;
+		}
+		
+		public Object logObject ;
+		
+		public Object tableCondition ;
 	}
 	
 	class DBLogThread extends DemonQueuedThread {
@@ -94,29 +108,28 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 		}
 		
 		protected boolean doWithTheQueue() throws Exception{
-			WriteTranSession tran = tm.openRWTran(false) ;
-			
+			WriteTranSession tran = null ;
 			boolean doSomething = false ;
 			
 			try{
-				ObjectBatcher batcher = null ;
 				int addedCount = 0 ;
 				
 				for(int i = 0 ; i < this.queues.length ; i++){
-					Object log = this.queues[i] ;
+					LogObject log = (LogObject) this.queues[i] ;
 					if(log == null) continue ;
 					this.queues[i] = null ;
 					
-					if(batcher == null){
-						batcher = tran.createObjectBatcher(log.getClass()) ;
+					if(tran == null){
+						tran = tm.openRWTran(false) ;
 					}
 					
 					doSomething = true ;
-					batcher.insert(log) ;
+					
+					Guzz.setTableConditon(log.tableCondition) ;
+					tran.insert(log.logObject) ;
 					addedCount++ ;
 					
 					if(addedCount >= batchSize){
-						batcher.executeUpdate() ;
 						tran.commit() ;
 						
 						addedCount = 0 ;
@@ -124,14 +137,17 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 				}
 				
 				if(addedCount > 0){
-					batcher.executeUpdate() ;
 					tran.commit() ;
 				}
 			}catch(Exception e){
-				tran.rollback() ;
+				if(tran != null){
+					tran.rollback() ;
+				}
 				throw e ;
 			}finally{
-				tran.close() ;
+				if(tran != null){
+					tran.close() ;
+				}
 			}
 			
 			return doSomething ;

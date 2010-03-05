@@ -21,6 +21,7 @@ import java.util.List;
 import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
+import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.MarkedSQL;
 
 
@@ -66,6 +67,8 @@ public abstract class SearchExpression {
 	
 	/**定义用于翻页的类，默认使用 (@link PageFlip)*/
 	private Class pageFlipClass ;
+	
+	private Object tableCondition ;
 	
 	/**主从使用策略*/
 //	private int persistPolicy = PersistPolicyParameter.PERSIST_POLICY_AUTO;
@@ -153,6 +156,7 @@ public abstract class SearchExpression {
 	
 	public MarkedSQL toLoadRecordsMarkedSQL(POJOBasedObjectMapping mapping, SearchParams params){
 		StringBuffer sb = new StringBuffer(128) ;
+		Table table = mapping.getTable() ;
 		
 		if(selectTerm != null){
         	sb.append("select ").append(selectTerm.toExpression(this, mapping, params)) ;
@@ -162,7 +166,7 @@ public abstract class SearchExpression {
         	 */
         	sb.append("select ") ;
         	
-    		String[] columns = mapping.getTable().getColumnsForSelect() ;
+    		String[] columns = table.getColumnsForSelect() ;
     		
     		boolean firstProp = true ;
     		for(int i = 0 ; i < columns.length ; i++){
@@ -176,8 +180,7 @@ public abstract class SearchExpression {
     		}
         }
 		
-		String tableName = mapping.getTable().getTableName() ;		
-		sb.append(" from ").append(tableName) ;
+		sb.append(" from ").append(table.isShadow() ? table.getBusinessShape() : table.getConfigTableName()) ;
               
         if (conditionTerm != null) {
         	sb.append(' ').append(new WhereTerm(conditionTerm).toExpression(this, mapping, params)) ;
@@ -217,6 +220,7 @@ public abstract class SearchExpression {
 	
 	public MarkedSQL toComputeRecordNumberSQL(POJOBasedObjectMapping mapping, SearchParams params){
 		StringBuffer sb = new StringBuffer(128) ;
+		Table table = mapping.getTable() ;
 		
 		if(countSelectPhrase == null){
 			sb.append("select count(*) ") ;
@@ -242,8 +246,7 @@ public abstract class SearchExpression {
 			  .append(" ") ;
 		}
 		
-		String tableName = mapping.getTable().getTableName() ;		
-		sb.append("from ").append(tableName) ;
+		sb.append("from ").append(table.isShadow() ? table.getBusinessShape() : table.getConfigTableName()) ;
               
 		if (conditionTerm != null) {
         	sb.append(' ').append(new WhereTerm(conditionTerm).toExpression(this, mapping, params)) ;
@@ -255,7 +258,9 @@ public abstract class SearchExpression {
 	}	
 	
 	public MarkedSQL toDeleteRecordString(POJOBasedObjectMapping mapping, SearchParams params){
-		String tableName = mapping.getTable().getTableName() ;
+		Table table = mapping.getTable() ;
+		String tableName = table.isShadow() ? table.getBusinessShape() : table.getConfigTableName() ;
+		
 		StringBuffer sb = new StringBuffer(64) ;
 		sb.append("delete from ").append(tableName).append(' ') ;
 		
@@ -371,6 +376,15 @@ public abstract class SearchExpression {
 
 	public void setPageFlipClass(Class pageFlipClass) {
 		this.pageFlipClass = pageFlipClass;
+	}
+
+	public Object getTableCondition() {
+		return tableCondition;
+	}
+
+	public SearchExpression setTableCondition(Object tableCondition) {
+		this.tableCondition = tableCondition;
+		return this ;
 	}	
 
 }

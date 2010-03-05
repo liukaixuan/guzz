@@ -47,7 +47,9 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 	
 	protected GuzzContext guzzContext ;
 	
-	protected SlowUpdateService slowUpdateService ;		
+	protected SlowUpdateService slowUpdateService ;
+	
+	private Object tableCondition ;
 	
 	public int doStartTag() throws JspException {
 		String ghostName ;
@@ -70,7 +72,7 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 //			throw new JspException("unknown property:[" + updatePropName + "], business name:[" + ghostName + "]") ;
 //		}
 		
-		this.slowUpdateService.updateCount(ghostName, updatePropName, pkValue, count) ;
+		this.slowUpdateService.updateCount(ghostName, getTableCondition(), updatePropName, pkValue, count) ;
 		
 //		this.slowUpdateService.updateCount(mapping.getTable(), columnToUpdate, pkValue, count) ;
 		
@@ -86,6 +88,7 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 		this.count = 1 ;		
 		this.updatePropName = null;
 		this.pkValue = null ;
+		this.tableCondition = null ;
 	}
 	
 	public String getUpdatePropName() {
@@ -126,6 +129,23 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 
 	public void setPkValue(String pkValue) {
 		this.pkValue = pkValue;
+	}
+
+	public Object getTableCondition() {
+		if(tableCondition != null){
+			return tableCondition ;
+		}else{
+			GhostBoundaryTag m_parent = (GhostBoundaryTag) findAncestorWithClass(this, GhostBoundaryTag.class) ;
+			if(m_parent != null){
+				return m_parent.getTableCondition() ;
+			}
+		}
+		
+		return null;
+	}
+
+	public void setTableCondition(Object tableCondition) {
+		this.tableCondition = tableCondition;
 	}
 	
 }

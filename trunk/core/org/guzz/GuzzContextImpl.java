@@ -41,6 +41,7 @@ import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.interpreter.BusinessInterpreterManager;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
+import org.guzz.orm.rdms.ShadowTableViewManager;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
@@ -95,6 +96,8 @@ public class GuzzContextImpl implements GuzzContext{
 	DebugService debugService ;
 	
 	DataLoaderManager dataLoaderManager ;
+	
+	ShadowTableViewManager shadowTableViewManager ;
 	
 	ProxyFactory proxyFactory ;
 	
@@ -209,6 +212,7 @@ public class GuzzContextImpl implements GuzzContext{
 		//9. 通知组件完成全部启动
 		this.businessInterpreterManager.onGuzzFullStarted() ;
 		this.dataLoaderManager.onGuzzFullStarted() ;
+		this.shadowTableViewManager.onGuzzFullStarted() ;
 	}
 	
 	
@@ -266,6 +270,7 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		this.proxyFactory = new CglibProxyFactory() ;//TODO: read this from config file.
 		dataLoaderManager = new DataLoaderManager(this) ;
+		shadowTableViewManager = new ShadowTableViewManager(this) ;
 		objectMappingManager = new ObjectMappingManager() ;
 		businessInterpreterManager = new BusinessInterpreterManager(this) ;
 		dbGroupManager = new DBGroupManager() ;
@@ -279,6 +284,7 @@ public class GuzzContextImpl implements GuzzContext{
 	
 	public void shutdown(){	
 		dataLoaderManager.shutdown() ;
+		shadowTableViewManager.shutdown() ;
 		
 		if(serviceManager != null){
 			serviceManager.shutdown() ;
@@ -396,6 +402,10 @@ public class GuzzContextImpl implements GuzzContext{
 
 	public ProxyFactory getProxyFactory() {
 		return proxyFactory;
+	}
+
+	public ShadowTableViewManager getShadowTableViewManager() {
+		return shadowTableViewManager;
 	}
 
 }

@@ -40,9 +40,11 @@ import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
+import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
+import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.type.SQLDataType;
@@ -335,7 +337,8 @@ public class GuzzConfigFileBuilder {
 		String m_id = ormFragment.attributeValue("id") ;
 		String m_class = ormFragment.attributeValue("class") ;
 		String m_dbgroup = ormFragment.attributeValue("dbgroup") ;
-		
+		String shadow = ormFragment.attributeValue("shadow") ;
+		String table = ormFragment.attributeValue("table") ;
 		
 		if(StringUtil.isEmpty(m_dbgroup)){
 			m_dbgroup = parentDBGroup ;
@@ -350,7 +353,23 @@ public class GuzzConfigFileBuilder {
 			throw new GuzzException("orm id cann't be null. xml is:" + ormFragment.asXML()) ;
 		}
 		
-		ResultMapBasedObjectMapping map = new ResultMapBasedObjectMapping(db, m_id, Class.forName(m_class)) ;
+		//orm的shadow table支持。
+		SimpleTable st = null ;
+		if(StringUtil.notEmpty(table)){
+			st = new SimpleTable() ;
+			
+			if(StringUtil.notEmpty(shadow)){
+				ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
+				
+				gf.getShadowTableViewManager().addShadowView(sv) ;
+				st.setShadowTableView(sv) ;
+			}		
+	
+			st.setTableName(table) ;
+			st.setBusinessName(m_id) ;
+		}
+		
+		ResultMapBasedObjectMapping map = new ResultMapBasedObjectMapping(db, m_id, Class.forName(m_class), st) ;
 		
 		List results = ormFragment.selectNodes("result") ;
 		for(int i = 0 ; i < results.size() ; i++){
@@ -369,7 +388,7 @@ public class GuzzConfigFileBuilder {
 				
 				//register the loader
 				gf.getDataLoaderManager().addDataLoader(dl) ;
-			}
+			}			
 			
 			map.addPropertyMap(property, column, e.attributeValue("type"), nullValue, dl) ;			
 		}

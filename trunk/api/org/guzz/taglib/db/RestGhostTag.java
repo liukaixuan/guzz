@@ -30,6 +30,8 @@ import org.guzz.web.context.GuzzWebApplicationContextUtil;
 
 /**
  * 对Ghost进行写操作。
+ * 
+ * TODO: rest api还没有提供shadow table支持，在实现时需要注意加上。
  */
 public abstract class RestGhostTag extends TagSupport {
 	protected final transient Log log = LogFactory.getLog(this.getClass()) ;

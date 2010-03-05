@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.guzz.Guzz;
 import org.guzz.bytecode.LazyPropChangeDetector;
 import org.guzz.dao.PersistListener;
 import org.guzz.exception.DaoException;
@@ -239,9 +240,8 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	 * @param operation 1:insert, 2:update, 3:delete
 	 */
 	protected int executeUpdateWithPrePL(BindedCompiledSQL bsql, PersistListener[] pls, Object domainObject, Serializable pk, int operation){
-		CompiledSQL sql = bsql.getCompiledSQL() ;
-		String rawSQL = sql.getSql() ;
-		ObjectMapping m = sql.getMapping() ;
+		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
+		String rawSQL = bsql.getSql() ;
 		if(m == null){
 			throw new DaoException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -280,9 +280,8 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	}
 	
 	public int executeUpdate(BindedCompiledSQL bsql){
-		CompiledSQL sql = bsql.getCompiledSQL() ;
-		String rawSQL = sql.getSql() ;
-		ObjectMapping m = sql.getMapping() ;
+		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
+		String rawSQL = bsql.getSql() ;
 		if(m == null){
 			throw new DaoException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -346,7 +345,11 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	}
 	
 	public SQLBatcher createCompiledSQLBatcher(CompiledSQL sql) {
-		String rawSQL = sql.getSql() ;
+		return createCompiledSQLBatcher(sql, Guzz.getTableCondition()) ;
+	}
+	
+	public SQLBatcher createCompiledSQLBatcher(CompiledSQL sql, Object tableCondition) {
+		String rawSQL = sql.getSql(tableCondition) ;
 		ObjectMapping m = sql.getMapping() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping not found. sql is:" + rawSQL) ;

@@ -19,11 +19,15 @@ package org.guzz.orm.sql;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.guzz.orm.ObjectMapping;
+import org.guzz.orm.rdms.Table;
 import org.guzz.orm.type.SQLDataType;
+import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -37,7 +41,7 @@ import org.guzz.orm.type.SQLDataType;
 public class CompiledSQL {
 	
 	private String sql ;
-	
+		
 	private Map paramPropMapping = null ;
 	
 	private List orderedParams = new ArrayList() ;
@@ -46,12 +50,48 @@ public class CompiledSQL {
 		
 	private String[] cached_orderedParams = null ;
 	
-	public String getSql() {
-		return sql;
+	/**保存sql中用到的shadow表，如果查询中没有shadow表，值为null*/
+	private Map shadowMapping = null ;
+	
+	/**
+	 * 根据tableCondition获取完成shadow映射后的sql语句。
+	 */
+	public String getSql(Object tableCondition) {
+		if(shadowMapping == null){
+			return sql;
+		}else{
+			String sql2 = sql ;
+			//替换shadow table name
+			Iterator i = shadowMapping.entrySet().iterator() ;
+			while(i.hasNext()){
+				Entry e = (Entry) i.next() ;
+				Table shadowTable = (Table) e.getValue() ;
+				
+				sql2 = StringUtil.replaceString(sql2, (String) e.getKey(), shadowTable.getTableName(tableCondition)) ;
+			}
+			
+			return sql2 ;
+		}
 	}
-
+	
+	
+	/**
+	 * 设置查询sql，如果sql中涉及shadow表，表名可以用@@businessName替代；
+	 * 替代后，调用 {@link #addShadowMapping(String, Table)} 声明映射。
+	 */
 	public void setSql(String sql) {
 		this.sql = sql;
+	}
+	
+	/**
+	 * 添加shadow表映射。
+	 */
+	public void addShadowMapping(String businessName, Table shadowTable){
+		if(shadowMapping == null){
+			shadowMapping = new HashMap() ;
+		}
+		
+		this.shadowMapping.put(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName, shadowTable) ;
 	}
 	
 	public void addParamToLast(String paramName){

@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.guzz.Guzz;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.lang.NullValue;
@@ -56,8 +57,27 @@ public class BindedCompiledSQL {
 	
 	private LockMode lockMode ;
 	
+	/**the sql ready to execute in database.*/
+	private String cachedSql ;
+	
+	private Object tableCondition ;
+	
 	public BindedCompiledSQL(CompiledSQL cs){
 		this.compiledSQL = cs ;
+	}
+	
+	public String getSql(){
+		if(this.cachedSql != null){
+			return this.cachedSql ;
+		}else{
+			if(tableCondition != null){
+				this.cachedSql = this.compiledSQL.getSql(tableCondition) ;
+			}else{
+				this.cachedSql = this.compiledSQL.getSql(Guzz.getTableCondition()) ;
+			}
+			
+			return this.cachedSql;
+		}
 	}
 	
 	/**绑定sql执行需要的参数*/
@@ -107,7 +127,7 @@ public class BindedCompiledSQL {
 			Object value = bindedParams.get(orderParam) ;
 			
 			if(value == null){
-				throw new DaoException("missing paramter:[" + orderParam + "] in sql:" + compiledSQL.getSql()) ;
+				throw new DaoException("missing paramter:[" + orderParam + "] in sql:" + getSql()) ;
 			}
 			
 			//NEW Implemention to fix
@@ -122,7 +142,7 @@ public class BindedCompiledSQL {
 				type.setSQLValue(pstm, i + bindStartIndex, value) ;
 			}else{ //使用jdbc自己的方式绑定。
 				if(log.isInfoEnabled()){
-					log.info("bind named params without SQLDataType found, try CompiledSQL#addParamPropMapping(,) for better binding. bind param is:[" + orderParam + "], value is :[" + value + "]. sql is:" + compiledSQL.getSql()) ;
+					log.info("bind named params without SQLDataType found, try CompiledSQL#addParamPropMapping(,) for better binding. bind param is:[" + orderParam + "], value is :[" + value + "]. sql is:" + getSql()) ;
 				}
 				
 				pstm.setObject(i + bindStartIndex, value) ;
@@ -201,6 +221,17 @@ public class BindedCompiledSQL {
 
 	public BindedCompiledSQL setLockMode(LockMode lockMode) {
 		this.lockMode = lockMode;
+		return this ;
+	}
+
+	public Object getTableCondition() {
+		return tableCondition;
+	}
+
+	public BindedCompiledSQL setTableCondition(Object tableCondition) {
+		this.tableCondition = tableCondition;
+		this.cachedSql = null ;
+		
 		return this ;
 	}
 

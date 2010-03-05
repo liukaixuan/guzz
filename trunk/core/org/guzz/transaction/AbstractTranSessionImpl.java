@@ -136,9 +136,8 @@ public class AbstractTranSessionImpl {
 	 * @param pageSize
 	 **/
 	public List list(BindedCompiledSQL bsql, int startPos, int maxSize) {
-		CompiledSQL sql = bsql.getCompiledSQL() ;
-		String rawSQL = sql.getSql() ;
-		ObjectMapping m = sql.getMapping() ;
+		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
+		String rawSQL = bsql.getSql() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -207,7 +206,7 @@ public class AbstractTranSessionImpl {
 		
 		CompiledSQL sql = sc.compile(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 		
-		return list(sql.bind(sp.getSearchParams()), se.getStartPos(), se.getPageSize()) ;
+		return list(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), se.getStartPos(), se.getPageSize()) ;
 	}
 	
 	public PageFlip page(SearchExpression se) {
@@ -241,7 +240,7 @@ public class AbstractTranSessionImpl {
 			
 			CompiledSQL sql = sc.compile(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 			
-			Integer count = (Integer) findCell00(sql.bind(sp.getSearchParams()), "int") ;
+			Integer count = (Integer) findCell00(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), "int") ;
 			recordCount = count.intValue() ;
 		}
 		
@@ -260,10 +259,8 @@ public class AbstractTranSessionImpl {
 	}
 
 	public Object findCell00(BindedCompiledSQL bsql, String returnType){
-		CompiledSQL sql = bsql.getCompiledSQL() ;
-		
-		String rawSQL = sql.getSql() ;
-		ObjectMapping m = sql.getMapping() ;
+		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
+		String rawSQL = bsql.getSql() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -329,10 +326,8 @@ public class AbstractTranSessionImpl {
 	 * @param returnType
 	 */
 	protected Object findCell00(BindedCompiledSQL bsql, SQLDataType returnType){
-		CompiledSQL sql = bsql.getCompiledSQL() ;
-		
-		String rawSQL = sql.getSql() ;
-		ObjectMapping m = sql.getMapping() ;
+		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
+		String rawSQL = bsql.getSql() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -401,7 +396,7 @@ public class AbstractTranSessionImpl {
 		
 		CompiledSQL sql = sc.compile(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 		
-		Object ret = findCell00(sql.bind(sp.getSearchParams()), Long.class.getName()) ;
+		Object ret = findCell00(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), Long.class.getName()) ;
 		
 		if(ret == null){
 			return 0L ;
@@ -420,10 +415,9 @@ public class AbstractTranSessionImpl {
 	}
 
 	public Object findObject(BindedCompiledSQL bsql) {
-		CompiledSQL sql = bsql.getCompiledSQL() ;
+		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
+		String rawSQL = bsql.getSql() ;
 		
-		String rawSQL = sql.getSql() ;
-		ObjectMapping m = sql.getMapping() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}

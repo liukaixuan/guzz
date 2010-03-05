@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  * 
- * 用于进行异步更新的领域对象。
+ * 用于进行异步更新的领域对象。不支持shadow。
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

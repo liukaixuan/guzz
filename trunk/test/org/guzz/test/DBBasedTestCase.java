@@ -126,6 +126,13 @@ public abstract class DBBasedTestCase extends TestCase {
 		executeUpdate(H2Conn, "drop table if exists TB_USER_INFO2") ;
 		executeUpdate(H2Conn, "create table TB_USER_INFO2(pk int not null AUTO_INCREMENT primary key , userId varchar(64), aboutMe CLOB, portraitImg BLOB)") ;
 		
+		//comment shadow table
+		executeUpdate(H2Conn, "drop table if exists TB_COMMENT1") ;
+		executeUpdate(H2Conn, "drop table if exists TB_COMMENT2") ;
+
+    	String sql = "create table TB_COMMENT(id int not null AUTO_INCREMENT primary key ,userId int(11), userName varchar(64), DESCRIPTION text, createdTime TIMESTAMP)" ;
+    	executeUpdate(H2Conn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT1")) ;
+		executeUpdate(H2Conn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT2")) ;
 	}
 	
 	protected void setUpForOracle10G() throws Exception {
