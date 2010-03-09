@@ -27,6 +27,8 @@ public interface DynamicUpdatable {
 	/**
 	 * list the attributes that had been changed compared with the db. including lazied attribute.
 	 * 
+	 * <p>only props hold mappings to database should be returned. TODO:check for this.<p>
+	 * 
 	 * @return attributea to update. return null to save all props, return String[0] to ignore update operation.
 	 */
 	public String[] getChangedProps() ;

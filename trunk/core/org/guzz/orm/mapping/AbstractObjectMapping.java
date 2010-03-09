@@ -49,6 +49,9 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 		
 	protected abstract String getColDataType(String propName, String colName, String dataType) ;
 		
+	/**
+	 * TODO: change to addPropertyMap(TableColumn column)
+	 */
 	public x$ORM addPropertyMap(String propName, String colName, String dataType, String nullValue, ColumnDataLoader columnDataLoader){
 		String dataType2 = getColDataType(propName, colName, dataType) ;
 		x$ORM o = null ;
