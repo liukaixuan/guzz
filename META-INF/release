@@ -1,7 +1,5 @@
 guzz 1.2.7 b2
-
-
-
+	1. shadow table support
 
 1.2.7 b1:
 	1. FutureResult supports

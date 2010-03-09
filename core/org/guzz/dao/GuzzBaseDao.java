@@ -152,7 +152,7 @@ public class GuzzBaseDao {
 		}		
 	}
 	
-	/**执行se中的count操作，返回long类型的数据。从slave数据库读取。*/
+	/**执行se中的list操作。从slave数据库读取。*/
 	public List list(SearchExpression se){
 		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
 		
@@ -161,6 +161,23 @@ public class GuzzBaseDao {
 		}finally{
 			session.close() ;
 		}		
+	}
+	
+	/**
+	 * 从slave数据库读取列表。
+	 * 
+	 * @param bsql BindedCompiledSQL
+	 * @param startPos 从 1 开始
+	 * @param maxSize
+	 */
+	public List list(BindedCompiledSQL bsql, int startPos, int maxSize){
+		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
+		
+		try{
+			return session.list(bsql, 1, 2) ;
+		}finally{
+			session.close() ;
+		}
 	}
 	
 	/**执行se中的count操作，返回long类型的数据。从slave数据库读取。*/

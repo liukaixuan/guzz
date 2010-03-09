@@ -45,9 +45,27 @@ public interface SlowUpdateService {
 	public void updateCount(String dbGroup, String tableName, String columnToUpdate, String pkColName, Serializable pkValue, int countToInc) ;
 	
 	
+	/**
+	 * 更新一个计数。
+	 * 
+	 * @param businessName 要更新的域对象
+	 * @param tableCondition shaodow table分表条件
+	 * @param propToUpdate 要更新的属性名称
+	 * @param pkValue 要更新对象的主键值
+	 * @param countToInc
+	 */
 	public void updateCount(String businessName, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc) ;
 	
 	
+	/**
+	 * 更新一个计数。
+	 * 
+	 * @param domainClass 要更新的域对象类
+	 * @param tableCondition shaodow table分表条件
+	 * @param propToUpdate 要更新的属性名称
+	 * @param pkValue 要更新对象的主键值
+	 * @param countToInc
+	 */
 	public void updateCount(Class domainClass, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc) ;
 
 }
