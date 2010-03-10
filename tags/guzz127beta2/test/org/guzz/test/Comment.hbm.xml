@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+<guzz-mapping>
+    <class name="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+        <id name="id" type="int">
+        	<generator class="native" />
+        </id>
+        <property name="userId" type="int" column="userId">
+        </property>
+        <property name="userName" type="string" column="userName" />
+        <property name="content" type="string" column="DESCRIPTION">
+        </property>
+        <property name="createdTime" type="datetime" column="createdTime" />
+    </class>
+</guzz-mapping>

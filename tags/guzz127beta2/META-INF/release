@@ -1,0 +1,11 @@
+guzz 1.2.7 b2
+	1. shadow table support
+
+1.2.7 b1:
+	1. FutureResult supports
+	2. JDK1.4 -> JDK5
+
+1.2.6:
+	1. 完成clob/blob/decimal/byte等数据类型支持
+   	2. 提供新的字段更新方法
+   	3. 提供clob/blob的loader自定义加载属性选择（适合oracle使用） 

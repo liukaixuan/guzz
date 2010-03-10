@@ -1,0 +1,88 @@
+<!--
+	Guzz main config DTD, version 1.0
+	Authors: Liu Kaixuan (liukaixuan@gmail.com)
+
+	<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//MAIN CONFIG DTD//EN" "http://www.guzz.org/dtd/guzz.dtd">
+-->
+
+<!ELEMENT guzz-configs (
+properties?, (config-server? | tran? | dialect| service | import | business | sqlMap | orm)*
+)>
+
+<!ELEMENT properties EMPTY>
+<!ATTLIST properties file CDATA #REQUIRED>
+
+
+<!ELEMENT config-server (server+)>
+<!ELEMENT server (param*)>
+<!ATTLIST server class CDATA #REQUIRED>
+<!ELEMENT param EMPTY>
+<!ATTLIST param name CDATA #REQUIRED>
+<!ATTLIST param value CDATA #REQUIRED>
+
+
+<!ELEMENT tran (dbgroup+)>
+<!ELEMENT dbgroup EMPTY>
+<!ATTLIST dbgroup name CDATA "default">
+<!ATTLIST dbgroup masterDBConfigName CDATA #IMPLIED>
+<!ATTLIST dbgroup slaveDBConfigName CDATA #IMPLIED>
+<!ATTLIST dbgroup dialectName CDATA #IMPLIED>
+
+
+<!ELEMENT dialect (type*)>
+<!ATTLIST dialect name CDATA "default">
+<!ATTLIST dialect class CDATA #REQUIRED>
+<!ELEMENT type EMPTY>
+<!ATTLIST type name CDATA #REQUIRED>
+<!ATTLIST type class CDATA #REQUIRED>
+
+
+<!ELEMENT service EMPTY>
+<!ATTLIST service name CDATA #REQUIRED>
+<!ATTLIST service configName CDATA #REQUIRED>
+<!ATTLIST service class CDATA #REQUIRED>
+
+
+<!ELEMENT import EMPTY>
+<!ATTLIST import resource CDATA #REQUIRED>
+
+
+<!ELEMENT business EMPTY>
+<!ATTLIST business name CDATA #REQUIRED>
+<!ATTLIST business dbgroup CDATA "default">
+<!ATTLIST business class CDATA #IMPLIED>
+<!ATTLIST business interpret CDATA #IMPLIED>
+<!ATTLIST business file CDATA #REQUIRED>
+
+
+<!ELEMENT sqlMap ((select | update | orm)*)>
+<!ATTLIST sqlMap dbgroup CDATA "default">
+
+<!ELEMENT select (#PCDATA)>
+<!ATTLIST select id ID #REQUIRED>
+<!ATTLIST select orm CDATA #REQUIRED>
+<!ATTLIST select dbgroup CDATA "default">
+
+<!ELEMENT update (#PCDATA)>
+<!ATTLIST update id ID #REQUIRED>
+<!ATTLIST update orm CDATA #REQUIRED>
+<!ATTLIST update dbgroup CDATA "default">
+
+<!ELEMENT orm (result*)>
+<!ATTLIST orm id CDATA #REQUIRED>
+<!ATTLIST orm class CDATA #REQUIRED>
+<!ATTLIST orm dbgroup CDATA "default">
+<!ATTLIST orm table CDATA #IMPLIED>
+<!ATTLIST orm shadow CDATA #IMPLIED>
+
+<!ELEMENT generator (param*)>
+<!ATTLIST generator class CDATA "native">
+
+<!ELEMENT result EMPTY>
+<!ATTLIST result property CDATA #REQUIRED>
+<!ATTLIST result column CDATA #REQUIRED>
+<!ATTLIST result type CDATA #IMPLIED>
+<!ATTLIST result null CDATA #IMPLIED>
+<!ATTLIST result loader CDATA #IMPLIED>
+
+

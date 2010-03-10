@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="core"/>
+	<classpathentry kind="src" path="common"/>
+	<classpathentry kind="src" path="api"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="service"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="com.genuitec.eclipse.j2eedt.core.J2EE14_CONTAINER"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/dom.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/jaxen-full.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/jaxp-api.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/jdbc2_0-stdext.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/jstl.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/mail.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/sax.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/saxpath.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/standard.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/xalan.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="dev-lib/h2-1.1.117.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/c3p0-0.9.1.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/spring.jar" sourcepath="D:/coding/opensources/spring-framework-2.5.6.SEC01-with-dependencies/spring-framework-2.5.6.SEC01/src"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/phprpc_client.jar"/>
+	<classpathentry kind="lib" path="D:/coding/extlib/commons-dbcp-1.2.2/commons-dbcp-1.2.2.jar"/>
+	<classpathentry kind="lib" path="D:/coding/extlib/asm/lib/all/asm-debug-all-3.2.jar" sourcepath="D:/coding/extlib/asm/src.zip"/>
+	<classpathentry kind="lib" path="D:/coding/extlib/asm/src.zip"/>
+	<classpathentry kind="lib" path="D:/coding/extlib/cglib/cglib-nodep-2.1_3.jar" sourcepath="D:/coding/extlib/cglib/cglib-src-2.2.jar"/>
+	<classpathentry kind="lib" path="dev-lib/ojdbc14.jar"/>
+	<classpathentry kind="output" path="WebRoot/WEB-INF/classes"/>
+</classpath>

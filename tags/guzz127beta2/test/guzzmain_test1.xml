@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
+
+<guzz-configs>
+
+	<!-- 从Properties 文件中读取配置项，替换guzz.xml文档中的$xxx参数 -->
+	<properties file="guzz.properties" />
+	
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resource" value="guzz_test2.properties" />
+		</server>
+	</config-server>
+	
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB" />
+		<dbgroup name="log" masterDBConfigName="masterDB" dialectName="mysql5dialect" />
+		<dbgroup name="oracle" masterDBConfigName="oracleDB" dialectName="oracle10gdialect" />
+	</tran>
+	
+	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
+	<service name="onlyForTest2" configName="onlyForTest2Config" class="org.guzz.test.sample.SampleTestService2" />
+	
+	<import resource="include/part2.xml" />
+
+	<business name="user" dbgroup="default" class="org.guzz.test.User" interpret="" file="classpath:org/guzz/test/User.hbm.xml" />
+	<business name="book" class="org.guzz.test.Book" file="classpath:org/guzz/test/Book.hbm.xml" />
+	<business name="userInfo" dbgroup="oracle" class="org.guzz.test.UserInfo" file="classpath:org/guzz/test/UserInfo.hbm.xml" />
+	<business name="userInfo2" dbgroup="default" file="classpath:org/guzz/test/UserInfoH2.hbm.xml" />
+	<business name="comment" dbgroup="default" file="classpath:org/guzz/test/Comment.hbm.xml" />
+	
+	<dialect class="org.guzz.dialect.H2Dialect"></dialect>
+	<dialect name="mysql5dialect" class="org.guzz.dialect.Mysql5Dialect" />
+	<dialect name="oracle10gdialect" class="org.guzz.dialect.Oracle10gDialect" />
+	
+	<sqlMap dbgroup="default">
+		<select id="selectUser" orm="user" dbgroup="default">
+			select * from @@user
+			 where 
+			 	@id = :id 
+		</select>
+		
+		<select id="selectUserByName" orm="user">
+			select @id, @userName, @vip, @password from @@user where @userName = :userName
+		</select>
+	
+		<update id="updateUserFavCount" orm="userObjectMap">
+			update @@user set @favCount = favCount + 1
+		</update>
+		
+		<select id="selectUsers" orm="userObjectMap">
+			select @id, @name, @vip, @favCount from @@user
+		</select>
+		
+		<select id="listCommentsByName" orm="commentMap">
+			select * from @@commentMap where @userName = :userName
+		</select>
+				
+		<orm id="userObjectMap" class="org.guzz.test.UserModel">
+			<result property="id" column="pk"/>
+		    <result property="name" column="userName"/>
+		    <result property="favCount" column="FAV_COUNT"/>
+		    <result property="vip" column="VIP_USER"/>
+		</orm>
+		
+		<orm id="commentMap" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+			<result property="id" column="id" type="int"/>
+		    <result property="userId" column="userId" type="int"/>
+		    <result property="userName" column="userName" type="string" />
+		    <result property="createdTime" column="createdTime" type="datetime" />
+		</orm>
+	</sqlMap>
+
+</guzz-configs>

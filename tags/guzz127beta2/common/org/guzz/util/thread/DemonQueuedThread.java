@@ -1,0 +1,142 @@
+/*
+ * Copyright 2008-2009 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package org.guzz.util.thread;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.guzz.service.core.DebugService;
+
+/**
+ * 
+ * 临时后台队列线程。此线程可以维护一个快速的队列，当队列内容超过最大值时，自动覆盖以前的值。
+ * <p />队列不保证线程安全，也不能保证数据不丢失。仅可以用来处理临时非关键数据。
+ * 
+ * TODO: 做成后退数组队列，提高性能。
+ *
+ * @author liukaixuan(liukaixuan@gmail.com)
+ */
+public class DemonQueuedThread  extends Thread{
+	private transient final Log log = LogFactory.getLog(getClass()) ;
+	
+	private boolean keepRunning = true ;
+	
+	private String threadName ;
+	
+	protected Object[] queues ;
+	
+	private volatile int currentWritePos = 0 ;
+	
+	private boolean isSleepNow = false ;
+	
+//	private int currentReadPos = 0 ;
+	
+	public boolean isSleeping(){
+		return isSleepNow ;
+	}
+	
+	public void addToQueue(Object obj){
+		int pos = currentWritePos++ ;
+		if(pos >= queues.length){
+			currentWritePos = 0 ;
+			pos = 0 ;
+		}
+		
+		queues[pos] = obj ;	
+	}
+	
+	/* *
+	 * 从队列中获取下一个元素，如果当前没有元素，返回null，不会进行等待。
+	 * <p />元素返回后，立即从队列中删除。
+	 */
+//	public Object getFromQueue(){
+//		int pos = currentReadPos++ ;
+//		
+//		if(pos >= queues.length){
+//			currentReadPos = 0 ;
+//			pos = 0 ;
+//		}
+//		
+//		Object obj = queues[pos] ;
+//		
+//		if(obj != null){
+//			queues[pos] = null ;
+//			return obj ;
+//		}else{ //没有元素。
+//			
+//		}
+//	}
+	
+	public DemonQueuedThread(String threadName, int queueSize){
+		this.setDaemon(true) ;
+		this.threadName = threadName ;
+		this.queues = new Object[queueSize] ;
+		
+		this.setName(DebugService.DEMON_NAME_PREFIX + threadName) ;
+	}
+	
+	public void shutdown(){
+		this.keepRunning = false ;
+		
+		try {
+			this.notify() ;
+		} catch (Exception e) {
+		}
+		
+		log.info("thread [" + threadName + "] closed.") ;
+	}
+	
+	/**
+	 * 
+	 * @return should keep the thread running.
+	 */
+	protected boolean doWithTheQueue() throws Exception{
+		return true ;
+	}
+				
+	public void run(){
+		while(keepRunning){
+			isSleepNow = false ;
+			
+			boolean shouldSleep = true ;
+			
+			try{
+				shouldSleep = !doWithTheQueue() ;
+				
+			}catch(Exception e){
+				shouldSleep = true ;
+				//ignore all errors
+				log.error("error whiling updating inc queue.", e) ;
+			}
+			
+			if(shouldSleep){
+				try{
+					synchronized(this){
+						isSleepNow = true ;
+						this.wait(getMillSecondsToSleep()) ;
+					}
+				}catch(Exception e){
+					//ignore all errors
+				}
+			}
+		}
+	}
+	
+	protected int getMillSecondsToSleep(){
+		return 500 ;
+	}
+
+}

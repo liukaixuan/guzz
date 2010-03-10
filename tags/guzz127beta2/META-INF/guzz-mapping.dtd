@@ -1,0 +1,54 @@
+<!--
+	Guzz Mapping DTD, version 1.0
+	Authors: Liu Kaixuan (liukaixuan@gmail.com)
+	
+	One Class, One Mapping file.
+
+	<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+-->
+
+<!--
+	The document root.
+ -->
+
+<!ELEMENT guzz-mapping (class)>
+
+<!--
+	Root entity mapping.  Poorly named as entities do not have to be represented by 
+	classes at all.  Mapped entities may be represented via different methodologies 
+	(POJO, Map, Dom4j).
+-->
+<!ELEMENT class (id, (property)* )>
+	<!-- full qulified class name -->
+	<!ATTLIST class name CDATA #REQUIRED>                            
+	<!ATTLIST class table CDATA #REQUIRED>
+	<!ATTLIST class shadow CDATA #IMPLIED>
+	<!ATTLIST class dynamic-update (true|false) "false">
+
+<!-- Declares the id type, column and generation algorithm for an entity class. -->
+<!ELEMENT id (generator)>
+	<!ATTLIST id name CDATA #REQUIRED>
+	<!ATTLIST id column CDATA #IMPLIED>
+	<!ATTLIST id type CDATA #IMPLIED>
+	
+<!-- Generators generate unique identifiers. The class attribute specifies a Java 
+class implementing an id generation algorithm. -->
+<!ELEMENT generator (param*)>
+	<!ATTLIST generator class CDATA #REQUIRED>
+	
+<!ELEMENT param (#PCDATA)>
+	<!ATTLIST param name CDATA #REQUIRED>
+
+<!-- Property of an entity class. JavaBeans style properties are mapped to table columns. -->
+<!ELEMENT property (#PCDATA)>
+	<!ATTLIST property name CDATA #REQUIRED>
+	<!ATTLIST property type CDATA #IMPLIED>
+	<!ATTLIST property column CDATA #IMPLIED>
+	<!ATTLIST property update (true|false) #IMPLIED>
+	<!ATTLIST property insert (true|false) #IMPLIED>
+	<!ATTLIST property lazy (true|false) "false">
+	<!-- value mapped to sql null value -->
+	<!ATTLIST property null CDATA #IMPLIED>
+	<!ATTLIST property loader CDATA #IMPLIED>
+
+

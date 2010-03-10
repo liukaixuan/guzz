@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.test.Article" table="TB_ARTICLE">
+        <id name="id" type="int">
+        	<generator class="native" />
+            <!--  <column name="ID" precision="8" scale="0" />
+            <generator class="assigned" />-->
+        </id>
+        <property name="title" type="varchar(255)" column="NAME" length="256">
+        </property>
+        <property name="content" type="string" column="DESCRIPTION">
+        </property>
+        <property name="createdTime" type="datetime" column="createdTime" />
+        
+        <set name="projects" inverse="true">
+            <key>
+                <column name="PROD_ID" precision="8" scale="0" />
+            </key>
+            <one-to-many class="edu.harvard.fas.rbrady.tpteam.tpbridge.hibernate.Project" />
+        </set>
+    </class>
+</hibernate-mapping>
