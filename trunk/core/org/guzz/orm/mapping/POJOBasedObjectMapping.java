@@ -25,7 +25,9 @@ import org.guzz.GuzzContextImpl;
 import org.guzz.bytecode.BusinessDescriptor;
 import org.guzz.bytecode.ProxyFactory;
 import org.guzz.orm.Business;
+import org.guzz.orm.ColumnORM;
 import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.pojo.GuzzProxy;
 import org.guzz.transaction.DBGroup;
 import org.guzz.util.StringUtil;
@@ -38,7 +40,7 @@ import org.guzz.util.javabean.BeanWrapper;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class POJOBasedObjectMapping extends AbstractObjectMapping {
+public final class POJOBasedObjectMapping extends AbstractObjectMapping {
 
 	private Business business ;
 		
@@ -51,7 +53,7 @@ public class POJOBasedObjectMapping extends AbstractObjectMapping {
 	private BusinessDescriptor businessDescriptor ;
 	
 	public POJOBasedObjectMapping(GuzzContextImpl guzzContext, DBGroup dbGroup, Business business){
-		super(dbGroup) ;
+		super(dbGroup, business.getTable()) ;
 		
 		this.guzzContext = guzzContext ;
 		this.proxyFactory = guzzContext.getProxyFactory() ;
@@ -79,7 +81,7 @@ public class POJOBasedObjectMapping extends AbstractObjectMapping {
 			BusinessDescriptor ld = new BusinessDescriptor(guzzContext.getTransactionManager(), business) ;
 			String[] lazyProps = table.getLazyProps() ;
 			for(int i = 0 ; i < lazyProps.length ; i++){
-				ld.addLazyColumn((x$ORM) this.prop2ColsMapping.get(lazyProps[i])) ;
+				ld.addLazyColumn((ColumnORM) getTable().getColumnByPropName(lazyProps[i]).getOrm()) ;
 			}
 			
 			this.businessDescriptor = ld ;
@@ -97,7 +99,7 @@ public class POJOBasedObjectMapping extends AbstractObjectMapping {
 //		Object obj = BeanCreator.newBeanInstance(this.business.getDomainClass()) ;
 //		
 //		for(int i = 1 ; i <= columnsForSelect.length ; i++){
-//			x$ORM orm = (x$ORM) col2PropsMapping.get(columnsForSelect[i]) ;
+//			ColumnORM orm = (ColumnORM) col2PropsMapping.get(columnsForSelect[i]) ;
 //			
 //			//没有对应的映射，不进行映射。TODO: 在debug模式下，发出警告。
 //			if(orm != null){
@@ -114,14 +116,17 @@ public class POJOBasedObjectMapping extends AbstractObjectMapping {
 			((GuzzProxy) obj).markReading() ;
 		}
 		
+		Table t = getTable() ;
+		
 		for(int i = 1 ; i <= count ; i++){
 			String colName = meta.getColumnName(i) ;
-			x$ORM orm = (x$ORM) col2PropsMapping.get(colName.toLowerCase()) ;
+			TableColumn col = t.getColumnByColName(colName) ;
+			ColumnORM orm = col != null ? col.getOrm() : null ;
 			
 			//没有对应的映射，不进行映射。TODO: 在debug模式下，发出警告。
 			if(orm != null){
 				Object value = orm.loadResult(rs, obj, i) ;
-				this.beanWrapper.setValue(obj, orm.propName, value) ;
+				this.beanWrapper.setValue(obj, col.getPropName(), value) ;
 			}
 		}
 		
@@ -148,10 +153,6 @@ public class POJOBasedObjectMapping extends AbstractObjectMapping {
 	
 	public String dump(){
 		return this.getClass().toString() ;
-	}
-
-	public Table getTable() {
-		return business.getTable();
 	}
 
 	public Business getBusiness() {

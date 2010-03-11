@@ -18,6 +18,7 @@ package org.guzz.orm.rdms;
 
 import org.guzz.dao.PersistListener;
 import org.guzz.id.IdentifierGenerator;
+import org.guzz.orm.CustomTableView;
 
 /**
  * 
@@ -33,6 +34,10 @@ public interface Table {
 	public String getTableName(Object tableCondition) ;
 	
 	public boolean isShadow() ;
+	
+	public CustomTableView getCustomTableView() ;
+	
+	public boolean isCustomTable() ;
 	
 	/**
 	 * return the configured tabled name 
@@ -69,6 +74,8 @@ public interface Table {
 	public boolean isDynamicUpdateEnable() ;
 	
 	public TableColumn getColumnByPropName(String propName) ;
+	
+	public TableColumn getColumnByColName(String colName) ;
 
 	public PersistListener[] getPersistListeners() ;
 	

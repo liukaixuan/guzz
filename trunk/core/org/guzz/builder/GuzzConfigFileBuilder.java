@@ -39,18 +39,21 @@ import org.guzz.exception.GuzzException;
 import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
+import org.guzz.orm.ColumnORM;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
 import org.guzz.orm.rdms.SimpleTable;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.pojo.ColumnDataLoader;
 import org.guzz.service.ServiceInfo;
 import org.guzz.transaction.DBGroup;
+import org.guzz.util.Assert;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
@@ -354,24 +357,21 @@ public class GuzzConfigFileBuilder {
 		}
 		
 		//orm的shadow table支持。
-		SimpleTable st = null ;
-		if(StringUtil.notEmpty(table)){
-			st = new SimpleTable() ;
-			
-			if(StringUtil.notEmpty(shadow)){
-				ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
+		SimpleTable st = new SimpleTable() ;
+		if(StringUtil.notEmpty(shadow)){
+			ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
 				
-				gf.getShadowTableViewManager().addShadowView(sv) ;
-				st.setShadowTableView(sv) ;
-			}		
+			gf.getShadowTableViewManager().addShadowView(sv) ;
+			st.setShadowTableView(sv) ;
+		}		
 	
-			st.setTableName(table) ;
-			st.setBusinessName(m_id) ;
-		}
+		st.setTableName(table) ;
+		st.setBusinessName(m_id) ;		
 		
 		ResultMapBasedObjectMapping map = new ResultMapBasedObjectMapping(db, m_id, Class.forName(m_class), st) ;
 		
 		List results = ormFragment.selectNodes("result") ;
+		
 		for(int i = 0 ; i < results.size() ; i++){
 			Element e = (Element) results.get(i) ;
 			
@@ -379,18 +379,36 @@ public class GuzzConfigFileBuilder {
 			String property = e.attributeValue("property") ;
 			String column = e.attributeValue("column") ;
 			String nullValue = e.attributeValue("null") ;
+			String type = e.attributeValue("type") ;
+			
+			Assert.assertNotEmpty(property, "invalid property") ;
+			
+			if(StringUtil.isEmpty(column)){
+				column = property ;
+			}
+			
+			TableColumn col = new TableColumn(st) ;
+			col.setColName(column) ;
+			col.setPropName(property) ;
+			col.setType(type) ;
+			col.setNullValue(nullValue) ;
+			col.setAllowInsert(true) ;
+			col.setAllowUpdate(true) ;
+			col.setLazy(false) ;
 			
 			ColumnDataLoader dl = null ;
-			
 			if(StringUtil.notEmpty(loader)){
 				dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
 				dl.configure(map, null, property, column) ;
 				
 				//register the loader
 				gf.getDataLoaderManager().addDataLoader(dl) ;
-			}			
+			}
 			
-			map.addPropertyMap(property, column, e.attributeValue("type"), nullValue, dl) ;			
+			ColumnORM orm = map.createColumnMapping(col, dl) ;
+			col.setOrm(orm) ;
+			
+			st.addColumn(col) ;
 		}
 		
 		return map ;

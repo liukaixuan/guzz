@@ -18,11 +18,9 @@ package org.guzz.orm.mapping;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.guzz.orm.rdms.Table;
-import org.guzz.pojo.ColumnDataLoader;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.transaction.DBGroup;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
@@ -34,33 +32,19 @@ import org.guzz.util.javabean.BeanWrapper;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ResultMapBasedObjectMapping extends AbstractObjectMapping {
+public final class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 	private final String id ;
 	
 	private final Class domainClass ;
 	
-	private final BeanWrapper beanWrapper ;
-	
-	private final List props = new LinkedList() ;
-	
-	private final Table table ;
+	private final BeanWrapper beanWrapper ;	
 		
 	public ResultMapBasedObjectMapping(DBGroup dbGroup, String id, Class domainClass, Table table){
-		super(dbGroup) ;
+		super(dbGroup, table) ;
 		this.id = id ;
 		this.domainClass = domainClass ;
 		beanWrapper = new BeanWrapper(domainClass) ;
-		this.table = table ;
-	}
-	
-	public x$ORM addPropertyMap(String propName, String colName, String dataType, String nullValue, ColumnDataLoader columnDataLoader){
-		super.addPropertyMap(propName, colName, dataType, nullValue, columnDataLoader) ;
-		
-		x$ORM orm = (x$ORM) this.prop2ColsMapping.get(propName) ;
-		props.add(orm) ;
-		
-		return orm ;
-	}
+	}	
 
 	protected String getColDataType(String propName, String colName, String dataType) {
 		if (StringUtil.isEmpty(dataType)){
@@ -78,12 +62,15 @@ public class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 		
 		Object obj = BeanCreator.newBeanInstance(this.domainClass) ;
 		
-		for(int i = 0 ; i < props.size() ; i++){
-			x$ORM orm = (x$ORM) props.get(i) ;
+		String[] colNames = getTable().getColumnsForSelect() ;
+		
+		for(int i = 0 ; i < colNames.length ; i++){
+			TableColumn col = table.getColumnByColName(colNames[i]) ;
 			
-			int index = rs.findColumn(orm.colName) ;
-			Object value = orm.loadResult(rs, obj, index) ;
-			this.beanWrapper.setValue(obj, orm.propName, value) ;
+			int index = rs.findColumn(col.getColName()) ;
+			Object value = col.getOrm().loadResult(rs, obj, index) ;
+			
+			this.beanWrapper.setValue(obj, col.getPropName(), value) ;
 		}
 		
 		return obj ;
@@ -91,13 +78,6 @@ public class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 
 	public BeanWrapper getBeanWrapper() {
 		return beanWrapper;
-	}
-	
-	/**
-	 * 获取ResultMap的table对象。此对象一般仅包含tableName和shadow支持，也可能为null。
-	 */
-	public Table getTable(){
-		return table ;
-	}
+	}	
 
 }

@@ -21,7 +21,6 @@ import java.sql.SQLException;
 
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.type.SQLDataType;
-import org.guzz.pojo.ColumnDataLoader;
 import org.guzz.transaction.DBGroup;
 import org.guzz.util.javabean.BeanWrapper;
 
@@ -34,31 +33,6 @@ import org.guzz.util.javabean.BeanWrapper;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface ObjectMapping {
-	
-	public static class x$ORM{
-		public final String propName ;
-		public final String colName ;
-		public final String dataTypeName ;
-		public final SQLDataType sqlDataType ;
-		public final ColumnDataLoader columnDataLoader ;
-		
-		public x$ORM(String p, String c, String d, SQLDataType type, ColumnDataLoader columnDataLoader){
-			this.propName = p ;
-			this.colName = c ;
-			this.dataTypeName =d ;
-			this.sqlDataType = type ;
-			this.columnDataLoader = columnDataLoader ;
-		}
-		
-		public Object loadResult(ResultSet rs, Object objectFetching, int index) throws SQLException{
-			if(columnDataLoader != null){
-				return columnDataLoader.loadData(rs, objectFetching, index) ;
-			}else{
-				return sqlDataType.getSQLValue(rs, index) ;
-			}
-		}
-		
-	}
 	
 	/**根据属性名获许对应的数据库字段名。如果没有映射，返回null*/
 	public String getColNameByPropName(String propName) ;
@@ -80,10 +54,10 @@ public interface ObjectMapping {
 	public SQLDataType getSQLDataTypeOfProperty(String propName) ;
 	
 	/** throw {@link DataTypeException} if col not found. */
-	public x$ORM getORMByColumn(String colName) ;
+	public ColumnORM getORMByColumn(String colName) ;
 	
 	/** throw {@link DataTypeException} if property not found. */
-	public x$ORM getORMByProperty(String propName) ;
+	public ColumnORM getORMByProperty(String propName) ;
 	
 	public DBGroup getDbGroup() ;
 	

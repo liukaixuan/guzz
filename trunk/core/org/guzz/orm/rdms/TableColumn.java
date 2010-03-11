@@ -16,6 +16,8 @@
  */
 package org.guzz.orm.rdms;
 
+import org.guzz.dao.PersistListener;
+import org.guzz.orm.ColumnORM;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.pojo.ColumnDataLoader;
 
@@ -40,10 +42,14 @@ public class TableColumn {
 	private String nullValue ;
 	
 	private boolean lazy ;
+		
+	private ColumnORM orm ;
 	
-	private ColumnDataLoader columnDataLoader ;
+	private final SimpleTable table ;
 	
-	private SQLDataType sqlDataType ;
+	public TableColumn(SimpleTable table){
+		this.table = table ;
+	}
 
 	public String getColName() {
 		return colName;
@@ -94,11 +100,7 @@ public class TableColumn {
 	}
 
 	public ColumnDataLoader getDataLoader() {
-		return columnDataLoader;
-	}
-
-	public void setDataLoader(ColumnDataLoader columnDataLoader) {
-		this.columnDataLoader = columnDataLoader;
+		return orm.columnDataLoader;
 	}
 
 	public String getNullValue() {
@@ -110,11 +112,19 @@ public class TableColumn {
 	}
 
 	public SQLDataType getSqlDataType() {
-		return sqlDataType;
+		return orm.sqlDataType;
 	}
 
-	public void setSqlDataType(SQLDataType sqlDataType) {
-		this.sqlDataType = sqlDataType;
+	public ColumnORM getOrm() {
+		return orm;
+	}
+
+	public void setOrm(ColumnORM orm) {
+		this.orm = orm;
+		
+		if(orm.columnDataLoader instanceof PersistListener){
+			this.table.addPersistListener((PersistListener) orm.columnDataLoader) ;
+		}
 	}
 	
 }

@@ -31,7 +31,6 @@ import org.dom4j.Visitor;
 import org.dom4j.VisitorSupport;
 import org.dom4j.io.SAXReader;
 import org.guzz.GuzzContextImpl;
-import org.guzz.dao.PersistListener;
 import org.guzz.exception.GuzzException;
 import org.guzz.id.AssignedIdGenerator;
 import org.guzz.id.AutoIncrementIdGenerator;
@@ -43,8 +42,8 @@ import org.guzz.id.SlientIdGenerator;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
+import org.guzz.orm.ColumnORM;
 import org.guzz.orm.ShadowTableView;
-import org.guzz.orm.ObjectMapping.x$ORM;
 import org.guzz.orm.interpreter.AbstractBusinessInterpreter;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.SimpleTable;
@@ -111,16 +110,17 @@ public class HbmXMLBuilder {
 		
 		document = reader.read(r.getInputStream());
 		final Element root = document.getRootElement();
-		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, business) ;
 		final SimpleTable st = new SimpleTable() ;
 		business.setTable(st) ;
+		
+		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, business) ;
 		
 		//properties defined.
 		final LinkedList props = new LinkedList() ;
 		
 		Visitor visitor = new VisitorSupport() {
 			
-			public void visit(Element e) {				
+			public void visit(Element e) {
 				
 				//遇到了一个类
 				if("class".equalsIgnoreCase(e.getName())){
@@ -165,19 +165,18 @@ public class HbmXMLBuilder {
 					st.setPKColName(column) ;
 					st.setPKPropName(name) ;
 					
-					TableColumn col = new TableColumn() ;
+					TableColumn col = new TableColumn(st) ;
 					col.setColName(column) ;
 					col.setPropName(name) ;
 					col.setType(type) ;
 					col.setAllowInsert(true) ;
 					col.setAllowUpdate(true) ;
 					col.setLazy(false) ;
-					col.setDataLoader(null) ;
-					
+					ColumnORM orm = map.createColumnMapping(col, null) ;
+					col.setOrm(orm) ;
+
 					st.addColumn(col) ;
 					
-					x$ORM orm = map.addPropertyMap(name, column, type, null, null) ;
-					col.setSqlDataType(orm.sqlDataType) ;
 				}else if("property".equalsIgnoreCase(e.getName())){
 					String name = e.attributeValue("name") ;
 					String type = e.attributeValue("type") ;
@@ -195,7 +194,7 @@ public class HbmXMLBuilder {
 					
 					props.addLast(name) ;
 															
-					TableColumn col = new TableColumn() ;
+					TableColumn col = new TableColumn(st) ;
 					col.setColName(column) ;
 					col.setPropName(name) ;
 					col.setType(type) ;
@@ -204,24 +203,19 @@ public class HbmXMLBuilder {
 					col.setAllowUpdate(updateIt) ;
 					col.setLazy("true".equalsIgnoreCase(lazy)) ;
 					
+					ColumnDataLoader dl = null ;
 					if(StringUtil.notEmpty(loader)){
-						ColumnDataLoader dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
+						dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
 						dl.configure(map, st, name, column) ;
 						
 						//register the loader
-						col.setDataLoader(dl) ;
 						gf.getDataLoaderManager().addDataLoader(dl) ;
 					}
 					
+					ColumnORM orm = map.createColumnMapping(col, dl) ;
+					col.setOrm(orm) ;
+					
 					st.addColumn(col) ;
-					
-					x$ORM orm = map.addPropertyMap(name, column, type, nullValue, col.getDataLoader()) ;
-					col.setSqlDataType(orm.sqlDataType) ;
-					
-					//是否实现了PersistListener
-					if(col.getDataLoader() instanceof PersistListener){
-						st.addPersistListener((PersistListener) col.getDataLoader()) ;
-					}
 				}
 			}
 		};
