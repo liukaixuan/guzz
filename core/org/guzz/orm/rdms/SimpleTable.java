@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.guzz.dao.PersistListener;
 import org.guzz.id.IdentifierGenerator;
+import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.util.ArrayUtil;
@@ -33,44 +34,7 @@ import org.guzz.util.ArrayUtil;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class SimpleTable implements Table {
-	
-	private Object lock = new Object() ;
-	
-	private String tableName ;
-	
-	private boolean dynamicUpdate ;
-	
-	private String primaryKey ;
-	
-	private String PKPropName ;
-	
-	private IdentifierGenerator ig ;
-	
-	private List columns = new LinkedList() ;
-	private Map propColumns = new HashMap() ;
-	
-	/** 用于guzz执行领域对象select操作的属性名称 */
-	private String[] cache_columnsForSelect ;
-	
-	/** 用于guzz执行领域对象update操作的属性名称 */
-	private String[] cache_columnsForUpdate ;
-	
-	private String[] cache_propsForUpdate ;
-	
-	/** 用于guzz执行领域对象insert操作的属性名称 */
-	private String[] cache_columnsForInsert ;
-	
-	private String[] cache_lazyUpdatableProps ;
-	
-	private String[] cache_lazyProps ;
-	
-	private PersistListener[] persistListeners = new PersistListener[0] ;
-	
-	private ShadowTableView shadowTableView ;
-	
-	private String businessName ;
-	
+public class SimpleTable implements Table {	
 	public SimpleTable(){
 	}
 
@@ -84,6 +48,14 @@ public class SimpleTable implements Table {
 
 	public boolean isShadow() {
 		return shadowTableView != null ;
+	}
+	
+	public CustomTableView getCustomTableView(){
+		return this.customTableView ;
+	}
+	
+	public boolean isCustomTable(){
+		return this.customTableView != null ;
 	}
 	
 	public String getConfigTableName(){
@@ -130,6 +102,9 @@ public class SimpleTable implements Table {
 			this.columns.add(column) ;
 			this.propColumns.put(column.getPropName(), column) ;
 			
+			//数据库的column名称不区分大小写。检索时全部按照小写检索。
+			this.colColumns.put(column.getColName().toLowerCase(), column) ;
+			
 			cache_columnsForUpdate = null ;
 			cache_propsForUpdate = null ;
 			cache_columnsForInsert = null ;
@@ -140,6 +115,10 @@ public class SimpleTable implements Table {
 	
 	public TableColumn getColumnByPropName(String propName){
 		return (TableColumn) this.propColumns.get(propName) ;
+	}
+	
+	public TableColumn getColumnByColName(String colName){
+		return (TableColumn) this.colColumns.get(colName.toLowerCase()) ;
 	}
 	
 	public String[] getColumnsForUpdate() {
@@ -311,4 +290,47 @@ public class SimpleTable implements Table {
 		return MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName ;
 	}
 
+	public void setCustomTableView(CustomTableView customTableView) {
+		this.customTableView = customTableView;
+	}
+	
+	private Object lock = new Object() ;
+	
+	private String tableName ;
+	
+	private boolean dynamicUpdate ;
+	
+	private String primaryKey ;
+	
+	private String PKPropName ;
+	
+	private IdentifierGenerator ig ;
+	
+	private List columns = new LinkedList() ;
+	private Map propColumns = new HashMap() ;
+	private Map colColumns = new HashMap() ;
+	
+	/** 用于guzz执行领域对象select操作的属性名称 */
+	private String[] cache_columnsForSelect ;
+	
+	/** 用于guzz执行领域对象update操作的属性名称 */
+	private String[] cache_columnsForUpdate ;
+	
+	private String[] cache_propsForUpdate ;
+	
+	/** 用于guzz执行领域对象insert操作的属性名称 */
+	private String[] cache_columnsForInsert ;
+	
+	private String[] cache_lazyUpdatableProps ;
+	
+	private String[] cache_lazyProps ;
+	
+	private PersistListener[] persistListeners = new PersistListener[0] ;
+	
+	private ShadowTableView shadowTableView ;
+	
+	private CustomTableView customTableView ;
+	
+	private String businessName ;
+	
 }

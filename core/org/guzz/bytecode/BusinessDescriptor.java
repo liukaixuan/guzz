@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 import org.guzz.lang.NullValue;
 import org.guzz.orm.Business;
-import org.guzz.orm.ObjectMapping;
+import org.guzz.orm.ColumnORM;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
@@ -82,12 +82,12 @@ public class BusinessDescriptor {
 		}
 	}
 	
-	public void addLazyColumn(ObjectMapping.x$ORM orm){
+	public void addLazyColumn(ColumnORM orm){
 		BeanWrapper wrapper = business.getBeanWrapper() ;
 		
 		LazyColumn lc = new LazyColumn(transactionManager, business.getTable(), business.getName(), wrapper, orm) ;
 		
-		props.put(wrapper.getReadMethod(orm.propName).getName(), lc) ;
+		props.put(wrapper.getReadMethod(orm.tableColumn.getPropName()).getName(), lc) ;
 	}
 	
 	public LazyColumn match(String propName){
@@ -139,24 +139,24 @@ public class BusinessDescriptor {
 	
 	public static class LazyColumn{
 		private CompiledSQL sqlForLoadLazy ;
-		private ObjectMapping.x$ORM orm ;
+		private ColumnORM orm ;
 		private Table table ;
 		private BeanWrapper wrap ;
 		
 		private TransactionManager tm ;
 		
-		public LazyColumn(TransactionManager tm, Table table, String businessName, BeanWrapper wrap, ObjectMapping.x$ORM orm){
+		public LazyColumn(TransactionManager tm, Table table, String businessName, BeanWrapper wrap, ColumnORM orm){
 			this.tm = tm ;
 			this.table = table ;
 			this.wrap = wrap ;
 			this.orm = orm ;
 			
-			String sql = "select " + orm.colName + " from " + MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName + " where " + table.getPKColName() + "=:id" ;
+			String sql = "select " + orm.tableColumn.getColName() + " from " + MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName + " where " + table.getPKColName() + "=:id" ;
 			sqlForLoadLazy = tm.getCompiledSQLBuilder().buildCompiledSQL(businessName, sql) ;
 		}
 		
 		public Object loadProperty(Object fetchedObject){
-			String propToLoad = orm.propName ;
+			String propToLoad = orm.tableColumn.getPropName() ;
 			Object value = wrap.getValueUnderProxy(fetchedObject, propToLoad) ;
 			
 			//return the cached value
@@ -176,7 +176,7 @@ public class BusinessDescriptor {
 				
 				ReadonlyTranSession session = tm.openDelayReadTran() ;
 				try{
-					value = session.findCell00(sqlForLoadLazy.bind("id", pkValue), orm.dataTypeName) ;
+					value = session.findCell00(sqlForLoadLazy.bind("id", pkValue), orm.tableColumn.getType()) ;
 				}finally{
 					session.close() ;
 				}
@@ -202,7 +202,7 @@ public class BusinessDescriptor {
 			}else{
 				Object pkValue = wrap.getValue(fetchedObject, table.getPKPropName()) ;
 				
-				value = tran.findCell00(sqlForLoadLazy.bind("id", pkValue), orm.dataTypeName) ;
+				value = tran.findCell00(sqlForLoadLazy.bind("id", pkValue), orm.tableColumn.getType()) ;
 			}
 			
 			return value ;

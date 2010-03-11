@@ -106,10 +106,10 @@ public abstract class AbstractBusinessInterpreter implements BusinessInterpreter
 				
 				Method m = null ;
 				try {
-					m = domainClass.getMethod("get" + newPropName, null) ;
+					m = domainClass.getMethod("get" + newPropName, (Class[]) null) ;
 				} catch (Exception e) {
 					try {
-						m = domainClass.getMethod("is" + newPropName, null) ;
+						m = domainClass.getMethod("is" + newPropName, (Class[]) null) ;
 					} catch (Exception e1) {
 						throw new InvalidConfigurationException("unknown property:[" + propName + "] of class:[" + domainClass.getName() + "]") ;
 					}

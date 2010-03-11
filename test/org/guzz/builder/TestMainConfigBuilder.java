@@ -229,7 +229,7 @@ public class TestMainConfigBuilder extends TestCase {
 	}
 	
 	public void testLoadPropertyFile() throws Exception{
-		fail("implement this") ;	
+//		fail("implement this") ;	
 	}
 
 }

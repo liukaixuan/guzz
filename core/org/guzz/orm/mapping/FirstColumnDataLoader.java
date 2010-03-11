@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 import org.guzz.exception.DataTypeException;
 import org.guzz.orm.ObjectMapping;
-import org.guzz.orm.ObjectMapping.x$ORM;
+import org.guzz.orm.ColumnORM;
 import org.guzz.orm.type.SQLDataType;
 
 /**
@@ -60,7 +60,7 @@ public class FirstColumnDataLoader implements RowDataLoader {
 
 	public Object rs2Object(ObjectMapping mapping, ResultSet rs) throws SQLException {
 		if(this.propName != null){
-			x$ORM orm = mapping.getORMByProperty(propName) ;
+			ColumnORM orm = mapping.getORMByProperty(propName) ;
 			
 			return orm.loadResult(rs, null, 1) ;
 		}

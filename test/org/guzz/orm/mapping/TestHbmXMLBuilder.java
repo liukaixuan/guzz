@@ -50,8 +50,8 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		assertNotNull(map.getBusiness()) ;
 		assertNotNull(map.getBusiness().getDomainClass()) ;
 		assertEquals(map.getBusiness().getDomainClass().getName(), Article.class.getName()) ;
-		assertEquals(map.col2PropsMapping.size(), 4) ;
-		assertEquals(map.prop2ColsMapping.size(), 4) ;
+		assertEquals(map.getTable().getColumnsForSelect().length, 4) ;
+		assertEquals(map.getTable().getColumnsForSelect().length, 4) ;
 		
 		//测试可以正确的进行db->object映射
 		ResultSet rs = executeQuery(getDefaultConn(), "select * from TB_ARTICLE order by id asc limit 10 " ) ;
