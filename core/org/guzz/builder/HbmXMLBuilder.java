@@ -42,7 +42,7 @@ import org.guzz.id.SlientIdGenerator;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
-import org.guzz.orm.ColumnORM;
+import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.interpreter.AbstractBusinessInterpreter;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
@@ -54,6 +54,8 @@ import org.guzz.util.Assert;
 import org.guzz.util.ClassUtil;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
+import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 import org.xml.sax.SAXException;
 
 
@@ -111,9 +113,17 @@ public class HbmXMLBuilder {
 		document = reader.read(r.getInputStream());
 		final Element root = document.getRootElement();
 		final SimpleTable st = new SimpleTable() ;
-		business.setTable(st) ;
+		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, st) ;
 		
-		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, business) ;
+		business.setTable(st) ;
+		business.setMapping(map) ;
+		
+		//关联business名称
+		if(business.getName() != null){
+			st.setBusinessName(business.getName()) ;
+		}else{
+			st.setBusinessName(business.getDomainClass().getName()) ;
+		}
 		
 		//properties defined.
 		final LinkedList props = new LinkedList() ;
@@ -129,23 +139,40 @@ public class HbmXMLBuilder {
 					String shadow = e.attributeValue("shadow") ;
 					boolean dynamicUpdate = StringUtil.toBoolean(e.attributeValue("dynamic-update"), false) ;
 					
-					if(StringUtil.isEmpty(className)){ //如果className为空，采用ghost中携带的class
-						className = business.getDomainClass().getName() ;
+					//business中已经提前从hbml.xml中解析到了class name，并且按照business定义优先级作出最高优先级的class选择。
+					Class cls = business.getDomainClass() ;
+					if(cls == null){ //动态添加的business，没有按照流程设置domainClassName
+						cls = ClassUtil.getClass(className) ;
 					}
+					
+//					if(StringUtil.isEmpty(className)){ //如果className为空，采用ghost中携带的class
+//						className = business.getDomainClass().getName() ;
+//					}
 										
-					Assert.assertNotEmpty(className, "invalid class name") ;
+					Assert.assertNotNull(cls, "invalid class name") ;
 					Assert.assertNotEmpty(tableName, "invalid table name") ;
 					
-					Class cls = ClassUtil.getClass(className) ;
+					JavaBeanWrapper configBeanWrapper = BeanWrapper.createPOJOWrapper(cls) ;
+					business.setDomainClass(cls) ;
+					business.setConfiguredBeanWrapper(configBeanWrapper) ;
 					
-					map.setDomainClass(cls) ;
+					map.setBusiness(business) ;
 					
 					//shadow设置要在tableName之前。
 					if(StringUtil.notEmpty(shadow)){
 						ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
+						sv.setConfiguredTableName(tableName) ;
 						
 						gf.getShadowTableViewManager().addShadowView(sv) ;
 						st.setShadowTableView(sv) ;
+						
+						//CustomTableView是一类特殊的ShadowTableView
+						if(sv instanceof CustomTableView){
+							CustomTableView ctv = (CustomTableView) sv ;
+							ctv.setConfiguredObjectMapping(map) ;
+							
+							st.setCustomTableView(ctv) ;
+						}
 					}
 					
 					//TODO: 按照实际数据库具体类型，采用更加准备的子类进行初始化。
@@ -172,8 +199,7 @@ public class HbmXMLBuilder {
 					col.setAllowInsert(true) ;
 					col.setAllowUpdate(true) ;
 					col.setLazy(false) ;
-					ColumnORM orm = map.createColumnMapping(col, null) ;
-					col.setOrm(orm) ;
+					map.initColumnMapping(col, null) ;
 
 					st.addColumn(col) ;
 					
@@ -212,8 +238,7 @@ public class HbmXMLBuilder {
 						gf.getDataLoaderManager().addDataLoader(dl) ;
 					}
 					
-					ColumnORM orm = map.createColumnMapping(col, dl) ;
-					col.setOrm(orm) ;
+					map.initColumnMapping(col, dl) ;
 					
 					st.addColumn(col) ;
 				}
@@ -263,13 +288,6 @@ public class HbmXMLBuilder {
 		}
 		
 		st.setIdentifierGenerator(ig) ;
-		
-		//关联business名称
-		if(business.getName() != null){
-			st.setBusinessName(business.getName()) ;
-		}else{
-			st.setBusinessName(business.getDomainClass().getName()) ;
-		}
 		
 		return map ;
 	}

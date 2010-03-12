@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 
 /**
  * 
@@ -44,7 +45,7 @@ public class DBCPDataSourceProvicer implements DataSourceProvicer{
 			dataSource = new BasicDataSource() ;
 		}
 		
-		BeanWrapper bw = new BeanWrapper(dataSource.getClass()) ;
+		JavaBeanWrapper bw = BeanWrapper.createPOJOWrapper(dataSource.getClass()) ;
 		Enumeration e = props.keys() ;
 		while(e.hasMoreElements()){
 			String key = (String) e.nextElement() ;

@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -45,7 +46,7 @@ public class C3P0DataSourceProvicer implements DataSourceProvicer{
 			c3p0 = new ComboPooledDataSource() ;
 		}
 		
-		BeanWrapper bw = new BeanWrapper(c3p0.getClass()) ;
+		JavaBeanWrapper bw = BeanWrapper.createPOJOWrapper(c3p0.getClass()) ;
 		Enumeration e = props.keys() ;
 		while(e.hasMoreElements()){
 			String key = (String) e.nextElement() ;

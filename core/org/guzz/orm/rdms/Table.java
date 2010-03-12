@@ -79,9 +79,14 @@ public interface Table {
 
 	public PersistListener[] getPersistListeners() ;
 	
+	public void addPersistListener(PersistListener listener) ;
+	
 	/**
 	 * 获得对象形式的表名称。如：@@user
 	 */
 	public String getBusinessShape() ;
 	
+	public void addColumn(TableColumn column) ;
+	
+	public Table newCopy() ;
 }

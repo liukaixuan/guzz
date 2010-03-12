@@ -44,17 +44,25 @@ public class ShadowTableViewManager {
 	
 	public void addShadowView(ShadowTableView view){
 		this.views.add(view) ;
+		
+		if(guzzContextImpl.isFullStarted()){
+			if(view instanceof GuzzContextAware){
+				((GuzzContextAware) view).setGuzzContext(guzzContextImpl) ;
+			}
+			
+			view.startup() ;
+		}
 	}
 	
 	public void onGuzzFullStarted(){
 		for(int i = 0 ; i < views.size() ; i++){
-			ShadowTableView loader = (ShadowTableView) views.get(i) ;
+			ShadowTableView view = (ShadowTableView) views.get(i) ;
 			
-			if(loader instanceof GuzzContextAware){
-				((GuzzContextAware) loader).setGuzzContext(guzzContextImpl) ;
+			if(view instanceof GuzzContextAware){
+				((GuzzContextAware) view).setGuzzContext(guzzContextImpl) ;
 			}
 			
-			loader.startup() ;
+			view.startup() ;
 		}
 	}
 	

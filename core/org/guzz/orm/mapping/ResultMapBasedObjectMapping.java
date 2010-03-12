@@ -25,6 +25,7 @@ import org.guzz.transaction.DBGroup;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 
 /**
  * 
@@ -37,13 +38,13 @@ public final class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 	
 	private final Class domainClass ;
 	
-	private final BeanWrapper beanWrapper ;	
+	private final JavaBeanWrapper beanWrapper ;	
 		
 	public ResultMapBasedObjectMapping(DBGroup dbGroup, String id, Class domainClass, Table table){
 		super(dbGroup, table) ;
 		this.id = id ;
 		this.domainClass = domainClass ;
-		beanWrapper = new BeanWrapper(domainClass) ;
+		beanWrapper = BeanWrapper.createPOJOWrapper(domainClass) ;
 	}	
 
 	protected String getColDataType(String propName, String colName, String dataType) {

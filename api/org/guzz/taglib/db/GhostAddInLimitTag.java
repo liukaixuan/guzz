@@ -26,8 +26,11 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.guzz.GuzzContext;
+import org.guzz.orm.Business;
 import org.guzz.orm.se.InTerm;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.web.context.GuzzWebApplicationContextUtil;
 
 /**
  * 
@@ -43,6 +46,8 @@ public class GhostAddInLimitTag extends TagSupport {
 	
 	private String retrieveValueProp ;
 	
+	private GuzzContext guzzContext ;
+	
 	protected void resetToDefault(){
 		this.retrieveValueProp = null ;
 	}
@@ -50,6 +55,10 @@ public class GhostAddInLimitTag extends TagSupport {
 	public void setPageContext(PageContext pageContext) {
 		super.setPageContext(pageContext);
 		resetToDefault() ;
+		
+		if(this.guzzContext == null){
+			this.guzzContext = GuzzWebApplicationContextUtil.getGuzzContext(pageContext.getServletContext()) ;
+		}
 	}
 	
 	public int doStartTag() throws JspException {
@@ -91,7 +100,16 @@ public class GhostAddInLimitTag extends TagSupport {
 					newValues.addLast(((Map) i.next()).get(this.retrieveValueProp)) ;
 				}
 			}else{
-				BeanWrapper bw = new BeanWrapper(mvs.get(0).getClass()) ;
+				Class valueClass = mvs.get(0).getClass() ;
+				
+				BeanWrapper bw ;
+				
+				Business b = this.guzzContext.getGhost(valueClass.getName()) ;
+				if(b != null){//如果属于领域对象，使用领域对象的BeanWrapper(用以支持读取CustomTableView的特殊要求)
+					bw = b.getBeanWrapper() ;
+				}else{
+					bw = BeanWrapper.createPOJOWrapper(valueClass) ;
+				}
 				
 				while(i.hasNext()){
 					newValues.addLast(bw.getValue(i.next(), this.retrieveValueProp)) ;

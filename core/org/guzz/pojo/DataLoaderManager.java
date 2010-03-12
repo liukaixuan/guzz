@@ -43,6 +43,14 @@ public class DataLoaderManager {
 	
 	public void addDataLoader(ColumnDataLoader loader){
 		this.loaders.add(loader) ;
+		
+		if(guzzContextImpl.isFullStarted()){
+			if(loader instanceof GuzzContextAware){
+				((GuzzContextAware) loader).setGuzzContext(guzzContextImpl) ;
+			}
+			
+			loader.startup() ;
+		}
 	}
 	
 	public void onGuzzFullStarted(){
