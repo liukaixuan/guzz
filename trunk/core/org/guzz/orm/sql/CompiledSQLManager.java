@@ -64,6 +64,7 @@ public interface CompiledSQLManager {
 	 */
 	public void addDomainBusiness(POJOBasedObjectMapping mapping) ;
 
+	public CompiledSQLBuilder getCompiledSQLBuilder() ;
 	
 	static class INNER_CS_MARK{
 		protected INNER_CS_MARK(){}

@@ -39,37 +39,37 @@ public class TestInnerSQLBuilder extends TestCase {
 	public void testTranslateSQLMark() throws Exception{
 		GuzzContextImpl f = (GuzzContextImpl) new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getObjectMappingByName("user") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("user") ;
 		CompiledSQLManagerImpl csm = new CompiledSQLManagerImpl(f.getCompiledSQLBuilder()) ;
 		
 		//test insert
-		CompiledSQL cs = csm.buildInsertSQLWithPK(map) ;
-		assertEquals(cs.getSql(null), "insert into TB_USER(pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?, ?)") ;
-		assertEquals(cs.getOrderedParams().length, 6) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[id, userName, password, vip, favCount, createdTime]") ;
+		CompiledSQL cs = csm.buildNormalInsertSQLWithPK(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "insert into TB_USER(pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?, ?)") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 6) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[id, userName, password, vip, favCount, createdTime]") ;
 		
-		cs = csm.buildInsertSQLWithoutPK(map) ;
-		assertEquals(cs.getSql(null), "insert into TB_USER(userName, MyPSW, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?)") ;
-		assertEquals(cs.getOrderedParams().length, 5) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[userName, password, vip, favCount, createdTime]") ;
+		cs = csm.buildNormalInsertSQLWithoutPK(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "insert into TB_USER(userName, MyPSW, VIP_USER, FAV_COUNT, createdTime) values(?, ?, ?, ?, ?)") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 5) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[userName, password, vip, favCount, createdTime]") ;
 		
 		//update
-		cs = csm.buildUpdateSQL(map) ; 
-		assertEquals(cs.getSql(null), "update TB_USER set userName=?, MyPSW=?, VIP_USER=?, FAV_COUNT=?, createdTime=? where pk=?") ;
-		assertEquals(cs.getOrderedParams().length, 6) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[userName, password, vip, favCount, createdTime, id]") ;
+		cs = csm.buildNormalUpdateSQL(map) ; 
+		assertEquals(cs.bindNoParams().getSQLToRun(), "update TB_USER set userName=?, MyPSW=?, VIP_USER=?, FAV_COUNT=?, createdTime=? where pk=?") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 6) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[userName, password, vip, favCount, createdTime, id]") ;
 				
 		//delete
-		cs = csm.buildDeleteSQL(map) ;
-		assertEquals(cs.getSql(null), "delete from TB_USER where pk=?") ;
-		assertEquals(cs.getOrderedParams().length, 1) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[id]") ;
+		cs = csm.buildNormalDeleteSQL(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "delete from TB_USER where pk=?") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[id]") ;
 		
 		//select
-		cs = csm.buildSelectSQL(map) ;
-		assertEquals(cs.getSql(null), "select pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime from TB_USER where pk=?") ;
-		assertEquals(cs.getOrderedParams().length, 1) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[id]") ;
+		cs = csm.buildNormalSelectSQL(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "select pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime from TB_USER where pk=?") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[id]") ;
 
 		((GuzzContextImpl) f).shutdown() ;
 	}
@@ -82,37 +82,37 @@ public class TestInnerSQLBuilder extends TestCase {
 		
 		gf.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/ArticleCount.hbm.xml") ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getObjectMappingByName("articleCount") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getStaticObjectMapping("articleCount") ;
 		CompiledSQLManagerImpl csm = new CompiledSQLManagerImpl(gf.getCompiledSQLBuilder()) ;
 		
 		//test insert
-		CompiledSQL cs = csm.buildInsertSQLWithPK(map) ;
-		assertEquals(cs.getSql(null), "insert into TB_ARTICLE_COUNT(ARTICLE_ID, readCount, createdTime) values(?, ?, ?)") ;
-		assertEquals(cs.getOrderedParams().length, 3) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[articleId, readCount, createdTime]") ;
+		CompiledSQL cs = csm.buildNormalInsertSQLWithPK(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "insert into TB_ARTICLE_COUNT(ARTICLE_ID, readCount, createdTime) values(?, ?, ?)") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 3) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[articleId, readCount, createdTime]") ;
 		
-		cs = csm.buildInsertSQLWithoutPK(map) ;
-		assertEquals(cs.getSql(null), "insert into TB_ARTICLE_COUNT(readCount, createdTime) values(?, ?)") ;
-		assertEquals(cs.getOrderedParams().length, 2) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[readCount, createdTime]") ;
+		cs = csm.buildNormalInsertSQLWithoutPK(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "insert into TB_ARTICLE_COUNT(readCount, createdTime) values(?, ?)") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 2) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[readCount, createdTime]") ;
 		
 		//update
-		cs = csm.buildUpdateSQL(map) ;
-		assertEquals(cs.getSql(null), "update TB_ARTICLE_COUNT set supportCount=?, opposeCount=?, createdTime=? where ARTICLE_ID=?") ;
-		assertEquals(cs.getOrderedParams().length, 4) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[supportCount, opposeCount, createdTime, articleId]") ;
+		cs = csm.buildNormalUpdateSQL(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "update TB_ARTICLE_COUNT set supportCount=?, opposeCount=?, createdTime=? where ARTICLE_ID=?") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 4) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[supportCount, opposeCount, createdTime, articleId]") ;
 				
 		//delete
-		cs = csm.buildDeleteSQL(map) ;
-		assertEquals(cs.getSql(null), "delete from TB_ARTICLE_COUNT where ARTICLE_ID=?") ;
-		assertEquals(cs.getOrderedParams().length, 1) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[articleId]") ;
+		cs = csm.buildNormalDeleteSQL(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "delete from TB_ARTICLE_COUNT where ARTICLE_ID=?") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[articleId]") ;
 		
 		//select
-		cs = csm.buildSelectSQL(map) ;
-		assertEquals(cs.getSql(null), "select ARTICLE_ID, readCount, supportCount, opposeCount, createdTime from TB_ARTICLE_COUNT where ARTICLE_ID=?") ;
-		assertEquals(cs.getOrderedParams().length, 1) ;
-		assertEquals(Arrays.asList(cs.getOrderedParams()).toString(), "[articleId]") ;
+		cs = csm.buildNormalSelectSQL(map) ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "select ARTICLE_ID, readCount, supportCount, opposeCount, createdTime from TB_ARTICLE_COUNT where ARTICLE_ID=?") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
+		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[articleId]") ;
 
 		((GuzzContextImpl) gf).shutdown() ;
 	}

@@ -157,7 +157,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 		TransactionManager tm = gf.getTransactionManager() ;
 				
 		WriteTranSession session = tm.openRWTran(false) ;
-		ObjectBatcher batcher = session.createObjectBatcher(Comment.class) ;
+		ObjectBatcher batcher = session.createObjectBatcher() ;
 		
 		User u = new User() ;
 		u.setId(1) ;

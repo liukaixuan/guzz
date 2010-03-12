@@ -27,7 +27,6 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.guzz.GuzzContext;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
-import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.taglib.util.TagSupportUtil;
 import org.guzz.web.context.GuzzWebApplicationContextUtil;
 
@@ -101,18 +100,18 @@ public abstract class SummonTag extends TagSupport {
 			ghostName = business.getClass().getName() ;
 		}
 		
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) guzzContext.getObjectMappingManager().getObjectMappingByName(ghostName) ;
+		Business bi = guzzContext.getGhost(ghostName) ;
 		
-		if(mapping == null){
-			throw new JspException("unknown business:[" + business + "], guessed business name:[" + ghostName + "]") ;
-		}				
+		if(bi == null){
+			throw new JspException("unknown business:[" + this.business + "], guessed business name:[" + ghostName + "]") ;
+		}		
 				
 		Object result = null;
 		
 		try {
-			result = innerSummonGhosts(mapping, limits);
+			result = innerSummonGhosts(bi, limits);
 		} catch (IOException e) {
-			throw new JspException("business:[" + business + "], guessed business name:[" + ghostName + "]", e) ;
+			throw new JspException("business:[" + this.business + "], guessed business name:[" + ghostName + "]", e) ;
 		}
 		
 		//保存结果
@@ -135,16 +134,13 @@ public abstract class SummonTag extends TagSupport {
 	}
 
 	/**
-	 * @param conditons jsp页面上传入的所有原始条件
-	 * @param ghostClass 要查询的对象
-	 * @param ghostSpoesman ghost参数解析器
-	 * @return 加载的对象
-	 **/
-	protected Object innerSummonGhosts(POJOBasedObjectMapping mapping, List conditions) throws JspException, IOException {
+	 * @param business 要查询的对象
+	 * @param conditions jsp页面上传入的所有原始条件
+	 */
+	protected Object innerSummonGhosts(Business business, List conditions) throws JspException, IOException {
 		
 		LinkedList list = new LinkedList() ;
 		
-		Business business = mapping.getBusiness() ;
 		BusinessInterpreter gi = business.getInterpret() ;
 		
 		if(conditions != null && !conditions.isEmpty()){

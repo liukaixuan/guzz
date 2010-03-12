@@ -38,7 +38,7 @@ public interface GuzzProxy {
 	 */
 	public void unmarkReading() ;
 	
-	public String getProxiedClassName() ;
+	public Class getProxiedClass() ;
 	
 	/**
 	 * invoke the proxied class's orginal method. intercept is ignored.

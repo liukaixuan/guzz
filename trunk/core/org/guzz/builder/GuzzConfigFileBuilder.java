@@ -512,7 +512,7 @@ public class GuzzConfigFileBuilder {
 			ObjectMapping map = (ObjectMapping) local_orms.get(m_orm) ;
 			
 			if(map == null){
-				map = omm.getObjectMappingByName(m_orm) ;
+				map = omm.getStaticObjectMapping(m_orm) ;
 			}
 			
 			if(map == null){

@@ -125,13 +125,13 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		CompiledSQL cs = (CompiledSQL) sqls.get("selectUsers") ;
 		assertNotNull(cs) ;
-		assertEquals(cs.getSql(null), "select pk, userName, VIP_USER, FAV_COUNT from TB_USER") ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "select pk, userName, VIP_USER, FAV_COUNT from TB_USER") ;
 		
 		cs = (CompiledSQL) sqls.get("selectUser") ;
 		assertNotNull(cs) ;
-		assertEquals(cs.getSql(null), "select * from TB_USER where pk = ?") ;
-		assertEquals(cs.getOrderedParams().length, 1) ;
-		assertEquals(cs.getOrderedParams()[0], "id") ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "select * from TB_USER where pk = ?") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()[0], "id") ;
 		
 		((GuzzContextImpl) gf).shutdown() ;
 	}

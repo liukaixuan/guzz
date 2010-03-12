@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.guzz.Guzz;
 import org.guzz.dao.PageFlip;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
@@ -46,9 +47,10 @@ import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.SearchParams;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
+import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
 import org.guzz.orm.sql.MarkedSQL;
-import org.guzz.orm.sql.impl.SQLCompiler;
+import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.pojo.GuzzProxy;
 import org.guzz.service.core.DebugService;
@@ -81,6 +83,8 @@ public class AbstractTranSessionImpl {
 	
 	/**保存已经打开的连接。针对同一个数据库只打开一个连接（保证事务提交）。*/
 	protected Map opennedConnections = new HashMap() ;
+
+	protected CompiledSQLBuilder compiledSQLBuilder ;
 	
 	public AbstractTranSessionImpl(ObjectMappingManager omm, CompiledSQLManager compiledSQLManager, ConnectionFetcher connectionFetcher, DebugService debugService, DBGroupManager dbGroupManager, boolean isReadonly) {
 		this.omm = omm ;
@@ -89,13 +93,14 @@ public class AbstractTranSessionImpl {
 		this.debugService = debugService ;
 		this.dbGroupManager = dbGroupManager ;
 		this.isReadonly = isReadonly ;
+		this.compiledSQLBuilder = compiledSQLManager.getCompiledSQLBuilder() ;
 	}
 	
-	protected String getDomainClassName(Object domainObject){
+	public Class getRealDomainClass(Object domainObject){
 		if(domainObject instanceof GuzzProxy){
-			return ((GuzzProxy) domainObject).getProxiedClassName() ;
+			return ((GuzzProxy) domainObject).getProxiedClass() ;
 		}else{
-			return domainObject.getClass().getName() ;
+			return domainObject.getClass() ;
 		}
 	}
 
@@ -109,7 +114,7 @@ public class AbstractTranSessionImpl {
 		}
 	}
 	
-	protected Connection getConnection(DBGroup group){
+	public Connection getConnection(DBGroup group){
 		Connection conn = (Connection) this.opennedConnections.get(group.getGroupName()) ;
 			
 		if(conn == null){
@@ -136,11 +141,12 @@ public class AbstractTranSessionImpl {
 	 * @param pageSize
 	 **/
 	public List list(BindedCompiledSQL bsql, int startPos, int maxSize) {
-		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
-		String rawSQL = bsql.getSql() ;
+		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
+		String rawSQL = bsql.getSQLToRun() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
+		
 		RowDataLoader loader = bsql.getRowDataLoader() ;		
 		
 		DBGroup db = m.getDbGroup() ;		
@@ -193,24 +199,44 @@ public class AbstractTranSessionImpl {
 	}
 	
 	public List list(SearchExpression se) {
-		ObjectMapping m = omm.getObjectMappingByName(se.getFrom()) ;
+		ObjectMapping m = omm.getObjectMapping(se.getFrom(), se.getTableCondition()) ;
 		
 		if(m == null){
 			throw new ORMException("unknow object:" + se.getFrom()) ;
 		}
 		
 		SearchParams sp = new SearchParams() ;
-		
 		MarkedSQL ms = se.toLoadRecordsMarkedSQL((POJOBasedObjectMapping) m, sp) ;
-		SQLCompiler sc = new SQLCompiler(omm) ;
 		
-		CompiledSQL sql = sc.compile(ms).setParamPropMapping(sp.getParamPropMapping()) ;
+		NormalCompiledSQL sql = this.compiledSQLBuilder.buildCompiledSQL(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 		
 		return list(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), se.getStartPos(), se.getPageSize()) ;
 	}
 	
+	public long count(SearchExpression se) {
+		ObjectMapping m = omm.getObjectMapping(se.getFrom(), se.getTableCondition()) ;
+		
+		if(m == null){
+			throw new ORMException("unknown business:" + se.getFrom()) ;
+		}
+		
+		SearchParams sp = new SearchParams() ;
+		
+		MarkedSQL ms = se.toComputeRecordNumberSQL((POJOBasedObjectMapping) m, sp) ;
+		
+		NormalCompiledSQL sql = this.compiledSQLBuilder.buildCompiledSQL(ms).setParamPropMapping(sp.getParamPropMapping()) ;
+		
+		Object ret = findCell00(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), Long.class.getName()) ;
+		
+		if(ret == null){
+			return 0L ;
+		}else{
+			return ((Long) ret).longValue() ;
+		}
+	}
+	
 	public PageFlip page(SearchExpression se) {
-		ObjectMapping m = omm.getObjectMappingByName(se.getFrom()) ;
+		ObjectMapping m = omm.getObjectMapping(se.getFrom(), se.getTableCondition()) ;
 		
 		if(m == null){
 			throw new ORMException("unknow object:" + se.getFrom()) ;
@@ -236,9 +262,8 @@ public class AbstractTranSessionImpl {
 		if(se.isComputeRecordNumber()){
 			SearchParams sp = new SearchParams() ;			
 			MarkedSQL ms = se.toComputeRecordNumberSQL((POJOBasedObjectMapping) m, sp) ;
-			SQLCompiler sc = new SQLCompiler(omm) ;
 			
-			CompiledSQL sql = sc.compile(ms).setParamPropMapping(sp.getParamPropMapping()) ;
+			NormalCompiledSQL sql = this.compiledSQLBuilder.buildCompiledSQL(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 			
 			Integer count = (Integer) findCell00(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), "int") ;
 			recordCount = count.intValue() ;
@@ -259,8 +284,8 @@ public class AbstractTranSessionImpl {
 	}
 
 	public Object findCell00(BindedCompiledSQL bsql, String returnType){
-		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
-		String rawSQL = bsql.getSql() ;
+		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
+		String rawSQL = bsql.getSQLToRun() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -326,8 +351,8 @@ public class AbstractTranSessionImpl {
 	 * @param returnType
 	 */
 	protected Object findCell00(BindedCompiledSQL bsql, SQLDataType returnType){
-		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
-		String rawSQL = bsql.getSql() ;
+		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
+		String rawSQL = bsql.getSQLToRun() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -381,29 +406,6 @@ public class AbstractTranSessionImpl {
 			CloseUtil.close(pstm) ;
 		}
 	}
-	
-	public long count(SearchExpression se) {
-		ObjectMapping m = omm.getObjectMappingByName(se.getFrom()) ;
-		
-		if(m == null){
-			throw new ORMException("unknown business:" + se.getFrom()) ;
-		}
-		
-		SearchParams sp = new SearchParams() ;
-		
-		MarkedSQL ms = se.toComputeRecordNumberSQL((POJOBasedObjectMapping) m, sp) ;
-		SQLCompiler sc = new SQLCompiler(omm) ;
-		
-		CompiledSQL sql = sc.compile(ms).setParamPropMapping(sp.getParamPropMapping()) ;
-		
-		Object ret = findCell00(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), Long.class.getName()) ;
-		
-		if(ret == null){
-			return 0L ;
-		}else{
-			return ((Long) ret).longValue() ;
-		}
-	}
 
 	public Object findObject(String id, Map params){
 		CompiledSQL sql = compiledSQLManager.getSQL(id) ;
@@ -415,8 +417,8 @@ public class AbstractTranSessionImpl {
 	}
 
 	public Object findObject(BindedCompiledSQL bsql) {
-		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
-		String rawSQL = bsql.getSql() ;
+		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
+		String rawSQL = bsql.getSQLToRun() ;
 		
 		if(m == null){
 			throw new ORMException("ObjectMapping is null. sql is:" + rawSQL) ;
@@ -491,13 +493,14 @@ public class AbstractTranSessionImpl {
 			throw new DaoException("no defined sql found for class:[" + businessName + "]. forget to register it in guzz.xml?") ;
 		}
 		
-		String[] orderedParams = cs.getOrderedParams() ;
+		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		String[] orderedParams = bsql.getCompiledSQLToRun().getOrderedParams() ;
 		
 		if(orderedParams.length != 1){
 			throw new DaoException("error orm! too many params in findObjectByPK. class is:" + businessName) ;
 		}
 		
-		return findObject(cs.bind(orderedParams[0], pk)) ;
+		return findObject(bsql.bind(orderedParams[0], pk)) ;
 	}
 	
 	public Object findObjectByPK(Class domainClass, Serializable pk){
@@ -509,26 +512,27 @@ public class AbstractTranSessionImpl {
 	}
 	
 	public Object refresh(Object domainObject, LockMode lockMode){
-		String className = getDomainClassName(domainObject) ;
+		String className = getRealDomainClass(domainObject).getName() ;
 		CompiledSQL cs = this.compiledSQLManager.getDefinedSelectSQL(className) ;
 		if(cs == null){
 			throw new DaoException("no defined sql found for class:[" + className + "]. forget to register it in guzz.xml?") ;
 		}
 		
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
+		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		
+		NormalCompiledSQL runtimeCS = bsql.getCompiledSQLToRun() ;
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
 		Table table = mapping.getTable() ;
 		
 		BeanWrapper bw = mapping.getBeanWrapper() ;
 		Object pk = bw.getValueUnderProxy(domainObject, table.getPKPropName()) ;
-		
-		String[] orderedParams = cs.getOrderedParams() ;
+		String[] orderedParams = runtimeCS.getOrderedParams() ;
 		
 		if(orderedParams.length != 1){
 			throw new DaoException("error orm! too many params in findObjectByPK. class is:" + className) ;
 		}
 		
-		BindedCompiledSQL bsql = cs.bind(orderedParams[0], pk) ;
-		bsql.setLockMode(lockMode) ;
+		bsql.bind(orderedParams[0], pk).setLockMode(lockMode) ;
 		
 		return findObject(bsql) ;
 	}
@@ -546,7 +550,8 @@ public class AbstractTranSessionImpl {
 	}
 	
 	public JDBCTemplate createJDBCTemplate(String businessName){
-		ObjectMapping map = this.omm.getObjectMappingByName(businessName) ;
+		ObjectMapping map = this.omm.getObjectMapping(businessName, Guzz.getTableCondition()) ;
+		
 		if(map == null){
 			throw new ORMException("unknown business:[" + businessName + "]") ;
 		}

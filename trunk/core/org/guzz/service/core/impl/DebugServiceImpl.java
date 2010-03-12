@@ -84,9 +84,9 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		}		
 		
 		if(printSQLParams){
-			logInfo("sql:[" + bsql.getSql() + "], params is:[" + bsql.getBindedParams() + "]") ;
+			logInfo("sql:[" + bsql.getSQLToRun() + "], params is:[" + bsql.getBindedParams() + "]") ;
 		}else if(printSQL){
-			logInfo("sql:[" + bsql.getSql() + "]") ;
+			logInfo("sql:[" + bsql.getSQLToRun() + "]") ;
 		}
 	}
 	

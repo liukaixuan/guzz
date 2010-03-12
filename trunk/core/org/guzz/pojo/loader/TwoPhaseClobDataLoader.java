@@ -111,7 +111,7 @@ public class TwoPhaseClobDataLoader extends PersistListenerAdapter implements Co
 		this.debugService.logSQL(bsql) ;
 		
 		try{
-			pstm = conn.prepareStatement(bsql.getSql()) ;
+			pstm = conn.prepareStatement(bsql.getSQLToRun()) ;
 			bsql.prepareNamedParams(mapping.getDbGroup().getDialect(), pstm) ;
 			pstm.setAsciiStream(1, threadSafeCharInputStream, 1) ;
 			

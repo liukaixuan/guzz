@@ -78,7 +78,8 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 	private Object insertLock = new Object() ;
 	
 	public void updateCount(String businessName, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc){
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) omm.getObjectMappingByName(businessName) ;
+		tableCondition = tableCondition == null ? Guzz.getTableCondition() : tableCondition ;
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) omm.getObjectMapping(businessName, tableCondition) ;
 		
 		if(mapping == null){
 			throw new ORMException("unknown business:[" + businessName + "]") ;
@@ -88,9 +89,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 		
 		if(columnToUpdate == null){
 			throw new ORMException("unknown property:[" + propToUpdate + "], business name:[" + businessName + "]") ;
-		}
-		
-		tableCondition = tableCondition == null ? Guzz.getTableCondition() : tableCondition ;
+		}		
 		
 		updateCount(mapping.getDbGroup().getGroupName(), mapping.getTable().getTableName(tableCondition), columnToUpdate, mapping.getTable().getPKColName(), pkValue, countToInc) ;
 	}
@@ -259,7 +258,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 					if(ut.getCountToInc() == 0) continue ;
 					
 					if(batcher == null){
-						batcher = tran.createObjectBatcher(IncUpdateBusiness.class) ;
+						batcher = tran.createObjectBatcher() ;
 					}
 					
 					batcher.insert(ut) ;

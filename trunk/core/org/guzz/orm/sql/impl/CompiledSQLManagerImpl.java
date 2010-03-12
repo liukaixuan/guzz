@@ -25,7 +25,10 @@ import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
+import org.guzz.orm.sql.CustomCompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
+import org.guzz.orm.sql.NormalCompiledSQL;
+import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
 import org.guzz.util.StringUtil;
 
 /**
@@ -38,7 +41,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	
 	private Map sqls = new HashMap() ;
 	
-	private CompiledSQLBuilder compiledSQLBuilder ;
+	private final CompiledSQLBuilder compiledSQLBuilder ;
 	
 	public CompiledSQLManagerImpl(CompiledSQLBuilder compiledSQLBuilder){
 		this.compiledSQLBuilder = compiledSQLBuilder ;	
@@ -53,27 +56,45 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	}	
 		
 	public void addDomainBusiness(POJOBasedObjectMapping mapping){
-		//注册compiledSQL		
-		if(mapping.getTable().getIdentifierGenerator().insertWithPKColumn()){
-			this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + mapping.getBusiness().getName(), buildInsertSQLWithPK(mapping)) ;
-		}else{
-			this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + mapping.getBusiness().getName(), buildInsertSQLWithoutPK(mapping)) ;
-		}		
-		this.addCompliedSQL(CS_PREFIX.BUSINESS_UPDATE_PREFIX + mapping.getBusiness().getName(), buildUpdateSQL(mapping)) ;
-		this.addCompliedSQL(CS_PREFIX.BUSINESS_DELETE_PREFIX + mapping.getBusiness().getName(), buildDeleteSQL(mapping)) ;
-		this.addCompliedSQL(CS_PREFIX.BUSINESS_SELECT_PREFIX + mapping.getBusiness().getName(), buildSelectSQL(mapping)) ;
+		Table table = mapping.getTable() ;
+		String[] names = mapping.getUniqueName() ;
 		
-		
-
-		if(mapping.getTable().getIdentifierGenerator().insertWithPKColumn()){
-			this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + mapping.getBusiness().getDomainClass().getName(), buildInsertSQLWithPK(mapping)) ;
-		}else{
-			this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + mapping.getBusiness().getDomainClass().getName(), buildInsertSQLWithoutPK(mapping)) ;
+		//注册compiledSQL
+		for(int i = 0 ; i < names.length ; i++){
+			String businessName = names[i] ;
+			
+			if(mapping.getTable().getIdentifierGenerator().insertWithPKColumn()){
+				if(table.isCustomTable()){
+					this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + businessName, buildCustomInsertSQLWithPK(mapping)) ;
+				}else{
+					this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + businessName, buildNormalInsertSQLWithPK(mapping)) ;
+				}
+			}else{
+				if(table.isCustomTable()){
+					this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + businessName, buildCustomInsertSQLWithoutPK(mapping)) ;
+				}else{
+					this.addCompliedSQL(CS_PREFIX.BUSINESS_INSERT_PREFIX + businessName, buildNormalInsertSQLWithoutPK(mapping)) ;
+				}
+			}
+			
+			if(table.isCustomTable()){
+				this.addCompliedSQL(CS_PREFIX.BUSINESS_UPDATE_PREFIX + businessName, buildCustomUpdateSQL(mapping)) ;
+			}else{
+				this.addCompliedSQL(CS_PREFIX.BUSINESS_UPDATE_PREFIX + businessName, buildNormalUpdateSQL(mapping)) ;
+			}
+			
+			if(table.isCustomTable()){
+				this.addCompliedSQL(CS_PREFIX.BUSINESS_DELETE_PREFIX + businessName, buildCustomDeleteSQL(mapping)) ;
+			}else{
+				this.addCompliedSQL(CS_PREFIX.BUSINESS_DELETE_PREFIX + businessName, buildNormalDeleteSQL(mapping)) ;
+			}
+			
+			if(table.isCustomTable()){
+				this.addCompliedSQL(CS_PREFIX.BUSINESS_SELECT_PREFIX + businessName, buildCustomSelectSQL(mapping)) ;
+			}else{
+				this.addCompliedSQL(CS_PREFIX.BUSINESS_SELECT_PREFIX + businessName, buildNormalSelectSQL(mapping)) ;
+			}
 		}
-		
-		this.addCompliedSQL(CS_PREFIX.BUSINESS_UPDATE_PREFIX + mapping.getBusiness().getDomainClass().getName(), buildUpdateSQL(mapping)) ;
-		this.addCompliedSQL(CS_PREFIX.BUSINESS_DELETE_PREFIX + mapping.getBusiness().getDomainClass().getName(), buildDeleteSQL(mapping)) ;
-		this.addCompliedSQL(CS_PREFIX.BUSINESS_SELECT_PREFIX + mapping.getBusiness().getDomainClass().getName(), buildSelectSQL(mapping)) ;
 		
 		//注册
 	}
@@ -98,10 +119,22 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		return getSQL(key) ;
 	}
 	
-	protected CompiledSQL buildInsertSQLWithoutPK(POJOBasedObjectMapping mapping){
-		String[] columns = mapping.getTable().getColumnsForInsert() ;
+	protected CustomCompiledSQL buildCustomInsertSQLWithoutPK(POJOBasedObjectMapping mapping){		
+		return compiledSQLBuilder.buildCustomCompiledSQL(mapping.getBusiness().getName(), 
+			new DynamicSQLProvider(){
+				public NormalCompiledSQL getSql(POJOBasedObjectMapping m) {
+					return buildNormalInsertSQLWithoutPK(m) ;
+				}
+			}
+		) ;
+	}
+	
+	protected NormalCompiledSQL buildNormalInsertSQLWithoutPK(POJOBasedObjectMapping mapping){
+		Table table = mapping.getTable() ;
+		
+		String[] columns = table.getColumnsForInsert() ;
 //		String primaryProp = mapping.getTable().getPKPropName() ;
-		String primaryColumn = mapping.getTable().getPKColName() ;
+		String primaryColumn = table.getPKColName() ;
 		
 		HashMap paramPropMapping = new HashMap() ;
 		
@@ -147,13 +180,23 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		
 		sb_insert.append(")") ;
 		
-		CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb_insert.toString()) ;
+		NormalCompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb_insert.toString()) ;
 		cs.setParamPropMapping(paramPropMapping) ;
 		
 		return cs ;
 	}
 	
-	protected CompiledSQL buildInsertSQLWithPK(POJOBasedObjectMapping mapping){
+	protected CustomCompiledSQL buildCustomInsertSQLWithPK(POJOBasedObjectMapping mapping){		
+		return compiledSQLBuilder.buildCustomCompiledSQL(mapping.getBusiness().getName(), 
+			new DynamicSQLProvider(){
+				public NormalCompiledSQL getSql(POJOBasedObjectMapping m) {
+					return buildNormalInsertSQLWithPK(m) ;
+				}
+			}
+		) ;
+	}
+	
+	protected NormalCompiledSQL buildNormalInsertSQLWithPK(POJOBasedObjectMapping mapping){
 		String[] columns = mapping.getTable().getColumnsForInsert() ;
 		
 		//insert
@@ -186,18 +229,30 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		
 		sb_insert.append(")") ;
 		
-		CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb_insert.toString()).setParamPropMapping(paramPropMapping) ;
+		NormalCompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb_insert.toString()).setParamPropMapping(paramPropMapping) ;
 		
 		return cs ;
 	}
 	
+	protected CustomCompiledSQL buildCustomUpdateSQL(POJOBasedObjectMapping mapping){		
+		return compiledSQLBuilder.buildCustomCompiledSQL(mapping.getBusiness().getName(), 
+			new DynamicSQLProvider(){
+				public NormalCompiledSQL getSql(POJOBasedObjectMapping m) {
+					return buildNormalUpdateSQL(m) ;
+				}
+			}
+		) ;
+	}
+	
 	//update by primary key.
-	protected CompiledSQL buildUpdateSQL(POJOBasedObjectMapping mapping){
-		String[] columns = mapping.getTable().getColumnsForUpdate() ;
-		String primaryKey = mapping.getTable().getPKColName() ;
-		String primaryProp = mapping.getTable().getPKPropName() ;
+	protected NormalCompiledSQL buildNormalUpdateSQL(POJOBasedObjectMapping mapping){
+		Table table = mapping.getTable() ;
+		
+		String[] columns = table.getColumnsForUpdate() ;
+		String primaryKey = table.getPKColName() ;
+		String primaryProp = table.getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -229,18 +284,30 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		  .append("=:")
 		  .append(primaryProp) ;		
 		
-		CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()).setParamPropMapping(paramPropMapping) ;
+		NormalCompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()).setParamPropMapping(paramPropMapping) ;
 		cs.addParamPropMapping(primaryProp, primaryProp) ;
 		
 		return cs ;
 	}
 	
+	protected CustomCompiledSQL buildCustomDeleteSQL(POJOBasedObjectMapping mapping){		
+		return compiledSQLBuilder.buildCustomCompiledSQL(mapping.getBusiness().getName(), 
+			new DynamicSQLProvider(){
+				public NormalCompiledSQL getSql(POJOBasedObjectMapping m) {
+					return buildNormalDeleteSQL(m) ;
+				}
+			}
+		) ;
+	}
+	
 	//delete one object by primary key.
-	protected CompiledSQL buildDeleteSQL(POJOBasedObjectMapping mapping){
-		String primaryKey = mapping.getTable().getPKColName() ;
-		String primaryProp = mapping.getTable().getPKPropName() ;
+	protected NormalCompiledSQL buildNormalDeleteSQL(POJOBasedObjectMapping mapping){
+		Table table = mapping.getTable() ;
+		
+		String primaryKey = table.getPKColName() ;
+		String primaryProp = table.getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -254,20 +321,32 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		  .append("=:")
 		  .append(primaryProp);		
 		
-		CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()) ;
+		NormalCompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()) ;
 		cs.addParamPropMapping(primaryProp, primaryProp) ;
 		
 		return cs ;
 	}
 	
+	protected CustomCompiledSQL buildCustomSelectSQL(POJOBasedObjectMapping mapping){		
+		return compiledSQLBuilder.buildCustomCompiledSQL(mapping.getBusiness().getName(), 
+			new DynamicSQLProvider(){
+				public NormalCompiledSQL getSql(POJOBasedObjectMapping m) {
+					return buildNormalSelectSQL(m) ;
+				}
+			}
+		) ;
+	}
+	
 	//select one object by primary key.
-	protected CompiledSQL buildSelectSQL(POJOBasedObjectMapping mapping){
-		String primaryKey = mapping.getTable().getPKColName() ;
-		String primaryProp = mapping.getTable().getPKPropName() ;
-		String[] columns = mapping.getTable().getColumnsForSelect() ;
+	protected NormalCompiledSQL buildNormalSelectSQL(POJOBasedObjectMapping mapping){
+		Table table = mapping.getTable() ;
+		
+		String primaryKey = table.getPKColName() ;
+		String primaryProp = table.getPKPropName() ;
+		String[] columns = table.getColumnsForSelect() ;
 		
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -291,9 +370,9 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		  .append(" where ")		  
 		  .append(primaryKey)
 		  .append("=:")
-		  .append(primaryProp);		
+		  .append(primaryProp);
 		
-		CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()) ;
+		NormalCompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()) ;
 		cs.addParamPropMapping(primaryProp, primaryProp) ;
 		
 		return cs ;
@@ -301,10 +380,12 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	
 	//update by primary key.
 	public CompiledSQL buildUpdateSQL(POJOBasedObjectMapping mapping, String[] propsToUpdate){
-		String primaryKey = mapping.getTable().getPKColName() ;
-		String primaryProp = mapping.getTable().getPKPropName() ;
+		Table table = mapping.getTable() ;
+		
+		String primaryKey = table.getPKColName() ;
+		String primaryProp = table.getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + mapping.getTable().getConfigTableName()) ;
+			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
 		}
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -362,6 +443,10 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		sqlForLoadProp.addParamPropMapping("guzz_pk", table.getPKPropName()) ;
 		
 		return sqlForLoadProp ;
+	}
+
+	public CompiledSQLBuilder getCompiledSQLBuilder() {
+		return compiledSQLBuilder;
 	}
 
 }

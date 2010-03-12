@@ -87,10 +87,9 @@ public interface WriteTranSession {
 	 * <br>
 	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
 	 * 
-	 * @param Class domainClass
 	 * @exception DaoException may raise database exception
 	 */
-	public ObjectBatcher createObjectBatcher(Class domainClass) ;
+	public ObjectBatcher createObjectBatcher() ;
 	
 	public Object findObjectByPK(String businessName, Serializable pk) ;
 	
