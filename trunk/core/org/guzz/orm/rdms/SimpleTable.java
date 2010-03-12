@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.guzz.dao.PersistListener;
 import org.guzz.id.IdentifierGenerator;
-import org.guzz.orm.Business;
 import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.sql.MarkedSQL;
@@ -36,8 +35,6 @@ import org.guzz.util.ArrayUtil;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class SimpleTable implements Table {
-	
-	private Business business ;
 	
 	public SimpleTable(){
 	}
@@ -336,13 +333,32 @@ public class SimpleTable implements Table {
 	private CustomTableView customTableView ;
 	
 	private String businessName ;
-
-	public Business getBusiness() {
-		return business;
-	}
-
-	public void setBusiness(Business business) {
-		this.business = business;
+	
+	public Table newCopy(){
+		SimpleTable t = new SimpleTable() ;
+		
+		t.businessName = this.businessName ;
+		t.colColumns = new HashMap() ;
+		t.colColumns.putAll(this.colColumns) ;
+		
+		t.columns = new LinkedList() ;
+		t.columns.addAll(this.columns) ;
+		
+		t.customTableView = this.customTableView ;
+		t.dynamicUpdate = this.dynamicUpdate ;
+		t.ig = this.ig ;
+		t.lock = new Object() ;
+		t.persistListeners = this.persistListeners ;
+		t.PKPropName = this.PKPropName ;
+		t.primaryKey = this.primaryKey ;
+		
+		t.propColumns = new HashMap() ;
+		t.propColumns.putAll(this.propColumns) ;
+		
+		t.shadowTableView = this.shadowTableView ;
+		t.tableName = this.tableName ;
+		
+		return t ;
 	}
 	
 }

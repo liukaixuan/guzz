@@ -21,6 +21,7 @@ import org.guzz.exception.GuzzException;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.mapping.ObjectMappingManager;
+import org.guzz.pojo.DataLoaderManager;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
 import org.guzz.transaction.DBGroup;
@@ -71,6 +72,8 @@ public interface GuzzContext {
 	public TransactionManager getTransactionManager() ;
 	
 	public ObjectMappingManager getObjectMappingManager() ;
+
+	public DataLoaderManager getDataLoaderManager() ;
 	
 	public void shutdown() ;
 

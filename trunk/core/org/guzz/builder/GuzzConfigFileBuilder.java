@@ -39,7 +39,6 @@ import org.guzz.exception.GuzzException;
 import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
-import org.guzz.orm.ColumnORM;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.mapping.ObjectMappingManager;
@@ -58,6 +57,7 @@ import org.guzz.util.CloseUtil;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 import org.xml.sax.SAXException;
 
 /**
@@ -405,8 +405,7 @@ public class GuzzConfigFileBuilder {
 				gf.getDataLoaderManager().addDataLoader(dl) ;
 			}
 			
-			ColumnORM orm = map.createColumnMapping(col, dl) ;
-			col.setOrm(orm) ;
+			map.initColumnMapping(col, dl) ;
 			
 			st.addColumn(col) ;
 		}
@@ -553,7 +552,7 @@ public class GuzzConfigFileBuilder {
 		
 		ConfigServer server = (ConfigServer) BeanCreator.newBeanInstance(className) ;
 		
-		BeanWrapper bw = new BeanWrapper(server.getClass()) ;		
+		JavaBeanWrapper bw = BeanWrapper.createPOJOWrapper(server.getClass()) ;		
 		
 		//set params
 		List xml_params = e.selectNodes("param") ;

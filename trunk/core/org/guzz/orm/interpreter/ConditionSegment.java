@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.guzz.exception.DaoException;
 import org.guzz.util.ObjectCompareUtil;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 
 
 /**
@@ -90,7 +91,7 @@ public class ConditionSegment /*implements Comparable*/{
 			
 	/**判断参数对象中的字段值是否满足本Condition条件。如词condition为：id > 3，则如果param object的字段id的值>3，则返回true.*/
 	public boolean matchCondition(Object object){
-		BeanWrapper bw = new BeanWrapper(object.getClass()) ;
+		JavaBeanWrapper bw = BeanWrapper.createPOJOWrapper(object.getClass()) ;
 		
 		Object value = bw.getValue(object, this.fieldName) ;
 		

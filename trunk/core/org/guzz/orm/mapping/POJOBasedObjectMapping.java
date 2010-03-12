@@ -20,7 +20,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
 import org.guzz.bytecode.BusinessDescriptor;
 import org.guzz.bytecode.ProxyFactory;
@@ -40,7 +39,7 @@ import org.guzz.util.javabean.BeanWrapper;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public final class POJOBasedObjectMapping extends AbstractObjectMapping {
+public final class POJOBasedObjectMapping extends AbstractObjectMapping{
 
 	private Business business ;
 		
@@ -48,17 +47,15 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping {
 	
 	private ProxyFactory proxyFactory ;
 	
-	private GuzzContext guzzContext ;
+	private GuzzContextImpl guzzContext ;
 	
 	private BusinessDescriptor businessDescriptor ;
 	
-	public POJOBasedObjectMapping(GuzzContextImpl guzzContext, DBGroup dbGroup, Business business){
-		super(dbGroup, business.getTable()) ;
+	public POJOBasedObjectMapping(GuzzContextImpl guzzContext, DBGroup dbGroup, Table table){
+		super(dbGroup, table) ;
 		
 		this.guzzContext = guzzContext ;
 		this.proxyFactory = guzzContext.getProxyFactory() ;
-		this.business = business ;
-		this.business.setMapping(this) ;
 	}
 	
 	public Object proxyDomainObject(){
@@ -143,13 +140,6 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping {
 		}
 		return dataType ;
 	}
-
-	public void setDomainClass(Class domainClass) {
-		this.beanWrapper = new BeanWrapper(domainClass) ;
-		
-		this.business.setDomainClass(domainClass) ;
-		this.business.setBeanWrapper(beanWrapper) ;
-	}
 	
 	public String dump(){
 		return this.getClass().toString() ;
@@ -161,6 +151,7 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping {
 
 	public void setBusiness(Business business) {
 		this.business = business;
+		this.beanWrapper = business.getBeanWrapper() ;
 	}
 
 	public String[] getUniqueName() {

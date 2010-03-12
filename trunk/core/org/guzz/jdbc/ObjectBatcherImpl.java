@@ -135,8 +135,6 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 
 		ig.preInsert(this.sessionImpl, domainObject) ;
 
-		BeanWrapper bw = new BeanWrapper(domainObject.getClass()) ;
-
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
 			bsql.bind(props[i], value) ;

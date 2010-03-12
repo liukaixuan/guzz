@@ -48,7 +48,7 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 		
 	protected abstract String getColDataType(String propName, String colName, String dataType) ;
 		
-	public ColumnORM createColumnMapping(TableColumn tc, ColumnDataLoader columnDataLoader){
+	public void initColumnMapping(TableColumn tc, ColumnDataLoader columnDataLoader){
 		String colName = tc.getColName() ;
 		
 		String dataType2 = getColDataType(tc.getPropName(), colName, tc.getType()) ;
@@ -74,7 +74,7 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 			o = new ColumnORM(tc, columnDataLoader) ;
 		}
 		
-		return o ;
+		tc.setOrm(o) ;
 	}
 	
 	public SQLDataType getSQLDataTypeOfColumn(String colName){

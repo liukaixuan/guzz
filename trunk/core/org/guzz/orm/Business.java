@@ -16,10 +16,10 @@
  */
 package org.guzz.orm;
 
-import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.rdms.Table;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 
 
 /**
@@ -31,7 +31,7 @@ import org.guzz.util.javabean.BeanWrapper;
  */
 public class Business {
 	
-	private String name ;
+	private final String name ;
 	
 	private BusinessInterpreter interpret ;
 	
@@ -39,9 +39,16 @@ public class Business {
 	
 	private ObjectMapping mapping ;
 	
-	private String dbGroup ;
+	private final String dbGroup ;
+
+	/**基础的BeanWrapper*/
+	private JavaBeanWrapper configuredBeanWrapper ;
 	
+	/**
+	 * 使用运行时需要使用的beanwrapper。一般与configuredBeanWrapper相同，但在CustomTableView情况下可能存在差异。
+	 */
 	private BeanWrapper beanWrapper ;
+	
 	
 	private Table table ;
 	
@@ -55,10 +62,6 @@ public class Business {
 
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public BusinessInterpreter getInterpret() {
@@ -89,12 +92,8 @@ public class Business {
 		return dbGroup;
 	}
 
-	public void setDbGroup(String dbGroup) {
-		this.dbGroup = dbGroup;
-	}
-
 	public BeanWrapper getBeanWrapper() {
-		return beanWrapper;
+		return beanWrapper == null ? configuredBeanWrapper : this.beanWrapper;
 	}
 
 	public void setBeanWrapper(BeanWrapper beanWrapper) {
@@ -105,9 +104,29 @@ public class Business {
 		return table;
 	}
 
-	public void setTable(SimpleTable table) {
+	public void setTable(Table table) {
 		this.table = table;
-		table.setBusiness(this) ;
+	}
+	
+	public Business newCopy(){
+		Business b = new Business(this.name, this.dbGroup) ;
+		
+		b.beanWrapper = this.beanWrapper ;
+		b.configuredBeanWrapper = this.configuredBeanWrapper ;
+		b.domainClass = this.domainClass ;
+		b.interpret = this.interpret ;
+		b.mapping = this.mapping ;
+		b.table = this.table ;
+		
+		return b ;
+	}
+
+	public JavaBeanWrapper getConfiguredBeanWrapper() {
+		return configuredBeanWrapper;
+	}
+
+	public void setConfiguredBeanWrapper(JavaBeanWrapper configuredBeanWrapper) {
+		this.configuredBeanWrapper = configuredBeanWrapper;
 	}
 
 }

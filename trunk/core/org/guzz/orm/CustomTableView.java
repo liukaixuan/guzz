@@ -20,19 +20,25 @@ import org.guzz.orm.mapping.POJOBasedObjectMapping;
 
 /**
  * 
- * the interface for mapping dynamic tables with runtime-determinated columns(different tables and differect tables' columns map to the same domain object).
+ * Interface for mapping dynamic tables with runtime-determinated columns(different tables and differect tables' columns mapped to a same domain object).
  * <p>
- * only POJOBasedObjectMapping supports this feature.
+ * Only {@link POJOBasedObjectMapping} supports this feature.
  * </p>
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface CustomTableView {
+public interface CustomTableView extends ShadowTableView{
 	
+	/**
+	 * Set ObjectMapping configured in the hbm.xml file. This method only run one time on startup.
+	 */
+	public void setConfiguredObjectMapping(POJOBasedObjectMapping configuredMapping) ;
+	
+	/**
+	 * Get the runtime real ObjectMapping for the given tableCondition.
+	 * <p>The invoker won't cache the returned {@link POJOBasedObjectMapping}, so the implementor should do the cache for performance critical missions.
+	 * </p>
+	 */
 	public POJOBasedObjectMapping getRuntimeObjectMapping(Object tableCondition) ;
-	
-	public Object getValue(Object domainObject, String propName) ;
-	
-	public void setValue(Object domainObject, String propName, Object value) ;
 
 }

@@ -45,9 +45,9 @@ public class TableColumn {
 		
 	private ColumnORM orm ;
 	
-	private final SimpleTable table ;
+	private final Table table ;
 	
-	public TableColumn(SimpleTable table){
+	public TableColumn(Table table){
 		this.table = table ;
 	}
 
