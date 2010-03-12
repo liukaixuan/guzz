@@ -59,7 +59,7 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		TransactionManager tm = gf.getTransactionManager() ;
 				
 		WriteTranSession session = tm.openRWTran(false) ;
-		ObjectBatcher batcher = session.createObjectBatcher(User.class) ;
+		ObjectBatcher batcher = session.createObjectBatcher() ;
 		
 		int newCount = 98 ;
 		int count = countUser(tm) ;
@@ -97,7 +97,7 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		SearchExpression se = SearchExpression.forClass(User.class, 1, 345) ;
 		List users = read.list(se) ;
 		
-		ObjectBatcher batcher = session.createObjectBatcher(User.class) ;
+		ObjectBatcher batcher = session.createObjectBatcher() ;
 		for(int i = 0 ; i < users.size() ; i++){
 			User u = (User) users.get(i) ;
 			u.setFavCount(3849021) ;
@@ -126,7 +126,7 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		TransactionManager tm = gf.getTransactionManager() ;
 				
 		WriteTranSession session = tm.openRWTran(false) ;
-		ObjectBatcher batcher = session.createObjectBatcher(User.class) ;
+		ObjectBatcher batcher = session.createObjectBatcher() ;
 		
 		int dropCount = 19 ;
 		int count = countUser(tm) ;
@@ -165,7 +165,7 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		TransactionManager tm = gf.getTransactionManager() ;
 				
 		WriteTranSession session = tm.openRWTran(false) ;
-		ObjectBatcher batcher = session.createObjectBatcher(User.class) ;
+		ObjectBatcher batcher = session.createObjectBatcher() ;
 		
 		User user = new User() ;
 		user.setUserName("hello un a") ;

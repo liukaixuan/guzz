@@ -44,6 +44,7 @@ import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLManager;
+import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.pojo.DynamicUpdatable;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
@@ -66,26 +67,28 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	}
 	
 	public boolean delete(Object domainObject) {
-		CompiledSQL cs = this.compiledSQLManager.getDefinedDeleteSQL(getDomainClassName(domainObject)) ;
+		CompiledSQL cs = this.compiledSQLManager.getDefinedDeleteSQL(getRealDomainClass(domainObject).getName()) ;
 		if(cs == null){
-			throw new DaoException("no defined sql found for class:[" + getDomainClassName(domainObject) + "]. forget to register it in guzz.xml?") ;
+			throw new DaoException("no defined sql found for class:[" + getRealDomainClass(domainObject).getName() + "]. forget to register it in guzz.xml?") ;
 		}
 		
 		BindedCompiledSQL bsql = cs.bindNoParams() ;
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
+		NormalCompiledSQL runtimeCS = bsql.getCompiledSQLToRun() ;
+		
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
 		PersistListener[] pls = mapping.getTable().getPersistListeners() ;
 		
 		BeanWrapper bw = mapping.getBeanWrapper() ;
-		String[] props = cs.getOrderedParams() ;
+		String[] props = runtimeCS.getOrderedParams() ;
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValueUnderProxy(domainObject, props[i]) ;
 			bsql.bind(props[i], value) ;
 		}
 		
-		boolean success = executeUpdateWithPrePL(bsql, pls, domainObject, null, 3) == 1 ;
+		boolean success = executeUpdateWithPrePL(runtimeCS.getMapping(), bsql, pls, domainObject, null, 3) == 1 ;
 
 		if(pls.length > 0){
-			Connection conn = getConnection(cs.getMapping().getDbGroup()) ;
+			Connection conn = getConnection(runtimeCS.getMapping().getDbGroup()) ;
 			for(int i = 0 ; i < pls.length ; i++){
 				pls[i].postDelete(this, conn, domainObject) ;
 			}
@@ -101,8 +104,10 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 			throw new DaoException("no defined sql found for class:[" + domainObject.getClass().getName() + "]. forget to register it in guzz.xml?") ;
 		}
 		
-		BindedCompiledSQL bsql = cs.bindNoParams() ;		
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
+		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		NormalCompiledSQL runtimeCS = bsql.getCompiledSQLToRun() ;
+		
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
 		PersistListener[] pls = mapping.getTable().getPersistListeners() ;
 		
 		IdentifierGenerator ig = mapping.getTable().getIdentifierGenerator() ;		
@@ -110,13 +115,13 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		
 		Serializable pk = ig.preInsert(this, domainObject) ;
 		
-		String[] props = cs.getOrderedParams() ;
+		String[] props = runtimeCS.getOrderedParams() ;
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
 			bsql.bind(props[i], value) ;
 		}
 		
-		executeUpdateWithPrePL(bsql, pls, domainObject, pk, 1) ;
+		executeUpdateWithPrePL(runtimeCS.getMapping(), bsql, pls, domainObject, pk, 1) ;
 		
 		if(pk == null){
 			pk = ig.postInsert(this, domainObject) ;
@@ -125,7 +130,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		}
 
 		if(pls.length > 0){
-			Connection conn = getConnection(cs.getMapping().getDbGroup()) ;
+			Connection conn = getConnection(runtimeCS.getMapping().getDbGroup()) ;
 			for(int i = 0 ; i < pls.length ; i++){
 				pls[i].postInsert(this, conn, domainObject, pk) ;
 			}
@@ -140,9 +145,9 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		 * 2. 所有lazy属性，只有在显式的调用setxxx方法后才进行保存。
 		 * 3. 如果设置了dynamic-update=true，只更新显式调用setXXX的属性（lazy属性的变化也包含在此，因此dynamic-update检测到的更改字段包含lazy的属性的更改）。
 		 */
-		String domainClassName = getDomainClassName(domainObject) ;
+		String domainClassName = getRealDomainClass(domainObject).getName() ;
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) this.omm.getObjectMapping(domainClassName, Guzz.getTableCondition()) ;
 		
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) this.omm.getObjectMappingByName(domainClassName) ;
 		if(mapping == null){
 			throw new DaoException("ObjectMapping is null. class is:" + domainClassName) ;
 		}
@@ -208,11 +213,10 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		
 		PersistListener[] pls = mapping.getTable().getPersistListeners() ;
 		
-		
-		boolean success = executeUpdateWithPrePL(bsql, pls, domainObject, null, 2) == 1 ;
+		boolean success = executeUpdateWithPrePL(mapping, bsql, pls, domainObject, null, 2) == 1 ;
 
 		if(pls.length > 0){
-			Connection conn = getConnection(cs.getMapping().getDbGroup()) ;
+			Connection conn = getConnection(mapping.getDbGroup()) ;
 			for(int i = 0 ; i < pls.length ; i++){
 				pls[i].postUpdate(this, conn, domainObject) ;
 			}
@@ -233,20 +237,17 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	/**
 	 * invoke {@link PersistListener} 's preXXX() before executeUpdate.
 	 * 
+	 * @param mapping runtime ObjectMapping
 	 * @param bsql
 	 * @param pls PersistListeners registered.
 	 * @param domainObject
 	 * @param pk primary key. available in inserting method.
 	 * @param operation 1:insert, 2:update, 3:delete
 	 */
-	protected int executeUpdateWithPrePL(BindedCompiledSQL bsql, PersistListener[] pls, Object domainObject, Serializable pk, int operation){
-		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
-		String rawSQL = bsql.getSql() ;
-		if(m == null){
-			throw new DaoException("ObjectMapping is null. sql is:" + rawSQL) ;
-		}
+	protected int executeUpdateWithPrePL(ObjectMapping mapping, BindedCompiledSQL bsql, PersistListener[] pls, Object domainObject, Serializable pk, int operation){
+		String rawSQL = bsql.getSQLToRun() ;
 		
-		DBGroup db = m.getDbGroup() ;
+		DBGroup db = mapping.getDbGroup() ;
 		
 		this.debugService.logSQL(bsql) ;
 		
@@ -280,8 +281,8 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	}
 	
 	public int executeUpdate(BindedCompiledSQL bsql){
-		ObjectMapping m = bsql.getCompiledSQL().getMapping() ;
-		String rawSQL = bsql.getSql() ;
+		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
+		String rawSQL = bsql.getSQLToRun() ;
 		if(m == null){
 			throw new DaoException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
@@ -306,9 +307,9 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	}
 
 	public Object loadPropForUpdate(Object domainObject, String propName) {
-		String domainClassName = getDomainClassName(domainObject) ;
+		String domainClassName = getRealDomainClass(domainObject).getName() ;
 		
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) this.omm.getObjectMappingByName(domainClassName) ;
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) this.omm.getObjectMapping(domainClassName, Guzz.getTableCondition()) ;
 		if(mapping == null){
 			throw new DaoException("ObjectMapping is null. class is:" + domainClassName) ;
 		}
@@ -348,9 +349,11 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		return createCompiledSQLBatcher(sql, Guzz.getTableCondition()) ;
 	}
 	
-	public SQLBatcher createCompiledSQLBatcher(CompiledSQL sql, Object tableCondition) {
-		String rawSQL = sql.getSql(tableCondition) ;
-		ObjectMapping m = sql.getMapping() ;
+	public SQLBatcher createCompiledSQLBatcher(CompiledSQL cs, Object tableCondition) {
+		BindedCompiledSQL bsql = cs.bindNoParams().setTableCondition(tableCondition) ;
+		
+		String rawSQL = bsql.getSQLToRun() ;
+		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
 		if(m == null){
 			throw new ORMException("ObjectMapping not found. sql is:" + rawSQL) ;
 		}
@@ -375,22 +378,13 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		
 		this.psForBatch.add(pstm) ;
 		
-		SQLBatcherImpl b = new SQLBatcherImpl(pstm, db.getDialect(), sql) ;
+		SQLBatcherImpl b = new SQLBatcherImpl(pstm, db.getDialect(), bsql.getCompiledSQLToRun()) ;
 		
 		return b ;
 	}
 	
-	public ObjectBatcher createObjectBatcher(Class domainClass) {
-		String className = domainClass.getName() ;
-		ObjectMapping m = this.omm.getObjectMappingByName(className) ;
-		if(m == null){
-			throw new ORMException("unknown domainClass:" + className) ;
-		}
-		
-		DBGroup db = m.getDbGroup() ;
-		Connection conn = getConnection(db) ;
-		
-		ObjectBatcherImpl b = new ObjectBatcherImpl(compiledSQLManager, this, this.debugService, db.getDialect(), conn, className) ;
+	public ObjectBatcher createObjectBatcher() {		
+		ObjectBatcherImpl b = new ObjectBatcherImpl(compiledSQLManager, this, this.debugService) ;
 		
 		if(this.objectBatchers == null){
 			this.objectBatchers = new LinkedList() ;

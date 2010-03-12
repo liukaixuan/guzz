@@ -58,7 +58,9 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 	private int queueSize = 20480 ;
 	
 	public void updateCount(String businessName, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc){
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) omm.getObjectMappingByName(businessName) ;
+		tableCondition = tableCondition == null ? Guzz.getTableCondition() : tableCondition ;
+		
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) omm.getObjectMapping(businessName, tableCondition) ;
 		
 		if(mapping == null){
 			throw new ORMException("unknown business:[" + businessName + "]") ;
@@ -69,8 +71,6 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 		if(columnToUpdate == null){
 			throw new ORMException("unknown property:[" + propToUpdate + "], business name:[" + businessName + "]") ;
 		}
-		
-		tableCondition = tableCondition == null ? Guzz.getTableCondition() : tableCondition ;
 		
 		updateCount(mapping.getDbGroup().getGroupName(), mapping.getTable().getTableName(tableCondition), columnToUpdate, mapping.getTable().getPKColName(), pkValue, countToInc) ;
 	}
@@ -174,7 +174,7 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 						tran = tm.openRWTran(false) ;
 					}
 					if(batcher == null){
-						batcher = tran.createObjectBatcher(IncUpdateBusiness.class) ;
+						batcher = tran.createObjectBatcher() ;
 					}
 					
 					batcher.insert(ut) ;

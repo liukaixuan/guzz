@@ -101,7 +101,7 @@ public class TestLazyLoad extends DBBasedTestCase {
 	public void testLazyPropNoDynamicUpdate() throws Exception{
 		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getObjectMappingByName("book") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getStaticObjectMapping("book") ;
 		((SimpleTable) map.getBusiness().getTable()).setDynamicUpdate(false) ;
 		
 		TransactionManager tm = gf.getTransactionManager() ;

@@ -40,12 +40,10 @@ import org.guzz.transaction.LockMode;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class BindedCompiledSQL {
+public abstract class BindedCompiledSQL {
 	private static final Log log = LogFactory.getLog(BindedCompiledSQL.class) ;
 	
 	public static final RowDataLoader MAP_ROW_DATA_LOADER = new MapDataLoader() ;
-	
-	private CompiledSQL compiledSQL ;
 	
 	private Map bindedParams = new HashMap() ;
 	
@@ -56,30 +54,70 @@ public class BindedCompiledSQL {
 	private int bindStartIndex = 1 ;
 	
 	private LockMode lockMode ;
+		
+	private Object tableCondition ;	
 	
-	/**the sql ready to execute in database.*/
-	private String cachedSql ;
+	public abstract NormalCompiledSQL getCompiledSQLToRun() ;
 	
-	private Object tableCondition ;
+	public abstract String getSQLToRun() ;
 	
-	public BindedCompiledSQL(CompiledSQL cs){
-		this.compiledSQL = cs ;
-	}
 	
-	public String getSql(){
-		if(this.cachedSql != null){
-			return this.cachedSql ;
-		}else{
-			if(tableCondition != null){
-				this.cachedSql = this.compiledSQL.getSql(tableCondition) ;
-			}else{
-				this.cachedSql = this.compiledSQL.getSql(Guzz.getTableCondition()) ;
+	/**
+	 * 将命名参数set到PreparedStatement中
+	 * 
+	 * @param defaultDialect
+	 * @param pstm PreparedStatement
+	 */
+	public void prepareNamedParams(Dialect dialect, PreparedStatement pstm) throws SQLException{
+		NormalCompiledSQL cs = getCompiledSQLToRun() ;
+		
+		String[] orderParams = cs.getOrderedParams() ;
+		
+		for(int i = 0 ; i < orderParams.length ; i++){
+			String orderParam = orderParams[i] ;
+			Object value = bindedParams.get(orderParam) ;
+			
+			if(value == null){
+				throw new DaoException("missing paramter:[" + orderParam + "] in sql:" + getSQLToRun()) ;
 			}
 			
-			return this.cachedSql;
+			//NEW Implemention to fix
+			if(value instanceof NullValue){
+				value = null ;
+			}
+			
+			String propName = cs.getPropName(orderParam) ;
+			
+			if(propName != null){
+				SQLDataType type = cs.getMapping().getSQLDataTypeOfProperty(propName) ;
+				type.setSQLValue(pstm, i + bindStartIndex, value) ;
+			}else{ //使用jdbc自己的方式绑定。
+				if(log.isInfoEnabled()){
+					log.info("bind named params without SQLDataType found, try CompiledSQL#addParamPropMapping(,) for better binding. bind param is:[" + orderParam + "], value is :[" + value + "]. sql is:" + getSQLToRun()) ;
+				}
+				
+				pstm.setObject(i + bindStartIndex, value) ;
+			}
 		}
+		
+		
+//		//The code belowed warning: This IS a BUG!! null object is not supported!!! fix it to use ObjectMapping's SQLDataType for all cases.
+//		
+//		if(value instanceof NullValue){
+//			//this method only works for pojo's insert/update/delete methods
+//			SQLDataType type = compiledSQL.getMapping().getSQLDataTypeOfColumn(compiledSQL.getMapping().getColNameByPropName(orderParam)) ;
+//			if(type != null){
+//				type.setSQLValue(pstm, i + 1, null) ;
+//			}else{
+//				pstm.setObject(i + 1, null) ;
+//			}
+//		}else{
+//			//this method cann't handle null value. So, we change to detect the ObjectMapping's type
+//			SQLDataType type = dialect.getDataType(value.getClass().getName()) ;
+//			type.setSQLValue(pstm, i + 1, value) ;
+//		}
 	}
-	
+		
 	/**绑定sql执行需要的参数*/
 	public BindedCompiledSQL bind(String paramName, Object paramValue){
 		if(paramValue == null){
@@ -112,67 +150,9 @@ public class BindedCompiledSQL {
 		bindedParams.clear() ;
 		return this ;
 	}
-	
-	/**
-	 * 将命名参数set到PreparedStatement中
-	 * 
-	 * @param defaultDialect
-	 * @param pstm PreparedStatement
-	 */
-	public void prepareNamedParams(Dialect dialect, PreparedStatement pstm) throws SQLException{
-		String[] orderParams = compiledSQL.getOrderedParams() ;
-		
-		for(int i = 0 ; i < orderParams.length ; i++){
-			String orderParam = orderParams[i] ;
-			Object value = bindedParams.get(orderParam) ;
-			
-			if(value == null){
-				throw new DaoException("missing paramter:[" + orderParam + "] in sql:" + getSql()) ;
-			}
-			
-			//NEW Implemention to fix
-			if(value instanceof NullValue){
-				value = null ;
-			}
-			
-			String propName = this.compiledSQL.getPropName(orderParam) ;
-			
-			if(propName != null){
-				SQLDataType type = compiledSQL.getMapping().getSQLDataTypeOfProperty(propName) ;
-				type.setSQLValue(pstm, i + bindStartIndex, value) ;
-			}else{ //使用jdbc自己的方式绑定。
-				if(log.isInfoEnabled()){
-					log.info("bind named params without SQLDataType found, try CompiledSQL#addParamPropMapping(,) for better binding. bind param is:[" + orderParam + "], value is :[" + value + "]. sql is:" + getSql()) ;
-				}
-				
-				pstm.setObject(i + bindStartIndex, value) ;
-			}
-			
-			
-//			//The code belowed warning: This IS a BUG!! null object is not supported!!! fix it to use ObjectMapping's SQLDataType for all cases.
-//			
-//			if(value instanceof NullValue){
-//				//this method only works for pojo's insert/update/delete methods
-//				SQLDataType type = compiledSQL.getMapping().getSQLDataTypeOfColumn(compiledSQL.getMapping().getColNameByPropName(orderParam)) ;
-//				if(type != null){
-//					type.setSQLValue(pstm, i + 1, null) ;
-//				}else{
-//					pstm.setObject(i + 1, null) ;
-//				}
-//			}else{
-//				//this method cann't handle null value. So, we change to detect the ObjectMapping's type
-//				SQLDataType type = dialect.getDataType(value.getClass().getName()) ;
-//				type.setSQLValue(pstm, i + 1, value) ;
-//			}
-		}
-	}
 
 	public Map getBindedParams() {
 		return bindedParams;
-	}
-
-	public CompiledSQL getCompiledSQL() {
-		return compiledSQL;
 	}
 
 	public RowDataLoader getRowDataLoader() {
@@ -224,15 +204,17 @@ public class BindedCompiledSQL {
 		return this ;
 	}
 
-	public Object getTableCondition() {
-		return tableCondition;
+	public final Object getTableCondition() {
+		return this.tableCondition != null ? this.tableCondition : Guzz.getTableCondition() ;
 	}
 
-	public BindedCompiledSQL setTableCondition(Object tableCondition) {
+	public final BindedCompiledSQL setTableCondition(Object tableCondition) {
 		this.tableCondition = tableCondition;
-		this.cachedSql = null ;
+		notifyTableConditionChanged() ;
 		
 		return this ;
 	}
+	
+	protected abstract void notifyTableConditionChanged() ;
 
 }

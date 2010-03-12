@@ -48,7 +48,7 @@ public class TestSearchExpression extends DBBasedTestCase{
 //		
 //		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getObjectMappingByName("article") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("article") ;
 		SearchParams sp = new SearchParams() ;		
 		
 		assertEquals(se.toComputeRecordNumberSQL(map, sp).getOrginalSQL(), "select count(*) from TB_ARTICLE where NAME = :title_0") ;
@@ -89,7 +89,7 @@ public class TestSearchExpression extends DBBasedTestCase{
 		
 		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getObjectMappingByName("article") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("article") ;
 		SearchParams sp = new SearchParams() ;		
 		
 		assertEquals(se.toComputeRecordNumberSQL(map, sp).getOrginalSQL(), "select count(*) from TB_ARTICLE where NAME = :title_0") ;
@@ -124,7 +124,7 @@ public class TestSearchExpression extends DBBasedTestCase{
 		
 		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getObjectMappingByName("article") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("article") ;
 		SearchParams sp = new SearchParams() ;		
 		
 		se.setCountSelectPhrase("max(title)") ;

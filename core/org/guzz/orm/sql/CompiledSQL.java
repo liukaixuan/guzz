@@ -17,17 +17,10 @@
 package org.guzz.orm.sql;
 
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.guzz.orm.ObjectMapping;
-import org.guzz.orm.rdms.Table;
 import org.guzz.orm.type.SQLDataType;
-import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -38,88 +31,9 @@ import org.guzz.util.StringUtil;
  * @see BindedCompiledSQL
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class CompiledSQL {
-	
-	private String sql ;
+public abstract class CompiledSQL {
 		
-	private Map paramPropMapping = null ;
-	
-	private List orderedParams = new ArrayList() ;
-	
-	private ObjectMapping mapping ;
-		
-	private String[] cached_orderedParams = null ;
-	
-	/**保存sql中用到的shadow表，如果查询中没有shadow表，值为null*/
-	private Map shadowMapping = null ;
-	
-	/**
-	 * 根据tableCondition获取完成shadow映射后的sql语句。
-	 */
-	public String getSql(Object tableCondition) {
-		if(shadowMapping == null){
-			return sql;
-		}else{
-			String sql2 = sql ;
-			//替换shadow table name
-			Iterator i = shadowMapping.entrySet().iterator() ;
-			while(i.hasNext()){
-				Entry e = (Entry) i.next() ;
-				Table shadowTable = (Table) e.getValue() ;
-				
-				sql2 = StringUtil.replaceString(sql2, (String) e.getKey(), shadowTable.getTableName(tableCondition)) ;
-			}
-			
-			return sql2 ;
-		}
-	}
-	
-	
-	/**
-	 * 设置查询sql，如果sql中涉及shadow表，表名可以用@@businessName替代；
-	 * 替代后，调用 {@link #addShadowMapping(String, Table)} 声明映射。
-	 */
-	public void setSql(String sql) {
-		this.sql = sql;
-	}
-	
-	/**
-	 * 添加shadow表映射。
-	 */
-	public void addShadowMapping(String businessName, Table shadowTable){
-		if(shadowMapping == null){
-			shadowMapping = new HashMap() ;
-		}
-		
-		this.shadowMapping.put(MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName, shadowTable) ;
-	}
-	
-	public void addParamToLast(String paramName){
-		orderedParams.add(paramName) ;
-		cached_orderedParams = null ;
-	}
-
-	/**如果没有参数，返回长度为0的数组。*/
-	public String[] getOrderedParams() {
-		if(cached_orderedParams == null){
-			cached_orderedParams = (String[]) orderedParams.toArray(new String[0]);
-		}
-		
-		return cached_orderedParams ;
-	}
-
-	public void setOrderedParams(List orderedParams) {
-		this.orderedParams = orderedParams;
-		cached_orderedParams = null ;
-	}
-
-	public ObjectMapping getMapping() {
-		return mapping;
-	}
-
-	public void setMapping(ObjectMapping mapping) {
-		this.mapping = mapping;
-	}
+	protected Map paramPropMapping = null ;
 	
 	/**
 	 * Add mapping between the parameter Name and the corresponding pojo's property name.
@@ -131,6 +45,24 @@ public class CompiledSQL {
 		}
 		
 		paramPropMapping.put(paramName, propName) ;
+		return this ;
+	}
+	
+	/**
+	 * Add mapping between the parameter Name and the corresponding pojo's property name.
+	 * <br>Once the link is established, the jdbc operation for the param(eg: {@link PreparedStatement#setObject(int, Object)}) will be handled with the property's {@link SQLDataType} for more precisely operate.
+	 */
+	public CompiledSQL addParamPropMappings(Map paramPropMapping){
+		if(paramPropMapping == null){
+			return this ;
+		}
+		
+		if(this.paramPropMapping == null){
+			this.paramPropMapping = new HashMap() ;
+		}
+		
+		this.paramPropMapping.putAll(paramPropMapping) ;
+		
 		return this ;
 	}
 	
@@ -153,24 +85,14 @@ public class CompiledSQL {
 	}
 	
 	/**绑定sql执行需要的参数*/
-	public BindedCompiledSQL bind(String paramName, Object paramValue){
-		return new BindedCompiledSQL(this).bind(paramName, paramValue) ;
-	}
+	public abstract BindedCompiledSQL bind(String paramName, Object paramValue) ;
 	
-	public BindedCompiledSQL bind(String paramName, int paramValue){
-		return new BindedCompiledSQL(this).bind(paramName, paramValue) ;
-	}
+	public abstract BindedCompiledSQL bind(String paramName, int paramValue) ;
 	
-	public BindedCompiledSQL bind(String paramName, long paramValue){
-		return new BindedCompiledSQL(this).bind(paramName, new Long(paramValue)) ;
-	}
+	public abstract BindedCompiledSQL bind(String paramName, long paramValue) ;
 	
-	public BindedCompiledSQL bind(Map params){
-		return new BindedCompiledSQL(this).bind(params) ;
-	}
+	public abstract BindedCompiledSQL bind(Map params) ;
 	
-	public BindedCompiledSQL bindNoParams(){
-		return new BindedCompiledSQL(this) ;
-	}
+	public abstract BindedCompiledSQL bindNoParams() ;
 
 }

@@ -44,7 +44,7 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		
 		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getObjectMappingByName("article") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("article") ;
 		
 		assertNotNull(map) ;
 		assertNotNull(map.getBusiness()) ;
@@ -95,7 +95,7 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		
 		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getObjectMappingByName("article") ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("article") ;
 		
 		assertNotNull(map) ;
 		assertNotNull(map.getTable()) ;

@@ -18,6 +18,7 @@ package org.guzz.orm.se;
 
 import java.util.List;
 
+import org.guzz.Guzz;
 import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
@@ -378,8 +379,8 @@ public abstract class SearchExpression {
 		this.pageFlipClass = pageFlipClass;
 	}
 
-	public Object getTableCondition() {
-		return tableCondition;
+	public final Object getTableCondition() {
+		return tableCondition == null ? Guzz.getTableCondition() : this.tableCondition;
 	}
 
 	public SearchExpression setTableCondition(Object tableCondition) {

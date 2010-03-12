@@ -27,7 +27,9 @@ import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLManager;
+import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.service.core.DebugService;
+import org.guzz.transaction.DBGroup;
 import org.guzz.transaction.WriteTranSessionImpl;
 import org.guzz.util.javabean.BeanWrapper;
 
@@ -42,12 +44,9 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	protected CompiledSQLManager compiledSQLManager ;
 	private WriteTranSessionImpl sessionImpl ;
 	private DebugService debugService ;
-	protected String domainClassName ;
 
 	private PreparedStatement ps ;
 	private Dialect dialect ;
-	private CompiledSQL cs ;
-	private Connection conn ;
 
 	//inited in the construct method to protect add/delete/update passing wrong instances.
 	private BeanWrapper bw ;
@@ -56,6 +55,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	private Class domainCls ;
 	
 	private Object tableCondition ;
+	
+	private NormalCompiledSQL runtimeCS ;
 
 	/**
 	 * add:1
@@ -66,46 +67,50 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 
 	private String[] markMsg = new String[]{"", "add", "update", "delete"} ;
 
-	public ObjectBatcherImpl(CompiledSQLManager compiledSQLManager, WriteTranSessionImpl sessionImpl, DebugService debugService, Dialect dialect, Connection conn, String domainClassName){
+	public ObjectBatcherImpl(CompiledSQLManager compiledSQLManager, WriteTranSessionImpl sessionImpl, DebugService debugService){
 		this.compiledSQLManager = compiledSQLManager ;
 		this.sessionImpl = sessionImpl ;
 		this.debugService = debugService ;
-		this.dialect = dialect ;
-		this.conn = conn ;
-		this.domainClassName = domainClassName ;
 	}
 
 	protected void preparePS(Object domainObject, int operation){
+		CompiledSQL cs = null ;
+		this.domainCls = this.sessionImpl.getRealDomainClass(domainObject) ;
+		
 		switch (operation) {
 			case 1:
-				this.cs = this.compiledSQLManager.getDefinedInsertSQL(domainClassName) ;
+				cs = this.compiledSQLManager.getDefinedInsertSQL(this.domainCls.getName()) ;
 				break;
 			case 2:
-				this.cs = this.compiledSQLManager.getDefinedUpdateSQL(domainClassName) ;
+				cs = this.compiledSQLManager.getDefinedUpdateSQL(this.domainCls.getName()) ;
 				break;
 			case 3:
-				this.cs = this.compiledSQLManager.getDefinedDeleteSQL(domainClassName) ;
+				cs = this.compiledSQLManager.getDefinedDeleteSQL(this.domainCls.getName()) ;
 				break;
 			default:
 				break;
 		}
 
-		if(this.cs == null){
-			throw new DaoException("no defined sql found for class:[" + domainClassName + "]. forget to register it in guzz.xml?") ;
+		if(cs == null){
+			throw new DaoException("no defined sql found for class:[" + this.domainCls.getName() + "]. forget to register it in guzz.xml?") ;
 		}
 
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
+		BindedCompiledSQL bsql = cs.bindNoParams().setTableCondition(this.tableCondition) ;
+		this.runtimeCS = bsql.getCompiledSQLToRun() ;
+		
+		POJOBasedObjectMapping mapping  = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
 		this.bw = mapping.getBeanWrapper() ;
-		this.props = cs.getOrderedParams() ;
+		this.props = runtimeCS.getOrderedParams() ;
+		
+		DBGroup dbGroup = mapping.getDbGroup() ;
+		this.dialect = dbGroup.getDialect() ;
+		Connection conn = this.sessionImpl.getConnection(dbGroup) ;
 
-		//? get the real class under (maybe) proxy ?
-		this.domainCls = domainObject.getClass() ;
-
-		String rawSQL = cs.bindNoParams().setTableCondition(this.tableCondition).getSql() ;
+		String rawSQL = bsql.getSQLToRun() ;
 		this.debugService.logSQL("batch:" + rawSQL, null) ;
 
 		try {
-			this.ps = this.conn.prepareStatement(rawSQL) ;
+			this.ps = conn.prepareStatement(rawSQL) ;
 		} catch (SQLException e) {
 			throw new DaoException("error prepare sql:[" + rawSQL + "], domainObject is:" + domainObject.getClass()) ;
 		}
@@ -123,9 +128,9 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
 		}
 
-		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		BindedCompiledSQL bsql = runtimeCS.bindNoParams() ;
 
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) cs.getMapping() ;
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
 		IdentifierGenerator ig = mapping.getTable().getIdentifierGenerator() ;
 
 		ig.preInsert(this.sessionImpl, domainObject) ;
@@ -164,7 +169,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
 		}
 
-		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		BindedCompiledSQL bsql = runtimeCS.bindNoParams() ;
 
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
@@ -191,7 +196,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
 		}
 
-		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		BindedCompiledSQL bsql = runtimeCS.bindNoParams() ;
 
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
@@ -210,7 +215,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		try {
 			ps.clearBatch() ;
 		} catch (SQLException e) {
-			throw new DaoException("error execute clearBatch. CompiledSQL is:" + cs, e) ;
+			throw new DaoException("error execute clearBatch. CompiledSQL is:" + runtimeCS, e) ;
 		}
 	}
 
@@ -218,7 +223,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		try {
 			return ps.executeBatch() ;
 		} catch (SQLException e) {
-			throw new DaoException("error execute batch update. CompiledSQL is:" + cs, e) ;
+			throw new DaoException("error execute batch update. CompiledSQL is:" + runtimeCS, e) ;
 		}
 	}
 

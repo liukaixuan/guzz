@@ -16,12 +16,14 @@
  */
 package org.guzz.orm.sql.impl;
 
-import org.guzz.exception.ORMException;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
+import org.guzz.orm.sql.CustomCompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
+import org.guzz.orm.sql.NormalCompiledSQL;
+import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
 
 /**
  * 
@@ -37,41 +39,33 @@ public class CompiledSQLBuilderImpl implements CompiledSQLBuilder {
 	
 	public CompiledSQLBuilderImpl(ObjectMappingManager omm){
 		this.omm = omm ;
-		this.sc = new SQLCompiler(omm) ;
-	}
-	
-	public CompiledSQL buildCompiledSQLWithoutMapping(String markedSQL){
-		MarkedSQL ms = new MarkedSQL(null, markedSQL) ;
-		CompiledSQL cs = sc.compile(ms) ;		
-		
-		return cs;
+		this.sc = new SQLCompiler(omm, this) ;
 	}
 
-	public CompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) {
+	public NormalCompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) {
 		//TODO: add CompiledSQL cache here?
 		
-		MarkedSQL ms = new MarkedSQL(mapping, markedSQL) ;
-		CompiledSQL cs = sc.compile(ms) ;		
-		
-		return cs;
+		return sc.compileNormalCS(mapping, markedSQL) ;
 	}
 
-	public CompiledSQL buildCompiledSQL(String ghostName, String markedSQL) {
-		ObjectMapping m = omm.getObjectMappingByName(ghostName) ;
-		if(m == null){
-			throw new ORMException("no ObjectMapping found. name:" + ghostName) ;
-		}
-		
-		return buildCompiledSQL(m, markedSQL);
+	public NormalCompiledSQL buildCompiledSQL(MarkedSQL sql) {
+		return sc.compileNormalCS(sql.getMapping(), sql.getOrginalSQL()) ;
+	}
+
+	public CompiledSQL buildCompiledSQL(String businessName, String markedSQL) {
+		return sc.compile(businessName, markedSQL) ;
 	}
 
 	public CompiledSQL buildCompiledSQL(Class domainClass, String markedSQL) {
-		ObjectMapping m = omm.getObjectMappingByName(domainClass.getName()) ;
-		if(m == null){
-			throw new ORMException("no ObjectMapping found. " + domainClass) ;
-		}
-		
-		return buildCompiledSQL(m, markedSQL);
+		return sc.compile(domainClass.getName(), markedSQL) ;
+	}
+
+	public CustomCompiledSQL buildCustomCompiledSQL(String businessName, DynamicSQLProvider sqlProvider) {
+		return sc.compileCustom(businessName, sqlProvider) ;
+	}
+
+	public CustomCompiledSQL buildCustomCompiledSQL(Class domainClass, DynamicSQLProvider sqlProvider) {
+		return sc.compileCustom(domainClass.getName(), sqlProvider) ;
 	}
 
 }

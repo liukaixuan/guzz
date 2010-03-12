@@ -17,6 +17,7 @@
 package org.guzz.orm.sql;
 
 import org.guzz.orm.ObjectMapping;
+import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
 
 /**
  * 
@@ -26,11 +27,18 @@ import org.guzz.orm.ObjectMapping;
  */
 public interface CompiledSQLBuilder {
 		
-	public CompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) ;
+	public NormalCompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) ;
+	
+	public NormalCompiledSQL buildCompiledSQL(MarkedSQL sql) ;
+	
 	
 	/**获得compiledSQL，如果没有则新建一个。*/
-	public CompiledSQL buildCompiledSQL(String ghostName, String markedSQL) ;
+	public CompiledSQL buildCompiledSQL(String businessName, String markedSQL) ;
 	
 	public CompiledSQL buildCompiledSQL(Class domainClass, String markedSQL) ;
-		
+	
+	public CustomCompiledSQL buildCustomCompiledSQL(String businessName, DynamicSQLProvider sqlProvider) ;
+	
+	public CustomCompiledSQL buildCustomCompiledSQL(Class domainClass, DynamicSQLProvider sqlProvider) ;
+			
 }

@@ -19,6 +19,7 @@ package org.guzz.orm.mapping;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 
@@ -32,25 +33,63 @@ public class ObjectMappingManager {
 	
 	private Map ghostVSTables = new HashMap() ;
 	
-	private Map ghostVSOMs = new HashMap() ; 
+	private Map ghostVSOMs = new HashMap() ;
 	
-	/**通过域对象的名称或者完整的类名，获取对应的数据库表。*/
+	private Map ghostVSCustomViews = new HashMap() ; 
+	
+	/**
+	 * 通过域对象的名称或者完整的类名，获取对应的数据库表。
+	 * <p>如果为Custom table，返回的表为根据配置文件生成的原始表，不包含动态运行信息。</p>
+	 * 
+	 * @param name 域对象类名或business name
+	 */
 	public Table getTableByGhostName(String name) {
 		return (Table) ghostVSTables.get(name) ;
 	}
 	
-	public ObjectMapping getObjectMappingByName(String name) {
+	/**
+	 * 
+	 * if table is custom, return runtime ObjectMapping with tableCondition, or return static objectmapping.
+	 * 
+	 */
+	public ObjectMapping getObjectMapping(String name, Object tableCondition) {
+		CustomTableView view = (CustomTableView) this.ghostVSCustomViews.get(name) ;
+		
+		if(view == null){
+			return (ObjectMapping) ghostVSOMs.get(name) ;
+		}else{
+			return view.getRuntimeObjectMapping(tableCondition) ;
+		}
+	}
+	
+	/**
+	 * get object mapping that is not custom.
+	 */
+	public ObjectMapping getStaticObjectMapping(String name) {
 		return (ObjectMapping) ghostVSOMs.get(name) ;
-	}	
+	}
+	
+	public POJOBasedObjectMapping getCustomObjectMapping(String name, Object tableCondition) {
+		CustomTableView view = (CustomTableView) this.ghostVSCustomViews.get(name) ;
+		
+		if(view == null) return null ;
+		
+		return view.getRuntimeObjectMapping(tableCondition) ;
+	}
 	
 	public void registerObjectMapping(ObjectMapping map){
 		String[] names = map.getUniqueName() ;
-		
-		for(int i = 0 ; i < names.length ; i++){
-			ghostVSOMs.put(names[i], map) ;
-		}
-		
 		Table table = map.getTable() ;
+		
+		if(table.isCustomTable()){
+			for(int i = 0 ; i < names.length ; i++){
+				ghostVSCustomViews.put(names[i], table.getCustomTableView()) ;
+			}
+		}else{
+			for(int i = 0 ; i < names.length ; i++){
+				ghostVSOMs.put(names[i], map) ;
+			}
+		}
 		
 		if(table != null){
 			String[] ids = map.getUniqueName() ;
@@ -58,14 +97,6 @@ public class ObjectMappingManager {
 				ghostVSTables.put(ids[i], table) ;
 			}
 		}
-		
-//		if(map instanceof POJOBasedObjectMapping){
-//			POJOBasedObjectMapping pm = (POJOBasedObjectMapping) map ;
-//			Business business = pm.getBusiness() ;
-//			
-//			ghostVSTables.put(business.getDomainClass().getName(), pm.getTable()) ;
-//			
-//		}
 	}
 	
 

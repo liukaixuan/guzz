@@ -93,7 +93,7 @@ public abstract class RestGhostTag extends TagSupport {
 			ghostName = business.getClass().getName() ;
 		}
 		
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) guzzContext.getObjectMappingManager().getObjectMappingByName(ghostName) ;
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) guzzContext.getObjectMappingManager().getObjectMapping(ghostName, null) ;
 		
 		if(mapping == null){
 			throw new JspException("unknown business:[" + business + "], guessed business name:[" + ghostName + "]") ;

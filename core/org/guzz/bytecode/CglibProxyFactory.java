@@ -100,8 +100,8 @@ public class CglibProxyFactory implements ProxyFactory{
 				}else if("unmarkReading".equals(name)){
 					this.recordingPropChange = true ;
 					return null ;
-				}else if("getProxiedClassName".equals(name)){
-					return descriptor.getDomainClass().getName() ;
+				}else if("getProxiedClass".equals(name)){
+					return descriptor.getDomainClass() ;
 				}else if("getChangedProps".equals(name)){//do with dynamic update
 					int changedPropsCount = 0 ;
 					for(int i = 0 ; i < this.changedProps.length ; i++){

@@ -16,6 +16,7 @@
  */
 package org.guzz.orm;
 
+import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.rdms.Table;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanWrapper;
@@ -104,8 +105,9 @@ public class Business {
 		return table;
 	}
 
-	public void setTable(Table table) {
+	public void setTable(SimpleTable table) {
 		this.table = table;
+		table.setBusiness(this) ;
 	}
 
 }
