@@ -229,7 +229,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		
 		sb_insert.append(")") ;
 		
-		NormalCompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb_insert.toString()).setParamPropMapping(paramPropMapping) ;
+		NormalCompiledSQL cs = (NormalCompiledSQL) compiledSQLBuilder.buildCompiledSQL(mapping, sb_insert.toString()).setParamPropMapping(paramPropMapping) ;
 		
 		return cs ;
 	}
@@ -284,7 +284,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		  .append("=:")
 		  .append(primaryProp) ;		
 		
-		NormalCompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()).setParamPropMapping(paramPropMapping) ;
+		NormalCompiledSQL cs = (NormalCompiledSQL) compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()).setParamPropMapping(paramPropMapping) ;
 		cs.addParamPropMapping(primaryProp, primaryProp) ;
 		
 		return cs ;

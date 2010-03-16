@@ -36,7 +36,7 @@ public interface CustomTableView extends ShadowTableView{
 	
 	/**
 	 * Get the runtime real ObjectMapping for the given tableCondition.
-	 * <p>The invoker won't cache the returned {@link POJOBasedObjectMapping}, so the implementor should do the cache for performance critical missions.
+	 * <p>The invoker won't cache the returned {@link POJOBasedObjectMapping}, so the implementor should do the cache for performance critical system.
 	 * </p>
 	 */
 	public POJOBasedObjectMapping getRuntimeObjectMapping(Object tableCondition) ;

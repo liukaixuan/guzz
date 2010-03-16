@@ -20,6 +20,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.guzz.asm.EnchancerTest;
 import org.guzz.builder.TestMainConfigBuilder;
 import org.guzz.connection.C3P0DSTest;
 import org.guzz.dialect.TestH2Dialect;
@@ -29,6 +30,7 @@ import org.guzz.jdbc.TestSQLBatcher;
 import org.guzz.orm.mapping.TestHbmXMLBuilder;
 import org.guzz.orm.mapping.TestLazyLoad;
 import org.guzz.orm.rdms.TestShadowTableView;
+import org.guzz.orm.rdms.TestCustomTableView;
 import org.guzz.orm.se.TestDaoRead;
 import org.guzz.orm.se.TestDaoWrite;
 import org.guzz.orm.se.TestSearchExpression;
@@ -67,7 +69,9 @@ public class TestGuzz extends TestCase {
 		s.addTestSuite(TestSQLBatcher.class) ;
 		s.addTestSuite(TestLazyLoad.class) ;
 		s.addTestSuite(TestShadowTableView.class) ;
+		s.addTestSuite(TestCustomTableView.class) ;
 		s.addTestSuite(TestH2Dialect.class) ;
+		s.addTestSuite(EnchancerTest.class) ;
 		
 		s.addTestSuite(TestClobLoader.class) ;
 		s.addTestSuite(TestBlobLoader.class) ;

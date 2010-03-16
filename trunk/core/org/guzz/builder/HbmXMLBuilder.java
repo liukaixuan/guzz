@@ -163,9 +163,6 @@ public class HbmXMLBuilder {
 						ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
 						sv.setConfiguredTableName(tableName) ;
 						
-						gf.getShadowTableViewManager().addShadowView(sv) ;
-						st.setShadowTableView(sv) ;
-						
 						//CustomTableView是一类特殊的ShadowTableView
 						if(sv instanceof CustomTableView){
 							CustomTableView ctv = (CustomTableView) sv ;
@@ -173,6 +170,9 @@ public class HbmXMLBuilder {
 							
 							st.setCustomTableView(ctv) ;
 						}
+
+						st.setShadowTableView(sv) ;
+						gf.getShadowTableViewManager().addShadowView(sv) ;
 					}
 					
 					//TODO: 按照实际数据库具体类型，采用更加准备的子类进行初始化。

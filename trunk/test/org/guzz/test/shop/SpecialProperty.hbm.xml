@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.test.shop.SpecialProperty" table="tb_s_property">
+        <id name="id" type="int">
+        	<generator class="native" />
+        </id>
+        
+        <property name="cargoName" type="string" column="cargoName" />
+        <property name="propName" type="string" column="propName">
+        </property>
+        <property name="colName" type="string" column="colName">
+        </property>
+        <property name="dataType" type="string" column="dataType" />
+    </class>
+</hibernate-mapping>

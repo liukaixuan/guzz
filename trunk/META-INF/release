@@ -1,4 +1,8 @@
-guzz 1.2.7 b2
+1.2.7 b3
+	1. custom table support.
+	2. fix bug: ReadonlySession.refresh() throw a exception if the record doesn't exsit.
+
+1.2.7 b2
 	1. shadow table support
 
 1.2.7 b1:

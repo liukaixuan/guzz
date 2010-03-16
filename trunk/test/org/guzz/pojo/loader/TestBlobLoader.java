@@ -25,7 +25,6 @@ import org.guzz.GuzzContextImpl;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;
-import org.guzz.test.UserInfoH2;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;

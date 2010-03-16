@@ -16,7 +16,6 @@
  */
 package org.guzz.orm.sql;
 
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,7 +25,6 @@ import java.util.Map.Entry;
 
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
-import org.guzz.orm.type.SQLDataType;
 import org.guzz.util.StringUtil;
 
 /**
@@ -41,9 +39,7 @@ import org.guzz.util.StringUtil;
 public class NormalCompiledSQL extends CompiledSQL {
 	
 	private String sql ;
-		
-	private Map paramPropMapping = null ;
-	
+
 	private List orderedParams = new ArrayList() ;
 	
 	private ObjectMapping mapping ;
@@ -73,7 +69,6 @@ public class NormalCompiledSQL extends CompiledSQL {
 			return sql2 ;
 		}
 	}
-	
 	
 	/**
 	 * 设置查询sql，如果sql中涉及shadow表，表名可以用@@businessName替代；
@@ -119,37 +114,6 @@ public class NormalCompiledSQL extends CompiledSQL {
 
 	public void setMapping(ObjectMapping mapping) {
 		this.mapping = mapping;
-	}
-	
-	/**
-	 * Add mapping between the parameter Name and the corresponding pojo's property name.
-	 * <br>Once the link is established, the jdbc operation for the param(eg: {@link PreparedStatement#setObject(int, Object)}) will be handled with the property's {@link SQLDataType} for more precisely operate.
-	 */
-	public NormalCompiledSQL addParamPropMapping(String paramName, String propName){
-		if(paramPropMapping == null){
-			paramPropMapping = new HashMap() ;
-		}
-		
-		paramPropMapping.put(paramName, propName) ;
-		return this ;
-	}
-	
-	/**
-	 * @see #addParamPropMapping(String, String)
-	 */
-	public NormalCompiledSQL setParamPropMapping(Map paramPropMapping){
-		this.paramPropMapping = paramPropMapping ;
-		return this ;
-	}
-	
-	/**
-	 * get the pojo's property name for the giving paramName.
-	 * @return property name. If no mapping found, return null.
-	 */
-	public String getPropName(String paramName){
-		if(paramPropMapping == null) return null ;
-		
-		return (String) paramPropMapping.get(paramName) ;
 	}
 	
 	/**绑定sql执行需要的参数*/
