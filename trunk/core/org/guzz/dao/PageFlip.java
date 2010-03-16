@@ -188,8 +188,8 @@ public class PageFlip {
 	 * @param totalCount
 	 *            The totalCount to set.
 	 */
-	public void setTotalCount(int recCount) {
-		this.totalCount = recCount;
+	public void setTotalCount(int totalCount) {
+		this.totalCount = totalCount;
 	}
 
 	/**

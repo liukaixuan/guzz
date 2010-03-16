@@ -29,7 +29,7 @@ public interface BusinessInterpreter {
 	 * 返回null表示此条件可以忽略。
 	 * 如果遇到当前用户没有权限的查询字段，抛出异常(TODO: 增加权限接口支持)。
 	 * 
-	 * @param limit 查询条件
+	 * @param limitTo 查询条件
 	 */
 	public Object explainCondition(Object limitTo) throws Exception  ;
 	

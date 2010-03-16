@@ -356,7 +356,7 @@ public abstract class FileUtil {
 	 * @param sourceFile 要移动的文件
 	 * @param destFile 要移动到的目标文件
 	 *
-	 * @param true 如果移动成功。
+	 * @return true 如果移动成功。
 	 */
 	public static boolean moveFile(File sourceFile, File destFile){
 		if(destFile.exists()) destFile.delete() ; //删除以后rename成功的概率会提高。
@@ -399,7 +399,7 @@ public abstract class FileUtil {
 	 * @param sourceFile
 	 * @param destFile
 	 *
-	 * @param true 如果复制成功。
+	 * @return true 如果复制成功。
 	 */
 	public static boolean copyFile(File sourceFile, File destFile){
 		try {

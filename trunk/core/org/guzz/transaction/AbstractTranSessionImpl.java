@@ -135,10 +135,9 @@ public class AbstractTranSessionImpl {
 	}
 
 	/**
-	 * @param sql
-	 * @param params
+	 * @param bsql
 	 * @param startPos 从1开始
-	 * @param pageSize
+	 * @param maxSize
 	 **/
 	public List list(BindedCompiledSQL bsql, int startPos, int maxSize) {
 		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;

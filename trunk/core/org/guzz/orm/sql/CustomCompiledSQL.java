@@ -75,7 +75,7 @@ public class CustomCompiledSQL extends CompiledSQL {
 	
 	/**
 	 * 设置查询sql，如果sql中涉及shadow表，表名可以用@@businessName替代；
-	 * 替代后，调用 {@link #addShadowMapping(String, Table)} 声明映射。
+	 * 替代后，调用 {@link CompiledSQL#addShadowMapping(String, Table)} 声明映射。
 	 */
 	public void setSql(String sql) {
 		this.sql = sql;

@@ -21,7 +21,6 @@ package org.guzz.util;
  * 用于进行对象比较的工具类。
  * 
  * @author liu kaixuan(liukaixuan@gmail.com)
- * @date 2007-9-14 下午04:04:05
  */
 public abstract class ObjectCompareUtil {
 	
