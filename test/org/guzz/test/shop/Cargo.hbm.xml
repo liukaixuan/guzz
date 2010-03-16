@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+<guzz-mapping>
+    <class name="org.guzz.test.shop.Cargo" table="tb_cargo" shadow="org.guzz.test.shop.CargoCustomTableView">
+        <id name="id" type="int">
+        	<generator class="native" />
+        </id>
+        
+        <property name="name" type="string" column="name" />
+        <property name="description" type="string" column="description" />
+        <property name="storeCount" type="int" column="storeCount" />
+        <property name="price" type="double" column="price" />
+        <property name="onlineTime" type="datetime" column="onlineTime" />
+    </class>
+</guzz-mapping>

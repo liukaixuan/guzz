@@ -28,6 +28,8 @@
 	<business name="userInfo" dbgroup="oracle" class="org.guzz.test.UserInfo" file="classpath:org/guzz/test/UserInfo.hbm.xml" />
 	<business name="userInfo2" dbgroup="default" file="classpath:org/guzz/test/UserInfoH2.hbm.xml" />
 	<business name="comment" dbgroup="default" file="classpath:org/guzz/test/Comment.hbm.xml" />
+	<business name="cargo" dbgroup="default" file="classpath:org/guzz/test/shop/Cargo.hbm.xml" />
+	<business name="sp" dbgroup="default" file="classpath:org/guzz/test/shop/SpecialProperty.hbm.xml" />
 	
 	<dialect class="org.guzz.dialect.H2Dialect"></dialect>
 	<dialect name="mysql5dialect" class="org.guzz.dialect.Mysql5Dialect" />

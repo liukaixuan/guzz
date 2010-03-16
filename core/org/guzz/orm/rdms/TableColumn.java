@@ -33,15 +33,15 @@ public class TableColumn {
 	
 	private String propName ;
 	
-	private boolean allowUpdate ;
+	private boolean allowUpdate = true;
 	
-	private boolean allowInsert ;
+	private boolean allowInsert = true ;
 	
 	private String type ;
 	
 	private String nullValue ;
 	
-	private boolean lazy ;
+	private boolean lazy = false ;
 		
 	private ColumnORM orm ;
 	

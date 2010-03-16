@@ -55,7 +55,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertNotNull(md) ;
 //		System.out.println(md.asXML()) ;
 		List elements = md.selectNodes("//business") ;
-		assertEquals(elements.size(), 6) ;
+		assertEquals(elements.size(), 8) ;
 		assertEquals(((Element) elements.get(0)).attributeValue("name"), "article") ;
 		assertEquals(((Element) elements.get(1)).attributeValue("name"), "user") ;
 	}
@@ -144,7 +144,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		List objects = b.listBusinessObjectMappings() ;
 		
-		assertEquals(objects.size(), 6) ;
+		assertEquals(objects.size(), 8) ;
 		((GuzzContextImpl) gf).shutdown() ;
 	}
 	

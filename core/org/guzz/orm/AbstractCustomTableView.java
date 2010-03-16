@@ -82,7 +82,7 @@ public abstract class AbstractCustomTableView extends BeanWrapper implements Cus
 	}
 	
 	/**
-	 * Init the special mapping on the giving tableCondition.
+	 * Init the special mapping for the giving tableCondition. Called by {@link #createRuntimeObjectMapping(Object)}.
 	 * <p>
 	 * Only mappings besides the configured mapping in the xml are needed to add here.
 	 * </p>
