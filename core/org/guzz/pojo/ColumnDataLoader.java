@@ -61,7 +61,7 @@ public interface ColumnDataLoader {
 	 * load the data instancely during other properties reading from the dabase.
 	 * 
 	 * @param rs The current resultset. the resultset(and connection) will be closed after all properties are loaded. Your returning value cann't rely on this for future usage.
-	 * @param objectFecting The object being orm. the property before this property in the hbm.xml config file is already setted, so you can use it here. this param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
+	 * @param objectFetching The object being orm. the property before this property in the hbm.xml config file is already setted, so you can use it here. this param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
 	 * @param indexToLoad the propName index in the resultset.
 	 * @return the returned object will be set to the pojo property.
 	 */
@@ -87,7 +87,7 @@ public interface ColumnDataLoader {
 	 * @param fetchedObject the already loaded pojo.
 	 * 
 	 * @return the loaded object. the object will <b>NOT</b> be setted to the fetchedObject automatically.
-	 * @param DaoException throw exception on @param fetchedObject doesn't exsit in the database.
+	 * @exception DaoException throw exception on @param fetchedObject doesn't exsit in the database.
 	 */
 	public Object loadLazyDataForWrite(WriteTranSession tran, Object fetchedObject) throws DaoException ;
 	

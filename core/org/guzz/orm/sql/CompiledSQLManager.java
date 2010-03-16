@@ -52,7 +52,7 @@ public interface CompiledSQLManager {
 	/**
 	 * build a sql to load cell00 by primary key.<br> named param for pk is:guzz_pk
 	 * 
-	 * @param object mapping 
+	 * @param mapping object mapping 
 	 * @param columnName the column name of the database.
 	 */
 	public CompiledSQL buildLoadColumnByPkSQL(POJOBasedObjectMapping mapping, String columnName) ;

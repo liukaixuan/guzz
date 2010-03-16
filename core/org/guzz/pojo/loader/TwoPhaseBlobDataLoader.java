@@ -137,7 +137,7 @@ public class TwoPhaseBlobDataLoader extends PersistListenerAdapter implements Co
 	}
 
 	/**
-	 * @return {@link TranBlob}. The invoker should close the blob returned. see also: {@link BranClob#close()}. return null if the column's value is null.
+	 * @return {@link TranBlob}. The invoker should close the blob returned. see also: {@link TranBlob#close()}. return null if the column's value is null.
 	 */
 	public Object loadLazyData(Object fetchedObject) {
 		Object pk = this.wrap.getValue(fetchedObject, table.getPKPropName()) ;

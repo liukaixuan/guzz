@@ -39,7 +39,7 @@ public interface SlowUpdateService {
 	 * @param tableName 要更新的数据库表名
 	 * @param columnToUpdate 要更新的字段
 	 * @param pkColName 对象的主键字段名称
-	 * @param pk 对象的主键值
+	 * @param pkValue 对象的主键值
 	 * @param countToInc
 	 */
 	public void updateCount(String dbGroup, String tableName, String columnToUpdate, String pkColName, Serializable pkValue, int countToInc) ;

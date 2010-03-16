@@ -65,7 +65,7 @@ public abstract class BindedCompiledSQL {
 	/**
 	 * 将命名参数set到PreparedStatement中
 	 * 
-	 * @param defaultDialect
+	 * @param dialect dialect
 	 * @param pstm PreparedStatement
 	 */
 	public void prepareNamedParams(Dialect dialect, PreparedStatement pstm) throws SQLException{

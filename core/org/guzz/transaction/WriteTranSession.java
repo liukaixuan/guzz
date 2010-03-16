@@ -57,7 +57,7 @@ public interface WriteTranSession {
 	 * 
 	 * <p>use {@link Guzz#getTableCondition()} as the tableConditon if @param sql contains shadow table.
 	 * 
-	 * @param CompiledSQL sql
+	 * @param sql CompiledSQL sql
 	 * @exception DaoException may raise database exception
 	 */
 	public SQLBatcher createCompiledSQLBatcher(CompiledSQL sql) ;
@@ -72,7 +72,7 @@ public interface WriteTranSession {
 	 * <br>
 	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
 	 * 
-	 * @param CompiledSQL sql
+	 * @param sql CompiledSQL sql
 	 * @param tableCondtion the condition to shadow table. a SQLBatch can only be used for one table even if the domainClass is the same.
 	 * @exception DaoException may raise database exception
 	 */

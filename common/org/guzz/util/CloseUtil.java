@@ -68,7 +68,7 @@ public class CloseUtil {
     
     /**
      * 关闭给定的输出流. <BR>
-     * @param outStream
+     * @param writer
      */
     public static void close(Writer writer) {
         if (writer != null) {

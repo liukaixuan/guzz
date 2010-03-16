@@ -70,7 +70,7 @@ public interface Service {
 	
 	/**
 	 * 初始化Service环境。调用此方法时，GuzzContext已经初始化完毕。
-	 * <p/>此方法在 {@link configure(ConfigServer configServer} 方法以及相关引用注入<b>后</b>执行。
+	 * <p/>此方法在 {@link #configure(ServiceConfig[] scs)} 方法以及相关引用注入<b>后</b>执行。
 	 * */
 	public void startup() ;
 	
