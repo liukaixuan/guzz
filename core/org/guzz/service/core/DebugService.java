@@ -34,7 +34,11 @@ public interface DebugService {
 	
 	public void onErrorProcess(String msg, Exception e) ;
 
+	public void logSQL(String sql) ;
+	
 	public void logSQL(String sql, Object[] params) ;
+	
+	public void logSQL(String sql, int[] params) ;
 	
 	public void logSQL(BindedCompiledSQL bsql) ;
 	

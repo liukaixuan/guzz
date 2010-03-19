@@ -14,25 +14,26 @@
  * limitations under the License.
  *
  */
-package org.guzz.id;
-
-import java.io.Serializable;
-
-import org.guzz.transaction.WriteTranSession;
+package org.guzz.web.context;
 
 /**
  * 
+ * Bean factory to link with the outside Bean Context. eg: spring'a ApplicationContext.
  * 
+ * <p>ExtendedBeanFactory is initialized after GuzzContext.</p>
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @see ExtendedBeanFactoryAware
+ * 
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface IdentifierGenerator {
-	
-	/**在数据库执行插入时，是否包含PK字段。*/
-	public boolean insertWithPKColumn() ;	
-	
-	public Serializable preInsert(WriteTranSession session, Object domainObject) ;
-	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) ;
+public interface ExtendedBeanFactory {
+
+	/**
+	 * Get the factory implementation of the ExtendedBeanFactory. <br/>
+	 * In spring context, spring's ApplicationContext will be returned.
+	 */
+	public Object getFactoryImpl() ;
+
+	public Object getBean(String beanName) ;
 	
 }

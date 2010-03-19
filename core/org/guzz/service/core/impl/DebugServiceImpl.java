@@ -65,6 +65,16 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		
 		return name.startsWith(DebugService.DEMON_NAME_PREFIX) ;
 	}
+	
+	public void logSQL(String sql){
+		if(this.ignoreDemonThreadSQL && isDemonThread()){
+			return ;
+		}
+		
+		if(printSQL){
+			logInfo("sql:[" + sql + "]") ;
+		}
+	}
 
 	public void logSQL(String sql, Object[] params) {
 		if(this.ignoreDemonThreadSQL && isDemonThread()){
@@ -73,6 +83,18 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		
 		if(printSQLParams){
 			logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
+		}else if(printSQL){
+			logInfo("sql:[" + sql + "]") ;
+		}
+	}
+	
+	public void logSQL(String sql, int[] params) {
+		if(this.ignoreDemonThreadSQL && isDemonThread()){
+			return ;
+		}
+		
+		if(printSQLParams){
+			logInfo("sql:[" + sql + "], params is:[" + params + "]") ;
 		}else if(printSQL){
 			logInfo("sql:[" + sql + "]") ;
 		}

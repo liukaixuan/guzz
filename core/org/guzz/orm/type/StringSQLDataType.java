@@ -49,5 +49,9 @@ public class StringSQLDataType implements SQLDataType {
 			pstm.setString(parameterIndex, value.toString()) ;
 		}
 	}
+	
+	public Class getDataType(){
+		return String.class ;
+	}
 
 }

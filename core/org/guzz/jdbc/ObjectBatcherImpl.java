@@ -107,7 +107,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		Connection conn = this.sessionImpl.getConnection(dbGroup) ;
 
 		String rawSQL = bsql.getSQLToRun() ;
-		this.debugService.logSQL("batch:" + rawSQL, null) ;
+		this.debugService.logSQL("batch:" + rawSQL) ;
 
 		try {
 			this.ps = conn.prepareStatement(rawSQL) ;

@@ -14,25 +14,24 @@
  * limitations under the License.
  *
  */
-package org.guzz.id;
-
-import java.io.Serializable;
-
-import org.guzz.transaction.WriteTranSession;
+package org.guzz.util;
 
 /**
  * 
  * 
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface IdentifierGenerator {
+public final class LangUtil {
 	
-	/**在数据库执行插入时，是否包含PK字段。*/
-	public boolean insertWithPKColumn() ;	
-	
-	public Serializable preInsert(WriteTranSession session, Object domainObject) ;
-	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) ;
-	
+	private LangUtil() {}
+
+	public static int bytes2Int( byte[] bytes ) {
+		int result = 0;
+		for (int i=0; i<4; i++) {
+			result = ( result << 8 ) - Byte.MIN_VALUE + (int) bytes[i];
+		}
+		return result;
+	}
+
 }

@@ -5,7 +5,7 @@
     <class name="org.guzz.test.User" table="TB_USER">
         <id name="id" type="int" column="pk">
         	<generator class="native">
-        		<param name="seq">guzzSeq</param>
+        		<param name="seq">guzz_sequence</param>
         	</generator>
         </id>
         <property name="userName" type="string" column="userName">

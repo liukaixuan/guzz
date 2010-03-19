@@ -16,23 +16,22 @@
  */
 package org.guzz.id;
 
-import java.io.Serializable;
-
-import org.guzz.transaction.WriteTranSession;
+import org.guzz.exception.GuzzException;
 
 /**
- * 
- * 
+ * Thrown by <tt>IdentifierGenerator</tt> implementation class when
+ * ID generation fails.
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface IdentifierGenerator {
+public class IdentifierGenerationException extends GuzzException {
 	
-	/**在数据库执行插入时，是否包含PK字段。*/
-	public boolean insertWithPKColumn() ;	
-	
-	public Serializable preInsert(WriteTranSession session, Object domainObject) ;
-	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) ;
-	
+	public IdentifierGenerationException(String msg) {
+		super(msg);
+	}
+
+	public IdentifierGenerationException(String msg, Throwable t) {
+		super(msg, t);
+	}
+
 }

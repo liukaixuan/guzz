@@ -21,11 +21,12 @@ import org.guzz.exception.GuzzException;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.mapping.ObjectMappingManager;
-import org.guzz.pojo.DataLoaderManager;
+import org.guzz.pojo.ColumnDataLoaderManager;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
 import org.guzz.transaction.DBGroup;
 import org.guzz.transaction.TransactionManager;
+import org.guzz.web.context.ExtendedBeanFactory;
 
 /**
  * 
@@ -73,7 +74,19 @@ public interface GuzzContext {
 	
 	public ObjectMappingManager getObjectMappingManager() ;
 
-	public DataLoaderManager getDataLoaderManager() ;
+	public ColumnDataLoaderManager getDataLoaderManager() ;
+	
+	/**
+	 * Retrieve the Extended Bean Factory. for example: a Bean Factory linked to spring's ApplicationContext if the GuzzContext is initialized within springframework.
+	 * 
+	 * @return could be null
+	 */
+	public ExtendedBeanFactory getExtendedBeanFactory() ;
+	
+	/**
+	 * Retrieve a bean in the extended bean factory.
+	 */
+	public Object getExtendedBean(String beanName) ;
 	
 	public void shutdown() ;
 

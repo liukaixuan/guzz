@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContextImpl;
 import org.guzz.orm.ShadowTableView;
+import org.guzz.web.context.ExtendedBeanFactory;
+import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
 
 /**
@@ -66,6 +68,16 @@ public class ShadowTableViewManager {
 		}
 	}
 	
+	public void onExtendedBeanFactorySetted(ExtendedBeanFactory extendedBeanFactory){
+		for(int i = 0 ; i < views.size(); i++){
+			ShadowTableView view = (ShadowTableView) views.get(i) ;
+			
+			if(view instanceof ExtendedBeanFactoryAware){
+				((ExtendedBeanFactoryAware) view).setExtendedBeanFactory(guzzContextImpl.getExtendedBeanFactory()) ;
+			}
+		}
+	}
+	
 	public void shutdown(){
 		for(int i = 0 ; i < views.size() ; i++){
 			ShadowTableView loader = (ShadowTableView) views.get(i) ;
@@ -76,6 +88,8 @@ public class ShadowTableViewManager {
 				log.error("error while shutting down ColumnDataLoader:" + loader.getClass(), e) ;
 			}
 		}
+		
+		this.views.clear() ;
 	}
 
 }

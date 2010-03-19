@@ -19,17 +19,24 @@ package org.guzz.web.context.spring;
 import org.guzz.GuzzContext;
 import org.guzz.Service;
 import org.guzz.exception.GuzzException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * 
+ * Helper class to retrieve guzz service in the spring context.
  * 
+ * <p>Perform {@link ApplicationContextAware#setApplicationContext(applicationContext)} on the fly if the service implements {@link ApplicationContextAware}</p>
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class GuzzServiceFactoryBean extends AbstractFactoryBean {
+public class GuzzServiceFactoryBean extends AbstractFactoryBean implements ApplicationContextAware {
 	
 	private GuzzContext guzzContext ;
+	
+	private ApplicationContext applicationContext ;
 	
 	private String serviceName ;
 	
@@ -45,6 +52,14 @@ public class GuzzServiceFactoryBean extends AbstractFactoryBean {
 		}
 		
 		service = guzzContext.getService(serviceName) ;
+		
+		if(service == null){
+			throw new GuzzException("service not found. service name is:" + this.serviceName) ;
+		}
+		
+		if(service instanceof ApplicationContextAware){
+			((ApplicationContextAware) service).setApplicationContext(applicationContext) ;
+		}
 		
 		return service;
 	}
@@ -67,6 +82,10 @@ public class GuzzServiceFactoryBean extends AbstractFactoryBean {
 
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext ;
 	}
 
 }

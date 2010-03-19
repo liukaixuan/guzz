@@ -59,5 +59,9 @@ public class FloatSQLDataType implements SQLDataType {
 		
 		pstm.setFloat(parameterIndex, v) ;
 	}
+	
+	public Class getDataType(){
+		return Long.class ;
+	}
 
 }

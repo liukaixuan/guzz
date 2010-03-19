@@ -21,6 +21,8 @@ import java.util.LinkedList;
 import org.guzz.GuzzContextImpl;
 import org.guzz.orm.BusinessInterpreter;
 import org.guzz.util.javabean.BeanCreator;
+import org.guzz.web.context.ExtendedBeanFactory;
+import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
 
 /**
@@ -33,7 +35,7 @@ public class BusinessInterpreterManager {
 	
 	private GuzzContextImpl gc ;
 	
-	private LinkedList guzzContextAwareBIs = new LinkedList() ;
+	private LinkedList intepreters = new LinkedList() ;
 	
 	/**此时传入的gc是还没有初始化完成的context*/
 	public BusinessInterpreterManager(GuzzContextImpl gc){
@@ -57,25 +59,41 @@ public class BusinessInterpreterManager {
 			bi = new SEBusinessInterpreter() ;
 		}
 		
-		if(bi instanceof GuzzContextAware){
-			if(gc.isFullStarted()){
-				((GuzzContextAware) bi).setGuzzContext(gc) ;
-			}else{
-				guzzContextAwareBIs.addLast(bi) ;
-			}
+		intepreters.addLast(bi) ;
+		
+		if(bi instanceof GuzzContextAware && gc.isFullStarted()){
+			((GuzzContextAware) bi).setGuzzContext(gc) ;
+		}
+		
+		if(bi instanceof ExtendedBeanFactoryAware && gc.getExtendedBeanFactory() != null){
+			((ExtendedBeanFactoryAware) bi).setExtendedBeanFactory(gc.getExtendedBeanFactory()) ;
 		}
 		
 		return bi ;
 	}
 	
 	public void onGuzzFullStarted(){
-		for(int i = 0 ; i < guzzContextAwareBIs.size(); i++){
-			GuzzContextAware gca = (GuzzContextAware) guzzContextAwareBIs.get(i) ;
+		for(int i = 0 ; i < intepreters.size(); i++){
+			BusinessInterpreter bi = (BusinessInterpreter) intepreters.get(i) ;
 			
-			gca.setGuzzContext(gc) ;
+			if(bi instanceof GuzzContextAware){
+				((GuzzContextAware) bi).setGuzzContext(gc) ;
+			}
 		}
-		
-		guzzContextAwareBIs = null ;
+	}
+	
+	public void onExtendedBeanFactorySetted(ExtendedBeanFactory extendedBeanFactory){
+		for(int i = 0 ; i < intepreters.size(); i++){
+			BusinessInterpreter bi = (BusinessInterpreter) intepreters.get(i) ;
+			
+			if(bi instanceof ExtendedBeanFactoryAware){
+				((ExtendedBeanFactoryAware) bi).setExtendedBeanFactory(gc.getExtendedBeanFactory()) ;
+			}
+		}
+	}
+	
+	public void shutdown(){
+		this.intepreters.clear() ;
 	}
 
 }

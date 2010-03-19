@@ -89,5 +89,9 @@ public class DateSQLDataType implements SQLDataType {
 			throw new DataTypeException("unknown date type:" + value.getClass()) ;
 		}
 	}
+	
+	public Class getDataType(){
+		return java.sql.Date.class ;
+	}
 
 }

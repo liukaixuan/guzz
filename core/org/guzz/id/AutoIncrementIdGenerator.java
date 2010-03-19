@@ -21,7 +21,6 @@ import java.sql.ResultSet;
 import java.util.Properties;
 
 import org.guzz.dialect.Dialect;
-import org.guzz.exception.DaoException;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
@@ -60,7 +59,7 @@ public class AutoIncrementIdGenerator implements IdentifierGenerator, Configurab
 						if(rs.next()){
 							return dataTypeForPK.getSQLValue(rs, 1) ;
 						}else{
-							throw new DaoException("IdentifierGenerator is not invalid.") ;
+							throw new IdentifierGenerationException("IdentifierGenerator is invalid.") ;
 						}
 					}
 			

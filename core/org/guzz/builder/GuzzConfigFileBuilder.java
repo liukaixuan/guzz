@@ -563,7 +563,11 @@ public class GuzzConfigFileBuilder {
 			
 			if(Resource.class.isAssignableFrom(bw.getPropertyType(propName))){				
 				FileResource fr = new FileResource(this.mainConfigFile.getParentFile(), value) ;
-				bw.setValue(server, propName, fr) ;
+				try{
+					bw.setValue(server, propName, fr) ;
+				}finally{
+					CloseUtil.close(fr) ;
+				}
 			}else{
 				bw.setValue(server, propName, value) ;
 			}

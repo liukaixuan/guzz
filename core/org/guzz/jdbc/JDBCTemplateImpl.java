@@ -88,7 +88,7 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 	}
 	
 	public Object executeQueryWithoutPrepare(String sql, SQLQueryCallBack callback){
-		this.debugService.logSQL(sql, null) ;
+		this.debugService.logSQL(sql) ;
 
 		Statement st = null ;
 		ResultSet rs = null ;
@@ -136,6 +136,30 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		}
 	}
 	
+	public int executeUpdate(String sql, int[] params) {
+		if(isReadonly){
+			throw new DaoException("connection is readonly. sql is:" + sql) ;
+		}
+		
+		this.debugService.logSQL(sql, params) ;
+		PreparedStatement pstm = null ;
+		
+		try {
+			pstm = conn.prepareStatement(sql) ;
+			if(params != null && params.length > 0){
+				for(int i = 0 ; i < params.length ; i++){					
+					pstm.setInt(i + 1, params[i]) ;
+				}
+			}		
+			
+			return pstm.executeUpdate() ;
+		}catch (Exception e) {
+			throw new DaoException(sql, e) ;
+		}finally{
+			CloseUtil.close(pstm) ;
+		}
+	}
+	
 	public int executeUpdate(String sql, SQLDataType[] dataTypes, Object[] params){
 		if(isReadonly){
 			throw new DaoException("connection is readonly. sql is:" + sql) ;
@@ -164,7 +188,7 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 	}
 	
 	public int executeUpdate(String sql) {
-		return executeUpdate(sql, null) ;
+		return executeUpdate(sql) ;
 	}
 
 	public Connection getConnection() {

@@ -59,5 +59,9 @@ public class ShortSQLDataType implements SQLDataType {
 		
 		pstm.setShort(parameterIndex, v) ;
 	}
+	
+	public Class getDataType(){
+		return Short.class ;
+	}
 
 }

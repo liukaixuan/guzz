@@ -64,5 +64,9 @@ public class IntegerSQLDataType implements SQLDataType {
 		
 		pstm.setInt(parameterIndex, v) ;
 	}
+	
+	public Class getDataType(){
+		return Integer.class ;
+	}
 
 }

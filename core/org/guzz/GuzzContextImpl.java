@@ -47,7 +47,7 @@ import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
 import org.guzz.orm.sql.impl.CompiledSQLBuilderImpl;
 import org.guzz.orm.sql.impl.CompiledSQLManagerImpl;
-import org.guzz.pojo.DataLoaderManager;
+import org.guzz.pojo.ColumnDataLoaderManager;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
 import org.guzz.service.ServiceManager;
@@ -64,6 +64,7 @@ import org.guzz.transaction.DBGroupManager;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.TransactionManagerFactory;
 import org.guzz.util.CloseUtil;
+import org.guzz.web.context.ExtendedBeanFactory;
 
 /**
  * 
@@ -95,11 +96,13 @@ public class GuzzContextImpl implements GuzzContext{
 	
 	DebugService debugService ;
 	
-	DataLoaderManager dataLoaderManager ;
+	ColumnDataLoaderManager columnDataLoaderManager ;
 	
 	ShadowTableViewManager shadowTableViewManager ;
 	
 	ProxyFactory proxyFactory ;
+	
+	ExtendedBeanFactory extendedBeanFactory ;
 	
 	private boolean fullStarted ;
 	
@@ -211,8 +214,17 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		//9. 通知组件完成全部启动
 		this.businessInterpreterManager.onGuzzFullStarted() ;
-		this.dataLoaderManager.onGuzzFullStarted() ;
+		this.columnDataLoaderManager.onGuzzFullStarted() ;
 		this.shadowTableViewManager.onGuzzFullStarted() ;
+	}
+
+	public void setExtendedBeanFactory(ExtendedBeanFactory extendedBeanFactory) {
+		this.extendedBeanFactory = extendedBeanFactory;
+		
+		//通知ExtendedBeanFactory可用。此方法一般落后于onGuzzFullStarted()的调用。
+		this.businessInterpreterManager.onExtendedBeanFactorySetted(extendedBeanFactory) ;
+		this.columnDataLoaderManager.onExtendedBeanFactorySetted(extendedBeanFactory) ;
+		this.shadowTableViewManager.onExtendedBeanFactorySetted(extendedBeanFactory) ;
 	}
 	
 	
@@ -269,7 +281,7 @@ public class GuzzContextImpl implements GuzzContext{
 		//初始化顺序：加载xml文件，构造数据类型，连接ConfigServer读取配置，初始化Service，初始化事务管理。
 		
 		this.proxyFactory = new CglibProxyFactory() ;//TODO: read this from config file.
-		dataLoaderManager = new DataLoaderManager(this) ;
+		columnDataLoaderManager = new ColumnDataLoaderManager(this) ;
 		shadowTableViewManager = new ShadowTableViewManager(this) ;
 		objectMappingManager = new ObjectMappingManager() ;
 		businessInterpreterManager = new BusinessInterpreterManager(this) ;
@@ -283,7 +295,7 @@ public class GuzzContextImpl implements GuzzContext{
 //	}
 	
 	public void shutdown(){	
-		dataLoaderManager.shutdown() ;
+		columnDataLoaderManager.shutdown() ;
 		shadowTableViewManager.shutdown() ;
 		
 		if(serviceManager != null){
@@ -293,6 +305,8 @@ public class GuzzContextImpl implements GuzzContext{
 		if(this.dbGroupManager != null){
 			this.dbGroupManager.shutdown() ;
 		}
+		
+		this.businessInterpreterManager.shutdown() ;
 		
 		if(this.configServer != null){
 			this.configServer.shutdown() ;
@@ -396,8 +410,8 @@ public class GuzzContextImpl implements GuzzContext{
 		return fullStarted;
 	}
 
-	public DataLoaderManager getDataLoaderManager() {
-		return dataLoaderManager;
+	public ColumnDataLoaderManager getDataLoaderManager() {
+		return columnDataLoaderManager;
 	}
 
 	public ProxyFactory getProxyFactory() {
@@ -406,6 +420,18 @@ public class GuzzContextImpl implements GuzzContext{
 
 	public ShadowTableViewManager getShadowTableViewManager() {
 		return shadowTableViewManager;
+	}
+
+	public ExtendedBeanFactory getExtendedBeanFactory() {
+		return extendedBeanFactory;
+	}
+	
+	public Object getExtendedBean(String beanName) {
+		if(this.extendedBeanFactory == null){
+			throw new GuzzException("ExtendedBeanFactory is not inited yet. forgot to config it?") ;
+		}
+		
+		return extendedBeanFactory.getBean(beanName);
 	}
 
 }

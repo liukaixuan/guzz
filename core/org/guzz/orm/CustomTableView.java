@@ -20,7 +20,7 @@ import org.guzz.orm.mapping.POJOBasedObjectMapping;
 
 /**
  * 
- * Interface for mapping dynamic tables with runtime-determinated columns(different tables and differect tables' columns mapped to a same domain object).
+ * Interface for mapping dynamic tables with runtime-determinated columns(different tables and differect tables' columns mapped to a same domain class).
  * <p>
  * Only {@link POJOBasedObjectMapping} supports this feature.
  * </p>
