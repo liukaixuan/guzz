@@ -56,5 +56,9 @@ public class BlobSQLDataType implements SQLDataType {
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		pstm.setBlob(parameterIndex, (Blob) value) ;
 	}
+	
+	public Class getDataType(){
+		return Blob.class ;
+	}
 
 }

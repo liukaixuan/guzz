@@ -25,9 +25,6 @@ import org.guzz.orm.type.SQLDataType;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface Dialect {
-	
-	/**seuence参数在配置文件中的名称*/
-	public static final String PARAM_SEQUENCE = "sequence" ;
 
 	/**
 	 * @param 字段类型，如varchar, bigint, int, org.guzz.xxx.POJO

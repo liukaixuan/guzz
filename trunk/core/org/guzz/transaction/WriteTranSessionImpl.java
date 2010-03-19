@@ -360,7 +360,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		
 		DBGroup db = m.getDbGroup() ;
 		
-		this.debugService.logSQL("batch:" + rawSQL, null) ;
+		this.debugService.logSQL("batch:" + rawSQL) ;
 		
 		PreparedStatement pstm = null;
 		

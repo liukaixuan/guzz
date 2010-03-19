@@ -56,5 +56,9 @@ public class BooleanSQLDataType implements SQLDataType {
 		
 		pstm.setBoolean(parameterIndex, ((Boolean) value).booleanValue()) ;
 	}
+	
+	public Class getDataType(){
+		return Boolean.class ;
+	}
 
 }

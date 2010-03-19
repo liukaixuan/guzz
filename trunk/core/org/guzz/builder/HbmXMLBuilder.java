@@ -17,10 +17,8 @@
 package org.guzz.builder;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.xerces.impl.Constants;
@@ -32,13 +30,9 @@ import org.dom4j.VisitorSupport;
 import org.dom4j.io.SAXReader;
 import org.guzz.GuzzContextImpl;
 import org.guzz.exception.GuzzException;
-import org.guzz.id.AssignedIdGenerator;
-import org.guzz.id.AutoIncrementIdGenerator;
 import org.guzz.id.Configurable;
-import org.guzz.id.GUIDIdGenerator;
 import org.guzz.id.IdentifierGenerator;
-import org.guzz.id.SequenceIdGenerator;
-import org.guzz.id.SlientIdGenerator;
+import org.guzz.id.IdentifierGeneratorFactory;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
@@ -66,16 +60,6 @@ import org.xml.sax.SAXException;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class HbmXMLBuilder {
-	
-	static Map generators = new HashMap() ;
-	
-	static{
-		generators.put("increment", AutoIncrementIdGenerator.class.getName()) ;
-		generators.put("assigned", AssignedIdGenerator.class.getName()) ;
-		generators.put("sequence", SequenceIdGenerator.class.getName()) ;
-		generators.put("slient", SlientIdGenerator.class.getName()) ;
-		generators.put("guid", GUIDIdGenerator.class.getName()) ;
-	}
 	
 	public static String getDomainClassName(Resource r) throws DocumentException, IOException, SAXException{
 		SAXReader reader = null;
@@ -268,7 +252,7 @@ public class HbmXMLBuilder {
 			m_clsName = dbGroup.getDialect().getNativeIDGenerator() ;
 		}
 		
-		String realClassName = (String) generators.get(m_clsName) ;
+		String realClassName = (String) IdentifierGeneratorFactory.getGeneratorClass(m_clsName) ;
 		if(realClassName == null){
 			realClassName = m_clsName ;
 		}

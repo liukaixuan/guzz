@@ -59,5 +59,9 @@ public class DoubleSQLDataType implements SQLDataType {
 		
 		pstm.setDouble(parameterIndex, v) ;
 	}
+	
+	public Class getDataType(){
+		return Double.class ;
+	}
 
 }

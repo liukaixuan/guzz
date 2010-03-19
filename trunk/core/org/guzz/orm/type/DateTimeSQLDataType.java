@@ -94,5 +94,9 @@ public class DateTimeSQLDataType implements SQLDataType {
 			throw new DataTypeException("unknown datetime type:" + value.getClass()) ;
 		}
 	}
+	
+	public Class getDataType(){
+		return java.sql.Timestamp.class ;
+	}
 
 }

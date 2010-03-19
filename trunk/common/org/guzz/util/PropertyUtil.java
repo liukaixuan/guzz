@@ -433,6 +433,12 @@ public class PropertyUtil {
             return defaultValue;
         }
     }
+    
+    public static String getString(Properties props, String key, String defaultValue){
+    	String value = props.getProperty(key) ;
+    	
+    	return value == null ? defaultValue : value ;
+    }
 
     /**
      * 输出给定的JDK Properties对象中以给定字符串为前缀的所有Key及其取值. <BR>

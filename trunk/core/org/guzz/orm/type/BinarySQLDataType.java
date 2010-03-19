@@ -16,6 +16,7 @@
  */
 package org.guzz.orm.type;
 
+import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,6 +48,10 @@ public class BinarySQLDataType implements SQLDataType {
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		pstm.setBytes(parameterIndex, (byte[]) value) ;
+	}
+	
+	public Class getDataType(){
+		return Array.class ;
 	}
 
 }

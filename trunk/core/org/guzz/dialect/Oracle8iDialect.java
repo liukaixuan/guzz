@@ -16,6 +16,7 @@
  */
 package org.guzz.dialect;
 
+import org.guzz.id.IdentifierGenerationException;
 import org.guzz.orm.type.StringSQLDataType;
 
 /**
@@ -83,7 +84,7 @@ public class Oracle8iDialect extends AbstractDialect {
 
 	public String getSelectSequenceClause(String sequenceName) {
 		if(sequenceName == null){
-			sequenceName = "guzzSeq" ;
+			throw new IdentifierGenerationException("sequence name cann't be null.") ;
 		}
 		
 		StringBuffer sb = new StringBuffer(32) ;

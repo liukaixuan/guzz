@@ -52,5 +52,9 @@ public class BigDecimalSQLDataType implements SQLDataType {
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		pstm.setBigDecimal(parameterIndex, value == null ? this.nullValue : (BigDecimal) value) ;
 	}
+	
+	public Class getDataType(){
+		return BigDecimal.class ;
+	}
 
 }

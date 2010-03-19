@@ -14,25 +14,18 @@
  * limitations under the License.
  *
  */
-package org.guzz.id;
+package org.guzz.web.context;
 
-import java.io.Serializable;
-
-import org.guzz.transaction.WriteTranSession;
 
 /**
  * 
- * 
+ * Listener for ExtendedBeanFactory. setExtendedBeanFactory is called both after {@link GuzzContextAware#setGuzzContext(org.guzz.GuzzContext)} and startup() methods in plugins.
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface IdentifierGenerator {
-	
-	/**在数据库执行插入时，是否包含PK字段。*/
-	public boolean insertWithPKColumn() ;	
-	
-	public Serializable preInsert(WriteTranSession session, Object domainObject) ;
-	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) ;
-	
+public interface ExtendedBeanFactoryAware {
+
+	/**在GuzzContext初始化完成后调用*/
+	public void setExtendedBeanFactory(ExtendedBeanFactory extendedBeanFactory) ;
+
 }

@@ -104,6 +104,8 @@ public class ServiceManagerImpl implements ServiceManager {
 			
 			CloseUtil.close(s) ;
 		}
+		
+		this.services.clear() ;
 	}
 	
 	

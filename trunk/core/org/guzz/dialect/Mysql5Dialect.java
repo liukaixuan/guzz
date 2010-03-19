@@ -58,7 +58,7 @@ public class Mysql5Dialect extends AbstractDialect {
 	}
 
 	public String getNativeIDGenerator() {
-		return "increment";
+		return "identity";
 	}
 
 }

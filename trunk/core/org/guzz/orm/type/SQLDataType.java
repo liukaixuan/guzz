@@ -50,5 +50,10 @@ public interface SQLDataType {
 	 * @param value could be null.
 	 */
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException ;
+	
+	/**
+	 * get java data type.
+	 */
+	public Class getDataType() ;
 
 }

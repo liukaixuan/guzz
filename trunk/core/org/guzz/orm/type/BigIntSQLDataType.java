@@ -61,6 +61,10 @@ public class BigIntSQLDataType implements SQLDataType {
 		
 		pstm.setLong(parameterIndex, v) ;
 	}
+	
+	public Class getDataType(){
+		return Long.class ;
+	}
 
 
 }

@@ -140,8 +140,8 @@ public abstract class DBBasedTestCase extends TestCase {
 		this.oracleConn = DriverManager.getConnection("jdbc:oracle:thin:@10.64.4.31:1521:orcl", "vote", "vote");
 		
 		//创建seq
-		executeUpdateNoException(oracleConn, "drop SEQUENCE guzzSeq") ;
-		executeUpdateNoException(oracleConn, "CREATE SEQUENCE guzzSeq INCREMENT BY 1 START WITH 100000") ;		
+		executeUpdateNoException(oracleConn, "drop SEQUENCE guzz_sequence") ;
+		executeUpdateNoException(oracleConn, "CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 100000") ;		
 		
 		//创建一个表，插入一些测试数据。
 		executeUpdateNoException(oracleConn, "drop table TB_ARTICLE") ;

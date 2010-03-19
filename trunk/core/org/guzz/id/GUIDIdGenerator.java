@@ -50,8 +50,11 @@ public class GUIDIdGenerator implements IdentifierGenerator, Configurable {
 		String guid = (String) t.executeQueryWithoutPrepare(selectSequenceClause, 
 				new SQLQueryCallBack(){
 					public Object iteratorResultSet(ResultSet rs) throws Exception {
-						rs.next() ;
-						return rs.getString(1) ;
+						if(rs.next()){
+							return rs.getString(1) ;
+						}else{
+							throw new IdentifierGenerationException("guid IdentifierGenerator is invalid.") ;
+						}
 					}
 				}
 		) ;

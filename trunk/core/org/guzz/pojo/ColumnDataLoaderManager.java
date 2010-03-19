@@ -22,6 +22,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContextImpl;
+import org.guzz.web.context.ExtendedBeanFactory;
+import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
 
 /**
@@ -30,14 +32,14 @@ import org.guzz.web.context.GuzzContextAware;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class DataLoaderManager {
-	private transient static Log log = LogFactory.getLog(DataLoaderManager.class.getName()) ;
+public class ColumnDataLoaderManager {
+	private transient static Log log = LogFactory.getLog(ColumnDataLoaderManager.class.getName()) ;
 	
 	private List loaders = new LinkedList() ;
 	
 	private GuzzContextImpl guzzContextImpl ;
 	
-	public DataLoaderManager(GuzzContextImpl guzzContextImpl){
+	public ColumnDataLoaderManager(GuzzContextImpl guzzContextImpl){
 		this.guzzContextImpl = guzzContextImpl ;
 	}
 	
@@ -65,6 +67,16 @@ public class DataLoaderManager {
 		}
 	}
 	
+	public void onExtendedBeanFactorySetted(ExtendedBeanFactory extendedBeanFactory){
+		for(int i = 0 ; i < loaders.size(); i++){
+			ColumnDataLoader loader = (ColumnDataLoader) loaders.get(i) ;
+			
+			if(loader instanceof ExtendedBeanFactoryAware){
+				((ExtendedBeanFactoryAware) loader).setExtendedBeanFactory(guzzContextImpl.getExtendedBeanFactory()) ;
+			}
+		}
+	}
+	
 	public void shutdown(){
 		for(int i = 0 ; i < loaders.size() ; i++){
 			ColumnDataLoader loader = (ColumnDataLoader) loaders.get(i) ;
@@ -75,6 +87,8 @@ public class DataLoaderManager {
 				log.error("error while shutting down ColumnDataLoader:" + loader.getClass(), e) ;
 			}
 		}
+		
+		this.loaders.clear() ;
 	}
 
 }

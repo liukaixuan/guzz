@@ -51,14 +51,14 @@ public class TestCustomTableView extends DBBasedTestCase {
 	protected void prepareEnv() throws Exception {
 		super.prepareEnv();
 		
-		//create table for cargo and special property in H2 database.
-		executeUpdate(H2Conn, "drop table if exists tb_cargo") ;
-		executeUpdate(H2Conn, "create table tb_cargo(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime)") ;
+		//create special property table in H2 database.
+//		executeUpdate(H2Conn, "drop table if exists tb_cargo") ;
+//		executeUpdate(H2Conn, "create table tb_cargo(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime)") ;
         
 		executeUpdate(H2Conn, "drop table if exists tb_s_property") ;
 		executeUpdate(H2Conn, "create table tb_s_property(id int not null AUTO_INCREMENT primary key , cargoName varchar(32), propName varchar(32), colName varchar(32), dataType varchar(32))") ;
 				
-		//add book and cross-stitch special properties declaration in tb_s_property.
+		//add book and cross-stitch's special properties' declarations into tb_s_property.
 		executeUpdate(H2Conn, "insert into tb_s_property(cargoName, propName, colName, dataType) values('book', 'ISBN','ISBN','string')") ;
 		executeUpdate(H2Conn, "insert into tb_s_property(cargoName, propName, colName, dataType) values('book', 'author','author','string')") ;
 		executeUpdate(H2Conn, "insert into tb_s_property(cargoName, propName, colName, dataType) values('book', 'publisher','publisher','string')") ;

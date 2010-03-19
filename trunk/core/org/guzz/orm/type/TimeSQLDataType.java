@@ -95,5 +95,9 @@ public class TimeSQLDataType implements SQLDataType {
 			throw new DataTypeException("unknown time type:" + value.getClass()) ;
 		}
 	}
+	
+	public Class getDataType(){
+		return java.sql.Time.class ;
+	}
 
 }

@@ -16,6 +16,8 @@
  */
 package org.guzz.dialect;
 
+import org.guzz.id.IdentifierGenerationException;
+
 /**
  * 
  * 
@@ -66,7 +68,11 @@ public class H2Dialect extends AbstractDialect {
 	}
 
 	public String getSelectSequenceClause(String sequenceName) {
-		return null;
+		if(sequenceName == null){
+			throw new IdentifierGenerationException("sequence name cann't be null.") ;
+		}
+		
+		return "next value for " + sequenceName;
 	}
 
 	public String getSelectGUIDClause() {
@@ -74,11 +80,11 @@ public class H2Dialect extends AbstractDialect {
 	}
 
 	public boolean supportsSequence() {
-		return false;
+		return true;
 	}
 
 	public String getNativeIDGenerator() {
-		return "increment";
+		return "identity";
 	}
 	
 	public String getForUpdateNoWaitString(String sql) {
