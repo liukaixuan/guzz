@@ -35,7 +35,6 @@ public class ViewFormat {
 	/**
 	 * 把给定的时间段字符串转换成秒的值。<br>
 	 * 为了方便，自动把"："改成":", 把"o"改为"0"
-	 * @see ValidCheck#isTimeSegment(String)
 	 * @see #seconds2TimeSeg(int)
 	 * @return 返回秒数，如果输入的字段无效，返回-1。
 	 */
@@ -119,7 +118,6 @@ public class ViewFormat {
 	
 	/**
 	 * 把给定的秒数转变成如 "245天3小时34分7秒" 这样的格式。
-	 * @date 2003-11-26
 	 * @return 返回转换后的字符串，如果输入秒数<=0，返回 "0秒" 。
 	 */
 	public static String seconds2String(int sec){

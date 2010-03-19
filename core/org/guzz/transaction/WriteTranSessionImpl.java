@@ -333,7 +333,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		}
 		
 		
-//		要读取的属性并不一定都是lazy的，如：可能是非lazy的clob，这时下面的方法无法将出现错误。
+//		要读取的属性并不一定都是lazy的，如：可能是非lazy的clob，这时下面的方法将出现错误。
 //		BusinessDescriptor bd = mapping.getBusinessDescriptor() ;
 //		
 //		//continue here

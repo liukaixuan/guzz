@@ -100,7 +100,7 @@ public abstract class SummonTag extends TagSupport {
 			ghostName = business.getClass().getName() ;
 		}
 		
-		Business bi = guzzContext.getGhost(ghostName) ;
+		Business bi = guzzContext.getBusiness(ghostName) ;
 		
 		if(bi == null){
 			throw new JspException("unknown business:[" + this.business + "], guessed business name:[" + ghostName + "]") ;

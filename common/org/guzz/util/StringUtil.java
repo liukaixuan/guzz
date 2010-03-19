@@ -30,7 +30,9 @@ import org.guzz.exception.GuzzException;
 
 
 /**
- * String帮助类
+ * String helper class.
+ * 
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class StringUtil {
 	
@@ -38,9 +40,6 @@ public class StringUtil {
 
 	/**
 	 * 检测字符串是否为null，或者trim()以后的长度是否为0。
-	 *
-	 * @author <a href="mailto:myreligion@163.com">liu kaixuan</a>
-	 * @date 2005-8-13
 	 */
 	public static boolean isEmpty(String s) {
 		if (s == null)
@@ -199,8 +198,6 @@ public class StringUtil {
 	/**
 	 * 把null变成""<br>
 	 *
-	 * @author <a href="mailto:myreligion@163.com">liu kaixuan</a>
-	 * @date 2003年7月28日,2003年8月3日
 	 */
 	public static String dealNull(String str) {
 		String returnstr = null;
@@ -214,8 +211,6 @@ public class StringUtil {
 	/**
 	 * 字符串替换函数
 	 *
-	 * @author <a href="mailto:myreligion@163.com">liu kaixuan</a>
-	 * @date 2003年7月28日,2003年8月3日
 	 * @param str 原始字符串
 	 * @param substr 要替换的字符
 	 * @param restr 替换后的字符
@@ -240,8 +235,6 @@ public class StringUtil {
 	 * 分割字串，一般情况下客户端要考虑把返回字符数组中每个字符串进行trim()<br>
 	 * 本方法本身不会添加空格，不过也不会把前后空格删除。
 	 *
-	 * @author <a href="mailto:myreligion@163.com">liu kaixuan</a>
-	 * @date 2003年7月28日,2003年8月3日
 	 * @param toSplit 原始字符串
 	 * @param delimiter 分割字符串
 	 * @return 字符串数组
@@ -305,8 +298,6 @@ public class StringUtil {
 	/**
 	 * 字符串替换函数
 	 *
-	 * @author <a href="mailto:myreligion@163.com">liu kaixuan</a>
-	 * @date 2003年7月28日,2003年8月3日
 	 * @param str 原始字符串
 	 * @param substr 要替换的字符
 	 * @param restr 替换后的字符
@@ -330,9 +321,7 @@ public class StringUtil {
 	/**
 	 * 分割字串，一般情况下客户端要考虑把返回字符数组中每个字符串进行trim()<br>
 	 * 本方法本身不会添加空格，不过也不会把前后空格删除。
-	 *
-	 * @author <a href="mailto:myreligion@163.com">liu kaixuan</a>
-	 * @date 2003年7月28日,2003年8月3日
+	 * 
 	 * @param toSplit 原始字符串
 	 * @param delimiter 分割字符串
 	 * @return 字符串数组

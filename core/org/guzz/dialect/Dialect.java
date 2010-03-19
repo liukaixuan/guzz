@@ -27,7 +27,7 @@ import org.guzz.orm.type.SQLDataType;
 public interface Dialect {
 
 	/**
-	 * @param 字段类型，如varchar, bigint, int, org.guzz.xxx.POJO
+	 * @param colType eg: varchar, bigint, int, org.guzz.xxx.POJO
 	 * @return 用于处理@param数据类型的处理类，如果不支持抛出异常@link DataTypeException。
 	 */
 	public SQLDataType getDataType(String colType) ;
