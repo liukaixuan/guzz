@@ -264,7 +264,7 @@ public class GuzzContextImpl implements GuzzContext{
 	private Map ghosts = new HashMap() ;
 	
 	/**根据ghost名称或者域对象的完整的类名获取Ghost对象，如果不存在返回null。*/
-	public Business getGhost(String name){
+	public Business getBusiness(String name){
 		return (Business) ghosts.get(name) ;
 	}
 	

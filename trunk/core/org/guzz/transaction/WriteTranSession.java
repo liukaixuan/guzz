@@ -73,7 +73,7 @@ public interface WriteTranSession {
 	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
 	 * 
 	 * @param sql CompiledSQL sql
-	 * @param tableCondtion the condition to shadow table. a SQLBatch can only be used for one table even if the domainClass is the same.
+	 * @param tableCondition the condition to shadow table. a SQLBatch can only be used for one table even if the domainClass is the same.
 	 * @exception DaoException may raise database exception
 	 */
 	public SQLBatcher createCompiledSQLBatcher(CompiledSQL sql, Object tableCondition) ;

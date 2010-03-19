@@ -104,7 +104,7 @@ public class GhostAddInLimitTag extends TagSupport {
 				
 				BeanWrapper bw ;
 				
-				Business b = this.guzzContext.getGhost(valueClass.getName()) ;
+				Business b = this.guzzContext.getBusiness(valueClass.getName()) ;
 				if(b != null){//如果属于领域对象，使用领域对象的BeanWrapper(用以支持读取CustomTableView的特殊要求)
 					bw = b.getBeanWrapper() ;
 				}else{
