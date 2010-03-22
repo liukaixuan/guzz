@@ -6,8 +6,6 @@ package mm.smy.bicq.search ;
 *@date 2003-10-3
 *@author XF
 *@copyright Copyright 2003 XF All Rights Reserved
-* 刚才妈妈打电话问我十一出去玩没，我说没有。然后被骂了，强烈要求出去...。
-* 偶妹妹不在，出去什么意思呀？？好想妹妹呀~~~
 *
 *
 * 使用Runnable的目的因为不用的话，程序将会在生成该部分一半的时候，转而执行sgm的wait()。使得画面不完整！
@@ -19,8 +17,6 @@ import java.awt.event.* ;
 import javax.swing.* ;
 
 public class SearchStep2 extends JFrame implements ActionListener/*,Runnable*/{
-	
-	
 
 	private JLabel explain = new JLabel("搜索用户") ;
 	private JLabel blank   = new JLabel("") ;

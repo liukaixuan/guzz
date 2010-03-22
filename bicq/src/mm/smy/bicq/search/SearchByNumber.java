@@ -4,7 +4,6 @@ package mm.smy.bicq.search ;
 * 根据好友的 number 查找好友。
 *
 *@author XF
-*@copyright 偶妹妹不再偶身边，感觉好难受.....
 */
 
 import java.awt.* ;
