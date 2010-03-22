@@ -1,0 +1,115 @@
+server number: 1000
+Date规定：所有用户输入的年，转化成minus 1900 后的数，月0-11，天1-31.与java.util.Date一致。
+系统默认头像是1
+
+
+ICMPMessage
+	Value  : LOAD_HOST_INFOR
+	content: new Integer(host.getNumber()).toString()
+
+	Value  : LOAD_SINGLE_GUEST_INFOR
+	content: new Integer(u.getNumber()).toString()
+
+	Value  : LOAD_ALL_GUESTS
+	content: not defined.
+
+	Value  : UPDATE_HOST_INFOR_RESULT
+	content: int.toString() 1:OK 2:some packets lost, please send again. 3. 用户根本就没有登陆纪录！ 4.更新数据库失败。
+
+	Value  : LOGIN_RESULT
+	content: int.toString()  1:ok, 2:no such user, 3:password wrong 4:user/password invalid
+
+	Value  : REGISTER_RESULT_SUCCESS
+	content: 新申请的bicq号; int.toString()
+	
+	Value  : REGISTER_RESULT_FAIL
+	content: 错误的原因
+	
+	Value  : LOGIN_TO_SERVER_SUCCESS
+	content: 登陆成功的用户host.number；请求发送所有离线消息（Text & Permit）
+	
+	Value  : QUIT_BICQ   ;退出BICQ
+	content: new Integer(host.getNumber()).toString() 
+	
+	Value  : ADD_FRIEND    ;添加好友成功消息，让服务器写入数据库。发送给服务器
+	content: "添加者number:被添加者number。"
+	
+	Value  : DELETE_FRIEND ; 删除好友。发送给服务器。
+	content: "添加者number:被添加者number。"
+	
+	
+StateChangedMessage
+	
+	isNotify : true
+	mintype  : online
+	leaveword: null ;
+	
+	服务器的原因，在所有的消息中加入isNotify为true，然后发送给服务器。如果服务器觉得要修改，就修改；否则的话，直接转发给
+	加host为好友的用户。这个时候from是host，而receive的是server，所以在消息处理中不能简单的过滤掉所有不发给用户的消息。
+	应该过滤掉发送不是给host以及server的消息。
+	
+	在其他消息的处理方面，服务器也有可能转发，这样可以 减轻 服务器的消息处理负担！
+	
+	在client的StateChangedMessage处理方面，如果用户一开始不是上线，对其他的非在线消息，一律屏蔽掉isNotify = true。就是说
+	我们上下线通知是由 客户程序 作的，虽然在安全上讲不太好，不过如果真的有必要，服务器可以随时的更新。保持很好的扩展性。
+	
+	规定1：
+		如果message.getIP() == null，port无效。
+		//如果要求服务器同时更新IP与port的话，在IP中写入任意的IP，如服务器的；在port中写入端口（必须）
+		服务器端用户不会修改客户的IP/port，该部分在UserPswMessage中定义，然后不做任何修改。
+		客户端如果收到的IP == null，不在任何IP/port修改，否则的话，修改IP与port
+	规定2：
+		from是很重要的一个东西，服务器应该转发消息；对用户来说，消息发自的地方好像是直接来自他的好友，而不是服务器。
+		可实际上，都是从服务器发出去的。
+	规定3：
+		如果isNotify为false，客户端只会改变IP，而不会修改guest的state，所以用户的所有状态变化将会被屏蔽掉。
+	
+	
+	
+SearchGuestMessage
+	查找好友的消息，该消息由SearchGuestManager负责。
+	private String nickname = "" ; //昵称查找
+	private int    number   = -1 ; 
+	private boolean online = false ; //false表示所有用户，true只查找在线的用户。
+	private int gender = -1 ;        //-1表示所有用户，0女，1男
+	private String province    = "" ; //长度为零代表所有。
+	private int age_from = -1 ;     //最小的年龄， -1（小于零）表示没有下届
+	private int age_to = -1 ; //最大的年龄。-1（小于零）表示没有上届。
+	private int mintype = this.SEARCH_ONLINE ; //搜索方法，默认是在线用户
+	private long flag = new Date().getTime() ; //标志位，服务器将该标识返回；因为用户可能会发出很多这样的消息，我们要知道返回的是哪个发出的。为扩展功能用。
+	private int startpos = 0 ;	 //开始的位置，用于 分页 使用。
+
+UserPswMessage
+	mintype LOGIN_REQUEST
+	这时候服务器将会提取port，同时分析出UDP包的IP地址，保存这些资料直到用户退出。在这个过程中，用户将无法修改IP/port。
+	同时explain中放入要登陆人的BICQ号，这样做是因为，在系统系统是我们用-10000做启动号码，而SendMessage中的host在登陆成功
+	前没有更新，所以就使得服务器的rm.getFrom()是-10000，服务器就以为是-10000在登陆。这样将永远无法登陆。
+
+
+PermitMessage:
+	下面是用户的视觉看到的，其他的视角请参考这些。
+	
+	mintype  : PERMIT_ALLOWED
+	mean     : 有用户允许host把他加为好友。
+	from     : 用户
+	to       : 加入者
+	
+	mintype  : PERMIT_REFUSED
+	mean     : 请求被拒绝
+	
+	mintype  : PERMIT_REQUEST
+	mean     : 请求host的身份验证。
+	
+	mintype  : PERMIT_SEND
+	mean     : 有人把用户加为好友。
+	
+	我们绝对不能窥探用户的隐私。可是我们应该知道用户决定让谁通过她的验证！
+	而且当用户允许任何人把他加为好友的时候，我们不能烦到用户的。
+	我们的决定是：在查找的时候，搜索者会获得用户的auth,IP,port信息。如果用户允许任何人把她/他加为好友。
+	就可以直接加入，然后由添加者给给服务器1000发送一个ICMPMessage，然后服务器在数据库操作成功后，
+	给用户发送一个PermitMessage，告诉用户有人把他加为好友（以添加者名义发送）。
+	content信息是：搜索者number:用户number。
+	如果要求验证，搜索者发送消息给用户。如果用户同意，用户告诉搜索者；然后搜索者给服务器发送添加好友消息。
+	所以我们就可以把添加，删除等好友操作的消息都放在 添加者 那儿。
+	关于这一部分的详细论述，请参看ICMPMessage部分。
+	

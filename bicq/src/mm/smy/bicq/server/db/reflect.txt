@@ -1,0 +1,7 @@
+===============================名称 VS 数据库 ==========================
+程序中描述		所在数据库		所在表		说明
+
+user			bicq			user		好友资料存放的表
+text			bicq			textmessage	离线TextMessage存放位置;这儿本来是"text"的，作修改的原因是"text"是SQL语句的关键字
+permit			bicq			permit		离线PermitMessage存放位置
+friend			bicq			friend		好友添加状态保存

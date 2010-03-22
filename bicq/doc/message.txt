@@ -1,0 +1,23 @@
+ID long auto-inc
+fromnumber int
+tonumber
+mintype int
+content byte[] 内容。message.getByteContent()。数据库在这个过程中不管content写入的是什么，所有的判断交给 应用程序处理。
+
+
+===================friend================
+ID auto-inc
+belongnumber int    所属用户
+friendnumber int    好友
+addtime date  添加时间
+
+
+
+
+
+=========================================================================
+//UC
+61.136.145.6:10241【2003版】
+
+
+

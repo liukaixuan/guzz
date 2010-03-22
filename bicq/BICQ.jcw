@@ -1,0 +1,19 @@
+! ** JCreator Workspace File (C)2000
+! ********** DO NOT EDIT *********
+
+VERSION := "1.00"
+LABEL := "BICQ"
+
+! Start Project Structure
+#[BeginProject]SOURCE := "BICQ.jcp" #[EndProject]
+
+! Start Last Document Structure
+#[BeginFile]SOURCE := "BICQ.java" #[EndFile]
+#[BeginFile]SOURCE := "state\\StateChangedManager.java" #[EndFile]
+#[BeginFile]SOURCE := "MainFrame.java" #[EndFile]
+#[BeginFile]SOURCE := "login\\LoginWindow.java" #[EndFile]
+#[BeginFile]SOURCE := "login\\RegisterWindow.java" #[EndFile]
+#[BeginFile]SOURCE := "server\\StartServer.java" #[EndFile]
+
+! Start Last Document Structure
+

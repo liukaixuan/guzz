@@ -1,0 +1,23 @@
+TextMessageFile.java 存在概念不清，以后修改。同样的问题存在于PermitMessageFile.java
+
+chatlog.log  聊天记录文件
+permit.log  身份验证消息文件
+
+GuestFile.java 需要更新，不断数组变换容易引起错误。
+
+
+server用户一直以来都是作为特殊的考虑的；这样增加了管理的麻烦。
+其实可以默认的把server追加到guests中，然后加入到 我的好友 组。
+在mf及其他的可以看到好友的地方作特殊处理，不显示出来，对用户透明。
+
+chatlog.log部分需要加密处理，这部分可以使用一个密钥加密技术；密码由BICQ统一提供。
+鉴于本人离散水平~~，所以等到寒假的时候，去请教下，然后再补充加密算法。
+
+chatlog地读取类，因为在生成好友时没有办法关联好友指针；所以使用了一种特垃圾的做法；建议以后使用
+ServerTextMessage.class来修改。这种修改要求改动ChatWindowManager.class。
+
+修改登陆窗口部分！
+
+further: 增加用户切换功能。
+
+客户端口使用部分
