@@ -139,7 +139,11 @@ public class ViewFormat {
 			tf = tf + hour + "小时" ;
 		}
 		if(min > 0){
-			tf = tf + min + "分" ;
+			if(second > 0){
+				tf = tf + min + "分" ;
+			}else{
+				tf = tf + min + "分钟" ;
+			}
 		}
 		if(second > 0){
 			tf = tf + second + "秒" ;

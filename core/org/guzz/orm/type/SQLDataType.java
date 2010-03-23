@@ -56,4 +56,10 @@ public interface SQLDataType {
 	 */
 	public Class getDataType() ;
 
+	/**
+	 * convert the string to the data.
+	 * @param value data in string format
+	 */
+	public Object getFromString(String value) ;
+
 }

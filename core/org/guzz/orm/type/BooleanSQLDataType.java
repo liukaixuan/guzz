@@ -61,4 +61,11 @@ public class BooleanSQLDataType implements SQLDataType {
 		return Boolean.class ;
 	}
 
+	public Object getFromString(String value) {
+		char c = value.charAt(0) ;
+		if(c == '1' || c =='y' || c == 'Y' || c == 't' || c == 'T') return Boolean.TRUE ;
+	
+		return Boolean.FALSE ;
+	}
+
 }

@@ -69,4 +69,8 @@ public class IntegerSQLDataType implements SQLDataType {
 		return Integer.class ;
 	}
 
+	public Object getFromString(String value) {
+		return Integer.valueOf(value) ;
+	}
+
 }

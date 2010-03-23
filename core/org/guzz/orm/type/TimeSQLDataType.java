@@ -37,12 +37,14 @@ public class TimeSQLDataType implements SQLDataType {
 	
 	private boolean saveAsNow = false ;
 	
+	private static final String FMT = "HH:mm:ss" ;
+	
 	public void setNullToValue(String nullValue){
 		if(nullValue != null){
 			if("now()".equalsIgnoreCase(nullValue)){
 				this.saveAsNow = true ;
 			}else{
-				Date d = DateUtil.stringToDate(nullValue, "HH:mm:ss") ;
+				Date d = DateUtil.stringToDate(nullValue, FMT) ;
 				if(d == null){
 					nullTime = null ;
 				}else{
@@ -50,6 +52,15 @@ public class TimeSQLDataType implements SQLDataType {
 				}
 			}
 		}
+	}
+
+	public Object getFromString(String value) {
+		Date d = DateUtil.stringToDate(value, FMT) ;
+		if(d == null){
+			throw new DataTypeException("unknown date:" + value + ", date format should be:" + FMT) ;
+		}
+		
+		return new Time(d.getTime()) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {

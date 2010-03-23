@@ -39,17 +39,28 @@ public class DateTimeSQLDataType implements SQLDataType {
 	
 	private boolean saveAsNow = false ;
 	
+	private static final String FMT = "yyyy-MM-dd HH:mm:ss" ;
+	
 	public void setNullToValue(String nullValue){
 		if(nullValue != null){
 			if("now()".equalsIgnoreCase(nullValue)){
 				this.saveAsNow = true ;
 			}else{
-				Date d = DateUtil.stringToDate(nullValue, "yyyy-MM-dd HH:mm:ss") ;
+				Date d = DateUtil.stringToDate(nullValue, FMT) ;
 				if(d != null){
 					this.nullDate = new Timestamp(d.getTime()) ;
 				}
 			}
 		}
+	}
+
+	public Object getFromString(String value) {
+		Date d = DateUtil.stringToDate(value, FMT) ;
+		if(d == null){
+			throw new DataTypeException("unknown date:" + value + ", date format should be:" + FMT) ;
+		}
+		
+		return new Timestamp(d.getTime()) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {

@@ -64,4 +64,8 @@ public class DoubleSQLDataType implements SQLDataType {
 		return Double.class ;
 	}
 
+	public Object getFromString(String value) {
+		return Double.valueOf(value) ;
+	}
+
 }

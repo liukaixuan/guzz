@@ -19,7 +19,7 @@ package org.guzz.orm.interpreter;
 /**
  * 
  * 
- *
+ * @deprecated
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface IDataTypeHandler {
