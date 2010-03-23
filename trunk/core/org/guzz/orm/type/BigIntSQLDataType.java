@@ -66,5 +66,9 @@ public class BigIntSQLDataType implements SQLDataType {
 		return Long.class ;
 	}
 
+	public Object getFromString(String value) {
+		return Long.valueOf(value) ;
+	}
+
 
 }

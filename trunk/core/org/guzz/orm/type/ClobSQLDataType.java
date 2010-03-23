@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.guzz.Guzz;
 import org.guzz.exception.DataTypeException;
 import org.guzz.pojo.lob.TranClob;
 
@@ -59,6 +60,10 @@ public class ClobSQLDataType implements SQLDataType {
 	
 	public Class getDataType(){
 		return Clob.class ;
+	}
+
+	public Object getFromString(String value) {
+		return Guzz.createClob(value) ;
 	}
 
 }

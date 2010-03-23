@@ -1,6 +1,12 @@
+1.2.7 b4
+	1. add support for id generator: hilo, seqhilo
+	2. change default sequence name from guzzSeq to guzz_sequence
+	3. add support for Service/ShadowTableView/CustomTableView/ColumnDataLoader to fetch outside refenerece(eg: spring ApplicationContext).
+	4. change guzz with spring's intergrate configurations.
+
 1.2.7 b3
 	1. custom table support.
-	2. fix bug: ReadonlySession.refresh() throw a exception if the record doesn't exsit.
+	2. fix bug: ReadonlySession.refresh() should throw a exception if the record doesn't exsit, but not.
 
 1.2.7 b2
 	1. shadow table support
@@ -10,6 +16,8 @@
 	2. JDK1.4 -> JDK5
 
 1.2.6:
-	1. 完成clob/blob/decimal/byte等数据类型支持
-   	2. 提供新的字段更新方法
-   	3. 提供clob/blob的loader自定义加载属性选择（适合oracle使用） 
+	1. support clob/blob/decimal/byte data type
+   	2. new api for writing with upgrade lock
+   	3. supply new custom loaders for clob and blob
+
+....

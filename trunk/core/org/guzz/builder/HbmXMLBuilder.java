@@ -35,10 +35,8 @@ import org.guzz.id.IdentifierGenerator;
 import org.guzz.id.IdentifierGeneratorFactory;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
-import org.guzz.orm.BusinessInterpreter;
 import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ShadowTableView;
-import org.guzz.orm.interpreter.AbstractBusinessInterpreter;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.rdms.TableColumn;
@@ -232,10 +230,10 @@ public class HbmXMLBuilder {
 		root.accept(visitor);
 		
 		//初始化Interpreter
-		BusinessInterpreter bi = business.getInterpret() ;
-		if(bi instanceof AbstractBusinessInterpreter){
-			((AbstractBusinessInterpreter) bi).initUsingDomainClass(business.getDomainClass(), props) ;
-		}
+//		BusinessInterpreter bi = business.getInterpret() ;
+//		if(bi instanceof AbstractBusinessInterpreter){
+//			((AbstractBusinessInterpreter) bi).initUsingDomainClass(business.getDomainClass(), props) ;
+//		}
 		
 		//初始化主键generator
 		//读取generator信息

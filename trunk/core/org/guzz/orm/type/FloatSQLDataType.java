@@ -64,4 +64,8 @@ public class FloatSQLDataType implements SQLDataType {
 		return Long.class ;
 	}
 
+	public Object getFromString(String value) {
+		return Float.valueOf(value) ;
+	}
+
 }

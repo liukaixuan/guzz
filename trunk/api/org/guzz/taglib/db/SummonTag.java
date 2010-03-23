@@ -24,9 +24,11 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.guzz.Guzz;
 import org.guzz.GuzzContext;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
+import org.guzz.orm.ObjectMapping;
 import org.guzz.taglib.util.TagSupportUtil;
 import org.guzz.web.context.GuzzWebApplicationContextUtil;
 
@@ -101,6 +103,7 @@ public abstract class SummonTag extends TagSupport {
 		}
 		
 		Business bi = guzzContext.getBusiness(ghostName) ;
+		ObjectMapping mapping = guzzContext.getObjectMappingManager().getObjectMapping(ghostName, getTableCondition()) ;
 		
 		if(bi == null){
 			throw new JspException("unknown business:[" + this.business + "], guessed business name:[" + ghostName + "]") ;
@@ -109,7 +112,7 @@ public abstract class SummonTag extends TagSupport {
 		Object result = null;
 		
 		try {
-			result = innerSummonGhosts(bi, limits);
+			result = innerSummonGhosts(bi, mapping, limits);
 		} catch (IOException e) {
 			throw new JspException("business:[" + this.business + "], guessed business name:[" + ghostName + "]", e) ;
 		}
@@ -137,8 +140,7 @@ public abstract class SummonTag extends TagSupport {
 	 * @param business 要查询的对象
 	 * @param conditions jsp页面上传入的所有原始条件
 	 */
-	protected Object innerSummonGhosts(Business business, List conditions) throws JspException, IOException {
-		
+	protected Object innerSummonGhosts(Business business, ObjectMapping mapping, List conditions) throws JspException, IOException {
 		LinkedList list = new LinkedList() ;
 		
 		BusinessInterpreter gi = business.getInterpret() ;
@@ -149,7 +151,7 @@ public abstract class SummonTag extends TagSupport {
 				
 				try {
 					if(condition != null){
-						Object mc = gi.explainCondition(condition) ;
+						Object mc = gi.explainCondition(mapping, condition) ;
 						if(mc != null){
 							list.addLast(mc) ;
 						}
@@ -249,7 +251,7 @@ public abstract class SummonTag extends TagSupport {
 			}
 		}
 		
-		return null;
+		return Guzz.getTableCondition() ;
 	}
 
 	public void setTableCondition(Object tableCondition) {

@@ -55,6 +55,7 @@ public class ShortSQLDataType implements SQLDataType {
 		if(value instanceof String){
 			value = Short.valueOf((String) value) ;
 		}
+		
 		short v = ((Number) value).shortValue() ;
 		
 		pstm.setShort(parameterIndex, v) ;
@@ -62,6 +63,10 @@ public class ShortSQLDataType implements SQLDataType {
 	
 	public Class getDataType(){
 		return Short.class ;
+	}
+
+	public Object getFromString(String value) {
+		return Short.valueOf(value) ;
 	}
 
 }

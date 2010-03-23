@@ -54,4 +54,8 @@ public class StringSQLDataType implements SQLDataType {
 		return String.class ;
 	}
 
+	public Object getFromString(String value) {
+		return value ;
+	}
+
 }

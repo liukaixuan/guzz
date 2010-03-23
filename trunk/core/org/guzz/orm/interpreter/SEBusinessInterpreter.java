@@ -17,6 +17,7 @@
 package org.guzz.orm.interpreter;
 
 import org.guzz.exception.DaoException;
+import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.se.AndTerm;
 import org.guzz.orm.se.SearchTerm;
 import org.guzz.orm.se.Terms;
@@ -34,39 +35,38 @@ public class SEBusinessInterpreter extends AbstractBusinessInterpreter {
 		return new AndTerm((SearchTerm) conditionA, (SearchTerm) conditionB) ;
 	}
 
-	protected Object explainParamedCondition(String fieldName, LogicOperation operation, Object fieldValue) {
-		
+	protected Object explainParamedCondition(String propName, LogicOperation operation, Object propValue) {
 		if(operation == LogicOperation.EQUAL){
-			return Terms.eq(fieldName, fieldValue) ;
+			return Terms.eq(propName, propValue) ;
 		}else if(operation == LogicOperation.BIGGER){
-			return Terms.bigger(fieldName, fieldValue) ;
+			return Terms.bigger(propName, propValue) ;
 		}else if(operation == LogicOperation.BIGGER_OR_EQUAL){
-			return Terms.biggerOrEq(fieldName, fieldValue) ;
+			return Terms.biggerOrEq(propName, propValue) ;
 		}else if(operation == LogicOperation.SMALLER){
-			return Terms.smaller(fieldName, fieldValue) ;
+			return Terms.smaller(propName, propValue) ;
 		}else if(operation == LogicOperation.SMALLER_OR_EQUAL){
-			return Terms.smallerOrEq(fieldName, fieldValue) ;	
+			return Terms.smallerOrEq(propName, propValue) ;	
 		}else if(operation == LogicOperation.NOT_EQUAL){
-			return Terms.notEq(fieldName, fieldValue) ;
+			return Terms.notEq(propName, propValue) ;
 		}else if(operation == LogicOperation.EQUAL_IGNORE_CASE){
-			return Terms.stringEq(fieldName, fieldValue + "", true) ;
+			return Terms.stringEq(propName, propValue + "", true) ;
 		}else if(operation == LogicOperation.LIKE_CASE_SENSTIVE){
-			return Terms.like(fieldName, fieldValue + "", false) ;
+			return Terms.like(propName, propValue + "", false) ;
 		}else if(operation == LogicOperation.LIKE_IGNORE_CASE){
-			return Terms.like(fieldName, fieldValue + "", true) ;
+			return Terms.like(propName, propValue + "", true) ;
 		}else{
 			throw new DaoException("unresolved LogicOperation. operation is:" + operation) ;
 		}
 	
 	}
 
-	public Object explainCondition(Object limitTo) throws Exception {
+	public Object explainCondition(ObjectMapping mapping, Object limitTo) throws Exception {
 		//如果传入的是已经构造好的条件，直接返回原条件。
 		if(limitTo instanceof SearchTerm){
 			return limitTo ;
 		}
 		
-		return super.explainCondition(limitTo);
+		return super.explainCondition(mapping, limitTo);
 	}
 
 }

@@ -27,7 +27,7 @@ import org.guzz.util.DateUtil;
 /**
  * 
  * 
- *
+ * @deprecated
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class JavaTypeHandlers {

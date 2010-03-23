@@ -17,11 +17,12 @@
 package org.guzz.orm.interpreter;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.exception.DaoException;
+import org.guzz.orm.ObjectMapping;
+import org.guzz.orm.type.SQLDataType;
 import org.guzz.util.ObjectCompareUtil;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
@@ -116,7 +117,7 @@ public class ConditionSegment /*implements Comparable*/{
 	}
 	
 //	通过形如：abc=2的语法条件，创建一个ConditionSegment。如果传入的conditoin不识别，如为wellknown条件，返回null.
-	public static ConditionSegment parseFromString(String condition, Map fieldHandlers){
+	public static ConditionSegment parseFromString(ObjectMapping mapping, String condition){
 		condition = condition.trim() ;	
 				
 		for(int i = 0 ; i < operates.length ; i++){
@@ -128,18 +129,13 @@ public class ConditionSegment /*implements Comparable*/{
 			String fieldName = condition.substring(0, pos).trim() ;
 			String fieldValue = condition.substring(pos + m_op.length()).trim() ;
 			
-			Object value = fieldValue ;
+			SQLDataType dataType = mapping.getSQLDataTypeOfProperty(fieldName) ;
 			
-			if(fieldHandlers != null){
-				IDataTypeHandler m_hander = (IDataTypeHandler) fieldHandlers.get(fieldName) ;
-				
-				if(m_hander == null){
-					throw new DaoException("conditon:[" + condition + "] 's field:[" + fieldName + "]不存在，或者数据类型没有支持的IDataTypeHandler") ;
-				}
-				
-				value = m_hander.getValue(fieldValue) ;
+			if(dataType == null){
+				throw new DaoException("conditon:[" + condition + "] 's field:[" + fieldName + "]不存在，或者数据类型没有支持的SQLDataType") ;
 			}
 			
+			Object value = dataType.getFromString(fieldValue) ;
 			LogicOperation op = opValues[i] ;
 						
 			return new ConditionSegment(fieldName, op, value) ;

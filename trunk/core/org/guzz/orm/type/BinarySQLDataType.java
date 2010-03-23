@@ -54,4 +54,8 @@ public class BinarySQLDataType implements SQLDataType {
 		return Array.class ;
 	}
 
+	public Object getFromString(String value) {
+		throw new DataTypeException("unsupported operation. value is:" + value) ;
+	}
+
 }

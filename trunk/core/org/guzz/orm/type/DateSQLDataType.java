@@ -36,12 +36,14 @@ public class DateSQLDataType implements SQLDataType {
 	
 	private boolean saveAsNow = false ;
 	
+	private static final String FMT = "yyyy-MM-dd" ;
+	
 	public void setNullToValue(String nullValue){
 		if(nullValue != null){
 			if("now()".equalsIgnoreCase(nullValue)){
 				this.saveAsNow = true ;
 			}else{
-				this.nullDate = DateUtil.stringToDate(nullValue, "yyyy-MM-dd") ;
+				this.nullDate = DateUtil.stringToDate(nullValue, FMT) ;
 			}
 		}
 	}
@@ -92,6 +94,15 @@ public class DateSQLDataType implements SQLDataType {
 	
 	public Class getDataType(){
 		return java.sql.Date.class ;
+	}
+
+	public Object getFromString(String value) {
+		Date d = DateUtil.stringToDate(value, FMT) ;
+		if(d == null){
+			throw new DataTypeException("unknown date:" + value + ", date format shoule be:" + FMT) ;
+		}
+		
+		return new java.sql.Date(d.getTime()) ;
 	}
 
 }
