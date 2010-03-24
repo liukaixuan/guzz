@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContextImpl;
+import org.guzz.orm.ColumnDataLoader;
 import org.guzz.web.context.ExtendedBeanFactory;
 import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;

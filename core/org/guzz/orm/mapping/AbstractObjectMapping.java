@@ -18,12 +18,12 @@ package org.guzz.orm.mapping;
 
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DataTypeException;
+import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ColumnORM;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.type.SQLDataType;
-import org.guzz.pojo.ColumnDataLoader;
 import org.guzz.transaction.DBGroup;
 
 /**
