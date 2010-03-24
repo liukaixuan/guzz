@@ -14,14 +14,13 @@
  * limitations under the License.
  *
  */
-package org.guzz.pojo;
+package org.guzz.orm;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.guzz.GuzzContext;
 import org.guzz.exception.DaoException;
-import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.web.context.GuzzContextAware;

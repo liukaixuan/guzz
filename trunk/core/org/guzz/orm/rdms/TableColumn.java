@@ -17,9 +17,9 @@
 package org.guzz.orm.rdms;
 
 import org.guzz.dao.PersistListener;
+import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ColumnORM;
 import org.guzz.orm.type.SQLDataType;
-import org.guzz.pojo.ColumnDataLoader;
 
 /**
  * 

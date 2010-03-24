@@ -24,7 +24,6 @@ import org.guzz.exception.DaoException;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
-import org.guzz.pojo.ColumnDataLoader;
 import org.guzz.transaction.DBGroup;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;

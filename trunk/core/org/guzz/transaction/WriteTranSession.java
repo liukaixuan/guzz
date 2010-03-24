@@ -26,9 +26,9 @@ import org.guzz.exception.DaoException;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.jdbc.SQLBatcher;
+import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
-import org.guzz.pojo.ColumnDataLoader;
 
 /**
  * 

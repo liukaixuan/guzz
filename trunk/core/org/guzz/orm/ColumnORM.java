@@ -21,7 +21,6 @@ import java.sql.SQLException;
 
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.type.SQLDataType;
-import org.guzz.pojo.ColumnDataLoader;
 
 public class ColumnORM{
 	public final SQLDataType sqlDataType ;
