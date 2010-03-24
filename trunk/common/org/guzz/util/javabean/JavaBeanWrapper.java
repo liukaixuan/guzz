@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.guzz.exception.ORMException;
-import org.guzz.orm.interpreter.JavaTypeHandlers;
 import org.guzz.pojo.GuzzProxy;
 
 /**
