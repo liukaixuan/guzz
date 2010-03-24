@@ -14,12 +14,11 @@
  * limitations under the License.
  *
  */
-package org.guzz.orm.interpreter;
+package org.guzz.util.javabean;
 
 /**
  * 
  * 
- * @deprecated
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface IDataTypeHandler {

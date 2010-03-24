@@ -18,15 +18,11 @@ package org.guzz.id;
 
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * Factory and helper methods for <tt>IdentifierGenerator</tt> framework.
  *
  */
 public final class IdentifierGeneratorFactory {
-	private static final Log log = LogFactory.getLog( IdentifierGeneratorFactory.class );
 
 	private static final HashMap GENERATORS = new HashMap();
 	

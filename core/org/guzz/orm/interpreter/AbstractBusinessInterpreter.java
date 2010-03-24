@@ -18,6 +18,7 @@ package org.guzz.orm.interpreter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.guzz.exception.DataTypeException;
 import org.guzz.orm.BusinessInterpreter;
 import org.guzz.orm.ObjectMapping;
 
@@ -142,12 +143,16 @@ public abstract class AbstractBusinessInterpreter implements BusinessInterpreter
 			//没有条件的，可能只是一些简短用语。例如：checked, mychecked, my....
 			return explainWellKnownCondition(limit) ;
 		}else{
-			return explainOtherTypeConditon(limitTo) ;
+			return explainOtherTypeConditon(mapping, limitTo) ;
 		}
 	}
 	
+	protected Object explainOtherTypeConditon(ObjectMapping mapping, Object limitTo){
+		return explainOtherTypeConditon(limitTo) ;
+	}
+	
 	protected Object explainOtherTypeConditon(Object limitTo){
-		throw new RuntimeException(this.getClass().getName() + " doesn't support condition type:" + limitTo.getClass().getName()) ;
+		throw new DataTypeException(this.getClass().getName() + " doesn't support condition type:" + limitTo.getClass().getName()) ;
 	}	
 	
 	/**执行两个条件的and操作*/
@@ -168,7 +173,7 @@ public abstract class AbstractBusinessInterpreter implements BusinessInterpreter
 	 * 进行一些应用定义的著名代名词条件解析。
 	 */
 	protected Object explainWellKnownCondition(String limitTo){
-		throw new RuntimeException(this.getClass().getName() + " doesn't support condition type:" + limitTo) ;
+		throw new DataTypeException(this.getClass().getName() + " doesn't support condition type:" + limitTo) ;
 	}
 	
 //	public final void registerUserTypeHandler(String userTypeClassName, IDataTypeHandler cls){

@@ -22,7 +22,7 @@ package org.guzz.exception;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class DataTypeException extends GuzzException {
+public class DataTypeException extends DaoException {
 
 	public DataTypeException() {
 		super();

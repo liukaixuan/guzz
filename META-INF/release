@@ -1,3 +1,8 @@
+1.2.7 rc1
+	1. fix bug: guzz taglib doesn't support custom property in limit
+	2. improvement: move IDataTypeHandler to common package.
+	3. improvement: call setExtendedBeanFactory after spring's full starting.
+	
 1.2.7 b4
 	1. add support for id generator: hilo, seqhilo
 	2. change default sequence name from guzzSeq to guzz_sequence

@@ -23,7 +23,6 @@ import org.guzz.Configuration;
 import org.guzz.Guzz;
 import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
-import org.guzz.dialect.H2Dialect;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;

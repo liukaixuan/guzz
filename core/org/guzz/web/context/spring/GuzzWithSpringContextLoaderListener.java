@@ -22,9 +22,10 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.exception.GuzzException;
 import org.guzz.web.context.ContextLoader;
+import org.springframework.context.ApplicationContext;
 
 /**
  * 
@@ -48,11 +49,16 @@ public class GuzzWithSpringContextLoaderListener implements ServletContextListen
 			springContext = new org.springframework.web.context.ContextLoaderListener() ;
 			springContext.contextInitialized(event) ;
 			
-			GuzzContext gc = (GuzzContext) org.springframework.web.context.ContextLoader.getCurrentWebApplicationContext().getBean("guzzContext") ;
+			ApplicationContext applicationContext = org.springframework.web.context.ContextLoader.getCurrentWebApplicationContext() ;
+			GuzzContextImpl gc = (GuzzContextImpl) applicationContext.getBean("guzzContext") ;
 			
 			if(gc == null){
 				throw new GuzzException("spring bean [guzzContext] not found.") ;
 			}
+			
+			//必须在spring初始化完毕以后才能调用。
+			SpringExtendedBeanFactory ebf = new SpringExtendedBeanFactory(applicationContext) ;
+			gc.setExtendedBeanFactory(ebf) ;
 			
 			//启动guzz
 			if(context == null){
