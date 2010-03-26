@@ -48,8 +48,9 @@ public interface JDBCTemplate {
      */
 	public int executeUpdate(String sql, int[] params) ;
 	
-	
 	public int executeUpdate(String sql, SQLDataType[] dataTypes, Object[] params) ;
+	
+	public int executeUpdateWithoutPrepare(String sql) ;
 	
 	/**
 	 * 返回callback返回的值。
