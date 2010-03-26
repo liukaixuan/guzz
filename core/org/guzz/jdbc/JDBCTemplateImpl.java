@@ -187,6 +187,24 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		}
 	}
 	
+	public int executeUpdateWithoutPrepare(String sql){
+		if(isReadonly){
+			throw new DaoException("connection is readonly. sql is:" + sql) ;
+		}
+		
+		Statement st = null ;
+		
+		try {
+			st = conn.createStatement() ;
+			return st.executeUpdate(sql) ;
+		} 
+		catch (Exception e) {
+			throw new DaoException(sql, e) ;
+		}finally{
+			CloseUtil.close(st) ;
+		}
+	}
+	
 	public int executeUpdate(String sql) {
 		return executeUpdate(sql) ;
 	}
