@@ -245,12 +245,14 @@ public class GuzzContextImpl implements GuzzContext{
 				}
 			}else if(scs.length == 1){
 				SingleMachineDatabaseServiceImpl ds = new SingleMachineDatabaseServiceImpl() ;
+				ds.setServiceInfo(new ServiceInfo(serviceName, serviceName, SingleMachineDatabaseServiceImpl.class)) ;
 				ds.configure(scs[0]) ;
 				ds.startup() ;
 				
 				return ds ;
 			}else{
 				MultiMachinesDatabaseServiceImpl ds = new MultiMachinesDatabaseServiceImpl() ;
+				ds.setServiceInfo(new ServiceInfo(serviceName, serviceName, MultiMachinesDatabaseServiceImpl.class)) ;
 				ds.configure(scs) ;
 				ds.startup() ;
 				

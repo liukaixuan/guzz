@@ -88,6 +88,10 @@ public class SingleMachineDatabaseServiceImpl extends AbstractService implements
 	}
 
 	public void shutdown() {
+		if(log.isInfoEnabled()){
+			log.info("shutting down service:[" + this.getServiceInfo().getServiceName() + "->" + serviceIdentifer + "]...") ;
+		}
+		
 		dsp.shutdown() ;
 	}
 

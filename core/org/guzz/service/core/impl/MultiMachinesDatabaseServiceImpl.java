@@ -137,8 +137,12 @@ public class MultiMachinesDatabaseServiceImpl extends AbstractService implements
 	
 	public synchronized void shutdown() {
 		if(this.uniqueProviders != null){
+			if(log.isInfoEnabled()){
+				log.info("shutting down service:[" + this.getServiceInfo().getServiceName() + "->" + this.configProviders.keySet() + "]...") ;
+			}
+			
 			for(int i = 0 ; i < this.uniqueProviders.length ; i++){
-				try{
+				try{					
 					this.uniqueProviders[i].shutdown() ;
 				}catch(Exception e){
 					log.error("fail to shutdown datasource provider:" + i, e) ;
