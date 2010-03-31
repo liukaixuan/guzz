@@ -1,7 +1,12 @@
+1.2.7 rc2
+	1. fix bug: fail to shut down the connection pool when guzz closed.
+	2. new: add long data type support as bigint
+	3. improvement: others
+	
 1.2.7 rc1
 	1. fix bug: guzz taglib doesn't support custom property in limit
 	2. improvement: move IDataTypeHandler to common package.
-	3. improvement: call setExtendedBeanFactory after spring's full starting.
+	3. improvement: call setExtendedBeanFactory after spring's fully starting.
 	
 1.2.7 b4
 	1. add support for id generator: hilo, seqhilo

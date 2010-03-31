@@ -72,6 +72,8 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put(java.sql.Timestamp.class.getName(), new DateTimeSQLDataType()) ;
 
 		sqlTypes.put("date", new DateSQLDataType()) ;
+		sqlTypes.put(java.sql.Date.class.getName(), new DateSQLDataType()) ;
+		
 		sqlTypes.put("time", new TimeSQLDataType()) ;
 		sqlTypes.put(java.sql.Time.class.getName(), new TimeSQLDataType()) ;
 		
@@ -81,6 +83,7 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put(Boolean.class.getName(), new BooleanSQLDataType()) ;		
 
 		sqlTypes.put("bigint", new BigIntSQLDataType()) ;
+		sqlTypes.put("long", new BigIntSQLDataType()) ;
 		sqlTypes.put(Long.class.getName(), new BigIntSQLDataType()) ;
 		
 		sqlTypes.put("double", new DoubleSQLDataType()) ;
@@ -99,7 +102,7 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put(Short.class.getName(), new ShortSQLDataType()) ;
 		
 		sqlTypes.put("bytes", new BinarySQLDataType()) ;
-		sqlTypes.put("binary", new ShortSQLDataType()) ;
+		sqlTypes.put("binary", new BinarySQLDataType()) ;
 		
 		//clob
 		sqlTypes.put("clob", new ClobSQLDataType()) ;

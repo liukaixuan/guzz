@@ -17,6 +17,8 @@
 package org.guzz.dialect;
 
 import org.guzz.id.IdentifierGenerationException;
+import org.guzz.orm.type.BinarySQLDataType;
+import org.guzz.orm.type.ClobSQLDataType;
 import org.guzz.orm.type.StringSQLDataType;
 
 /**
@@ -30,10 +32,10 @@ public class Oracle8iDialect extends AbstractDialect {
 	public Oracle8iDialect(){
 		super() ;
 		
-		this.registerUserDefinedTypes("long", new StringSQLDataType()) ;
+		this.registerUserDefinedTypes("Oracle.Long", new StringSQLDataType()) ;
 		this.registerUserDefinedTypes("varchar2", new StringSQLDataType()) ;
-		
-		//raw/blob/clob is not supported yet.
+		this.registerUserDefinedTypes("nclob", new ClobSQLDataType()) ;
+		this.registerUserDefinedTypes("raw", new BinarySQLDataType()) ;
 	}
 
 	public String getLimitedString(String sql, int offset, int limit) {
