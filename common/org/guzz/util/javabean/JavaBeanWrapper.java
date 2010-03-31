@@ -51,6 +51,7 @@ public class JavaBeanWrapper extends BeanWrapper{
 		
 		PropertyDescriptor[] pd = bi.getPropertyDescriptors();
 		
+		//FIXME: cann't handle property:My_book_title
 		for(int i = 0 ; i < pd.length ; i++){
 			this.propertyDescriptors.put(pd[i].getName(), pd[i]) ;
 		}	

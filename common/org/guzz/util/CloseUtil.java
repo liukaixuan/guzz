@@ -35,8 +35,7 @@ import org.guzz.io.Resource;
 
 
 public class CloseUtil {
-    
-    private static final Log LOG = LogFactory.getLog(CloseUtil.class) ;
+    private static final Log log = LogFactory.getLog(CloseUtil.class) ;
 
     /**
      * 关闭给定的输入流. <BR>
@@ -47,7 +46,7 @@ public class CloseUtil {
             try {
                 inStream.close();
             } catch (IOException e) {
-                LOG.error("error on close the inputstream.", e);
+                log.error("error on close the inputstream.", e);
             }
         }
     }
@@ -61,7 +60,7 @@ public class CloseUtil {
             try {
                 outStream.close();
             } catch (IOException e) {
-                LOG.error("error on close the outputstream.", e);
+                log.error("error on close the outputstream.", e);
             }
         }
     }
@@ -75,7 +74,7 @@ public class CloseUtil {
             try {
             	writer.close();
             } catch (IOException e) {
-                LOG.error("error on close the outputstream.", e);
+                log.error("error on close the outputstream.", e);
             }
         }
     }
@@ -89,7 +88,7 @@ public class CloseUtil {
             try {
                 socket.close();
             } catch (IOException e) {
-                LOG.error("fail on close socket: " + socket, e);
+                log.error("fail on close socket: " + socket, e);
             }
         }
     }
@@ -99,7 +98,7 @@ public class CloseUtil {
             try {
             	reader.close();
             } catch (IOException e) {
-                LOG.error("error on close the Reader.", e);
+                log.error("error on close the Reader.", e);
             }
         }
 	}
@@ -109,7 +108,7 @@ public class CloseUtil {
             try {
             	conn.close();
             } catch (Exception e) {
-                LOG.error("error on close java.sql.Connection.", e);
+                log.error("error on close java.sql.Connection.", e);
             }
         }
 	}
@@ -119,7 +118,7 @@ public class CloseUtil {
             try {
             	ps.close();
             } catch (Exception e) {
-                LOG.error("error on close java.sql.PreparedStatement.", e);
+                log.error("error on close java.sql.PreparedStatement.", e);
             }
         }
 	}
@@ -129,7 +128,7 @@ public class CloseUtil {
             try {
             	rs.close();
             } catch (Exception e) {
-                LOG.error("error on close java.sql.ResultSet.", e);
+                log.error("error on close java.sql.ResultSet.", e);
             }
         }
 	}
@@ -139,7 +138,7 @@ public class CloseUtil {
 			try {
 				st.close() ;
 			} catch (SQLException e) {
-				LOG.error("error on close java.sql.Statement.", e);
+				log.error("error on close java.sql.Statement.", e);
 			}
 		}
 	}
@@ -149,7 +148,7 @@ public class CloseUtil {
 			try {
 				r.close() ;
 			} catch (Exception e) {
-				LOG.error("error on close org.guzz.io.Resource.", e);
+				log.error("error on close org.guzz.io.Resource.", e);
 			}
 		}
 	}
@@ -159,10 +158,13 @@ public class CloseUtil {
 			try {
 				service.shutdown() ;
 			} catch (Exception e) {
-				LOG.error("error on shutting down service:[" + service.getServiceInfo().getServiceName() + "].", e);
+				if(service.getServiceInfo() != null){
+					log.error("error on shutting down service:[" + service.getServiceInfo().getServiceName() + "].", e) ;
+				}else{
+					log.error("error on shutting down service:[" + service + "].", e) ;
+				}
 			}
 		}
 	}
-	
 
 }
