@@ -17,7 +17,6 @@
 package org.guzz.util;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -36,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  * 封装了文件操作相关的一些方法。
  */
 public abstract class FileUtil {
-	private static final Log LOG = LogFactory.getLog(FileUtil.class) ;
+	private static final Log log = LogFactory.getLog(FileUtil.class) ;
 
 	public static final _F_CONST CONST = new _F_CONST() ;
 	
@@ -49,7 +48,7 @@ public abstract class FileUtil {
 		if(fileName == null) return null ;
 		int pos = fileName.lastIndexOf('.') ;
 		
-		if(pos >=0){
+		if(pos >=0 ){
 			return fileName.substring(pos + 1) ;
 		}
 		
@@ -150,27 +149,23 @@ public abstract class FileUtil {
 	 * @param encoding 编码
 	 */
 	public static String readText(InputStream is, String encoding) throws IOException {
-		StringBuffer sb = new StringBuffer(4096);
+		StringBuffer sb = new StringBuffer(8192);
 		InputStreamReader isr = null ;
-		BufferedReader br = null ;
+		
         try {
             isr = new InputStreamReader(is, encoding);
-            br = new BufferedReader(isr);
-            boolean firstLine = true ;
-            for (String line = br.readLine(); line != null; line = br.readLine()) {
-            	if(!firstLine){
-            		sb.append(CONST.LINE_FEED) ;
-            	}else{
-            		firstLine = false ;
-            	}
-                sb.append(line) ;
-            }
-            br.close();
+            
+            char buff[] = new char[4096];
+    		int length;
+    		
+    		while ((length = isr.read(buff, 0, 4096)) > 0) {
+    			 sb.append(buff, 0, length) ;
+    		}
+    		
             return sb.toString();
         } catch (Exception e) {
            return null ;
         }finally{
-        	CloseUtil.close(br) ;
         	CloseUtil.close(isr) ;
         	CloseUtil.close(is) ;
         }
@@ -233,34 +228,13 @@ public abstract class FileUtil {
 	/**
 	 * 按照一个给定的编码读取文本文件。
 	 */
-	public static String readTextFile(File file , String encoding) throws IOException{
-		StringBuffer sb = new StringBuffer(4096);
-		InputStreamReader isr = null ;
-		BufferedReader br = null ;
-		FileInputStream fis = null ;
+	public static String readTextFile(File file, String encoding) throws IOException{
         try {
-        	fis = new FileInputStream(file) ;
-            isr = new InputStreamReader(fis, encoding);
-            br = new BufferedReader(isr);
-            boolean firstLine = true ;
-            for (String line = br.readLine(); line != null; line = br.readLine()) {
-            	if(!firstLine){
-            		sb.append(CONST.LINE_FEED) ;
-            	}else{
-            		firstLine = false ;
-            	}
-                sb.append(line) ;
-            }
-            br.close();
-            return sb.toString();
+        	FileInputStream fis = new FileInputStream(file) ;
+            
+        	return readText(fis, encoding) ;
         } catch(FileNotFoundException e){
-        	LOG.error(e) ;
-        }catch (Exception e) {
-          // e.printStackTrace() ;
-        }finally{
-        	CloseUtil.close(br) ;
-        	CloseUtil.close(isr) ;
-        	CloseUtil.close(fis) ;
+        	log.error(e) ;
         }
         
         return null ;
@@ -340,11 +314,11 @@ public abstract class FileUtil {
 			}
 		}
 
-		if(LOG.isDebugEnabled()){
+		if(log.isDebugEnabled()){
 			if(success){
-				LOG.debug("move folder from :[" + sourceDir.getAbsolutePath() + "] to [" + destDir.getAbsolutePath() + "] successful") ;
+				log.debug("move folder from :[" + sourceDir.getAbsolutePath() + "] to [" + destDir.getAbsolutePath() + "] successful") ;
 			}else{
-				LOG.debug("move folder from :[" + sourceDir.getAbsolutePath() + "] to [" + destDir.getAbsolutePath() + "] failed") ;
+				log.debug("move folder from :[" + sourceDir.getAbsolutePath() + "] to [" + destDir.getAbsolutePath() + "] failed") ;
 			}
 		}
 
@@ -372,7 +346,7 @@ public abstract class FileUtil {
 
 				writeFile(destFile, new FileInputStream(sourceFile)) ;
 			}catch (IOException e) {
-				LOG.error("error while moving file:[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "]", e) ;
+				log.error("error while moving file:[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "]", e) ;
 				success = false ;
 			}
 		}
@@ -383,11 +357,11 @@ public abstract class FileUtil {
 			}
 		}
 
-		if(LOG.isDebugEnabled()){
+		if(log.isDebugEnabled()){
 			if(success){
-				LOG.debug("move file from :[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "] successful") ;
+				log.debug("move file from :[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "] successful") ;
 			}else{
-				LOG.debug("move file from :[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "] failed") ;
+				log.debug("move file from :[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "] failed") ;
 			}
 		}
 
@@ -408,7 +382,7 @@ public abstract class FileUtil {
 			
 			return true ;
 		}catch (IOException e) {
-			LOG.error("error while copying file:[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "]", e) ;
+			log.error("error while copying file:[" + sourceFile.getAbsolutePath() + "] to [" + destFile.getAbsolutePath() + "]", e) ;
 			return false ;
 		}
 	}
