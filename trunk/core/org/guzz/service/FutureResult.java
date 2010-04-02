@@ -33,13 +33,13 @@ import org.guzz.exception.ServiceExecutionException;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class FutureResult<T> {
+public class FutureResult<ReturnType> {
 
-	protected FutureDataFetcher<T> fecther ;
+	protected FutureDataFetcher<ReturnType> fecther ;
 
-	protected Future<T> f ;
+	protected Future<ReturnType> f ;
 
-	public FutureResult(ExecutorService executor, FutureDataFetcher<T> fecther){
+	public FutureResult(ExecutorService executor, FutureDataFetcher<ReturnType> fecther){
 		this.fecther = fecther ;
 		f = executor.submit(fecther) ;
 	}
@@ -48,14 +48,14 @@ public class FutureResult<T> {
 	}
 
 	//
-	public T get() throws Exception{
+	public ReturnType get() throws Exception{
 		return f.get() ;
 	}
 
 	/**
 	 * 如果出现异常，忽略异常并返回{@link FutureDataFetcher#getDefaultData()}
 	 */
-	public T getIgnoreException(){
+	public ReturnType getIgnoreException(){
 		try {
 			return f.get() ;
 		} catch (Exception e) {
@@ -64,7 +64,7 @@ public class FutureResult<T> {
 		return this.fecther.getDefaultData() ;
 	}
 
-	public T get(long timeout, TimeUnit unit) throws Exception{
+	public ReturnType get(long timeout, TimeUnit unit) throws Exception{
 		return f.get(timeout, unit) ;
 	}
 
@@ -77,7 +77,7 @@ public class FutureResult<T> {
      * This method ignore any exceptions.
      * </p>
 	 */
-	public T getOrCancel(long timeout, TimeUnit unit){
+	public ReturnType getOrCancel(long timeout, TimeUnit unit){
 		try {
 			return f.get(timeout, unit) ;
 		} catch (InterruptedException e) {
@@ -98,7 +98,7 @@ public class FutureResult<T> {
 	 *
 	 * @param suppressException 是否忽略异常信息。
 	 */
-	public T getNoWait(boolean suppressException){
+	public ReturnType getNoWait(boolean suppressException){
 		if(!f.isDone()){
 			f.cancel(true) ;
 		}
@@ -119,7 +119,7 @@ public class FutureResult<T> {
 	 *
 	 * @param suppressException 是否忽略异常信息。
 	 */
-	public T getNoQueue(boolean suppressException){
+	public ReturnType getNoQueue(boolean suppressException){
 		if(!f.isDone()){
 			f.cancel(false) ;
 		}
@@ -142,7 +142,7 @@ public class FutureResult<T> {
 	 * @param unit 时间单位
 	 * @param suppressException 是否忽略异常信息。
 	 */
-	public T getNoQueue(long timeout, TimeUnit unit, boolean suppressException){
+	public ReturnType getNoQueue(long timeout, TimeUnit unit, boolean suppressException){
 		if(!f.isDone()){
 			f.cancel(false) ;
 		}

@@ -94,7 +94,7 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		}
 		
 		if(printSQLParams){
-			logInfo("sql:[" + sql + "], params is:[" + params + "]") ;
+			logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
 		}else if(printSQL){
 			logInfo("sql:[" + sql + "]") ;
 		}

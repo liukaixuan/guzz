@@ -210,8 +210,8 @@ public class TestShadowTableView extends DBBasedTestCase {
 		Guzz.setTableCondition(u) ;
 				
 		for(int i = 1 ; i < 1001 ; i++){
-			HashMap<String, Object> params = new HashMap<String, Object>() ;
-			params.put("userId", i) ;
+			HashMap params = new HashMap() ;
+			params.put("userId", new Integer(i)) ;
 			if(i % 2 == 0){
 				params.put("userName", "lucy") ;
 			}else{
@@ -253,13 +253,14 @@ public class TestShadowTableView extends DBBasedTestCase {
 		u.setId(1) ;
 		Guzz.setTableCondition(u) ;
 		
-		HashMap<String, String> params = new HashMap<String, String>() ;
+		HashMap params = new HashMap() ;
 		params.put("userName", "lily") ;
 		
-		List<Comment> comments = session.list("listCommentsByName", params, 1, 10000) ;
+		List comments = session.list("listCommentsByName", params, 1, 10000) ;
 		assertEquals(comments.size(), 500) ;
 		//ibatis模式的映射，内容应该没有映射。
-		for(Comment c : comments){
+		for(int i = 0 ; i < comments.size() ; i++){
+			Comment c = (Comment) comments.get(i) ; 
 			assertEquals(c.getContent(), null) ;
 		}
 		

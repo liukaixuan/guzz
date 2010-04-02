@@ -80,4 +80,20 @@ public abstract class ArrayUtil {
 		return sb.toString() ;
 	}
 
+	public static String arrayToString(int[] params) {
+		if(params == null) return null ;
+		
+		StringBuffer sb = new StringBuffer(params.length * 8) ;
+		
+		for(int i = 0 ; i < params.length ; i++){
+			if(i > 0){
+				sb.append(", ") ;
+			}
+			
+			sb.append(params[i]) ;
+		}
+		
+		return sb.toString() ;
+	}
+
 }

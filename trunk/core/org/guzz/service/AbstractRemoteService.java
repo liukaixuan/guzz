@@ -33,7 +33,7 @@ import org.guzz.util.StringUtil;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public abstract class AbstractRemoteService<T> extends AbstractService {
+public abstract class AbstractRemoteService<ServiceReturnType> extends AbstractService {
 	
 	protected ExecutorService executorService ;
 	
@@ -76,8 +76,8 @@ public abstract class AbstractRemoteService<T> extends AbstractService {
 	/**
 	 * 创建一个新的任务
 	 */
-	public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher){
-		return new FutureResult<T>(executorService, fetcher) ;
+	public FutureResult<ServiceReturnType> sumbitTask(FutureDataFetcher<ServiceReturnType> fetcher){
+		return new FutureResult<ServiceReturnType>(executorService, fetcher) ;
 	}
 
 	public void startup() {

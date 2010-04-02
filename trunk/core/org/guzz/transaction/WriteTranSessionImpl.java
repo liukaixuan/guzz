@@ -410,7 +410,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		}
 	}
 	
-	public void rollback(){
+	public void rollback() throws DaoException {
 		SQLException ex = null ;
 		Iterator i = this.opennedConnections.values().iterator() ;
 		StringBuffer sb = null ;
@@ -422,18 +422,24 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 				//所有连接全部忽略错误，并且rollback。
 				conn.rollback() ;				
 			} catch (SQLException e) {
-				if(sb == null){//combine all exceptions together, and rethrow the last one.
-					sb = new StringBuffer() ;
+				if(ex != null){
+					if(sb == null){//combine all exceptions before the last one together, and re-throw the last one.
+						sb = new StringBuffer() ;
+					}
+					
+					sb.append("[errorCode:").append(ex.getErrorCode()).append(", msg:").append(ex.getMessage()).append("];") ;
 				}
-				
-				sb.append("[errorCode:").append(ex.getErrorCode()).append(", msg:").append(ex.getMessage()).append("];") ;
 				
 				ex = e ;
 			}
 		}
 		
-		if(ex != null){//if ex is not null, sb won't be null too.
-			throw new DaoException(sb.toString(), ex) ;
+		if(ex != null){//find exception
+			if(sb == null){ //only one exception throwed.
+				throw new DaoException(ex) ;
+			}else{
+				throw new DaoException(sb.toString(), ex) ;
+			}
 		}
 	}
 		

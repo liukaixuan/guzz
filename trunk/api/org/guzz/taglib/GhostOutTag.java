@@ -152,32 +152,36 @@ public class GhostOutTag extends BodyTagSupport {
 		}
 		
 		if(escapeXml){
-			StringBuffer sb2 = new StringBuffer((int) (sb.length() * 1.2)) ;
+			content = TagSupportUtil.escapeXml(sb.toString()) ;
 			
-			for (int i = 0; i < sb.length(); i++) {
-				char c = sb.charAt(i) ;
-				if (c <= TagSupportUtil.HIGHEST_SPECIAL) {
-					char[] escaped = TagSupportUtil.specialCharactersRepresentation[c];
-					if (escaped != null) {
-						sb2.append(escaped) ;
-					}else{
-						sb2.append(c) ;
-					}
-				}else{
-					sb2.append(c) ;
-				}
-			}
-
-			content = sb2.toString() ;
+//			StringBuffer sb2 = new StringBuffer((int) (sb.length() * 1.2)) ;
+//			
+//			for (int i = 0; i < sb.length(); i++) {
+//				char c = sb.charAt(i) ;
+//				if (c <= TagSupportUtil.HIGHEST_SPECIAL) {
+//					char[] escaped = TagSupportUtil.specialCharactersRepresentation[c];
+//					if (escaped != null) {
+//						sb2.append(escaped) ;
+//					}else{
+//						sb2.append(c) ;
+//					}
+//				}else{
+//					sb2.append(c) ;
+//				}
+//			}
+//
+//			content = sb2.toString() ;
 			
-		}else if(escapeForScriptOutput){ //删除" ' script标记
-			content = StringUtil.js_string(sb.toString()) ;
 		}else if(escapeScriptCode){
 			content = sb.toString() ;
 			content = StringUtil.replaceStringIgnoreCase(content, "<script", "< script") ;
 			content = StringUtil.replaceStringIgnoreCase(content, "</script", "</ script") ;
 		}else{
 			content = sb.toString() ;
+		}
+		
+		if(escapeForScriptOutput){ //删除" ' script标记
+			content = StringUtil.js_string(sb.toString()) ;
 		}
 		
 		if(escapeForXslt){

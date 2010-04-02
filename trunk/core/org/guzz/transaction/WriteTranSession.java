@@ -131,7 +131,12 @@ public interface WriteTranSession {
 	
 	public void commit() ;
 	
-	public void rollback() ;
+	/**
+	 * roll back all transcations.
+	 * 
+	 * @throws DaoException throw DaoException if SQLException throwed in the rollback.
+	 */
+	public void rollback() throws DaoException ;
 	
 	/**关闭事务，忽略一切错误。*/
 	public void close() ;

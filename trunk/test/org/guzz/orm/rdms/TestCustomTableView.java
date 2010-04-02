@@ -137,7 +137,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 			cs.setOnlineTime(now) ;
 			
 			//gridNum, backColor, size and brand
-			cs.getSpecialProps().put("gridNum", i) ;
+			cs.getSpecialProps().put("gridNum", new Integer(i)) ;
 			cs.getSpecialProps().put("backColor", "white") ;
 			cs.getSpecialProps().put("size", "56x84") ;
 			if(i % 2 == 0){
@@ -170,7 +170,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 		assertNotNull(book) ;
 		assertEquals(book.getName(), "book" + pk) ;
 		assertEquals(book.getDescription(), "nice book " + pk) ;
-		assertEquals(book.getPrice(), 33.56d) ;
+		assertEquals(book.getPrice(), 33.56d, 0.1) ;
 		assertEquals(book.getStoreCount(), pk % 10) ;
 		assertEquals(book.getSpecialProps().get("ISBN"), "isbn-bbb-" + pk) ;
 		assertEquals(book.getSpecialProps().get("author"), "not me") ;
@@ -185,7 +185,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 		assertNotNull(book) ;
 		assertEquals(book.getName(), "new book" + pk) ;
 		assertEquals(book.getDescription(), "nice book " + pk) ;
-		assertEquals(book.getPrice(), 33.56d) ;
+		assertEquals(book.getPrice(), 33.56d, 0.1) ;
 		assertEquals(book.getStoreCount(), pk % 10) ;
 		assertEquals(book.getSpecialProps().get("ISBN"), "new-ISBN-xxxxxxxxxxxxxxxxxx-" + pk) ;
 		assertEquals(book.getSpecialProps().get("author"), "not me") ;
@@ -199,7 +199,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 		session.refresh(book, LockMode.UPGRADE) ;
 		assertEquals(book.getName(), "new book" + pk) ;
 		assertEquals(book.getDescription(), "nice book " + pk) ;
-		assertEquals(book.getPrice(), 65d) ;
+		assertEquals(book.getPrice(), 65d, 0.1) ;
 		assertEquals(book.getStoreCount(), pk % 10) ;
 		assertEquals(book.getSpecialProps().get("ISBN"), "new-ISBN-xxxxxxxxxxxxxxxxxx-" + pk) ;
 		assertEquals(book.getSpecialProps().get("author"), "not me") ;
@@ -260,7 +260,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 		Guzz.setTableCondition(null) ;
 		se = SearchExpression.forClass(Cargo.class).setPageSize(1000) ;
 		se.and(Terms.eq("publisher", "wolf")) ;
-		se.and(Terms.eq("price", Double.valueOf(33.56))) ;
+		se.and(Terms.eq("price", new Double(33.56))) ;
 		se.setOrderBy("id asc") ;
 		
 		try{
@@ -281,7 +281,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 			
 			assertEquals(book.getName(), "book" + pk) ;
 			assertEquals(book.getDescription(), "nice book " + pk) ;
-			assertEquals(book.getPrice(), 33.56d) ;
+			assertEquals(book.getPrice(), 33.56d, 0.1) ;
 			assertEquals(book.getStoreCount(), pk % 10) ;
 			assertEquals(book.getSpecialProps().get("ISBN"), "isbn-bbb-" + pk) ;
 			assertEquals(book.getSpecialProps().get("author"), "not me") ;
