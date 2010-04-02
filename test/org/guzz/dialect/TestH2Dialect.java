@@ -44,7 +44,7 @@ public class TestH2Dialect extends DBBasedTestCase {
 				
 		WriteTranSession tran = tm.openRWTran(true) ;
 		
-		Article a = (Article) tran.findObjectByPK("article", Integer.valueOf(1)) ;
+		Article a = (Article) tran.findObjectByPK("article", new Integer(1)) ;
 		assertNotNull(a) ;
 		
 		String content = (String) tran.loadPropForUpdate(a, "content") ;

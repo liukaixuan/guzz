@@ -58,7 +58,7 @@ public class BigDecimalSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		return BigDecimal.valueOf(Double.valueOf(value));
+		return new BigDecimal(value);
 	}
 
 }

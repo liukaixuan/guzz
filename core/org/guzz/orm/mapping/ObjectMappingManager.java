@@ -91,12 +91,12 @@ public class ObjectMappingManager {
 			}
 		}
 		
-		if(table != null){
+//		if(table != null){
 			String[] ids = map.getUniqueName() ;
 			for(int i = 0 ; i < ids.length ; i++){
 				ghostVSTables.put(ids[i], table) ;
 			}
-		}
+//		}
 	}
 	
 

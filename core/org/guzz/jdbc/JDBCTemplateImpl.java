@@ -206,7 +206,7 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 	}
 	
 	public int executeUpdate(String sql) {
-		return executeUpdate(sql) ;
+		return executeUpdate(sql, new int[0]) ;
 	}
 
 	public Connection getConnection() {

@@ -32,6 +32,8 @@ import org.guzz.exception.GuzzException;
 /**
  * String helper class.
  * 
+ * TODO: check TagSupportUtil#escapeXml to improve performance.
+ * 
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class StringUtil {
@@ -97,10 +99,7 @@ public class StringUtil {
 	/**转换字符串，用于js中引用。*/
 	public static String js_string(String string){
 		if(string == null) return "" ;
-		
-		string = replaceStringIgnoreCase(string, "<script", "< script") ;
-		string = replaceStringIgnoreCase(string, "</script", "</ script") ;
-		
+				
 		StringBuffer sb = new StringBuffer(string.length() * 2 + 2) ;
 		for(int i = 0 ; i < string.length() ; i++){
 			char c = string.charAt(i) ;
@@ -111,8 +110,6 @@ public class StringUtil {
 			
 			sb.append(c) ;
 		}
-		
-		
 		
 		return sb.toString() ;
 	}

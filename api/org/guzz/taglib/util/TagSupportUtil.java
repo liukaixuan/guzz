@@ -100,7 +100,7 @@ public class TagSupportUtil {
 	
     public static final int HIGHEST_SPECIAL = '>';
     
-    public static final char[][] specialCharactersRepresentation = new char[HIGHEST_SPECIAL + 1][];
+    private static final char[][] specialCharactersRepresentation = new char[HIGHEST_SPECIAL + 1][];
     static {
         specialCharactersRepresentation['&'] = "&amp;".toCharArray();
         specialCharactersRepresentation['<'] = "&lt;".toCharArray();
