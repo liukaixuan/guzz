@@ -25,6 +25,16 @@ package org.guzz.dialect;
 public class Mysql5Dialect extends AbstractDialect {
 
 	public String getLimitedString(String sql, int offset, int limit) {
+		sql = sql.trim() ;
+		String sql2 = sql.toLowerCase() ;
+		
+		boolean isForUpdate = false ;
+		
+		if( sql2.endsWith(" for update") ){
+			sql = sql.substring(0, sql.length() - 11) ;
+			isForUpdate = true ;
+		}
+		
 		StringBuffer sb = new StringBuffer(sql.length() + 16) ;
 		sb.append(sql) ;
 		
@@ -36,6 +46,10 @@ public class Mysql5Dialect extends AbstractDialect {
 			}
 		}else{
 			sb.append(" limit ").append((offset)).append(", ").append(limit) ;
+		}
+		
+		if(isForUpdate ) {
+			sb.append( " for update" ) ;
 		}
 		
 		return sb.toString() ;

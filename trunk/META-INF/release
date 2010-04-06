@@ -1,3 +1,6 @@
+1.2.7 build20100406
+	1. fix a few bugs
+	
 1.2.7 rc2
 	1. fix bug: fail to shut down the connection pool when guzz closed.
 	2. new: add long data type support as bigint
