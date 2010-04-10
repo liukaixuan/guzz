@@ -18,7 +18,7 @@
    * [TutorialFutureService Service2:编写支持异步调用的服务]
    * [TutorialShadowTable 表分切（Shadow Table）]
    * [TutorialCustomTable 自定义属性表（Custom Table）]
- * [TaglibBook JSP页面开发帮助]
- * 附录：
+ * [TaglibBook JSP页面快速开发指南]
+ * 附录
    * [AppendSpringBean guzz自带的基础服务介绍]
    * [AppendCoreService 在guzz中获取spring定义的bean]
