@@ -84,4 +84,17 @@ public abstract class Assert {
 			throw new IllegalParameterException(msg) ;
 		}
 	}
+
+	public static void assertEquals(String param1, String params2, String msg) {
+		if(param1 == null){
+			if(params2 != null){
+				throw new IllegalParameterException(msg) ;
+			}
+		}else{
+			if(!param1.equals(params2)){
+				throw new IllegalParameterException(msg) ;
+			}
+		}
+		
+	}
 }

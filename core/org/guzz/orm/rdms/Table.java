@@ -88,5 +88,10 @@ public interface Table {
 	
 	public void addColumn(TableColumn column) ;
 	
+	/**
+	 * Remove a column from the current table mapping.
+	 */
+	public void removeColumn(TableColumn column) ;
+	
 	public Table newCopy() ;
 }

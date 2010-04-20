@@ -19,14 +19,7 @@ package org.guzz.orm.se;
 import java.util.HashMap;
 import java.util.List;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.dao.PageFlip;
-import org.guzz.io.FileResource;
-import org.guzz.orm.Business;
-import org.guzz.orm.se.SearchExpression;
-import org.guzz.orm.se.Terms;
 import org.guzz.test.Article;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.User;
@@ -42,14 +35,7 @@ import org.guzz.transaction.TransactionManager;
 public class TestDaoRead extends DBBasedTestCase {
 	
 	public void testFind() throws Exception{
-		
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
 		assertNotNull(gf.getDialect("default")) ;
-		
-		Business ga = gf.instanceNewGhost("article", null, null, null) ;
-		gf.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
-		
-		TransactionManager tm = gf.getTransactionManager() ;
 		
 		SearchExpression se = SearchExpression.forClass(Article.class) ;
 		se.and(Terms.eq("title", "title 1")) ;
@@ -60,14 +46,9 @@ public class TestDaoRead extends DBBasedTestCase {
 		assertEquals(articles.size(), 1) ;		
 		
 		session.close() ;
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
-	public void testFindObjectById() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
-		TransactionManager tm = gf.getTransactionManager() ;
-		
+	public void testFindObjectById() throws Exception{		
 		ReadonlyTranSession session = tm.openDelayReadTran() ;
 		
 		for(int i = 1 ; i < 1000 ; i++){
@@ -89,29 +70,17 @@ public class TestDaoRead extends DBBasedTestCase {
 			User user = (User) session.findObject("selectUser", params) ;
 			assertNull(user) ;
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testFindListById() throws Exception{
-		FileResource fr = new FileResource("classpath:guzzmain_test1.xml") ;
-		GuzzContext gf = new Configuration(fr).newGuzzContext() ;
-		
-		TransactionManager tm = gf.getTransactionManager() ;		
 		ReadonlyTranSession session = tm.openDelayReadTran() ;		
 			
 		List users = session.list("selectUsers", null, 1, 10) ;
 		assertNotNull(users) ;
-		assertEquals(users.size(), 10) ;	
-
-		((GuzzContextImpl) gf).shutdown() ;
+		assertEquals(users.size(), 10) ;
 	}
 	
 	public void testFindListBySE() throws Exception{
-		FileResource fr = new FileResource("classpath:guzzmain_test1.xml") ;
-		GuzzContext gf = new Configuration(fr).newGuzzContext() ;
-		
-		
 		SearchExpression se = SearchExpression.forClass(User.class) ;
 		se.and(Terms.eq("id", 58)) ;
 		
@@ -143,14 +112,9 @@ public class TestDaoRead extends DBBasedTestCase {
 		se.setPageNo(35) ;
 		se.setPageSize(30) ;
 		assertEquals(session.list(se).size(), 0) ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testFindPageBySE() throws Exception{
-		FileResource fr = new FileResource("classpath:guzzmain_test1.xml") ;
-		GuzzContext gf = new Configuration(fr).newGuzzContext() ;		
-		TransactionManager tm = gf.getTransactionManager() ;		
 		ReadonlyTranSession session = tm.openDelayReadTran() ;		
 		
 		//normal
@@ -187,8 +151,6 @@ public class TestDaoRead extends DBBasedTestCase {
 		
 		//count
 		assertEquals(page.getTotalCount(), 999) ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 	protected void prepareEnv() throws Exception{

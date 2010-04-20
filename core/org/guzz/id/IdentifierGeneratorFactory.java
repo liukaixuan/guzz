@@ -36,6 +36,7 @@ public final class IdentifierGeneratorFactory {
 		
 		GENERATORS.put("hilo", TableHiLoGenerator.class.getName()) ;
 		GENERATORS.put("seqhilo", SequenceHiLoGenerator.class.getName()) ;
+		GENERATORS.put("hilo.multi", TableMultiIdGenerator.class.getName()) ;
 	}
 	
 	public static String getGeneratorClass(String name){

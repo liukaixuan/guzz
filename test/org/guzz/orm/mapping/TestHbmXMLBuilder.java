@@ -40,9 +40,6 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 	
 	public void testParseHbmStream() throws Exception{
 		GuzzContext f = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		Business ga = f.instanceNewGhost("article", null, null, null) ;
-		
-		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
 		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("article") ;
 		
@@ -79,11 +76,8 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 	
 	public void testAddUserHxml() throws Exception{
 		GuzzContext f = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		Business ga = f.instanceNewGhost("article", null, null, null) ;
 		
-		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
-		
-		ga = f.instanceNewGhost("user", null, null, null) ;
+		Business ga = f.instanceNewGhost("userB", null, null, null) ;
 		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/User.hbm.xml") ;
 
 		((GuzzContextImpl) f).shutdown() ;
@@ -91,9 +85,6 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 	
 	public void testIdentifidGeneratorCreate() throws Exception{
 		GuzzContext f = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		Business ga = f.instanceNewGhost("article", null, null, null) ;
-		
-		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
 		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("article") ;
 		

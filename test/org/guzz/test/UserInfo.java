@@ -16,6 +16,8 @@
  */
 package org.guzz.test;
 
+import javax.persistence.FetchType;
+
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.pojo.lob.TranClob;
 
@@ -25,14 +27,24 @@ import org.guzz.pojo.lob.TranClob;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class UserInfo {
-	
+
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="userInfo")
+@org.guzz.annotations.Table(name="TB_USER_INFO")
+public class UserInfo {	
+
+	@javax.persistence.Id
+	@javax.persistence.Column(name="pk")
 	private int id ;
 	
 	private String userId ;
 	
+	@javax.persistence.Basic(fetch=FetchType.LAZY)
+	@org.guzz.annotations.Column(loader = org.guzz.pojo.loader.TwoPhaseClobDataLoader.class)
 	private TranClob aboutMe ;
 	
+	@javax.persistence.Basic(fetch=FetchType.EAGER)
+	@org.guzz.annotations.Column(loader = org.guzz.pojo.loader.TwoPhaseBlobDataLoader.class)
 	private TranBlob portraitImg ;
 
 	public int getId() {

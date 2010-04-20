@@ -30,5 +30,6 @@
 	<classpathentry kind="lib" path="D:/coding/extlib/asm/src.zip"/>
 	<classpathentry kind="lib" path="D:/coding/extlib/cglib/cglib-nodep-2.1_3.jar" sourcepath="D:/coding/extlib/cglib/cglib-src-2.2.jar"/>
 	<classpathentry kind="lib" path="dev-lib/ojdbc14.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/javax.persistence_2.0.0.jar" sourcepath="C:/Documents and Settings/Admin/桌面/JPA/src/main/java"/>
 	<classpathentry kind="output" path="WebRoot/WEB-INF/classes"/>
 </classpath>

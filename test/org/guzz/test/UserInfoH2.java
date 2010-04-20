@@ -16,6 +16,9 @@
  */
 package org.guzz.test;
 
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.pojo.lob.TranClob;
 
@@ -25,6 +28,10 @@ import org.guzz.pojo.lob.TranClob;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
+
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="userInfo2")
+@org.guzz.annotations.Table(name="TB_USER_INFO2")
 public class UserInfoH2 {
 	
 	private int id ;
@@ -35,6 +42,8 @@ public class UserInfoH2 {
 	
 	private TranBlob portraitImg ;
 
+	@javax.persistence.Id
+	@Column(name="pk")
 	public int getId() {
 		return id;
 	}
@@ -43,6 +52,7 @@ public class UserInfoH2 {
 		this.id = id;
 	}
 
+	@javax.persistence.Basic(fetch=FetchType.LAZY)
 	public TranClob getAboutMe() {
 		return aboutMe;
 	}
@@ -51,6 +61,7 @@ public class UserInfoH2 {
 		this.aboutMe = aboutMe;
 	}
 
+	@javax.persistence.Basic(fetch=FetchType.EAGER)
 	public TranBlob getPortraitImg() {
 		return portraitImg;
 	}

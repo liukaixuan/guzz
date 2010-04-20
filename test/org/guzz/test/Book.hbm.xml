@@ -12,5 +12,6 @@
         </property>
         <property name="createdTime" type="datetime" column="createdTime" />
         <property name="ISDN" type="string" column="ISDN" />
+        <property name="checksum" type="bytes" column="checksum" />
     </class>
 </guzz-mapping>

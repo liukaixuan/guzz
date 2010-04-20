@@ -16,10 +16,7 @@
  */
 package org.guzz.orm.sql.impl;
 
-import org.guzz.Configuration;
 import org.guzz.GuzzContextImpl;
-import org.guzz.io.FileResource;
-import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
@@ -35,16 +32,11 @@ import org.guzz.test.DBBasedTestCase;
 public class TestSQLCompiler extends DBBasedTestCase {
 	
 	public void testTranslateSQLMark() throws Exception{
-		GuzzContextImpl f = (GuzzContextImpl) new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		Business ga = f.instanceNewGhost("article", null, null, null) ;
-		
-		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
-		
-		ObjectMapping map = f.getObjectMappingManager().getStaticObjectMapping("article") ;
+		ObjectMapping map = gf.getObjectMappingManager().getStaticObjectMapping("article") ;
 		
 		//测试POJO字段映射
 		String sql = "select @id, @title, DESCRIPTION, @createdTime from TB_ARTICLE order by id asc limit 10 " ;
-		SQLCompiler sc = new SQLCompiler(f.getObjectMappingManager(), f.getCompiledSQLBuilder()) ;
+		SQLCompiler sc = new SQLCompiler(gf.getObjectMappingManager(), gf.getCompiledSQLBuilder()) ;
 		
 		MarkedSQL ms = new MarkedSQL(map, sql) ;
 		
@@ -72,21 +64,14 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		//insert. bug on '('
 		ms = new MarkedSQL(map, "insert into @@article(@id, @title, DESCRIPTION, @createdTime) values(:id, :title, :d, :c)") ;
 		assertEquals(sc.translateMark(null, map, ms.getOrginalSQL()), "insert into TB_ARTICLE(id, NAME, DESCRIPTION, createdTime) values(:id, :title, :d, :c)") ;		
-
-		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testSQLCompile() throws Exception{
-		GuzzContextImpl f = (GuzzContextImpl) new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		Business ga = f.instanceNewGhost("article", null, null, null) ;
-		
-		f.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
-		
-		ObjectMapping map = f.getObjectMappingManager().getStaticObjectMapping("article") ;
+		ObjectMapping map = gf.getObjectMappingManager().getStaticObjectMapping("article") ;
 		
 		//测试POJO字段映射
 		String sql = "select @id, @title, DESCRIPTION, @createdTime from TB_ARTICLE where id=:id and title=:m_title order by id asc limit 10 " ;
-		SQLCompiler sc = new SQLCompiler(f.getObjectMappingManager(), f.getCompiledSQLBuilder()) ;
+		SQLCompiler sc = new SQLCompiler(gf.getObjectMappingManager(), ((GuzzContextImpl) gf).getCompiledSQLBuilder()) ;
 		
 		CompiledSQL cs = sc.compileNormalCS(map, sql) ;
 		
@@ -117,18 +102,14 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		
 		assertEquals(cs.bindNoParams().getSQLToRun(), "select * from TB_TABLE where id = 1") ;
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 0) ;
-
-		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testSpecial() throws Exception{
-		GuzzContextImpl f = (GuzzContextImpl) new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
-		ObjectMapping map = f.getObjectMappingManager().getStaticObjectMapping("book") ;
+		ObjectMapping map = gf.getObjectMappingManager().getStaticObjectMapping("book") ;
 		
 		//测试POJO字段映射
 		String sql = "update TB_BOOK set @title=:title where id=:id" ;
-		SQLCompiler sc = new SQLCompiler(f.getObjectMappingManager(), f.getCompiledSQLBuilder()) ;
+		SQLCompiler sc = new SQLCompiler(gf.getObjectMappingManager(), ((GuzzContextImpl) gf).getCompiledSQLBuilder()) ;
 		
 		CompiledSQL cs = sc.compileNormalCS(map, sql) ;
 		
@@ -136,8 +117,6 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 2) ;
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()[0], "title") ;
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()[1], "id") ;
-
-		((GuzzContextImpl) f).shutdown() ;
 	}
 
 }

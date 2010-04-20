@@ -19,16 +19,10 @@ package org.guzz.orm.se;
 import java.util.Date;
 import java.util.List;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
-import org.guzz.orm.se.SearchExpression;
-import org.guzz.orm.se.Terms;
 import org.guzz.test.Article;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.User;
 import org.guzz.transaction.ReadonlyTranSession;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 
 /**
@@ -46,9 +40,6 @@ public class TestDaoWrite extends DBBasedTestCase {
 	}
 	
 	public void testInsert() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession session = tm.openRWTran(false) ;
 		
 		Article a = new Article() ;
@@ -82,14 +73,9 @@ public class TestDaoWrite extends DBBasedTestCase {
 		}catch(Throwable e){
 			
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession session = tm.openRWTran(false) ;
 		
 		User user = (User) session.findObjectByPK(User.class, 100) ;
@@ -110,13 +96,9 @@ public class TestDaoWrite extends DBBasedTestCase {
 		assertEquals(user2.getCreatedTime().getTime(), now.getTime()) ;
 				
 		session.close() ;
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testDelete() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession session = tm.openRWTran(false) ;
 		
 		User user = (User) session.findObjectByPK(User.class, 10) ;
@@ -138,7 +120,6 @@ public class TestDaoWrite extends DBBasedTestCase {
 		assertEquals(users.size(), 13) ;
 
 		rts.close() ;
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }

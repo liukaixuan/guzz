@@ -114,6 +114,22 @@ public class SimpleTable implements Table {
 		}
 	}
 	
+	public void removeColumn(TableColumn column){
+		synchronized(lock){
+			this.columns.remove(column) ;
+			this.propColumns.remove(column.getPropName()) ;
+			
+			//数据库的column名称不区分大小写。检索时全部按照小写检索。
+			this.colColumns.remove(column.getColName().toLowerCase()) ;
+			
+			cache_columnsForUpdate = null ;
+			cache_propsForUpdate = null ;
+			cache_columnsForInsert = null ;
+			cache_lazyUpdatableProps = null ;
+			cache_lazyProps = null ;
+		}
+	}
+	
 	public TableColumn getColumnByPropName(String propName){
 		return (TableColumn) this.propColumns.get(propName) ;
 	}

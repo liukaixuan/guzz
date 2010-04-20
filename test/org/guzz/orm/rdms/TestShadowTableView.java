@@ -20,9 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.guzz.Configuration;
 import org.guzz.Guzz;
-import org.guzz.GuzzContext;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.jdbc.SQLBatcher;
 import org.guzz.orm.se.SearchExpression;
@@ -32,7 +30,6 @@ import org.guzz.test.Comment;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.User;
 import org.guzz.transaction.ReadonlyTranSession;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 
 /**
@@ -43,10 +40,7 @@ import org.guzz.transaction.WriteTranSession;
  */
 public class TestShadowTableView extends DBBasedTestCase {
 		
-	public void testInsert() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
+	public void testInsert() throws Exception{				
 		WriteTranSession session = tm.openRWTran(true) ;
 		
 		for(int i = 1 ; i < 1001 ; i++){
@@ -72,14 +66,11 @@ public class TestShadowTableView extends DBBasedTestCase {
 		}
 		
 		session.close() ;
-		gf.shutdown() ;
 	}
 	
 	public void testFindBySE() throws Exception{
 		testInsert() ;
 		
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
 		ReadonlyTranSession session = tm.openDelayReadTran() ;
 		
 		User u = new User() ;
@@ -112,14 +103,11 @@ public class TestShadowTableView extends DBBasedTestCase {
 		assertEquals(session.count(se), 500) ;
 		
 		session.close() ;
-		gf.shutdown() ;
 	}
 	
 	public void testCompiledSQL() throws Exception{
 		testInsert() ;
 		
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
 		ReadonlyTranSession session = tm.openDelayReadTran() ;
 		
 		String sql = "select * from @@comment where userName = :userName" ;
@@ -149,13 +137,9 @@ public class TestShadowTableView extends DBBasedTestCase {
 		assertEquals(session.list(cs.bind("userName", "lucy").setTableCondition(u), 1, 1000).size(), 0) ;
 		
 		session.close() ;
-		gf.shutdown() ;
 	}
 	
 	public void testObjectBatcher() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession session = tm.openRWTran(false) ;
 		ObjectBatcher batcher = session.createObjectBatcher() ;
 		
@@ -191,13 +175,9 @@ public class TestShadowTableView extends DBBasedTestCase {
 		assertEquals(read.count(se.setTableCondition(new User(2))), 0) ;
 		
 		read.close() ;
-		gf.shutdown() ;
 	}
 	
 	public void testSQLBatcher() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession session = tm.openRWTran(false) ;
 
 		String sql = "insert into @@comment(@userId, @userName, @content, @createdTime) values(:userId, :userName, :content, :createdTime)" ;
@@ -239,14 +219,11 @@ public class TestShadowTableView extends DBBasedTestCase {
 		assertEquals(read.count(se.and(Terms.eq("userName", "lucy"))), 500) ;
 		
 		read.close() ;
-		gf.shutdown() ;
 	}
 	
 	public void testFindByIBatisId() throws Exception{
 		testInsert() ;
 		
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
 		ReadonlyTranSession session = tm.openDelayReadTran() ;
 		
 		User u = new User() ;
@@ -276,7 +253,6 @@ public class TestShadowTableView extends DBBasedTestCase {
 		assertEquals(session.list("listCommentsByName", params, 1, 10000).size(), 0) ;
 		
 		session.close() ;
-		gf.shutdown() ;
 	}
 	
 }

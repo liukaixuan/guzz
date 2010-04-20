@@ -53,7 +53,7 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * 
+ * parse hbm.xml formatting orm.
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

@@ -513,7 +513,7 @@ public class PropertyUtil {
 					}
 					
 					//开始新组的数据记录
-					groupName = line.substring(1, length - 1) ;
+					groupName = line.substring(1, length - 1).trim() ;
 					props = new Properties() ;
 				}else{ //组内的一个属性
 					if(groupName == null){

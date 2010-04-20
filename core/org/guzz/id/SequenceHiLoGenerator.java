@@ -37,7 +37,7 @@ import org.guzz.util.StringUtil;
  * If sequences are not available, <tt>TableHiLoGenerator</tt> might be an
  * alternative.<br>
  * <br>
- * Mapping parameters supported: sequence, max_lo, dbgroup, parameters.
+ * Mapping parameters supported: sequence, max_lo, db_group, parameters.
  *
  * @see TableHiLoGenerator
  */
@@ -81,7 +81,7 @@ public class SequenceHiLoGenerator extends SequenceIdGenerator {
 				n = super.nextSequenceValue(session) ;
 			}
 			
-			return n ;
+			return IdentifierGeneratorFactory.createNumber(n.longValue(), this.returnType) ;
 		}
 		
 		if (lo > maxLo){

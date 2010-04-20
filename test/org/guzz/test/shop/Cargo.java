@@ -26,8 +26,13 @@ import java.util.Map;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
+
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="cargo")
+@org.guzz.annotations.Table(name="tb_cargo", shadow=CargoCustomTableView.class)
 public class Cargo {
-	
+
+	@javax.persistence.Id
 	private int id ;
 	
 	private String name ;

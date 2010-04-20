@@ -30,7 +30,6 @@ import org.guzz.dialect.Dialect;
 import org.guzz.dialect.H2Dialect;
 import org.guzz.dialect.Mysql5Dialect;
 import org.guzz.io.FileResource;
-import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
 import org.guzz.orm.sql.CompiledSQL;
@@ -103,14 +102,7 @@ public class TestMainConfigBuilder extends TestCase {
 		FileResource fs = new FileResource("classpath:guzzmain_test1.xml") ;
 		GuzzContextImpl gf = (GuzzContextImpl)new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
 		
-		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;	
-		
-		Business ga = gf.instanceNewGhost("article", null, null, null) ;
-		
-		gf.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
-		
-		ga = gf.instanceNewGhost("user", null, null, null) ;
-		gf.addHbmConfigFile(ga , FileResource.CLASS_PATH_PREFIX + "org/guzz/test/User.hbm.xml") ;
+		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;
 		
 		Document md = b.rootDoc ;
 		assertNotNull(md) ;

@@ -16,7 +16,6 @@
  */
 package org.guzz.orm.type;
 
-import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,33 +24,32 @@ import org.guzz.exception.DataTypeException;
 
 /**
  * 
- * Represents a byte array. For very long arrays, use BLOB. 
- * the whole binary array is kept in memory when using this data type. 
+ * Represents for a byte.
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class BinarySQLDataType implements SQLDataType {
+public class ByteSQLDataType implements SQLDataType {
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		return rs.getBytes(colName) ;
+		return rs.getByte(colName) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		return rs.getBytes(colIndex) ;
+		return rs.getByte(colIndex) ;
 	}
 
 	public void setNullToValue(String nullValue) {
 		if(nullValue != null){
-			throw new DataTypeException("null value unsupported. nullValue is:" + nullValue) ;
+			throw new DataTypeException("null value is not supported. nullValue is:" + nullValue) ;
 		}
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
-		pstm.setBytes(parameterIndex, (byte[]) value) ;
+		pstm.setByte(parameterIndex, ((Byte) value).byteValue()) ;
 	}
 	
 	public Class getDataType(){
-		return Array.class ;
+		return Byte.class ;
 	}
 
 	public Object getFromString(String value) {

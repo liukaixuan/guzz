@@ -16,14 +16,10 @@
  */
 package org.guzz.pojo.loader;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.pojo.lob.TranClob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;
 import org.guzz.transaction.LockMode;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 
 /**
@@ -38,9 +34,6 @@ public class TestClobLoader extends DBBasedTestCase {
 	}
 	
 	public void testInsert() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession tran = tm.openRWTran(false) ;
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -91,14 +84,9 @@ public class TestClobLoader extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession tran = tm.openRWTran(false) ;
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -165,8 +153,6 @@ public class TestClobLoader extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }
