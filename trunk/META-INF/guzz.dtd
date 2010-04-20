@@ -5,6 +5,9 @@
 	<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//MAIN CONFIG DTD//EN" "http://www.guzz.org/dtd/guzz.dtd">
 -->
 
+<!--
+	The document root.
+--> 
 <!ELEMENT guzz-configs (
 properties?, (config-server? | tran? | dialect| service | import | business | a-business | sqlMap | orm)*
 )>

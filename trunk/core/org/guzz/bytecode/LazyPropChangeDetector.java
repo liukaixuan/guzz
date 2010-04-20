@@ -28,5 +28,10 @@ public interface LazyPropChangeDetector {
 	 * 获取变化过的lazy prop属性。
 	 */
 	public String[] getChangedLazyProps() ;
+	
+	/**
+	 * Reset the counter of the changed properties.
+	 */
+	public void resetLazyCounter() ;
 
 }

@@ -45,6 +45,8 @@ import org.guzz.exception.IllegalParameterException;
 import org.guzz.id.Configurable;
 import org.guzz.id.IdentifierGenerator;
 import org.guzz.id.IdentifierGeneratorFactory;
+import org.guzz.id.SequenceIdGenerator;
+import org.guzz.id.TableMultiIdGenerator;
 import org.guzz.lang.NullValue;
 import org.guzz.orm.Business;
 import org.guzz.orm.ColumnDataLoader;
@@ -60,6 +62,7 @@ import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
+import org.guzz.web.context.GuzzContextAware;
 
 /**
  * 
@@ -272,7 +275,7 @@ public class JPA2AnnotationsBuilder {
 			javax.persistence.SequenceGenerator psg = (javax.persistence.SequenceGenerator) element.getAnnotation(javax.persistence.SequenceGenerator.class) ;
 			if(psg == null){
 				Object sg = gf.getGlobalIdGenerator(generator) ;
-				Assert.assertNotNull(psg, "@javax.persistence.SequenceGenerator not found for sequenced @Id. domain class:" + domainClas.getName()) ;
+				Assert.assertNotNull(sg, "@javax.persistence.SequenceGenerator not found for sequenced @Id. domain class:" + domainClas.getName()) ;
 				
 				if(sg instanceof SequenceGenerator){
 					psg = (SequenceGenerator) sg ;
@@ -281,7 +284,7 @@ public class JPA2AnnotationsBuilder {
 				}
 			}
 			
-			idProperties.setProperty("sequence", psg.sequenceName()) ;
+			idProperties.setProperty(SequenceIdGenerator.PARAM_SEQUENCE, psg.sequenceName()) ;
 			
 			idProperties.setProperty("catalog", psg.catalog()) ;
 			idProperties.setProperty("allocationSize", String.valueOf(psg.allocationSize())) ;
@@ -294,7 +297,7 @@ public class JPA2AnnotationsBuilder {
 			TableGenerator pst = (TableGenerator) element.getAnnotation(TableGenerator.class) ;
 			if(pst == null){
 				Object sg = gf.getGlobalIdGenerator(generator) ;
-				Assert.assertNotNull(pst, "@javax.persistence.TableGenerator not found for hilo.multi @Id. domain class:" + domainClas.getName()) ;
+				Assert.assertNotNull(sg, "@javax.persistence.TableGenerator not found for hilo.multi @Id. domain class:" + domainClas.getName()) ;
 				
 				if(sg instanceof TableGenerator){
 					pst = (TableGenerator) sg ;
@@ -305,11 +308,11 @@ public class JPA2AnnotationsBuilder {
 			
 			idProperties.setProperty("catalog", pst.catalog()) ;
 			idProperties.setProperty("schema", pst.schema()) ;
-			idProperties.setProperty("table", pst.table()) ;
-			idProperties.setProperty("pk_column_name", pst.pkColumnName()) ;
-			idProperties.setProperty("pk_column_value", pst.pkColumnValue()) ;
-			idProperties.setProperty("column", pst.valueColumnName()) ;
-			idProperties.setProperty("max_lo", String.valueOf(pst.allocationSize())) ;
+			idProperties.setProperty(TableMultiIdGenerator.TABLE, pst.table()) ;
+			idProperties.setProperty(TableMultiIdGenerator.PK_COLUMN_NAME, pst.pkColumnName()) ;
+			idProperties.setProperty(TableMultiIdGenerator.PK_COLUMN_VALUE, pst.pkColumnValue()) ;
+			idProperties.setProperty(TableMultiIdGenerator.COLUMN, pst.valueColumnName()) ;
+			idProperties.setProperty(TableMultiIdGenerator.MAX_LO, String.valueOf(pst.allocationSize())) ;
 			//we need db_group param, but the JPA won't give us.
 			
 			idProperties.setProperty("initialValue", String.valueOf(pst.initialValue())) ;
@@ -324,6 +327,11 @@ public class JPA2AnnotationsBuilder {
 		
 		if(ig instanceof Configurable){
 			((Configurable) ig).configure(dbGroup.getDialect(), map, idProperties) ;						
+		}
+		
+		//register callback for GuzzContext's full starting.
+		if(ig instanceof GuzzContextAware){
+			gf.registerContextStartedAware((GuzzContextAware) ig) ;
 		}
 		
 		st.setIdentifierGenerator(ig) ;
@@ -381,7 +389,7 @@ public class JPA2AnnotationsBuilder {
 			if(log.isDebugEnabled()){
 				log.debug("Unsupported data type is found in annotation, property is:[" + name + "], business is:[" + st.getBusinessName() + "]. Ignore this property.", dte) ;
 			}else{
-				log.info("Ignore unsupported data type in annotation, property is:[" + name + "], business is:[" + st.getBusinessName() + "], msg is:" + dte.getMessage()) ;
+				log.warn("Ignore unsupported data type in annotation, property is:[" + name + "], business is:[" + st.getBusinessName() + "], msg is:" + dte.getMessage()) ;
 			}
 		}
 	}

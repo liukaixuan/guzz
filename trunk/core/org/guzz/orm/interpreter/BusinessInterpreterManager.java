@@ -16,12 +16,9 @@
  */
 package org.guzz.orm.interpreter;
 
-import java.util.LinkedList;
-
 import org.guzz.GuzzContextImpl;
 import org.guzz.orm.BusinessInterpreter;
 import org.guzz.util.javabean.BeanCreator;
-import org.guzz.web.context.ExtendedBeanFactory;
 import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
 
@@ -33,9 +30,7 @@ import org.guzz.web.context.GuzzContextAware;
  */
 public class BusinessInterpreterManager {
 	
-	private GuzzContextImpl gc ;
-	
-	private LinkedList intepreters = new LinkedList() ;
+	private final GuzzContextImpl gc ;
 	
 	/**此时传入的gc是还没有初始化完成的context*/
 	public BusinessInterpreterManager(GuzzContextImpl gc){
@@ -59,41 +54,18 @@ public class BusinessInterpreterManager {
 			bi = new SEBusinessInterpreter() ;
 		}
 		
-		intepreters.addLast(bi) ;
-		
-		if(bi instanceof GuzzContextAware && gc.isFullStarted()){
-			((GuzzContextAware) bi).setGuzzContext(gc) ;
+		if(bi instanceof GuzzContextAware){
+			gc.registerContextStartedAware((GuzzContextAware) bi) ;
 		}
 		
-		if(bi instanceof ExtendedBeanFactoryAware && gc.getExtendedBeanFactory() != null){
-			((ExtendedBeanFactoryAware) bi).setExtendedBeanFactory(gc.getExtendedBeanFactory()) ;
+		if(bi instanceof ExtendedBeanFactoryAware){
+			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) bi) ;
 		}
 		
 		return bi ;
 	}
 	
-	public void onGuzzFullStarted(){
-		for(int i = 0 ; i < intepreters.size(); i++){
-			BusinessInterpreter bi = (BusinessInterpreter) intepreters.get(i) ;
-			
-			if(bi instanceof GuzzContextAware){
-				((GuzzContextAware) bi).setGuzzContext(gc) ;
-			}
-		}
-	}
-	
-	public void onExtendedBeanFactorySetted(ExtendedBeanFactory extendedBeanFactory){
-		for(int i = 0 ; i < intepreters.size(); i++){
-			BusinessInterpreter bi = (BusinessInterpreter) intepreters.get(i) ;
-			
-			if(bi instanceof ExtendedBeanFactoryAware){
-				((ExtendedBeanFactoryAware) bi).setExtendedBeanFactory(gc.getExtendedBeanFactory()) ;
-			}
-		}
-	}
-	
 	public void shutdown(){
-		this.intepreters.clear() ;
 	}
 
 }

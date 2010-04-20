@@ -148,6 +148,18 @@ public class CglibProxyFactory implements ProxyFactory{
 					}
 					
 					return m_props ;
+				}else if("resetChangeCounter".equals(name)){
+					for(int i = 0 ; i < this.changedProps.length ; i++){
+						this.changedProps[i] = false ;
+					}
+					
+					return null ;
+				}else if("resetLazyCounter".equals(name)){
+					for(int i = 0 ; i < this.changedLazyProps.length ; i++){
+						this.changedLazyProps[i] = false ;
+					}
+					
+					return null ;
 				}
 			}
 			

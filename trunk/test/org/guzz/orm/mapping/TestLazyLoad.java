@@ -16,7 +16,7 @@
  */
 package org.guzz.orm.mapping;
 
-import java.lang.reflect.Field;
+import java.security.SecureRandom;
 import java.util.List;
 
 import org.guzz.bytecode.LazyPropChangeDetector;
@@ -50,6 +50,7 @@ public class TestLazyLoad extends DBBasedTestCase {
 		
 		Book b = (Book) books.get(0) ;
 		
+		//DynamicUpdatable时lazy要更新的字段统计失效。
 //		assertTrue(b instanceof LazyPropChangeDetector) ;
 		assertTrue(b instanceof DynamicUpdatable) ;
 		
@@ -65,23 +66,26 @@ public class TestLazyLoad extends DBBasedTestCase {
 		assertEquals(b.getContent(), "book content 1") ;
 		assertEquals(b.getContent(), "book content 1") ;
 		assertEquals(((DynamicUpdatable) b).getChangedProps().length, 0) ;
-//		assertEquals(((LazyPropChangeDetector) b).getChangedLazyProps().length, 0) ;
+		
+		byte[] checksum = new SecureRandom().generateSeed(512) ;
+		
+		b.setChecksum(checksum) ;
+		
+		assertEquals(((DynamicUpdatable) b).getChangedProps().length, 1) ;
+		
+		//test that the loaded property won't change without explicitly call setXXX(...)
+		b.title = "aaaaaaaaQ@#$@Q$^T #cASFASFASFs" ;//change the value bypass the set-method.
+		
+		write.update(b) ;
+		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getTitle(), "book title 1") ;
+		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getContent(), "book content 1") ;
+		assertBytesEquals(((Book) write.findObjectByPK(Book.class, 1)).getChecksum(), checksum) ;
 		
 		b.setTitle("new title 1") ;
-		assertEquals(((DynamicUpdatable) b).getChangedProps().length, 1) ;
-//		assertEquals(((LazyPropChangeDetector) b).getChangedLazyProps().length, 0) ;
-		
-		//test that the lazily loaded property won't change without explicitly call setXXX(...)
-		b.content = "aaaaaaaaQ@#$@Q$^T #cASFASFASFs" ;//change the value bypass the set-method.
-		write.update(b) ;
-		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getTitle(), "new title 1") ;
-		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getContent(), "book content 1") ;
-		
 		b.setContent("new content 1") ;
 		b.setContent("new content 1") ;
 		b.setContent("new content 1") ;
 		assertEquals(((DynamicUpdatable) b).getChangedProps().length, 2) ;
-//		assertEquals(((LazyPropChangeDetector) b).getChangedLazyProps().length, 1) ;
 		
 		write.update(b) ;
 		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getTitle(), "new title 1") ;

@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContextImpl;
 import org.guzz.orm.ShadowTableView;
-import org.guzz.web.context.ExtendedBeanFactory;
 import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
 
@@ -38,20 +37,24 @@ public class ShadowTableViewManager {
 	
 	private List views = new LinkedList() ;
 	
-	private GuzzContextImpl guzzContextImpl ;
+	private final GuzzContextImpl gc ;
 	
 	public ShadowTableViewManager(GuzzContextImpl guzzContextImpl){
-		this.guzzContextImpl = guzzContextImpl ;
+		this.gc = guzzContextImpl ;
 	}
 	
 	public void addShadowView(ShadowTableView view){
 		this.views.add(view) ;
 		
-		if(guzzContextImpl.isFullStarted()){
-			if(view instanceof GuzzContextAware){
-				((GuzzContextAware) view).setGuzzContext(guzzContextImpl) ;
-			}
-			
+		if(view instanceof GuzzContextAware){
+			gc.registerContextStartedAware((GuzzContextAware) view) ;
+		}
+		
+		if(view instanceof ExtendedBeanFactoryAware){
+			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) view) ;
+		}
+		
+		if(gc.isFullStarted()){
 			view.startup() ;
 		}
 	}
@@ -60,21 +63,7 @@ public class ShadowTableViewManager {
 		for(int i = 0 ; i < views.size() ; i++){
 			ShadowTableView view = (ShadowTableView) views.get(i) ;
 			
-			if(view instanceof GuzzContextAware){
-				((GuzzContextAware) view).setGuzzContext(guzzContextImpl) ;
-			}
-			
 			view.startup() ;
-		}
-	}
-	
-	public void onExtendedBeanFactorySetted(ExtendedBeanFactory extendedBeanFactory){
-		for(int i = 0 ; i < views.size(); i++){
-			ShadowTableView view = (ShadowTableView) views.get(i) ;
-			
-			if(view instanceof ExtendedBeanFactoryAware){
-				((ExtendedBeanFactoryAware) view).setExtendedBeanFactory(guzzContextImpl.getExtendedBeanFactory()) ;
-			}
 		}
 	}
 	

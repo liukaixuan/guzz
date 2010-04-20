@@ -19,6 +19,9 @@ package org.guzz.test;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.TableGenerator;
 
 import org.guzz.annotations.Table;
 
@@ -30,9 +33,25 @@ import org.guzz.annotations.Table;
 @javax.persistence.Entity
 @org.guzz.annotations.Entity(businessName = "comment")
 @Table(name="TB_COMMENT", shadow = CommentShadowView.class)
+@TableGenerator(
+		name = "commentGen",
+		table="tb_id",
+		catalog="somelog",
+		schema="some_schema",
+		pkColumnName="pk",
+		pkColumnValue="2",
+		valueColumnName="id_count",
+		initialValue=100,
+		allocationSize=20
+		/*
+		 * create table tb_id(pk int(11) primary key, id_count int(11) default 0)
+		 * insert into tb_id(pk, id_count) values(2, 100)
+		 */
+)
 public class Comment {
 
 	@javax.persistence.Id
+	@GeneratedValue(generator="commentGen", strategy=GenerationType.TABLE)
 	private int id ;
 	
 	private int userId ;
