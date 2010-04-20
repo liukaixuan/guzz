@@ -6,7 +6,7 @@
 -->
 
 <!ELEMENT guzz-configs (
-properties?, (config-server? | tran? | dialect| service | import | business | sqlMap | orm)*
+properties?, (config-server? | tran? | dialect| service | import | business | a-business | sqlMap | orm)*
 )>
 
 <!ELEMENT properties EMPTY>
@@ -54,6 +54,10 @@ properties?, (config-server? | tran? | dialect| service | import | business | sq
 <!ATTLIST business interpret CDATA #IMPLIED>
 <!ATTLIST business file CDATA #REQUIRED>
 
+<!ELEMENT a-business EMPTY>
+<!ATTLIST a-business name CDATA #IMPLIED>
+<!ATTLIST a-business dbgroup CDATA "default">
+<!ATTLIST a-business class CDATA #REQUIRED>
 
 <!ELEMENT sqlMap ((select | update | orm)*)>
 <!ATTLIST sqlMap dbgroup CDATA "default">

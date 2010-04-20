@@ -46,7 +46,7 @@ import org.guzz.web.context.GuzzContextAware;
  * <br>
  * The returned value is of type <tt>integer</tt>.<br>
  * <br>
- * Mapping parameters supported: table, column, dbGroup
+ * Mapping parameters supported: table, column, db_group
  *
  * @see TableHiLoGenerator
  */
@@ -64,23 +64,23 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 	public static final String TABLE = "table";
 	
 	/** The dbGroup's name parameter. Default value is null telling guzz to use the same database of the table the id generated for. */
-	public static final String DATABASE_GROUP_NAME = "dbGroup";
+	public static final String DATABASE_GROUP_NAME = "db_group";
 	
 	/** Default table name */	
 	public static final String DEFAULT_TABLE_NAME = "guzz_unique_key";
 
-	private String tableName;
-	private String columnName;
+	protected String tableName;
+	protected String columnName;
 	private String query;
 	private String update;
 	
 	private POJOBasedObjectMapping mapping ;
-	private Table table ;
-	private String primaryKeyPropName ;
+	protected Table table ;
+	protected String primaryKeyPropName ;
 	protected SQLDataType pkDataType ;
 	private Class domainClass ;	
 	
-	private String dbGroup ;
+	protected String dbGroup ;
 
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.mapping = mapping ;
@@ -91,26 +91,30 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 		primaryKeyPropName = mapping.getPropNameByColName(colName) ;
 		this.pkDataType = mapping.getSQLDataTypeOfColumn(colName) ;
 		
-		
 		tableName = PropertyUtil.getString(params, TABLE, DEFAULT_TABLE_NAME);
 		columnName = PropertyUtil.getString(params, COLUMN, DEFAULT_COLUMN_NAME);
 		dbGroup = PropertyUtil.getString(params, DATABASE_GROUP_NAME, null);
 
-		query = "select " + columnName + " from " + tableName ;
-		
-		query = dialect.getForUpdateString(query) ;
-		
-		update = "update " + 
-			tableName + 
-			" set " + 
-			columnName + 
-			" = ? where " + 
-			columnName + 
-			" = ?";
+		query = dialect.getForUpdateString(getSqlForQuery()) ;
+		update = getSqlForUpdate() ;
 		
 		if(log.isDebugEnabled()){
 			log.debug("query:[" + query + "], update:[" + update + "]") ;
 		}
+	}
+	
+	protected String getSqlForQuery(){
+		return "select " + columnName + " from " + tableName ;
+	}
+	
+	protected String getSqlForUpdate(){
+		return "update " + 
+				tableName + 
+				" set " + 
+				columnName + 
+				" = ? where " + 
+				columnName + 
+				" = ?" ;
 	}
 	
 	protected void setPrimaryKey(Object domainObject, Object value){

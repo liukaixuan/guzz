@@ -18,15 +18,12 @@ package org.guzz.orm.sql.impl;
 
 import java.util.Arrays;
 
-import junit.framework.TestCase;
-
-import org.guzz.Configuration;
 import org.guzz.GuzzContextImpl;
 import org.guzz.io.FileResource;
 import org.guzz.orm.Business;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.sql.CompiledSQL;
-import org.guzz.orm.sql.impl.CompiledSQLManagerImpl;
+import org.guzz.test.GuzzTestCase;
 
 /**
  * 
@@ -34,13 +31,11 @@ import org.guzz.orm.sql.impl.CompiledSQLManagerImpl;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class TestInnerSQLBuilder extends TestCase {
+public class TestInnerSQLBuilder extends GuzzTestCase {
 
 	public void testTranslateSQLMark() throws Exception{
-		GuzzContextImpl f = (GuzzContextImpl) new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
-		POJOBasedObjectMapping map = (POJOBasedObjectMapping) f.getObjectMappingManager().getStaticObjectMapping("user") ;
-		CompiledSQLManagerImpl csm = new CompiledSQLManagerImpl(f.getCompiledSQLBuilder()) ;
+		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getStaticObjectMapping("user") ;
+		CompiledSQLManagerImpl csm = new CompiledSQLManagerImpl(((GuzzContextImpl) gf).getCompiledSQLBuilder()) ;
 		
 		//test insert
 		CompiledSQL cs = csm.buildNormalInsertSQLWithPK(map) ;
@@ -70,20 +65,15 @@ public class TestInnerSQLBuilder extends TestCase {
 		assertEquals(cs.bindNoParams().getSQLToRun(), "select pk, userName, MyPSW, VIP_USER, FAV_COUNT, createdTime from TB_USER where pk=?") ;
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
 		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[id]") ;
-
-		((GuzzContextImpl) f).shutdown() ;
 	}
 	
 	public void testInsertUpdateIgnoreParam() throws Exception{
-		GuzzContextImpl gf = (GuzzContextImpl) new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
-		
 		Business ga = gf.instanceNewGhost("articleCount", null, null, null) ;
 		
 		gf.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/ArticleCount.hbm.xml") ;
 		
 		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getStaticObjectMapping("articleCount") ;
-		CompiledSQLManagerImpl csm = new CompiledSQLManagerImpl(gf.getCompiledSQLBuilder()) ;
+		CompiledSQLManagerImpl csm = new CompiledSQLManagerImpl(((GuzzContextImpl) gf).getCompiledSQLBuilder()) ;
 		
 		//test insert
 		CompiledSQL cs = csm.buildNormalInsertSQLWithPK(map) ;
@@ -113,8 +103,6 @@ public class TestInnerSQLBuilder extends TestCase {
 		assertEquals(cs.bindNoParams().getSQLToRun(), "select ARTICLE_ID, readCount, supportCount, opposeCount, createdTime from TB_ARTICLE_COUNT where ARTICLE_ID=?") ;
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
 		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[articleId]") ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }

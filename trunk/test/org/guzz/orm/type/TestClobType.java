@@ -16,10 +16,7 @@
  */
 package org.guzz.orm.type;
 
-import org.guzz.Configuration;
 import org.guzz.Guzz;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.dialect.H2Dialect;
 import org.guzz.pojo.lob.TranClob;
 import org.guzz.test.DBBasedTestCase;
@@ -39,11 +36,7 @@ public class TestClobType extends DBBasedTestCase {
 	protected void prepareEnv() throws Exception{
 	}
 	
-	public void testInsert() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
-		TransactionManager tm = gf.getTransactionManager() ;
-				
+	public void testInsert() throws Exception{				
 		WriteTranSession tran = tm.openRWTran(false) ;
 		
 		StringBuffer sb = new StringBuffer() ;
@@ -80,13 +73,9 @@ public class TestClobType extends DBBasedTestCase {
 			e.printStackTrace() ;
 			fail(e.getMessage()) ;
 		}
-		
-		((GuzzContextImpl) gf).shutdown() ;
 	}	
 	
-	public void testUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
+	public void testUpdate() throws Exception{		
 		//H2数据库不支lob字段update。如果使用H2进行测试，此用例无法通过为正常。
 		if( gf.getDBGroup("default").getDialect() instanceof H2Dialect){
 			return ;
@@ -142,8 +131,6 @@ public class TestClobType extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-		
-		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }

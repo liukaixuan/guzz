@@ -25,9 +25,11 @@ import java.util.Map.Entry;
 import org.guzz.exception.DataTypeException;
 import org.guzz.orm.type.BigDecimalSQLDataType;
 import org.guzz.orm.type.BigIntSQLDataType;
-import org.guzz.orm.type.BinarySQLDataType;
+import org.guzz.orm.type.ByteSQLDataType;
+import org.guzz.orm.type.BytesSQLDataType;
 import org.guzz.orm.type.BlobSQLDataType;
 import org.guzz.orm.type.BooleanSQLDataType;
+import org.guzz.orm.type.CalendarSQLDataType;
 import org.guzz.orm.type.ClobSQLDataType;
 import org.guzz.orm.type.DateSQLDataType;
 import org.guzz.orm.type.DateTimeSQLDataType;
@@ -66,18 +68,24 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put("tinytext", new StringSQLDataType()) ;
 		sqlTypes.put(String.class.getName(), new StringSQLDataType()) ;
 		
+		//java.sql.Timestamp
 		sqlTypes.put("datetime", new DateTimeSQLDataType()) ;
 		sqlTypes.put("timestamp", new DateTimeSQLDataType()) ;
 		sqlTypes.put(java.util.Date.class.getName(), new DateTimeSQLDataType()) ;
 		sqlTypes.put(java.sql.Timestamp.class.getName(), new DateTimeSQLDataType()) ;
 
+		//java.sql.Date
 		sqlTypes.put("date", new DateSQLDataType()) ;
 		sqlTypes.put(java.sql.Date.class.getName(), new DateSQLDataType()) ;
 		
+		//java.util.Calendar
+		sqlTypes.put(java.util.Calendar.class.getName(), new CalendarSQLDataType()) ;
+		
+		//java.sql.Time
 		sqlTypes.put("time", new TimeSQLDataType()) ;
 		sqlTypes.put(java.sql.Time.class.getName(), new TimeSQLDataType()) ;
 		
-		
+		//boolean
 		sqlTypes.put("bool", new BooleanSQLDataType()) ;
 		sqlTypes.put("boolean", new BooleanSQLDataType()) ;	
 		sqlTypes.put(Boolean.class.getName(), new BooleanSQLDataType()) ;		
@@ -101,8 +109,16 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put("tinyint", new ShortSQLDataType()) ;
 		sqlTypes.put(Short.class.getName(), new ShortSQLDataType()) ;
 		
-		sqlTypes.put("bytes", new BinarySQLDataType()) ;
-		sqlTypes.put("binary", new BinarySQLDataType()) ;
+		//bit
+		sqlTypes.put("byte", new ByteSQLDataType()) ;
+		sqlTypes.put("bit", new ByteSQLDataType()) ;
+		sqlTypes.put(java.lang.Byte.class.getName(), new ByteSQLDataType()) ;
+		
+		//byte[]
+		sqlTypes.put("bytes", new BytesSQLDataType()) ;
+		sqlTypes.put("[B", new BytesSQLDataType()) ;//byte[]
+		sqlTypes.put("[Ljava.lang.Byte;", new BytesSQLDataType()) ;//Byte[]
+		sqlTypes.put("binary", new BytesSQLDataType()) ;
 		
 		//clob
 		sqlTypes.put("clob", new ClobSQLDataType()) ;
@@ -138,12 +154,12 @@ public abstract class AbstractDialect implements Dialect {
 			while(i.hasNext()){
 				Map.Entry e = (Entry) i.next() ;
 				if(colType.equalsIgnoreCase((String) e.getKey())){
-					return (SQLDataType) e.getKey() ;
+					return (SQLDataType) e.getValue() ;
 				}
 			}
 		}
 		
-		throw new DataTypeException("column type[" + colType + "] unsupported.") ;
+		throw new DataTypeException("column type[" + colType + "] is not supported.") ;
 	}
 
 	public String getForUpdateNoWaitString(String sql) {

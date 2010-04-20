@@ -20,12 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
-import org.guzz.io.FileResource;
 import org.guzz.jdbc.JDBCTemplate;
-import org.guzz.orm.Business;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.Terms;
 import org.guzz.orm.sql.CompiledSQL;
@@ -42,8 +37,6 @@ import org.guzz.test.DBBasedTestCase;
 public class TestTranSession extends DBBasedTestCase{
 
 	public void testOpenTranSession() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
 		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
 		
 		ts.close() ;
@@ -56,15 +49,10 @@ public class TestTranSession extends DBBasedTestCase{
 
 		ts2 = gf.getTransactionManager().openRWTran(false) ;
 		ts2.close() ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testSEReadDB() throws SQLException, Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;		
 		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
-		Business ga = gf.instanceNewGhost("article", null, null, null) ;		
-		gf.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
 		//query a object
 		SearchExpression se = SearchExpression.forClass(Article.class) ;
@@ -84,15 +72,10 @@ public class TestTranSession extends DBBasedTestCase{
 		assertEquals(((Article) articles.get(2)).getTitle(), "title 3") ;
 				
 		ts.close() ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testReadDBCell00() throws SQLException, Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
 		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
-		Business ga = gf.instanceNewGhost("article", null, null, null) ;
-		gf.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
 		//query a object
 		CompiledSQL sql = gf.getTransactionManager().getCompiledSQLBuilder().buildCompiledSQL("article", "select count(*) from @@article") ;
@@ -100,15 +83,10 @@ public class TestTranSession extends DBBasedTestCase{
 		assertEquals((Long)ts.findCell00(sql.bindNoParams(), "bigint"), new Long(4)) ;
 		
 		ts.close() ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testJDBCTemplate() throws SQLException, Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
 		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
-		Business ga = gf.instanceNewGhost("article", null, null, null) ;
-		gf.addHbmConfigFile(ga, FileResource.CLASS_PATH_PREFIX + "org/guzz/test/Article.hbm.xml") ;
 		
 		JDBCTemplate jt = ts.createJDBCTemplate(Article.class) ;
 		String name2 = (String) jt.executeQuery("select * from TB_ARTICLE where id = 2", new SQLQueryCallBack(){
@@ -125,9 +103,6 @@ public class TestTranSession extends DBBasedTestCase{
 		assertEquals(name2, "title 2") ;
 		
 		ts.close() ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
-	
 	
 }

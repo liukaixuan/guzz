@@ -19,14 +19,10 @@ package org.guzz.pojo.loader;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;
 import org.guzz.transaction.LockMode;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.util.FileUtil;
 
@@ -49,10 +45,7 @@ public class TestBlobLoader extends DBBasedTestCase {
 		}
 	}
 	
-	public void testInsert() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-		
+	public void testInsert() throws Exception{		
 		String classPath = this.getClass().getClassLoader().getResource(".").getFile() ;
 		File lib = new File(classPath, "../lib/xercesImpl.jar") ;
 		assertTrue(lib.exists()) ;
@@ -110,14 +103,9 @@ public class TestBlobLoader extends DBBasedTestCase {
 			tran.close() ;
 			fis.close() ;
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-		
 		String classPath = this.getClass().getClassLoader().getResource(".").getFile() ;
 		File lib = new File(classPath, "../lib/xercesImpl.jar") ;
 		assertTrue(lib.exists()) ;
@@ -213,8 +201,6 @@ public class TestBlobLoader extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }

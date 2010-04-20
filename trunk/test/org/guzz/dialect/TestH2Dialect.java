@@ -19,15 +19,11 @@ package org.guzz.dialect;
 import java.util.Date;
 import java.util.List;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.test.Article;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.ReadonlyTranSession;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 
 /**
@@ -39,9 +35,6 @@ import org.guzz.transaction.WriteTranSession;
 public class TestH2Dialect extends DBBasedTestCase {
 
 	public void testUpdateNoWait() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-				
 		WriteTranSession tran = tm.openRWTran(true) ;
 		
 		Article a = (Article) tran.findObjectByPK("article", new Integer(1)) ;
@@ -58,13 +51,9 @@ public class TestH2Dialect extends DBBasedTestCase {
 		assertEquals(a.getContent(), newContent) ;
 		
 		tran.close() ;
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
-	public void testUpdateNoWaitWithLimit() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-		
+	public void testUpdateNoWaitWithLimit() throws Exception{		
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL("article", "select * from @@article where id > :id") ;
 		cs.addParamPropMapping("id", "id") ;
 		
@@ -80,7 +69,6 @@ public class TestH2Dialect extends DBBasedTestCase {
 		comments = read.list(cs.bind("id", "1").setLockMode(LockMode.NONE), 3, 10) ;
 		
 		read.close() ;
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 }

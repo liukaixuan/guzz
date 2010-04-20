@@ -18,22 +18,33 @@ package org.guzz.test;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+
 /**
  * 
  * 
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="user")
+@org.guzz.annotations.Table(name="TB_USER")
 public class User {
 	
+	@javax.persistence.Id
+	@Column(name="pk")
 	private int id ;
 	
+	@Column(name="userName")
 	private String userName ;
 	
+	@Column(name="MyPSW")
 	private String password ;
 	
+	@Column(name="VIP_USER")
 	private boolean vip ;
 	
+	@Column(name="FAV_COUNT")
 	private int favCount ;
 	
 	private Date createdTime ;

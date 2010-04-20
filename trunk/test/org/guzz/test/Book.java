@@ -18,23 +18,33 @@ package org.guzz.test;
 
 import java.util.Date;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+
 /**
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="book")
+@org.guzz.annotations.Table(name="TB_BOOK", dynamicUpdate=true)
 public class Book {
 	
 	private int id ;
 	
-	private String title ;
+	public String title ;
 	
-	private String content ;
+	public String content ;
 	
 	private Date createdTime ;
 	
 	private String ISDN ;
+	
+	private byte[] checksum ;
 
+	@javax.persistence.Id
 	public int getId() {
 		return id;
 	}
@@ -43,6 +53,8 @@ public class Book {
 		this.id = id;
 	}
 
+	@Column(name="NAME")
+	@Basic(fetch=FetchType.EAGER)
 	public String getTitle() {
 		return title;
 	}
@@ -51,6 +63,8 @@ public class Book {
 		this.title = title;
 	}
 
+	@Column(name="DESCRIPTION")
+	@Basic(fetch=FetchType.LAZY)
 	public String getContent() {
 		return content;
 	}
@@ -73,6 +87,14 @@ public class Book {
 
 	public void setISDN(String isdn) {
 		ISDN = isdn;
+	}
+
+	public byte[] getChecksum() {
+		return checksum;
+	}
+
+	public void setChecksum(byte[] checksum) {
+		this.checksum = checksum;
 	}
 	
 }

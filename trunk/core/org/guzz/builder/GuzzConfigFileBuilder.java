@@ -308,6 +308,70 @@ public class GuzzConfigFileBuilder {
         return mappings;
 	}
 	
+	/**
+	 * Has any annotated businesses declared?
+	 */
+	public boolean hasAnnotatedBusiness(){
+		List bus = this.rootDoc.selectNodes("//a-business") ;
+		
+		return !bus.isEmpty() ;
+	}
+	
+	/**
+	 * 构建全局性的Id Generator
+	 * @throws Exception 
+	 * @return List (@link POJOBasedObjectMapping)对象列表
+	 */
+	public void buildGlobalIdGenerators(Map globalIds) throws Exception{
+		/*
+		 <a-business name="user" class="org.guzz.test.User"/>
+		*/
+		
+		List bus = this.rootDoc.selectNodes("//a-business") ;
+		
+		for(int i = 0 ; i < bus.size() ; i++){
+			Element e = (Element) bus.get(i) ;
+			String m_class = e.attributeValue("class") ;
+			
+			if(StringUtil.isEmpty(m_class)){
+				throw new GuzzException("domain class name not found. xml:[" + e.asXML() + "]") ;
+			}
+			
+			JPA2AnnotationsBuilder.parseForIdGenerators(globalIds, Class.forName(m_class)) ;
+		}
+	}
+		
+	/**
+	 * 加载annotated领域对象
+	 * @throws Exception 
+	 * @return List (@link POJOBasedObjectMapping)对象列表
+	 */
+	public List listAnnotatedBusinessObjectMappings() throws Exception{
+		/*
+		 <a-business name="user" class="org.guzz.test.User"/>
+		 */
+		LinkedList mappings = new LinkedList() ;
+		
+		List bus = this.rootDoc.selectNodes("//a-business") ;
+		
+		for(int i = 0 ; i < bus.size() ; i++){
+			Element e = (Element) bus.get(i) ;
+			
+			String m_name = e.attributeValue("name") ;
+			String m_dbgroup = e.attributeValue("dbgroup") ;
+			String m_class = e.attributeValue("class") ;
+			
+			if(StringUtil.isEmpty(m_class)){
+				throw new GuzzException("domain class name not found. xml:[" + e.asXML() + "]") ;
+			}
+			
+			POJOBasedObjectMapping map = JPA2AnnotationsBuilder.parseDomainClass(gf, m_dbgroup, m_name, Class.forName(m_class)) ;
+			mappings.addLast(map) ;
+		}
+		
+        return mappings;
+	}
+	
 	public List listGlobalORMs() throws IOException, ClassNotFoundException{
 		List ls = this.rootDoc.selectNodes("//orm") ;
 		

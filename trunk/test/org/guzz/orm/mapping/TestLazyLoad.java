@@ -16,11 +16,9 @@
  */
 package org.guzz.orm.mapping;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.bytecode.LazyPropChangeDetector;
 import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.se.SearchExpression;
@@ -29,7 +27,6 @@ import org.guzz.pojo.DynamicUpdatable;
 import org.guzz.test.Book;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.transaction.ReadonlyTranSession;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 
 /**
@@ -40,11 +37,7 @@ import org.guzz.transaction.WriteTranSession;
  */
 public class TestLazyLoad extends DBBasedTestCase {
 	
-	public void testLazyPropWithDynamicUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
-		TransactionManager tm = gf.getTransactionManager() ;
-		
+	public void testLazyPropWithDynamicUpdate() throws Exception{		
 		SearchExpression se = SearchExpression.forClass(Book.class) ;
 		se.and(Terms.eq("title", "book title 1")) ;
 				
@@ -79,6 +72,7 @@ public class TestLazyLoad extends DBBasedTestCase {
 //		assertEquals(((LazyPropChangeDetector) b).getChangedLazyProps().length, 0) ;
 		
 		//test that the lazily loaded property won't change without explicitly call setXXX(...)
+		b.content = "aaaaaaaaQ@#$@Q$^T #cASFASFASFs" ;//change the value bypass the set-method.
 		write.update(b) ;
 		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getTitle(), "new title 1") ;
 		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getContent(), "book content 1") ;
@@ -95,16 +89,11 @@ public class TestLazyLoad extends DBBasedTestCase {
 		
 		write.close() ;
 		session.close() ;
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
-	public void testLazyPropNoDynamicUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		
+	public void testLazyPropNoDynamicUpdate() throws Exception{		
 		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getStaticObjectMapping("book") ;
 		((SimpleTable) map.getBusiness().getTable()).setDynamicUpdate(false) ;
-		
-		TransactionManager tm = gf.getTransactionManager() ;
 		
 		SearchExpression se = SearchExpression.forClass(Book.class) ;
 		se.and(Terms.eq("title", "book title 1")) ;
@@ -135,6 +124,7 @@ public class TestLazyLoad extends DBBasedTestCase {
 		assertEquals(((LazyPropChangeDetector) b).getChangedLazyProps().length, 0) ;
 		
 		//test that the lazily loaded property won't change without explicitly call setXXX(...)
+		b.content = "aaaaaaaaQ@#$@Q$^T #cASFASFASFs" ;//change the value bypass the set-method.
 		write.update(b) ;
 		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getTitle(), "new title 1") ;
 		assertEquals(((Book) write.findObjectByPK(Book.class, 1)).getContent(), "book content 1") ;
@@ -150,7 +140,6 @@ public class TestLazyLoad extends DBBasedTestCase {
 		
 		write.close() ;
 		session.close() ;
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }

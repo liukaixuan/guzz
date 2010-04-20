@@ -27,7 +27,6 @@ import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.util.StringUtil;
-import org.guzz.web.context.GuzzContextAware;
 
 /**
  * <b>hilo</b><br>
@@ -40,11 +39,11 @@ import org.guzz.web.context.GuzzContextAware;
  * case a <tt>SequenceHiLoGenerator</tt> would be a better choice (where
  * supported).<br>
  * <br>
- * Mapping parameters supported: table, column, dbGroup, max_lo
+ * Mapping parameters supported: table, column, db_group, max_lo
  *
  * @see SequenceHiLoGenerator
  */
-public class TableHiLoGenerator extends TableGenerator implements GuzzContextAware {
+public class TableHiLoGenerator extends TableGenerator {
 	private static final Log log = LogFactory.getLog(TableHiLoGenerator.class);
 	
 	/**
@@ -93,7 +92,7 @@ public class TableHiLoGenerator extends TableGenerator implements GuzzContextAwa
 				n = super.nextValueInTable(session) ;
 			}
 			
-			return n ;
+			return IdentifierGeneratorFactory.createNumber(n.longValue(), this.returnType) ;
 		}
 		
 		if (lo > maxLo){

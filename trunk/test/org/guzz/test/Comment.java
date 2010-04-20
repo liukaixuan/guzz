@@ -18,19 +18,28 @@ package org.guzz.test;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+
+import org.guzz.annotations.Table;
+
 /**
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName = "comment")
+@Table(name="TB_COMMENT", shadow = CommentShadowView.class)
 public class Comment {
-	
+
+	@javax.persistence.Id
 	private int id ;
 	
 	private int userId ;
 	
 	private String userName ;
 	
+	@Column(name="DESCRIPTION")
 	private String content ;
 	
 	private Date createdTime ;

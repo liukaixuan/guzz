@@ -19,9 +19,6 @@ package org.guzz.jdbc;
 import java.util.HashMap;
 import java.util.List;
 
-import org.guzz.Configuration;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.Terms;
 import org.guzz.orm.sql.CompiledSQL;
@@ -57,8 +54,6 @@ public class TestSQLBatcher extends DBBasedTestCase {
 	}
 	
 	public void testUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(User.class, "update @@" + User.class.getName() + " set @favCount = 3849021 where @id = :id") ;
 		
 		WriteTranSession session = tm.openRWTran(false) ;
@@ -93,13 +88,9 @@ public class TestSQLBatcher extends DBBasedTestCase {
 		
 		int countAfter = countUser(tm) ;
 		assertEquals(countBefore, countAfter) ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
 	public void testDelete() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(User.class, "delete from @@" + User.class.getName() + " where @id = :id") ;
 		
 		WriteTranSession session = tm.openRWTran(false) ;
@@ -133,8 +124,6 @@ public class TestSQLBatcher extends DBBasedTestCase {
 		
 		int count2 = countUser(tm) ;
 		assertEquals(count2, count - 10 * dropCount) ;
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 
 }

@@ -25,15 +25,13 @@ import java.sql.Statement;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.StringUtil;
 
-import junit.framework.TestCase;
-
 /**
  * 
  * 基于数据库的测试用例。
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public abstract class DBBasedTestCase extends TestCase {
+public abstract class DBBasedTestCase extends GuzzTestCase {
 	protected Connection H2Conn = null ;
 	protected Connection oracleConn = null ;
 	
@@ -74,16 +72,6 @@ public abstract class DBBasedTestCase extends TestCase {
 		return st.executeQuery(sql) ;
 	}
 	
-	/**准备环境。如插入一些测试数据等。每次启动时数据库自动重新创建，不会保存历史数据。*/
-	protected void prepareEnv() throws Exception{
-		
-	}
-	
-	/**恢复测试前环境，避免对其他测试用例干扰。*/
-	protected void rollbackEnv() throws Exception{
-		
-	}
-	
 	protected String getDateFunction(){
 //		return "sysdate" ;
 		return "now()" ;
@@ -94,12 +82,10 @@ public abstract class DBBasedTestCase extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		super.setUp();
-		
 		setUpForOracle10G() ;
 		setUpForH2() ;
 		
-		prepareEnv() ;
+		super.setUp();
 	}
 	
 	protected void setUpForH2() throws Exception {
@@ -119,8 +105,8 @@ public abstract class DBBasedTestCase extends TestCase {
 		executeUpdate(H2Conn, "create table TB_USER(pk int not null auto_increment primary key , userName varchar(128), MyPSW varchar(255), VIP_USER bit, FAV_COUNT int, createdTime TIMESTAMP)") ;
 		
 		executeUpdate(H2Conn, "drop table if exists TB_BOOK") ;
-		executeUpdate(H2Conn, "create table TB_BOOK(id int not null AUTO_INCREMENT primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP, ISDN varchar(64))") ;
-		executeUpdate(H2Conn, "insert into TB_BOOK values(1, 'book title 1', 'book content 1', now(), 'isdn-b1')") ;
+		executeUpdate(H2Conn, "create table TB_BOOK(id int not null AUTO_INCREMENT primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP, ISDN varchar(64), checksum binary)") ;
+		executeUpdate(H2Conn, "insert into TB_BOOK values(1, 'book title 1', 'book content 1', now(), 'isdn-b1', null)") ;
 		
 		//prepare for clob/blob
 		executeUpdate(H2Conn, "drop table if exists TB_USER_INFO2") ;
@@ -162,9 +148,7 @@ public abstract class DBBasedTestCase extends TestCase {
 		executeUpdate(oracleConn, "create table TB_USER_INFO(pk number(10) not null primary key , userId varchar(64), aboutMe CLOB, portraitImg BLOB)") ;
 	}
 
-	protected void tearDown() throws Exception {
-		rollbackEnv() ;
-		
+	protected void tearDown() throws Exception {		
 		CloseUtil.close(oracleConn) ;
 		CloseUtil.close(H2Conn) ;
 		

@@ -64,6 +64,7 @@ import org.guzz.transaction.DBGroupManager;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.TransactionManagerFactory;
 import org.guzz.util.CloseUtil;
+import org.guzz.util.StringUtil;
 import org.guzz.web.context.ExtendedBeanFactory;
 
 /**
@@ -103,6 +104,8 @@ public class GuzzContextImpl implements GuzzContext{
 	ProxyFactory proxyFactory ;
 	
 	ExtendedBeanFactory extendedBeanFactory ;
+	
+	Map globalIdGenerators = new HashMap() ;
 	
 	private boolean fullStarted ;
 	
@@ -161,6 +164,16 @@ public class GuzzContextImpl implements GuzzContext{
 		}
 		
 		//3. 加载ghost business object
+		//3.1 加载annotated business
+		if(builder.hasAnnotatedBusiness()){
+			builder.buildGlobalIdGenerators(globalIdGenerators) ;
+			
+			List aghosts = builder.listAnnotatedBusinessObjectMappings() ;
+			for(int i = 0 ; i < aghosts.size() ; i++){
+				addNewGhostBusinessToSystem((POJOBasedObjectMapping) aghosts.get(i)) ;	
+			}
+		}
+		//3.2 加载hbm.xml定义的business
 		List ghosts = builder.listBusinessObjectMappings() ;
 		for(int i = 0 ; i < ghosts.size() ; i++){
 			addNewGhostBusinessToSystem((POJOBasedObjectMapping) ghosts.get(i)) ;	
@@ -271,10 +284,16 @@ public class GuzzContextImpl implements GuzzContext{
 	}
 	
 	protected void addNewGhostBusinessToSystem(POJOBasedObjectMapping map){
+		Business b = map.getBusiness() ;
+		
+		//已经注册过
+		if(ghosts.get(b.getName()) != null){
+			throw new GuzzException("business [" + b.getName() + "] already exsits.") ;
+		}
+		
 		objectMappingManager.registerObjectMapping(map) ;
 		this.compiledSQLManager.addDomainBusiness(map) ;
 		
-		Business b = map.getBusiness() ;
 		ghosts.put(b.getDomainClass().getName(), b) ;
 		ghosts.put(b.getName(), b) ;
 	}
@@ -313,6 +332,8 @@ public class GuzzContextImpl implements GuzzContext{
 		if(this.configServer != null){
 			this.configServer.shutdown() ;
 		}
+		
+		this.globalIdGenerators.clear() ;
 				
 		if(log.isInfoEnabled()){
 			log.info("Guzz closed.") ;
@@ -347,6 +368,10 @@ public class GuzzContextImpl implements GuzzContext{
 	}
 	
 	public Business instanceNewGhost(String ghostName, String dbGroup, Class intepretClass, Class domainClass) throws ClassNotFoundException{
+		if(StringUtil.isEmpty(ghostName)){
+			throw new GuzzException("business name cann't be empty.") ;
+		}
+		
 		BusinessInterpreter ii = businessInterpreterManager.newInterpreter(ghostName, intepretClass, domainClass) ;
 		
 		Business business = new Business(ghostName, dbGroup) ;
@@ -422,6 +447,13 @@ public class GuzzContextImpl implements GuzzContext{
 
 	public ShadowTableViewManager getShadowTableViewManager() {
 		return shadowTableViewManager;
+	}
+	
+	/**
+	 * Get the global declared Id Generator (from the annotation).
+	 */
+	public Object getGlobalIdGenerator(String name){
+		return globalIdGenerators.get(name) ;
 	}
 
 	public ExtendedBeanFactory getExtendedBeanFactory() {

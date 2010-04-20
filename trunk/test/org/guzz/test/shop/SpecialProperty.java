@@ -22,6 +22,10 @@ package org.guzz.test.shop;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
+
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="sp")
+@org.guzz.annotations.Table(name="tb_s_property")
 public class SpecialProperty {
 
 	/**unqiue id for management.*/
@@ -41,6 +45,7 @@ public class SpecialProperty {
 	 */
 	private String dataType ;
 
+	@javax.persistence.Id
 	public int getId() {
 		return id;
 	}

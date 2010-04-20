@@ -57,7 +57,7 @@ public class DateTimeSQLDataType implements SQLDataType {
 	public Object getFromString(String value) {
 		Date d = DateUtil.stringToDate(value, FMT) ;
 		if(d == null){
-			throw new DataTypeException("unknown date:" + value + ", date format should be:" + FMT) ;
+			throw new DataTypeException("unknown datetime:" + value + ", date format should be:" + FMT) ;
 		}
 		
 		return new Timestamp(d.getTime()) ;

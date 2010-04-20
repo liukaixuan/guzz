@@ -19,9 +19,7 @@ package org.guzz.orm.rdms;
 import java.util.Date;
 import java.util.List;
 
-import org.guzz.Configuration;
 import org.guzz.Guzz;
-import org.guzz.GuzzContext;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.Terms;
@@ -30,7 +28,6 @@ import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.shop.Cargo;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.ReadonlyTranSession;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 
 /**
@@ -44,9 +41,6 @@ import org.guzz.transaction.WriteTranSession;
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class TestCustomTableView extends DBBasedTestCase {
-
-	GuzzContext gf = null ;
-	TransactionManager tm ;
 	
 	protected void prepareEnv() throws Exception {
 		super.prepareEnv();
@@ -86,9 +80,6 @@ public class TestCustomTableView extends DBBasedTestCase {
 				", size varchar(64)" +
 				", brand varchar(64)" +
 				")") ;
-		
-		gf = new Configuration("D:\\coding\\workstation\\guzz\\test\\guzzmain_test1.xml").newGuzzContext() ;
-		tm = gf.getTransactionManager() ;
 	}
 		
 	public void testInsert() throws Exception{
@@ -352,12 +343,6 @@ public class TestCustomTableView extends DBBasedTestCase {
 	}
 	
 	protected void setUpForOracle10G() throws Exception {
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		
-		gf.shutdown() ;
 	}
 
 }

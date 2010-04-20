@@ -32,7 +32,7 @@ import org.guzz.util.PropertyUtil;
 
 /**
  * 
- * Mapping parameters supported: sequence, dbGroup
+ * Mapping parameters supported: sequence, db_group
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -45,7 +45,7 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 	public static final String DEFAULT_SEQUENCE_NAME = "guzz_sequence" ;
 	
 	/** The dbGroup's name parameter. Default value is null telling guzz to use the same database of the table the id generated for. */
-	public static final String DATABASE_GROUP_NAME = "dbGroup";
+	public static final String DATABASE_GROUP_NAME = "db_group";
 	
 	private POJOBasedObjectMapping mapping ;
 	private Table table ;

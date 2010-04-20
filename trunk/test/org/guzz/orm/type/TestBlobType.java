@@ -19,16 +19,12 @@ package org.guzz.orm.type;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.guzz.Configuration;
 import org.guzz.Guzz;
-import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.UserInfo;
 import org.guzz.test.UserInfoH2;
 import org.guzz.transaction.LockMode;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.util.FileUtil;
 
@@ -51,10 +47,7 @@ public class TestBlobType extends DBBasedTestCase {
 		}
 	}
 	
-	public void testInsert() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-		
+	public void testInsert() throws Exception{		
 		String classPath = this.getClass().getClassLoader().getResource(".").getFile() ;
 		File lib = new File(classPath, "../lib/xercesImpl.jar") ;
 		assertTrue(lib.exists()) ;
@@ -91,6 +84,8 @@ public class TestBlobType extends DBBasedTestCase {
 		try{
 			UserInfoH2 info = (UserInfoH2) tran.findObjectByPK(UserInfoH2.class, userId) ;
 			assertTrue(info != null) ;
+			assertTrue(info instanceof org.guzz.bytecode.LazyPropChangeDetector) ;
+			
 			byte[] dataInDB = info.getPortraitImg().getContent() ;
 			
 			assertEquals(fileData.length, info.getPortraitImg().getContent().length) ;
@@ -108,14 +103,9 @@ public class TestBlobType extends DBBasedTestCase {
 			tran.close() ;
 			fis.close() ;
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}
 	
-	public void testUpdate() throws Exception{
-		GuzzContext gf = new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
-		TransactionManager tm = gf.getTransactionManager() ;
-		
+	public void testUpdate() throws Exception{		
 		String classPath = this.getClass().getClassLoader().getResource(".").getFile() ;
 		File lib = new File(classPath, "../lib/xercesImpl.jar") ;
 		assertTrue(lib.exists()) ;
@@ -206,8 +196,6 @@ public class TestBlobType extends DBBasedTestCase {
 		}finally{
 			tran.close() ;
 		}
-
-		((GuzzContextImpl) gf).shutdown() ;
 	}	
 
 }
