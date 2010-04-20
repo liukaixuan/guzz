@@ -58,7 +58,7 @@ public class TableMultiIdGenerator extends TableHiLoGenerator {
 
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.pkColumnName = params.getProperty(PK_COLUMN_NAME) ;
-		this.pkColumnValue = StringUtil.toInt(params.getProperty(PK_COLUMN_NAME), 0) ;
+		this.pkColumnValue = StringUtil.toInt(params.getProperty(PK_COLUMN_VALUE), 0) ;
 		
 		if(StringUtil.isEmpty(this.pkColumnName)){
 			this.pkColumnName = "pk_id" ;

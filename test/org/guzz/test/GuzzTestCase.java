@@ -36,11 +36,21 @@ public abstract class GuzzTestCase extends TestCase {
 	protected GuzzConfigFileBuilder b = null ;
 	protected TransactionManager tm = null ;
 	
+	public static String configFile = null ;
+	
 	public void assertEqualsIDWS(String left, String right){
 		left = StringUtil.squeezeWhiteSpace(left) ;
 		right = StringUtil.squeezeWhiteSpace(right) ;
 		assertEquals(left, right) ;
-	}	
+	}
+	
+	protected void assertBytesEquals(byte[] a, byte[] b){
+		assertEquals(a.length, b.length) ;
+		
+		for(int i = 0 ; i < a.length ; i++){
+			assertEquals(a[i], b[i]) ;
+		}
+	}
 			
 	/**准备环境。如插入一些测试数据等。每次启动时数据库自动重新创建，不会保存历史数据。*/
 	protected void prepareEnv() throws Exception{
@@ -56,7 +66,7 @@ public abstract class GuzzTestCase extends TestCase {
 		super.setUp();
 		
 //		String configFile = "classpath:guzzmain_test1.xml" ;
-		String configFile = "classpath:guzzmain_test1_annotation.xml" ;
+//		String configFile = "classpath:guzzmain_test1_annotation.xml" ;
 		
 		FileResource fs = new FileResource(configFile) ;
 		

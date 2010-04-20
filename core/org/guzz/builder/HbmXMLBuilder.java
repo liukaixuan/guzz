@@ -48,6 +48,7 @@ import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
+import org.guzz.web.context.GuzzContextAware;
 import org.xml.sax.SAXException;
 
 
@@ -267,6 +268,11 @@ public class HbmXMLBuilder {
 		
 		if(ig instanceof Configurable){
 			((Configurable) ig).configure(dbGroup.getDialect(), map, p) ;						
+		}
+		
+		//register callback for GuzzContext's full starting.
+		if(ig instanceof GuzzContextAware){
+			gf.registerContextStartedAware((GuzzContextAware) ig) ;
 		}
 		
 		st.setIdentifierGenerator(ig) ;

@@ -3,7 +3,14 @@
 <guzz-mapping>
     <class name="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
         <id name="id" type="int">
-        	<generator class="native" />
+        	<generator class="hilo.multi">
+        		<param name="table">tb_id</param>
+        		<param name="max_lo">20</param>
+        		<param name="pk_column_name">pk</param>
+        		<param name="pk_column_value">2</param>
+        		<param name="column">id_count</param>
+        		<param name="db_group">default</param>
+        	</generator>
         </id>
         <property name="userId" type="int" column="userId">
         </property>

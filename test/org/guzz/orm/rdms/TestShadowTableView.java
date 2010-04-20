@@ -62,7 +62,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 			
 			Integer pk = (Integer) session.insert(c) ;
 			
-			assertEquals(pk.intValue(), (int) Math.ceil(i / 2.0) ) ;
+			assertEquals(pk.intValue(), 100 * (20 + 1) + i - 1) ;
 		}
 		
 		session.close() ;

@@ -19,6 +19,7 @@ package org.guzz;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,6 +67,8 @@ import org.guzz.transaction.TransactionManagerFactory;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.StringUtil;
 import org.guzz.web.context.ExtendedBeanFactory;
+import org.guzz.web.context.ExtendedBeanFactoryAware;
+import org.guzz.web.context.GuzzContextAware;
 
 /**
  * 
@@ -106,6 +109,10 @@ public class GuzzContextImpl implements GuzzContext{
 	ExtendedBeanFactory extendedBeanFactory ;
 	
 	Map globalIdGenerators = new HashMap() ;
+	
+	private List contextAwareListeners = new LinkedList() ;
+	
+	private List extendBeanFactoryAwareListeners = new LinkedList() ;
 	
 	private boolean fullStarted ;
 	
@@ -225,8 +232,13 @@ public class GuzzContextImpl implements GuzzContext{
 		//8. 完成启动
 		fullStarted = true ;
 		
-		//9. 通知组件完成全部启动
-		this.businessInterpreterManager.onGuzzFullStarted() ;
+		//9. 通知组件guzz已经完成启动
+		for(int i = 0 ; i < contextAwareListeners.size() ; i++){
+			GuzzContextAware aware = (GuzzContextAware) contextAwareListeners.get(i) ;
+			aware.setGuzzContext(this) ;
+		}
+		
+		//10. 通知组件开始进行初始化(startup)
 		this.columnDataLoaderManager.onGuzzFullStarted() ;
 		this.shadowTableViewManager.onGuzzFullStarted() ;
 	}
@@ -234,10 +246,12 @@ public class GuzzContextImpl implements GuzzContext{
 	public void setExtendedBeanFactory(ExtendedBeanFactory extendedBeanFactory) {
 		this.extendedBeanFactory = extendedBeanFactory;
 		
-		//通知ExtendedBeanFactory可用。此方法一般落后于onGuzzFullStarted()的调用。
-		this.businessInterpreterManager.onExtendedBeanFactorySetted(extendedBeanFactory) ;
-		this.columnDataLoaderManager.onExtendedBeanFactorySetted(extendedBeanFactory) ;
-		this.shadowTableViewManager.onExtendedBeanFactorySetted(extendedBeanFactory) ;
+		for(int i = 0 ; i < extendBeanFactoryAwareListeners.size() ; i++){
+			ExtendedBeanFactoryAware a = (ExtendedBeanFactoryAware) extendBeanFactoryAwareListeners.get(i) ;
+			a.setExtendedBeanFactory(extendedBeanFactory) ;
+		}
+		
+		this.extendBeanFactoryAwareListeners.clear() ;
 	}
 	
 	
@@ -311,10 +325,6 @@ public class GuzzContextImpl implements GuzzContext{
 		compiledSQLManager = new CompiledSQLManagerImpl(compiledSQLBuilder) ;
 	}
 	
-//	protected TransactionManager buildNewTranManager(Dialect dialect, DatabaseService mdb, DatabaseService sdb){		
-//		return TransactionManagerFactory.buildTransactionFactory(this.objectMappingManager, compiledSQLManager, compiledSQLBuilder, debugService, dbGroupManager);
-//	}
-	
 	public void shutdown(){	
 		columnDataLoaderManager.shutdown() ;
 		shadowTableViewManager.shutdown() ;
@@ -382,10 +392,6 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		return business ;
 	}
-
-//	public Dialect getDefaultDialect() {
-//		return defaultDialect;
-//	}
 	
 	public DBGroup getDBGroup(String name) {
 		DBGroup g = this.dbGroupManager.getGroup(name) ;
@@ -466,6 +472,28 @@ public class GuzzContextImpl implements GuzzContext{
 		}
 		
 		return extendedBeanFactory.getBean(beanName);
+	}
+	
+	/**
+	 * Add a callback on guzz's full started.
+	 */
+	public void registerContextStartedAware(GuzzContextAware aware){
+		if(this.fullStarted){
+			aware.setGuzzContext(this) ;
+		}else{
+			this.contextAwareListeners.add(aware) ;
+		}
+	}
+	
+	/**
+	 * Add a callback on guzz's ExtendedBeanFactoryAware setted.
+	 */
+	public void registerExtendedBeanFactoryAware(ExtendedBeanFactoryAware aware){
+		if(this.extendedBeanFactory != null){
+			aware.setExtendedBeanFactory(extendedBeanFactory) ;
+		}else{
+			this.extendBeanFactoryAwareListeners.add(aware) ;
+		}
 	}
 
 }

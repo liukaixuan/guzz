@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContextImpl;
 import org.guzz.orm.ColumnDataLoader;
-import org.guzz.web.context.ExtendedBeanFactory;
 import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
 
@@ -38,20 +37,24 @@ public class ColumnDataLoaderManager {
 	
 	private List loaders = new LinkedList() ;
 	
-	private GuzzContextImpl guzzContextImpl ;
+	private final GuzzContextImpl gc ;
 	
 	public ColumnDataLoaderManager(GuzzContextImpl guzzContextImpl){
-		this.guzzContextImpl = guzzContextImpl ;
+		this.gc = guzzContextImpl ;
 	}
 	
 	public void addDataLoader(ColumnDataLoader loader){
 		this.loaders.add(loader) ;
 		
-		if(guzzContextImpl.isFullStarted()){
-			if(loader instanceof GuzzContextAware){
-				((GuzzContextAware) loader).setGuzzContext(guzzContextImpl) ;
-			}
-			
+		if(loader instanceof GuzzContextAware){
+			gc.registerContextStartedAware((GuzzContextAware) loader) ;
+		}
+		
+		if(loader instanceof ExtendedBeanFactoryAware){
+			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) loader) ;
+		}
+		
+		if(gc.isFullStarted()){
 			loader.startup() ;
 		}
 	}
@@ -60,21 +63,7 @@ public class ColumnDataLoaderManager {
 		for(int i = 0 ; i < loaders.size() ; i++){
 			ColumnDataLoader loader = (ColumnDataLoader) loaders.get(i) ;
 			
-			if(loader instanceof GuzzContextAware){
-				((GuzzContextAware) loader).setGuzzContext(guzzContextImpl) ;
-			}
-			
 			loader.startup() ;
-		}
-	}
-	
-	public void onExtendedBeanFactorySetted(ExtendedBeanFactory extendedBeanFactory){
-		for(int i = 0 ; i < loaders.size(); i++){
-			ColumnDataLoader loader = (ColumnDataLoader) loaders.get(i) ;
-			
-			if(loader instanceof ExtendedBeanFactoryAware){
-				((ExtendedBeanFactoryAware) loader).setExtendedBeanFactory(guzzContextImpl.getExtendedBeanFactory()) ;
-			}
 		}
 	}
 	

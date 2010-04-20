@@ -32,5 +32,10 @@ public interface DynamicUpdatable {
 	 * @return attributea to update. return null to save all props, return String[0] to ignore update operation.
 	 */
 	public String[] getChangedProps() ;
+	
+	/**
+	 * Reset the counter of the changed properties.
+	 */
+	public void resetChangeCounter() ;
 
 }

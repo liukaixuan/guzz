@@ -177,6 +177,9 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 			}else{//update the changed properties.
 				updatedProps = changedProps ;
 				cs = this.compiledSQLManager.buildUpdateSQL(mapping, updatedProps) ;
+				
+				//reset the recorded changed properties.
+				((DynamicUpdatable) domainObject).resetChangeCounter() ;
 			}
 		}else{
 			updatedProps = table.getPropsForUpdate() ;
@@ -190,6 +193,9 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 				//add the changed props to update list.
 				updatedProps = (String[]) ArrayUtil.addToArray(updatedProps, changedProps) ;
 				cs = this.compiledSQLManager.buildUpdateSQL(mapping, updatedProps) ;
+				
+				//reset the recorded changed lazy-properties.
+				((LazyPropChangeDetector) domainObject).resetLazyCounter() ;
 			}
 		}
 		

@@ -93,6 +93,9 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 		this.H2Conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
 		
 		//创建一个表，插入一些测试数据。
+		executeUpdate(H2Conn, "drop table if exists tb_id") ;
+		executeUpdate(H2Conn, "create table tb_id(pk int(11) primary key, id_count int(11) default 0)") ;
+		
 		executeUpdate(H2Conn, "drop table if exists TB_ARTICLE") ;
 		
 		executeUpdate(H2Conn, "create table TB_ARTICLE(id int not null AUTO_INCREMENT primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP)") ;
@@ -115,7 +118,9 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 		//comment shadow table
 		executeUpdate(H2Conn, "drop table if exists TB_COMMENT1") ;
 		executeUpdate(H2Conn, "drop table if exists TB_COMMENT2") ;
-
+		executeUpdate(H2Conn, "insert into tb_id(pk, id_count) values(2, 100)") ;
+		
+		
     	String sql = "create table TB_COMMENT(id int not null AUTO_INCREMENT primary key ,userId int(11), userName varchar(64), DESCRIPTION text, createdTime TIMESTAMP)" ;
     	executeUpdate(H2Conn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT1")) ;
 		executeUpdate(H2Conn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT2")) ;
