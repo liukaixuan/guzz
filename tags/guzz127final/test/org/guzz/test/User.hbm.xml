@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+
+<guzz-mapping>
+    <class name="org.guzz.test.User" table="TB_USER">
+        <id name="id" type="int" column="pk">
+        	<generator class="native">
+        		<param name="seq">guzz_sequence</param>
+        	</generator>
+        </id>
+        <property name="userName" type="string" column="userName">
+        </property>
+        <property name="password" type="string" column="MyPSW"></property>
+        <property name="vip" type="boolean" column="VIP_USER" />
+        <property name="favCount" type="int" column="FAV_COUNT" />
+        <property name="createdTime" type="datetime" column="createdTime" />        
+    </class>
+</guzz-mapping>

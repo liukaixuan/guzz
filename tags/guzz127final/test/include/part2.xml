@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz.dtd">
+
+<guzz-configs>
+
+	<business name="article" class="org.guzz.test.Article" interpret="" file="classpath://org/guzz/test/Article.hbm.xml" />
+		
+
+</guzz-configs>

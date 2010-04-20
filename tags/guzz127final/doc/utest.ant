@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Dec 4, 2008 9:00:13 AM                                                        
+
+    Run All UnitTest on Local Dev, and see or mail UnitTest Report.
+    Do this before commit.
+    
+    liushen                                                                
+    ====================================================================== -->
+<project name="UnitTestReport" default="viewReportLocal" basedir="../..">
+
+	<!-- 可在如下properties文件中覆盖"mailfrom", "mailto.report"等属性的默认值. -->
+	<property file="${basedir}/scripts/ant/utest.properties" />
+
+	<property name="projectName" value="TRSMAS" />
+	<property name="repo.local" value="${user.home}/ci" />
+	<property name="project.workingcopy" value="${repo.local}/${projectName}" />
+
+	<property name="projectDisplayName" value="TRSMAS(媒资服务器)" />
+	<property name="subject.utestOK" value="单元测试成功通过" />
+	<property name="subject.utestFail" value="单元测试失败!!!" />
+	<property name="mailfrom" value="masteam@trs.com.cn" />
+	<property name="mailto.report" value="liu.shen@trs.com.cn" />
+	<property name="smtp.server" value="192.9.100.20" />
+
+	<property name="report.dir" value="${basedir}/docs/tempReports/junit" />
+	<property name="report.html" value="${report.dir}/junit-noframes.html" />
+
+	<property name="src.dir" value="${basedir}/src/java" />
+	<property name="conf.dir" value="${basedir}/src/conf" />
+	<property name="test.dir" value="${basedir}/src/test" />
+
+	<property name="classes_java.dir" value="${project.workingcopy}/classes/java" />
+	<property name="classes_conf.dir" value="${project.workingcopy}/WebRoot/WEB-INF/classes" />
+	<property name="classes_test.dir" value="${project.workingcopy}/classes/test" />
+
+	<property name="encoding.java" value="UTF-8" />
+	<property name="charset.mail" value="UTF-8" />
+
+	<property name="info.os" value="${os.name} ${os.version}(${os.arch})" />
+
+	<path id="classlib">
+		<pathelement location="${classes_java.dir}" />
+		<pathelement location="${classes_test.dir}" />
+		<pathelement location="${classes_conf.dir}" />
+		<fileset dir="${basedir}/lib/jars">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+			<exclude name="onlyForDeploy/**"/>
+			<exclude name="**/unused/*"/>
+		</fileset>
+	</path>
+
+	<!-- declare ant-contrib -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${basedir}/antlib/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>
+	
+	<property name="cobertura.dir" value="${basedir}/antlib/cobertura" />
+	<property name="instrumented.dir" value="${project.workingcopy}/classes/cobertura-instrumented" />
+	<property name="coverage.xml.dir" value="${basedir}/docs/tempReports/cobertura-xml" />
+	
+	<path id="cobertura.classpath">
+		<fileset dir="${cobertura.dir}">
+			<include name="cobertura.jar" />
+			<include name="lib/**/*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef classpathref="cobertura.classpath" resource="tasks.properties"/>
+
+	<!-- ================================= 
+         target: mailReport              
+        ================================= -->
+	<target name="mailReport" depends="utest">
+		<!-- Capture the computer name in a cross-platform manner. (Suite for Windows/Linux, but not for Mac OS X!) -->
+		<property environment="env" />
+		<property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+		<echo>send mail: (${report.html}), sender: ${mailfrom}, build machine: [${env.HOSTNAME}].</echo>
+		<echo>mail receivers: ${mailto.report}.</echo>
+
+		<if>
+			<!-- 是否测试失败? -->
+			<isset property="utest.fail"/>
+			<then>
+				<mail mailhost="${smtp.server}" tolist="${mailto.report}"
+					subject="[${projectDisplayName}]${subject.utestFail}(OS: ${info.os}, Host: ${env.HOSTNAME})" 
+					messagefile="${report.html}" messagemimetype="text/html" charset="${charset.mail}">
+					<from address="${mailfrom}" />
+				</mail>
+			</then>
+			<else>
+				<mail mailhost="${smtp.server}" tolist="${mailto.report}"
+					subject="[${projectDisplayName}]${subject.utestOK}(OS: ${info.os}, Host: ${env.HOSTNAME})" 
+					messagefile="${report.html}" messagemimetype="text/html" charset="${charset.mail}">
+					<from address="${mailfrom}" />
+				</mail>
+			</else>
+		</if>
+
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: viewReportLocal                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="viewReportLocal" depends="prepareFreshWorkingCopy">
+		<property name="ciDirName" value="scripts/ant" />
+		<echo>To run "viewTestReport" of ${project.workingcopy}/${ciDirName}/utest.ant...</echo>
+		<ant antfile="${project.workingcopy}/${ciDirName}/utest.ant" dir="${project.workingcopy}" 
+			target="viewTestReport" inheritall="true" inheritrefs="true" />
+
+	</target>
+
+	<target name="viewTestReport" depends="utest">
+		<makeurl file="${report.html}" property="url.report.html" />
+		<echo>Now, open: ${url.report.html}</echo>
+		<exec executable="cmd.exe" osfamily="windows">
+			<arg line="/C start ${url.report.html}" />
+		</exec>
+		<exec executable="open" osfamily="mac">
+			<arg line="${url.report.html}" />
+		</exec>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+         target: utest                      
+        - - - - - - - - - - - - - - - - - -->
+	<target name="utest" depends="compile">
+		<echo>start all unit-test case, basedir is: [${basedir}]</echo>
+		<echo>all testcase classes is in: [${classes_test.dir}]</echo>
+		<echo>the test report(xml) will in: [${report.dir}]</echo>
+
+		<echo>==== Actual classlib when execute unit test(begin) ====</echo>
+		<!-- get the source compile classpath in a printable form -->
+		<pathconvert pathsep="${line.separator}"
+		             property="echo.path.classlib"
+		             refid="classlib">
+		</pathconvert>
+		<echo message="${echo.path.classlib}" />
+		<echo>==== Actual classlib when execute unit test(end) ====</echo>
+
+		<delete dir="${report.dir}" />
+		<mkdir dir="${report.dir}" />
+
+		<junit printsummary="withOutAndErr" fork="yes" dir="${basedir}" 
+			failureproperty="utest.fail">
+			<sysproperty key="file.encoding" value="${encoding.java}"/>
+			<classpath location="${instrumented.dir}" />
+			<classpath refid="classlib" />
+			<!--
+				The instrumented classes reference classes used by the
+				Cobertura runtime, so Cobertura and its dependencies
+				must be on your classpath.
+			-->
+			<classpath refid="cobertura.classpath" />
+			
+			<formatter type="xml" />
+			<batchtest todir="${report.dir}">
+				<fileset dir="${classes_test.dir}">
+					<include name="**/*Test.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junitreport todir="${report.dir}">
+			<fileset dir="${report.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="noframes" todir="${report.dir}" styledir="${basedir}/antlib/junitreport_xsl" />
+		</junitreport>
+		
+		<cobertura-report srcdir="${src.dir}" encoding="${encoding.java}"
+			destdir="${coverage.xml.dir}" format="xml" />
+
+	</target>
+
+	<target name="compile">
+		<delete dir="${classes_java.dir}" />
+		<delete dir="${classes_conf.dir}" />
+		<delete dir="${classes_test.dir}" />
+		<delete dir="${instrumented.dir}" />
+		<mkdir dir="${classes_java.dir}" />
+		<mkdir dir="${classes_conf.dir}" />
+		<mkdir dir="${classes_test.dir}" />
+		<mkdir dir="${instrumented.dir}" />
+
+		<echo message="java.home: ${java.home}; ant.java.version: ${ant.java.version}; java.version: ${java.version}" />
+		<echo message="ant.version: ${ant.version}" />
+		<echo message="JVM Encoding: ${file.encoding}, OS: ${info.os}, Region: ${user.language}, ${user.country}" />
+		<echo>working dir: [${user.dir}]</echo>
+		<echo>basedir is: [${basedir}]</echo>
+		
+		<tstamp>
+			<format property="time.beforeExecute" pattern="HH:mm:ss" />
+		</tstamp>
+		<echo message="now time(beforeExecute): ${time.beforeExecute}" />
+
+		<echo>==== classlib when compile (begin) ====</echo>
+		<pathconvert pathsep="${line.separator}"
+		             property="echo.path.classlib"
+		             refid="classlib" />
+		<echo message="${echo.path.classlib}" />
+		<echo>==== classlib when compile (end) ====</echo>
+		<!-- 编译所有java源文件 -->
+		<javac srcdir="${src.dir}" destdir="${classes_java.dir}" includes="**/*.java"
+			encoding="${encoding.java}" debug="on" source="1.6" target="1.6">
+			<classpath refid="classlib" />
+		</javac>
+		<!-- 编译所有java单元测试文件 -->
+		<javac srcdir="${test.dir}" destdir="${classes_test.dir}" includes="**/*.java"
+			encoding="${encoding.java}" debug="on" source="1.6" target="1.6">
+			<classpath refid="classlib" />
+		</javac>
+		<!-- 复制非java文件到类路径下(如配置文件、映射文件等资源文件) -->
+		<copy todir="${classes_java.dir}" includeemptydirs="false" description="Copy Resource File(eg, xml file) to output dir.">
+			<fileset dir="${src.dir}">
+				<include name="**/*"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+		<copy todir="${classes_conf.dir}" includeemptydirs="false" description="Copy Resource File(eg, xml file) to output dir.">
+			<fileset dir="${conf.dir}" id="conf.files" />
+		</copy>
+		<copy todir="${classes_test.dir}" includeemptydirs="false" description="Copy Resource File(eg, xml file) to output dir.">
+			<fileset dir="${test.dir}">
+				<include name="**/*"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+
+		<ant antfile="${basedir}/scripts/ant/xdoclet2.ant" dir="${project.workingcopy}" target="genhbm" />
+		
+		<!-- Adding instrumentation to classes -->
+		<cobertura-instrument todir="${instrumented.dir}">
+		    <fileset dir="${classes_java.dir}">
+		        <include name="**/*.class"/>
+		    </fileset>
+		</cobertura-instrument>
+		
+	</target>
+
+	<target name="prepareFreshWorkingCopy">
+		<tstamp>
+			<format property="ts.start" pattern="yyyy-MM-dd HH:mm" />
+		</tstamp>
+		<echo>New utest turn start at ${ts.start}.</echo>
+
+		<delete dir="${project.workingcopy}" />
+		<mkdir dir="${repo.local}" />
+
+		<copy todir="${project.workingcopy}" includeemptydirs="false" preservelastmodified="true">
+			<fileset dir="${basedir}">
+				<exclude name="**/.svn" />
+				<exclude name="classes/**" />
+				<exclude name="WebRoot/WEB-INF/classes/**" />
+				<exclude name="docs/**" />
+				<exclude name="forInstaller/IAProject/**" />
+			</fileset>
+		</copy>
+
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+         target: send mail test                      
+        - - - - - - - - - - - - - - - - - -->
+	<target name="testSendMail">
+		<echo>send mail: (${report.html}), sender: ${mailfrom}.</echo>
+		<echo>mail receivers: ${mailto.report}.</echo>
+
+		<mail mailhost="${smtp.server}" tolist="${mailto.report}" 
+			subject="[${projectDisplayName}]${subject.utestFail}(OS: ${info.os})" 
+			messagefile="${report.html}" messagemimetype="text/html" charset="${charset.mail}">
+			<from address="${mailfrom}" />
+			<!-- 即使加上附件发送, 仍不能在gmail中显示出原有样式! -->
+			<attachments>
+				<pathelement location="${report.html}"/>
+			</attachments>
+		</mail>
+
+	</target>
+
+</project>

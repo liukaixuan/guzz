@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://guzz.org/dtd/guzz.dtd">
+
+<guzz-configs>
+
+	<!-- 从Properties 文件中读取配置项，替换guzz.xml文档中的$xxx参数 -->
+	<properties file="guzz.properties" />
+
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resource" value="guzz_app.properties" />
+		</server>
+	</config-server>
+
+	<dialect class="org.guzz.dialect.H2Dialect" />
+
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB"  />
+		<dbgroup name="updateDB" masterDBConfigName="updateMasterDB" />
+		<dbgroup name="logDB" masterDBConfigName="updateMasterDB" />
+
+		<shardb name="newsDB" dialect="h2Dialect" class="org.guzz.test.NewsDBShardImpl">
+			<dbgroup name="db_cnn" masterDBConfigName="cnnNewsMasterDB" />
+			<dbgroup name="db_bbc" masterDBConfigName="bbcNewsMasterDB" />
+			<dbgroup name="db_cctv" masterDBConfigName="cctvNewsMasterDB" />
+			<dbgroup name="db_fox" masterDBConfigName="foxNewsMasterDB" />
+		</shardb>
+	</tran>
+
+	<business name="guzzSlowUpdate" dbgroup="updateDB" file="classpath://org/guzz/service/core/IncUpdateBusiness.hbm.xml" />
+	<business name="user" file="classpath://org/guzz/test/User.hbm.xml" />
+	<business name="article" file="classpath://org/guzz/test/Article.hbm.xml" />
+	<business name="articleCount" file="classpath://org/guzz/test/ArticleCount.hbm.xml" />
+
+	<sqlMap>
+		<select id="selectUser" orm="user">
+			select * from @@user
+			 where
+			 	@id = :id
+		</select>
+
+		<update id="updateUserFavCount" orm="userObjectMap">
+			update @@user set @favCount = favCount + 1
+		</update>
+
+		<select id="selectUsers" orm="userObjectMap">
+			select @id, @name, @vip, @favCount from @@user
+		</select>
+		
+		<select id="selectUserByName" orm="user">
+			select @id, @name, @vip, @favCount from @@user where @name = :name
+		</select>
+
+		<orm id="userObjectMap" class="org.guzz.test.UserModel">
+			<!-- <generator  class="native" >
+				<param name="column" value="pk" />
+			</generator>
+ 			-->
+			<result property="id" column="pk"/>
+		    <result property="name" column="userName"/>
+		    <result property="favCount" column="FAV_COUNT"/>
+		    <result property="vip" column="VIP_USER"/>
+		</orm>
+
+	</sqlMap>
+
+</guzz-configs>

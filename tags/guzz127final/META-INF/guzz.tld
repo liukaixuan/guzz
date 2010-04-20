@@ -1,0 +1,755 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+    
+  <description>guzz taglib。通过guzz框架进行数据库查询和更新操作。</description>
+  <display-name>Guzz Taglib</display-name>
+  <tlib-version>1.1</tlib-version>
+  <short-name>g</short-name>
+  <uri>http://www.guzz.org/tags</uri>
+  
+  <tag>
+    <description>
+		用于为list/get/page等数据读取标签，设置查询条件。
+    </description>
+    <name>boundary</name>
+    <tag-class>org.guzz.taglib.db.GhostBoundaryTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			Condition
+        </description>
+        <name>limit</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			set all limit conditons until now to the atrribute var of the scope
+        </description>
+        <name>var</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			scope. default scope is request
+        </description>
+        <name>scope</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx). The boundary's tableCondtion also affects the g:inc tag insided.
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			is parent taglib's condition took into this tag?
+        </description>
+        <name>inherit</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+		add a condition to the directly parent boundary.
+    </description>
+    <name>addLimit</name>
+    <tag-class>org.guzz.taglib.db.GhostAddLimitTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			Condition
+        </description>
+        <name>limit</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			Condition 2
+        </description>
+        <name>limit2</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			Condition 3
+        </description>
+        <name>limit3</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+		add a InTerm condition to the directly parent boundary.
+    </description>
+    <name>addInLimit</name>
+    <tag-class>org.guzz.taglib.db.GhostAddInLimitTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			property name 
+        </description>
+        <name>name</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			possible values. should a an array or a list instance. the size() must be > 0
+        </description>
+        <name>value</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			eg: we have a list of Channels, but the list should the 'id's of all channels (channel.getId()),
+			then you would set this attribute to 'id' as to tell the taglib to perform a object property value retrieving.
+        </description>
+        <name>retrieveValueProp</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+		执行数据库统计操作。count计算的结果为long类型数字
+    </description>
+    <name>count</name>
+    <tag-class>org.guzz.taglib.db.GhostCountTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			the business name to load. Or the domain class's full class name.
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>    
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			Condition
+        </description>
+        <name>limit</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			设置用于select $selectPhrase 的内容。例如可以为：count(id), sum(score) 等；如果不设置则默认使用count(*)
+        </description>
+        <name>selectPhrase</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			set the count result to var
+        </description>
+        <name>var</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			scope. default request
+        </description>
+        <name>scope</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>    
+  </tag>
+  
+  <tag>
+    <description>
+		get the first object matched the condition.
+    </description>
+    <name>get</name>
+    <tag-class>org.guzz.taglib.db.GhostGetTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			the business name to load. Or the domain class's full class name.
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			Condition
+        </description>
+        <name>limit</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			set the detail result to var
+        </description>
+        <name>var</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			scope. default request
+        </description>
+        <name>scope</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>    
+  </tag>
+  
+  <tag>
+    <description>
+		list the objects matched the condition.
+    </description>
+    <name>list</name>
+    <tag-class>org.guzz.taglib.db.GhostListTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			the business name to load. Or the domain class's full class name.
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			Condition
+        </description>
+        <name>limit</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			set the list result to var
+        </description>
+        <name>var</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			scope. default request
+        </description>
+        <name>scope</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			在读取结果前，跳过的记录数。默认为0，表示不跳过任何记录。
+        </description>
+        <name>skipCount</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			pageNo, start with 1.
+        </description>
+        <name>pageNo</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			pageSize. default 20.
+        </description>
+        <name>pageSize</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			排序方式，多个排序用英文的逗号分隔，如：name asc, id desc, friendCount asc 
+        </description>
+        <name>orderBy</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>    
+  </tag>
+  
+  
+  <tag>
+    <description>
+		get the page of matched objects.
+    </description>
+    <name>page</name>
+    <tag-class>org.guzz.taglib.db.GhostPageTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			the business name to load. Or the domain class's full class name.
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			Condition
+        </description>
+        <name>limit</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			set the page result to var
+        </description>
+        <name>var</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			scope. default request
+        </description>
+        <name>scope</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			在读取结果前，跳过的记录数。默认为0，表示不跳过任何记录。
+        </description>
+        <name>skipCount</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			pageNo, start with 1.
+        </description>
+        <name>pageNo</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			pageSize. default 20.
+        </description>
+        <name>pageSize</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			default:pageNo
+        </description>
+        <name>pageNoParamName</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			pageSpan. default 10.
+        </description>
+        <name>pageSpan</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			pageBeforeSpan. default 5.
+        </description>
+        <name>pageBeforeSpan</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			pageAfterSpan. default 5.
+        </description>
+        <name>pageAfterSpan</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			排序方式，多个排序用英文的逗号分隔，如：name asc, id desc, friendCount asc 
+        </description>
+        <name>orderBy</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>    
+  </tag>  
+  
+  <!-- rest -->
+  <!-- 
+  <tag>
+    <description>
+		persist a new business instance.
+    </description>
+    <name>add</name>
+    <tag-class>org.guzz.taglib.db.GhostBirthTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			the business name to add. Or the domain class's full class name.
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			operation name for auth and log.
+        </description>
+        <name>operation</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			operation name for auth and log.
+        </description>
+        <name>op</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+		persist a modified business instance.
+    </description>
+    <name>update</name>
+    <tag-class>org.guzz.taglib.db.GhostGrowTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			the business name to update. Or the domain class's full class name.
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			operation name for auth and log.
+        </description>
+        <name>operation</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			operation name for auth and log.
+        </description>
+        <name>op</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+		remove a business instance.
+    </description>
+    <name>delete</name>
+    <tag-class>org.guzz.taglib.db.GhostDieTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			the business name to delete. Or the domain class's full class name.
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			operation name for auth and log.
+        </description>
+        <name>operation</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			operation name for auth and log.
+        </description>
+        <name>op</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+		set value to the busniess instance.
+    </description>
+    <name>setProperty</name>
+    <tag-class>org.guzz.taglib.db.SetPropertyTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			pojo property name
+        </description>
+        <name>name</name>
+        <required>true</required>
+        <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			property value
+        </description>
+        <name>value</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+   
+    -->  
+  <tag>
+    <description>
+        update a int/bigint database field with direct sql statement. 
+        this tag use org.guzz.service.core.SlowUpdateService to perform the operation, so you must start this service to enable g:inc.
+    </description>
+    <name>inc</name>
+    <tag-class>org.guzz.taglib.db.GhostIncTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			对象的business标记，或者要更新的域对象的实例。
+        </description>
+        <name>business</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			tableCondition used to shadow table. this attribute's not-null value will override Guzz.setTableCondtion(xxx).
+        </description>
+        <name>tableCondition</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			要更新增加的计数。可以为负数。
+        </description>
+        <name>count</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>int</type>
+    </attribute>
+    <attribute>
+        <description>
+			要更新计数字段的属性名。（注：域对象的属性名称，不是对应的数据库的字段名）
+        </description>
+        <name>updatePropName</name>
+        <required>true</required>
+        <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			要更新对象的主键值
+        </description>
+        <name>pkValue</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+        类似于c:out标签，增加了javascript的处理，xslt处理。Like &lt;%= ... &gt;, but for expressions.
+    </description> 
+    <name>out</name>
+    <tag-class>org.guzz.taglib.GhostOutTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			Expression to be evaluated.
+        </description>
+        <name>value</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			Default value if the resulting value is null, or a empty string(null, or trim().length()==0).
+        </description>
+        <name>default</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+        <description>
+			Determines whether characters &lt;,&gt;,&amp;,'," in the
+			resulting string should be converted to their
+			corresponding character entity codes. Default value is
+			true.
+        </description>
+        <name>escapeXml</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+    
+    <attribute>
+        <description>
+			过滤掉javascript语句，避免script的执行。默认为true进行过滤。
+			如果excapeXml=true，此项设置忽略。
+        </description>
+        <name>escapeScriptCode</name>
+        <required>false</required>
+        <rtexprvalue>false</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+    <attribute>
+        <description>
+			过滤以后的内容是否是javascript输出，默认不是。如果设为true，则g:out转码特殊字符让javascript可以直接保存内容到js字符串中。默认为false。
+        </description>
+        <name>escapeForScriptOutput</name>
+        <required>false</required>
+        <rtexprvalue>false</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+    <!-- 
+    <attribute>
+        <description>
+			是否标红过滤词? 默认不标红。
+        </description>
+        <name>markFilterWord</name>
+        <required>false</required>
+        <rtexprvalue>false</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+    <attribute>
+        <description>
+			进行过滤词检查时，使用的过滤词组。默认为所有组。
+        </description>
+        <name>filterWordGroupName</name>
+        <required>false</required>
+        <rtexprvalue>false</rtexprvalue>
+    </attribute>
+     -->
+    <attribute>
+        <description>
+			过滤xslt不支持的字符？默认为false。
+        </description>
+        <name>escapeForXslt</name>
+        <required>false</required>
+        <rtexprvalue>false</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+    <attribute>
+        <description>
+			将本地字符按照\u54e5\u672c\u54c8\u6839的unicode代码输出？默认为false。
+        </description>
+        <name>native2ascii</name>
+        <required>false</required>
+        <rtexprvalue>false</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+  </tag>
+  
+ <!-- service --> 
+  <!-- 
+  <tag>
+    <description>
+		页面间参数传递。获取页面的所有request参数，然后用hidden输入的方式写入到当前页面中。
+    </description>
+    <name>inputParam</name>
+    <tag-class>org.guzz.taglib.GhostHiddenInputTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <description>
+			忽略的参数。多个参数之间用英文的逗号分割，如:pageNo,pageSize
+        </description>
+        <name>excludeParams</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			只提取的参数。多个参数之间用英文的逗号分割，如:pageNo,pageSize
+        </description>
+        <name>onlyParams</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+ -->    
+
+</taglib>
+
+

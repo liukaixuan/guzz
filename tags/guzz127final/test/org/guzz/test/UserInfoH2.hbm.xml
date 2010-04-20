@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+
+<guzz-mapping>
+    <class name="org.guzz.test.UserInfoH2" table="TB_USER_INFO2">
+        <id name="id" type="int" column="pk">
+        	<generator class="native">
+        		<param name="seq">guzz_sequence</param>
+        	</generator>
+        </id>
+        <property name="userId" type="string" column="userId"></property> 
+        <property name="aboutMe" type="clob" column="aboutMe" lazy="true" />
+        <property name="portraitImg" type="blob" column="portraitImg" lazy="false"></property> 
+    </class>
+</guzz-mapping>

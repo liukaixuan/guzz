@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.test.ArticleCount" table="TB_ARTICLE_COUNT">
+        <id name="articleId" type="int" column="ARTICLE_ID">
+        	<generator class="assigned" />
+        </id>
+        <property name="readCount" type="int" insert="true" update="false" column="readCount"></property>
+        <property name="supportCount" type="int" insert="false" column="supportCount" />
+        <property name="opposeCount" type="int" insert="false" column="opposeCount" />
+        <property name="createdTime" type="datetime" column="createdTime" />
+    </class>
+</hibernate-mapping>

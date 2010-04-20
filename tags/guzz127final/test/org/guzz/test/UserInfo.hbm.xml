@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+
+<guzz-mapping>
+    <class name="org.guzz.test.UserInfo" table="TB_USER_INFO">
+        <id name="id" type="int" column="pk">
+        	<generator class="native">
+        		<param name="seq">guzz_sequence</param>
+        	</generator>
+        </id>
+        <property name="userId" type="string" column="userId"></property> 
+        <property name="aboutMe" type="string" column="aboutMe" lazy="true" loader="org.guzz.pojo.loader.TwoPhaseClobDataLoader" />
+        <property name="portraitImg" type="bytes" column="portraitImg" lazy="false" loader="org.guzz.pojo.loader.TwoPhaseBlobDataLoader"></property> 
+    </class>
+</guzz-mapping>

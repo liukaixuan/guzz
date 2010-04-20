@@ -1,0 +1,36 @@
+1.2.7 build20100406
+	1. fix a few bugs
+	
+1.2.7 rc2
+	1. fix bug: fail to shut down the connection pool when guzz closed.
+	2. new: add long data type support as bigint
+	3. improvement: others
+	
+1.2.7 rc1
+	1. fix bug: guzz taglib doesn't support custom property in limit
+	2. improvement: move IDataTypeHandler to common package.
+	3. improvement: call setExtendedBeanFactory after spring's fully starting.
+	
+1.2.7 b4
+	1. add support for id generator: hilo, seqhilo
+	2. change default sequence name from guzzSeq to guzz_sequence
+	3. add support for Service/ShadowTableView/CustomTableView/ColumnDataLoader to fetch outside refenerece(eg: spring ApplicationContext).
+	4. change guzz with spring's intergrate configurations.
+
+1.2.7 b3
+	1. custom table support.
+	2. fix bug: ReadonlySession.refresh() should throw a exception if the record doesn't exsit, but not.
+
+1.2.7 b2
+	1. shadow table support
+
+1.2.7 b1:
+	1. FutureResult supports
+	2. JDK1.4 -> JDK5
+
+1.2.6:
+	1. support clob/blob/decimal/byte data type
+   	2. new api for writing with upgrade lock
+   	3. supply new custom loaders for clob and blob
+
+....
