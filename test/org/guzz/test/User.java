@@ -19,6 +19,10 @@ package org.guzz.test;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+
+import org.guzz.annotations.GenericGenerator;
+import org.guzz.annotations.Parameter;
 
 /**
  * 
@@ -33,6 +37,10 @@ public class User {
 	
 	@javax.persistence.Id
 	@Column(name="pk")
+	@GeneratedValue(generator="userIdGen")
+	@GenericGenerator(name = "userIdGen", strategy = "native", 
+			parameters={@Parameter(name="sequence", value="seq_user_id")}
+	)
 	private int id ;
 	
 	@Column(name="userName")
