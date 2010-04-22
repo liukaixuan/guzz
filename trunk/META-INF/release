@@ -1,3 +1,10 @@
+1.2.8 beta1
+	1. limited(but enough for guzz) JPA annotation support.
+	2. add a new Id generator hilo-multi.
+	3. add byte data type support.
+	4. fix a bug in "hilo" id generator.
+	
+
 1.2.7 build20100406
 	1. fix a few bugs
 	

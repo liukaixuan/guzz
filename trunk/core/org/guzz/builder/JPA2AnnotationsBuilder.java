@@ -38,6 +38,9 @@ import javax.persistence.Transient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContextImpl;
+import org.guzz.annotations.GenericGenerator;
+import org.guzz.annotations.GenericGenerators;
+import org.guzz.annotations.Parameter;
 import org.guzz.annotations.Table;
 import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
@@ -254,19 +257,46 @@ public class JPA2AnnotationsBuilder {
 		
 		//If @GeneratedValue is not defined, use auto.
 		GenerationType gt = GenerationType.AUTO ;
-		String generator = null ;
+		String generatorName = null ;
 		
 		if(pgv != null){
 			gt = pgv.strategy() ;
-			generator = pgv.generator() ;
+			generatorName = pgv.generator() ;
 		}
 		
 		Properties idProperties = new Properties() ;
 		String igCls ;
 		
 		if(gt == GenerationType.AUTO){
-			//native的generator由dialect来定。
-			igCls = dbGroup.getDialect().getNativeIDGenerator() ;
+			//检查是不是指向了guzz扩展的@GenericGenerator
+			if(StringUtil.notEmpty(generatorName)){
+				GenericGenerator ggg = (GenericGenerator) element.getAnnotation(GenericGenerator.class) ;
+				if(ggg != null && !generatorName.equals(ggg.name())){
+					ggg = null ;
+				}
+				
+				if(ggg == null){
+					//retreive @Id from GlobalContext
+					Object g = gf.getGlobalIdGenerator(generatorName) ;
+					
+					//should be GenericGenerator
+					if(!(g instanceof GenericGenerator)){
+						throw new IllegalParameterException("The Id Generator [" + generatorName + "] should be of type @org.guzz.annotations.GenericGenerator. domain class:" + domainClas.getName()) ;
+					}
+					
+					ggg = (GenericGenerator) g ;
+				}
+				
+				igCls = ggg.strategy() ;
+				Parameter[] ps = ggg.parameters() ;
+					
+				for(Parameter p : ps){
+					idProperties.setProperty(p.name(), p.value()) ;
+				}
+			}else{
+				//native的generator由dialect来定。
+				igCls = "native" ;
+			}
 		}else if(gt == GenerationType.IDENTITY){
 			igCls = "identity" ;
 		}else if(gt == GenerationType.SEQUENCE){
@@ -274,13 +304,13 @@ public class JPA2AnnotationsBuilder {
 			
 			javax.persistence.SequenceGenerator psg = (javax.persistence.SequenceGenerator) element.getAnnotation(javax.persistence.SequenceGenerator.class) ;
 			if(psg == null){
-				Object sg = gf.getGlobalIdGenerator(generator) ;
+				Object sg = gf.getGlobalIdGenerator(generatorName) ;
 				Assert.assertNotNull(sg, "@javax.persistence.SequenceGenerator not found for sequenced @Id. domain class:" + domainClas.getName()) ;
 				
 				if(sg instanceof SequenceGenerator){
 					psg = (SequenceGenerator) sg ;
 				}else{
-					throw new IllegalParameterException("The Id Generator [" + generator + "] is not a @javax.persistence.SequenceGenerator. domain class:" + domainClas.getName()) ;
+					throw new IllegalParameterException("The Id Generator [" + generatorName + "] should be of type @javax.persistence.SequenceGenerator. domain class:" + domainClas.getName()) ;
 				}
 			}
 			
@@ -296,13 +326,13 @@ public class JPA2AnnotationsBuilder {
 			
 			TableGenerator pst = (TableGenerator) element.getAnnotation(TableGenerator.class) ;
 			if(pst == null){
-				Object sg = gf.getGlobalIdGenerator(generator) ;
+				Object sg = gf.getGlobalIdGenerator(generatorName) ;
 				Assert.assertNotNull(sg, "@javax.persistence.TableGenerator not found for hilo.multi @Id. domain class:" + domainClas.getName()) ;
 				
 				if(sg instanceof TableGenerator){
 					pst = (TableGenerator) sg ;
 				}else{
-					throw new IllegalParameterException("The Id Generator [" + generator + "] is not a @javax.persistence.TableGenerator. domain class:" + domainClas.getName()) ;
+					throw new IllegalParameterException("The Id Generator [" + generatorName + "] should be of type @javax.persistence.TableGenerator. domain class:" + domainClas.getName()) ;
 				}
 			}
 			
@@ -318,6 +348,10 @@ public class JPA2AnnotationsBuilder {
 			idProperties.setProperty("initialValue", String.valueOf(pst.initialValue())) ;
 		}else{
 			throw new GuzzException("unknown @javax.persistence.GenerationType:" + gt) ;
+		}
+		
+		if("native".equals(igCls)){
+			igCls = dbGroup.getDialect().getNativeIDGenerator() ;
 		}
 		
 		String realClassName = (String) IdentifierGeneratorFactory.getGeneratorClass(igCls) ;
@@ -550,10 +584,28 @@ public class JPA2AnnotationsBuilder {
 		SequenceGenerator psg = (SequenceGenerator) domainCls.getAnnotation(SequenceGenerator.class) ;
 		TableGenerator 	  tsg = (TableGenerator) domainCls.getAnnotation(TableGenerator.class) ;
 		
+		GenericGenerator[] ggs = new GenericGenerator[0] ;
+		
+		//add @GenericGenerators
+		if(domainCls.getPackage().isAnnotationPresent(GenericGenerators.class)){
+			ggs = (GenericGenerator[]) ArrayUtil.addToArray(ggs, ((GenericGenerators) domainCls.getPackage().getAnnotation(GenericGenerators.class)).value()) ;
+		}
+		if(domainCls.isAnnotationPresent(GenericGenerators.class)){
+			ggs = (GenericGenerator[]) ArrayUtil.addToArray(ggs, ((GenericGenerators) domainCls.getAnnotation(GenericGenerators.class)).value()) ;
+		}
+		
+		//add @GenericGenerator
+		if(domainCls.getPackage().isAnnotationPresent(GenericGenerator.class)){
+			ggs = (GenericGenerator[]) ArrayUtil.addToArray(ggs, (GenericGenerator) domainCls.getPackage().getAnnotation(GenericGenerator.class)) ;
+		}
+		if(domainCls.isAnnotationPresent(GenericGenerator.class)){
+			ggs = (GenericGenerator[]) ArrayUtil.addToArray(ggs, (GenericGenerator) domainCls.getAnnotation(GenericGenerator.class)) ;
+		}
+		
 		if(psg != null){
 			String name = psg.name() ;
 			if(idGenerators.get(name) != null && log.isDebugEnabled()){
-				log.debug("override @SequenceGenerator annotation:[" + idGenerators.get(name) + "], name is:" + name) ;
+				log.debug("override @Id annotation:[" + idGenerators.get(name) + "] with @SequenceGenerator, name is:" + name) ;
 			}
 			
 			idGenerators.put(name, psg) ;
@@ -562,10 +614,21 @@ public class JPA2AnnotationsBuilder {
 		if(tsg != null){
 			String name = tsg.name() ;
 			if(idGenerators.get(name) != null && log.isDebugEnabled()){
-				log.debug("override @TableGenerator annotation:[" + idGenerators.get(name) + "], name is:" + name) ;
+				log.debug("override @Id annotation:[" + idGenerators.get(name) + "] with @TableGenerator, name is:" + name) ;
 			}
 			
 			idGenerators.put(name, tsg) ;
+		}
+		
+		if(ggs.length > 0){
+			for(GenericGenerator gg : ggs){
+				String name = gg.name() ;
+				if(idGenerators.get(name) != null && log.isDebugEnabled()){
+					log.debug("override @Id annotation:[" + idGenerators.get(name) + "] with @GenericGenerator, name is:" + name) ;
+				}
+				
+				idGenerators.put(name, gg) ;
+			}
 		}
 	}
 	
