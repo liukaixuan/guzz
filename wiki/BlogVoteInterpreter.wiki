@@ -1,0 +1,111 @@
+== 继续描述 ==
+
+{{{
+<g:addLimit limit="${consoleUser}" />
+}}}
+
+ 此处limit传入的查询条件为应用程序自定义的条件“当前登录用户”，这是一种高级用法，需要blogVote在定义时指定interpret，如：
+
+{{{
+<business name="blogVote" interpret="guzz.test.business.BlogVoteInterpreter" file="classpath:guzz/test/business/BlogVote.hbm.xml" />
+}}}
+
+ guzz.test.business.!BlogVoteInterpreter 通过继承SEBusinessInterpreter实现BusinessInterpreter接口，实现代码如下：
+
+{{{
+package guzz.test.business;
+
+import java.util.List;
+
+import org.guzz.GuzzContext;
+import org.guzz.orm.interpreter.SEBusinessInterpreter;
+import org.guzz.orm.se.InTerm;
+import org.guzz.orm.sql.BindedCompiledSQL;
+import org.guzz.orm.sql.CompiledSQL;
+import org.guzz.transaction.ReadonlyTranSession;
+import org.guzz.transaction.TransactionManager;
+import org.guzz.web.context.GuzzContextAware;
+
+public class BlogVoteInterpreter extends SEBusinessInterpreter implements GuzzContextAware {
+
+	TransactionManager tm = null ;
+	
+	CompiledSQL cs ;
+	
+	
+	//覆盖基类方法，基类方法就是直接抛出异常。
+	protected Object explainOtherTypeConditon(Object limitTo) {
+		//根据传入的后台用户对象，返回查询此用户有权限投票的查询条件。
+		if(limitTo instanceof AdminUser){
+			AdminUser a = (AdminUser) limitTo ;
+			if(a.isSystemAdmin()){ //超级管理员，允许所有。不需要添加条件。
+				return null ;
+			}else{
+				
+				ReadonlyTranSession session = tm.openDelayReadTran() ;
+				
+				try{
+					//TODO: add support for many user groups
+					BindedCompiledSQL bsql = cs.bind("authGroup", a.getAuthGroups()[0]) ;
+					bsql.setRowDataLoader(FirstColumnDataLoader.newInstanceForReturnType("int")) ; //设置只读取第1列，并且类型为int
+					
+					List<Integer> cids = session.list(bsql, 1, 50) ;
+					
+					if(cids.isEmpty()){
+						throw new VoteException("您没有被授权管理任何频道") ;
+					}
+					
+					return new InTerm("channelId", cids) ;
+				}finally{
+					session.close() ;
+				}
+			}
+		}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		tm = guzzContext.getTransactionManager() ;
+		
+		String sql = "select @id from @@" + Channel.class.getName() + " where @authGroup = :authGroup" ;
+		
+		cs =  tm.getCompiledSQLBuilder().buildCompiledSQL(Channel.class, sql) ;
+                cs.addParamPropMapping("authGroup", "authGroup") ;//关联参数:authGroup和属性authGroup
+	}
+
+}
+}}}
+
+ 其中实现接口
+{{{
+org.guzz.web.context.GuzzContextAware
+}}}
+ 用于在初始化时注入!GuzzContext实例。BusinessInterpreter在系统启动时初始化，仅初始化1次，每一个域对象对应1个实例，因此需要支持多线程操作。
+
+== BusinessInterpreter定义：  ==
+
+{{{
+package org.guzz.orm;
+
+public interface BusinessInterpreter {
+
+	/**
+	 * 解释限制性查询条件。对应于标签中的limit条件。
+	 * 返回null表示此条件可以忽略。
+	 * 如果遇到当前用户没有权限的查询字段，抛出异常(TODO: 增加权限接口支持)。
+	 * 
+	 * @param limitTo 查询条件
+	 */
+	public Object explainCondition(Object limitTo) throws Exception  ;
+	
+}
+}}}
+
+ 参数limitTo为guzz标签传入的条件，如"checked=true", "blogId=18",以及此处的${consoleUser}对象。目前支持的返回对象只能是SearchTerm。
+
+== BusinessInterpreter接口方法调用顺序 ==
+
+ # 解析配置文件，生成类实例
+ # 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
+ # 调用startup()
+ # 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
+ # 对外服务……
+ # guzz关闭时调用shutdown()
