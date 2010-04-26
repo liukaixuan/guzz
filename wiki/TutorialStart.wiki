@@ -30,7 +30,7 @@
 
  * 14. [TutorialShadowTable 表分切（Shadow Table）]
 
- * 15. [TutorialCustomTable自定义属性表（Custom Table）]
+ * 15. [TutorialCustomTable 自定义属性表（Custom Table）]
 
 == 附录： ==
 
