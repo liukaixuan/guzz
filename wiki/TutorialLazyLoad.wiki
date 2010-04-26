@@ -50,7 +50,7 @@
 
 *内部调用流程：*
 
-[[Image(loader_design.png, 750px)]]
+[http://guzz.org/attachment/wiki/LazyLoad/loader_design.png]
 
 *代码实现一个loader：*
  loader通过实现接口
