@@ -1,0 +1,74 @@
+在数据库映射方面，guzz支持类似hibernate的领域对象class-table映射。也支持ibatis类似的在guzz.xml中映射。
+
+== hibernate的hbm.xml映射 ==
+
+ guzz兼容hibernate的配置文件(xxx.hbm.xml)，你可以使用hibernate映射工具生成或维护这些映射，guzz将可以直接解析。
+
+ 使用hibernate映射文件时，某些guzz的特性在hibernate mapping dtd中没有定义，文本编辑时不能自动提示，甚至会报错，但不影响使用。
+
+== guzz自己的映射定义 ==
+
+ 将hibernate hbm.xml的dtd定义头，改成
+
+{{{
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+}}}
+
+ 既可。余下内容与hibernate类似。
+
+ mapping xml的root可以是{{{<guzz-mapping>}}}，也可以是{{{<hibernate-mapping>}}}(便于使用成熟的hibernate工具)。guzz在解析时只从{{{<class>}}}处开始读取，root元素如何定义无关紧要。
+
+guzz mapping相对hibernate mapping也有一些变化。
+
+*class定义增加了1属性：*
+
+ shadow：用于设置表分切和自定义表，使用方法在后面有详细的介绍。
+
+*property定义增加了2个属性：*
+
+ null： 指定当数据库值为空时，字段取何值。默认为java定义此类型的默认值。这个属性一般在数据库升级字段时使用，避免hibernate恼人的cglib....get..set错误。
+
+ loader： 指定字段的特殊读取类。通过loader可以定义某些字段的特殊读取策略，如从文件加载，或先读缓存再读数据库，或从第三方系统读取等。详细介绍请参看：LazyLoad
+
+*主键生成(id generator)支持变化：*
+
+|| *Generator* || *hibernate* || *guzz* || *Description for guzz* ||
+|| increment||√||×||It generates identifiers of type long, short or int that are unique only when no other process is inserting data into the same table. It should not the used in the clustered environment.||
+|| identity||√||√||It supports identity columns in DB2, MySQL, MS SQL Server, Sybase and HypersonicSQL. The returned identifier is of type long, short or int.||
+|| sequence|| √ || √ || The sequence generator uses a sequence in DB2, PostgreSQL, Oracle, SAP DB, McKoi or a generator in Interbase. The returned identifier is of type long, short or int ||
+|| hilo|| √ || √ || The hilo generator uses a hi/lo algorithm to efficiently generate identifiers of type long, short or int, given a table and column (by default guzz_unique_key and next_hi respectively) as a source of hi values. The hi/lo algorithm generates identifiers that are unique only for a particular database. Do not use this generator with connections enlisted with JTA or with a user-supplied connection. ||
+|| seqhilo|| √ || √ || The seqhilo generator uses a hi/lo algorithm to efficiently generate identifiers of type long, short or int, given a named database sequence. ||
+|| uuid || √ || √ || The uuid generator uses a 128-bit UUID algorithm to generate identifiers of type string, unique within a network (the IP address is used). The UUID is encoded as a string of hexadecimal digits of length 32. ||
+|| guid || √ || √ || It uses a database-generated GUID string on MS SQL Server and MySQL. ||
+|| native || √ || √ || It picks identity, sequence or hilo depending upon the capabilities of the underlying database. Take it as an alias of the real identity generator used. ||
+|| assigned || √ || √ || lets the application to assign an identifier to the object before save() is called. This is the default strategy if no <generator> element is specified. ||
+|| select || √ || × || retrieves a primary key assigned by a database trigger by selecting the row by some unique key and retrieving the primary key value. ||
+|| foreign || √ || × || uses the identifier of another associated object. Usually used in conjunction with a <one-to-one> primary key association. ||
+|| slient || × || √ || The slient generator does nothing. Usually used when you need to manage the id in the database, for example with a trigger. ||
+|| hilo.multi || × || √ || Works as hilo, but allows many Ids stored in a single table disguised by the primary key of each row. Mapping parameters supported: table, column, db_group, max_lo, pk_column_name, pk_column_value(requried, and must be a positive integer)||
+
+ 主键生成器的参数名称和含义与hibernate相同，只有一个例外：guzz中hilo的默认表名称为guzz_unique_key，而不是hibernate_unique_key。
+
+ 此外，在hilo,sequence,seqhilo生成器中，guzz还允许传入db_group参数，用于指定从那个数据库组获取主键。如果应用需要保持所有数据库组的id相互之间都不重复，可以通过此参数指定所有表从1组数据库生成主键。db_group参数默认为null，表示从当前表所在的数据库读取主键。
+
+*id generator注意事项：*
+
+ * 1. oracle数据库的native默认使用seqence generator（序列），对于序列需要通过参数sequence传入数据库sequence的名称，如：
+
+{{{
+                <generator class="native">
+        		<param name="sequence">seq_sometable_id</param>
+        	</generator>
+}}}
+
+否则，guzz默认使用名称为guzz_sequence的序列，请提前创建此序列，guzz并不会自动创建。创建语句：
+
+{{{
+CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
+}}}
+
+ * 2. Mysql和H2数据库，native表示默认使用identify（数据库中的自增ID）。param name="sequence"参数会自动忽略掉。
+
+== 类似ibatis的映射 ==
+
+ TODO: 添加介绍。
