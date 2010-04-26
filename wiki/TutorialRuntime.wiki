@@ -1,0 +1,15 @@
+== 运行环境： ==
+
+ JDK：1.5+
+
+ JDK：1.4+（在远程服务异步调用中使用了JDK1.5的concurrent包，如果使用JDK1.4，需要自己重新编译代码，编译后远程服务支持不可用。另外annotation不能使用。）
+
+ 运行在Web Container下时，容器需支持Servlet2.4规范。
+
+ 必须依赖的包：dom4J，commons-log相关包。
+
+ 在guzz工程项目中提供有下载。
+
+== 项目创建建议： ==
+
+ 建议下载guzz提供的空工程，导入到Eclipse/MyEclipse中，在此基础上进行开发。
