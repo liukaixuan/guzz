@@ -20,16 +20,16 @@ guzz的目标是使得大型化网站设计更加简单，团队分工更加明�
 
 == 文档与帮助 ==
 
- *[GuzzGuide Guzz使用手册]*
+ * [GuzzGuide Guzz使用手册]
 
- *[TaglibGuide JSP页面开发帮助]*
+ * [TaglibGuide * JSP页面开发帮助]
 
- *[GuzzFaq 常见问题FAQ]*
+ * [GuzzFaq 常见问题FAQ]
 
 == 示例代码 ==
 
- *[DemonExamples 示例工程]*
+ * [DemonExamples 示例工程]
 
 == 反馈与建议 ==
 
- *[GuzzSupport 反馈与建议]*
+ * [GuzzSupport 反馈与建议]
