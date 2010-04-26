@@ -16,20 +16,21 @@ guzz的目标是使得大型化网站设计更加简单，团队分工更加明�
  * 提供面向对象的数据库读取标签(JSP Taglib)，加快页面展示层的快速变更、开发与部署
  * 支持配置管理服务器，可以使用一套软件系统对所有应用程序的配置进行统一管理
 
- [GoodForMe 快速了解guzz适不适合我……]
+ [AboutGoodToMe 快速了解guzz适不适合我……]
 
 == 文档与帮助 ==
 
- * [GuzzGuide Guzz使用手册]
+ * [TutorialStart Guzz使用手册]
 
- * [TaglibGuide JSP页面开发帮助]
+ * [TaglibBook JSP页面开发帮助]
 
- * [GuzzFaq 常见问题FAQ]
+ * [AboutFAQ 常见问题FAQ]
 
 == 示例代码 ==
 
- * [DemonExamples 示例工程]
+ * [DemoExamples 示例工程]
+ * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip 基于spring IOC的启动空工程]
 
 == 反馈与建议 ==
 
- * [GuzzSupport 反馈与建议]
+ * [AboutFeedback 反馈与建议]
