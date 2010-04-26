@@ -1,0 +1,88 @@
+== 配置与启动guzz ==
+
+ guzz程序的核心为GuzzContext对象，完成GuzzContext的初始化并获取其引用，即可使用guzz的全部功能。
+
+===  Standalone程序：===
+
+ 创建guzz的核心配置文件guzz.xml，并存在classpath目录下。
+
+{{{
+import org.guzz.Configuration;
+import org.guzz.GuzzContext;
+
+GuzzContext gc = new Configuration("classpath:guzz.xml").newGuzzContext() ;
+//perform you actions......
+//.....
+//shutting it down when you application exit.
+gc.shutdown() ;
+}}}
+
+=== 普通的Web应用： ===
+
+ 创建guzz的核心配置文件guzz.xml，并存在在/WEB-INF/目录下。
+
+ 修改web.xml文件，增加如下项：
+
+{{{
+<context-param>
+   <param-name>guzzConfigLocation</param-name>
+   <param-value>/WEB-INF/guzz.xml</param-value>
+</context-param>
+
+<listener>
+   <listener-class>
+      org.guzz.web.context.ContextLoaderListener
+   </listener-class>
+</listener>
+}}}
+
+ 此时在jsp页面中就可以使用guzz的taglib进行数据库操作。
+
+ java程序可以通过如下代码获取到GuzzContext，进行更多操作：
+
+{{{
+
+import org.guzz.web.context.GuzzWebApplicationContextUtil;
+import org.guzz.GuzzContext;
+
+GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServletContext()) ;
+}}}
+
+ GuzzContext 将会在web app退出时，由容器通知关闭。
+
+=== 使用Spring IOC的web应用程序： ===
+
+ * 1. 创建guzz的核心配置文件guzz.xml，并存在在/WEB-INF/目录下。
+
+ * 2. 修改web.xml的配置项，将spring的ContextLoader的Loader定义删掉，如：
+
+{{{
+<listener>
+	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+}}}
+
+ 换成Guzz针对spring的Listener：
+
+{{{
+<listener>
+      <listener-class>org.guzz.web.context.spring.GuzzWithSpringContextLoaderListener</listener-class>
+</listener>
+}}}
+
+ * 3. 修改spring的applicationContext.xml，增加GuzzContext的配置：
+
+{{{
+<bean id="guzzContext" class="org.guzz.web.context.spring.GuzzContextBeanFactory" factory-method="createGuzzContext">
+    <constructor-arg><value>/WEB-INF/guzz.xml</value></constructor-arg>
+</bean>
+}}}
+ 一般情况下，我们还需要增加一个BaseDao的bean，类似hibernate中的sessionFactory.getHibernateTemplate()，基于此创建应用自己的Dao或Manager。
+
+{{{
+<bean id="abstractGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
+     <property name="guzzContext" ref="guzzContext" />
+</bean>
+}}}
+
+ * 4. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
