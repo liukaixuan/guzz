@@ -1,0 +1,90 @@
+== 异步服务介绍 ==
+
+ 异步调用服务是指服务在执行的同时，不阻塞当前线程的继续执行，当服务的计算完成时，再返回给当前线程使用，实现并行计算。guzz异步服务基于JDK5的concurrent包实现，异步服务实际上是将服务转交给1个线程池完成计算。线程池最大最小线程数，以及等待队列数都可以通过guzz标准的服务配置进行调整。
+
+ guzz的服务是一个接口，如果不使用默认提供的异步服务支持，也可以自己实现一套。
+
+== 异步服务原理与应用场景 ==
+
+ 假设程序需要跨越网络读取3个服务器数据，按照传统模式，需要1个1个的进行网络阻塞读取，线性执行，操作总时间为3个网络服务需要时间之和。
+
+ 使用异步服务时，应用依旧顺序的调用3个网络服务，但返回的不是直接结果，而是FutureResult对象。用户需要从FutureResult中读取实际结果时才能真正的获取数据。在应用返回FutureResult的同时，后台进程将会并行的读取3个网络服务资源，并存储到FutureResult中，这样3个网络服务就完成了并行操作，实际网络操作时间为3个网络服务中最慢的1个。
+
+== 异步服务设计 ==
+
+ 异步服务设计主要有2个用途，1个是改进现有类库，1个是编写新的异步api。
+
+ 改进现有类库：目前大部分的网络类库都是同步阻塞的，可以将这些类库通过guzz异步服务薄薄的封装一次，按照异步来使用。例如对常用的memcached客户端进行封装。这种效果是非常明显的，比如著名的spymemcached客户端，仅仅提供了单线程的异步调用，性能就获得了巨大的提升（参看spymemcached wiki评论）。
+
+== 异步服务编写 ==
+
+ 异步调用一般为远程调用，分为2类。一类是通过底层的Socket等接口进行自定义协议式调用，另一类为RPC远程方法调用。
+
+=== 自定义协议式调用 ===
+
+ 编写一个服务实现类，继承org.guzz.service.AbstractRemoteService{{{<T>}}}，其中T为结果返回类型。在实现自身服务方法时，如果需要远程调用，则通过调用父类（AbstractRemoteService）的
+
+{{{
+public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
+}}}
+
+ 返回FutureResult对象即可。FutureResult为异步调用结果的接口，可以通过此对象，在未来需要用到结果时读取结果数据。
+
+ 上面的方法，传入了一个FutureDataFetcher引用，定义如下：
+
+{{{
+package org.guzz.service;
+
+public interface FutureDataFetcher<T> extends java.util.concurrent.Callable<T>{		
+	public T getDefaultData() ;
+}
+}}}
+
+FutureDataFetcher有2个方法：
+
+ public T call() throws Exception ; 真正进行远程或费时操作的调用，如建立memcached连接并执行缓存操作等。
+
+ public T getDefaultData() ; 在调用出错、或者任务取消时返回给调用者的默认值。有时候调用者希望忽略异常（避免烦人的try catch），使用默认值代替真正的结果，或使用默认值确定调用是否出错时使用。
+
+ AbstractRemoteService内部通过JDK concurrent包建立线程池，可以通过guzz服务配置的以下属性对线程池进行调节：
+
+{{{
+#最少线程数
+corePoolSize=5
+
+#最大线程数
+maxPoolSize=50
+
+#线程空闲最大时间（单位：毫秒），超出空闲时间的线程将被停掉，直到总线程数降到corePoolSize为止。
+keepAliveMilSeconds=60000
+
+#没有空闲线程时，任务排队队列最大程度
+queueSize=2048
+
+}}}
+
+ 上面属性给的值为不配置时的默认值。
+
+=== RPC远程方法调用 ===
+
+ RPC(Remote Procedure Call)，人如其名，是指使用RMI、hessian、phprpc之类的框架，实现通过调用本地接口(stub)来完成远程实际方法的调用。在调用时，使用者仿佛就是在调用普通的方法，但实际上，这些方法只是一些代理的空方法，他们会把参数序列化然后通过某种网络协议（如http）传给远程的机器，在远程的机器上真正的执行运算后，在将结果以同样的方式返回给代理，代理在返给调用者。
+
+ guzz为RPC做了一些准备，服务实现类通过继承org.guzz.service.AbstractRPCService{{{<T>}}}实现，其中T为服务返回数据类型。AbstractRPCService继承AbstractRemoteService，因此上面提到的FutureResult调用方法、线程池的配置参数依然有效。
+
+ AbstractRPCService本身只是制定了RPC的一种使用规范。AbstractRPCService会在启动时初始化RPC调用代理（org.guzz.service.remote.RemoteRPCProxy），调用代理通过服务配置参数protocol传入，例如：
+
+{{{
+#设定rpc代理为PHPRPC实现
+protocol=org.guzz.service.remote.PHPRPCServiceProxyImpl
+
+#实际服务的地址。这个参数是每个代理(protocol)自身要求的参数
+serviceURL=http://services.guzz.org/service/IPService
+}}}
+
+ 在实际的服务实现过程中，是否将某个服务方法设置为异步，将由服务自身需要决定。如果不需要，则直接调用并返回结果；如果需要，则通过调用父类方法
+
+{{{
+public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
+}}}
+
+ 返回FutureResult即可。
