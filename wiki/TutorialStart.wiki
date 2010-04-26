@@ -1,40 +1,40 @@
 == 基础设置： ==
 
- 1. [TutorialGuzzRuntime Guzz运行环境]
+ * 1. [TutorialRuntime Guzz运行环境]
 
- 2. [TutorialConfigGuzz 配置与启动guzz]
+ * 2. [TutorialConfig 配置与启动guzz]
 
- 3. [TutorialGuzzXml 配置guzz.xml]
+ * 3. [TutorialGuzzXml 配置guzz.xml]
 
- 4. [AppProperties 配置guzz_app.properties]
+ * 4. [TutorialAppProperties 配置guzz_app.properties]
 
- 5. [TutorialGuzzHbm 配置数据库映射文件hbm.xml]
+ * 5. [TutorialHbmXml 配置数据库映射文件hbm.xml]
 
- 6. [TutorialTranSession 编写数据库操作]
+ * 6. [TutorialTranSession 编写数据库操作]
 
- 7. [TutorialSearchExpression 查询表达式]
+ * 7. [SearchExpression 查询表达式]
 
- 8. [TutorialTagLib guzz taglib]
+ * 8. [TutorialTaglib guzz taglib]
 
- 9. [TutorialDatasourceProvider 配置数据库连接池]
+ * 9. [TutorialDatasourceProvider 配置数据库连接池]
 
 == 高级设置： ==
 
- 10. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
+ * 10. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
 
- 11. [TutorialGuzzLob Blob与Clob使用]
+ * 11. [TutorialLob Blob与Clob使用]
 
- 12. [TutorialGuzzService Service1:服务的使用和编写]
+ * 12. [TutorialService Service1:服务的使用和编写]
 
- 13. [TutorialGuzzFutureService Service2:编写支持异步调用的服务]
+ * 13. [TutorialFutureService Service2:编写支持异步调用的服务]
 
- 14. [TutorialGuzzShadow 表分切（Shadow Table）]
+ * 14. [TutorialShadowTable 表分切（Shadow Table）]
 
- 15. [TutorialGuzzCustomTable 自定义属性表（Custom Table）]
+ * 15. [TutorialCustomTable自定义属性表（Custom Table）]
 
 == 附录： ==
 
- 1. [AppendSpringBean 在guzz中获取spring定义的bean] 
+ * 1. [AppendSpringBean 在guzz中获取spring定义的bean] 
 
- 2. [AppendCoreService guzz自带的基础服务介绍] 
+ * 2. [AppendCoreService guzz自带的基础服务介绍] 
  
