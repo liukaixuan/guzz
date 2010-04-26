@@ -22,7 +22,7 @@ guzz的目标是使得大型化网站设计更加简单，团队分工更加明�
 
  * [GuzzGuide Guzz使用手册]
 
- * [TaglibGuide * JSP页面开发帮助]
+ * [TaglibGuide JSP页面开发帮助]
 
  * [GuzzFaq 常见问题FAQ]
 
