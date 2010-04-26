@@ -1,0 +1,246 @@
+== 表分切介绍 ==
+
+ 表分切是指1个对象（如日志，留言，评论等）按照一定的规则，存储在不同的表中。在guzz中命名表分切技术为shadow。guzz shadow支持开发人员为每个领域对象配置一个表分切规则，guzz在对领域对象进行存储和读取时，自动根据规则计算出对应的数据库表，再进行持久化操作。
+
+ guzz在进行表分切时，允许传入一个参数，开发人员可以根据自己传入的参数来灵活控制分切方式（表分切规则也是由开发人员自己实现的一个接口org.guzz.orm.ShadowTableView）。
+
+ guzz提供的所有持久化操作方式全部支持表分切，也就是说，即使你像ibatis一样在xml中配置复杂的sql语句也一样可以完成自动分表操作。例如：{{{select sql_no_cache * from @@comment left join .... force index(idx_special)....}}}。这个sql通过@@comment域对象名称来代替直接的表名称，如果comment对象配置有表分切规则（视为shadow表），在执行这个sql时，guzz将通过程序传入的表分切参数计算出实际应该读取的表（如TB_Comment_2），再进行select操作。
+
+== 表分切应用场景 ==
+
+ * 1. 大数据表分隔。通过时间，操作用户，栏目分类等将1个大表分隔成多个相互无关联的小表，降低数据量，提高查询效率。
+
+ * 2. 日志归档。通过时间，将日志按月生成，降低备份和维护成本。日志归档可以配合guzz多数据源技术，将归档日志传到归档数据库中，保持在线库瘦身。
+
+ * 3. 特殊客户处理。如将付费用户和免费用户数据分开，提高付费用户的服务质量。
+
+== 举例说明：下面实现1个表分切的使用案例 ==
+
+ 假设我们有1套新闻系统需要开发评论组件，为了提高性能我们设计将评论存储在2张表中，所有用户编号为偶数的存储到TB_COMMENT1，为奇数的存储到TB_COMMENT2。（实际的项目中，可能按照频道来分表，道理都一样）。
+
+ 下面的例子和代码是guzz的TestCase，可以在源代码的test目录下找到。
+
+=== step 1: 设计领域对象 ===
+
+ 简单起见，我们的评论包含一个自增的id，用户编号userId，用户昵称userName，评论内容content，以及发表时间createdTime 。定义如下：
+
+{{{
+package org.guzz.test;
+
+public class Comment {
+	
+	private int id ;
+	
+	private int userId ;
+	
+	private String userName ;
+	
+	private String content ;
+	
+	private java.util.Date.Date createdTime ;
+        //get and set methods
+}}}
+
+ 同时定义用户对象User（略）。
+
+=== step 2: 配置与数据库表的映射 ===
+
+ 创建映射文件Comment.hbm.xml，定义如下：
+
+{{{
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+<guzz-mapping>
+    <class name="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+        <id name="id" type="int">
+        	<generator class="native" />
+        </id>
+        <property name="userId" type="int" column="userId" />
+        <property name="userName" type="string" column="userName" />
+        <property name="content" type="string" column="DESCRIPTION" />
+        <property name="createdTime" type="datetime" column="createdTime" />
+    </class>
+</guzz-mapping>
+}}}
+
+ 这个文件与hibernate映射类似，但多出了shadow="org.guzz.test.CommentShadowView"属性。
+
+ shadow属性表示当前域对象org.guzz.test.Comment对应着一个shadow表，表名称应该按照程序运行条件来动态判断。
+
+ 其中，org.guzz.test.CommentShadowView为表名判断规则，是项目自己实现的类，实现代码如下：
+
+{{{
+package org.guzz.test;
+
+import org.guzz.exception.GuzzException;
+import org.guzz.orm.AbstractShadowTableView;
+
+public class CommentShadowView extends AbstractShadowTableView {
+
+	public String toTableName(Object tableCondition) {
+		if(tableCondition == null){ //强制要求必须设置表分切条件，避免编程时疏忽。
+			throw new GuzzException("null table conditon is not allowed.") ;
+		}
+		
+		User u = (User) tableCondition ;
+		
+		//如果用户ID为偶数，记入TB_COMMENT1, 否则写入TB_COMMENT2
+		int i = u.getId() % 2 + 1 ;
+		
+		return super.getConfiguredTableName() + i;
+	}
+
+}
+}}}
+
+ CommentShadowView 继承自 AbstractShadowTableView，并实现了方法public String toTableName(Object tableCondition)。此方法返回当前应该映射的表名称，如在本例中，应该返回TB_COMMENT1或者TB_COMMENT2的一个。tableCondition为应用传递的表分切参数(后面会介绍如何传），在本例中传入的是一个User对象。
+
+ super.getConfiguredTableName()返回的是在Comment.hbm.xml中配置的table属性值。本例中为TB_COMMENT。
+
+ 到这里，表分切的映射就已经配置完毕了。下面我们开始使用它。
+
+=== step 3: 将Comment对象加入guzz系统中 ===
+
+ 在guzz.xml中添加一个领域对象配置：
+
+{{{
+<business name="comment" dbgroup="default" file="classpath:org/guzz/test/Comment.hbm.xml" />
+}}}
+
+ 我们定义评论对象的名称为comment，以后在sql语句中可以通过@@comment来代替直接书写comment的表名称。
+
+=== step 4: 保存一个Comment对象 ===
+
+ 调用方法与普通对象一样，首先获取事务管理器，打开一个写事务，保存领域对象。
+
+{{{
+		        TransactionManager tm = guzzContext.getTransactionManager() ;
+		        WriteTranSession session = tm.openRWTran(true) ;
+
+                        Comment c = new Comment() ;			
+			c.setContent("my content") ;
+			Date now = new Date() ;
+			c.setCreatedTime(now) ;
+			c.setUserName("lucy") ;
+			c.setUserId(i) ;
+			
+			Guzz.setTableCondition(new User(1)) ;
+			
+			session.insert(c) ;
+
+}}}
+
+ 我们看到代码中多了一行：Guzz.setTableConditon(new User(1)) ;，这个正是shadow参数的传递方式。guzz通过Guzz.setTableConditon(Object o)设置表分切的参数，这个参数会在执行持久化操作时传给分表规则（如上面定义的CommentShadowView#toTableName(Object tableCondition)）来获取真正的表名。
+
+=== step 5: 读取comment对象 ===
+
+ 在guzz中，数据提取主要有4种方式。我们假设通过昵称userName来查询评论。
+
+*第一：*查询表达式。
+
+{{{
+                TransactionManager tm = guzzContext.getTransactionManager() ;
+		ReadonlyTranSession session = tm.openDelayReadTran() ;
+		
+		Guzz.setTableCondition(new User(1)) ; //设置分表条件
+		
+		SearchExpression se = SearchExpression.forClass(Comment.class) ;
+		se.and(Terms.eq("userName", "lily")) ; //添加查询条件
+                
+                //通过Guzz.setTableCondition设置的分表参数分表查询
+                List comments = session.list(se) ;
+
+                //设置本次查询的tableCondition，设置的条件优先级高于Guzz.setTableCondition。设置的条件不能为null，否则继续使用Guzz.setTableCondition的条件（目前这种策略还在考虑其合理性）。
+                se.setTableCondition(new User(2)) ; 
+                comments = session.list(se) ; //此时查询的分表参数将为new User(2)
+}}}
+
+*第二：*程序拼装的sql。
+
+{{{
+                TransactionManager tm = gf.getTransactionManager() ;
+		ReadonlyTranSession session = tm.openDelayReadTran() ;
+		
+		String sql = "select * from @@comment where userName = :param_userName" ;
+		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(Comment.class, sql) ;
+		cs.addParamPropMapping("param_userName", "userName") ; //设置参数param_userName（:param_userName）绑定到userName属性。用于增强参数类型检查。
+		
+		User u2 = new User() ;
+		u2.setId(2) ;
+		
+		Guzz.setTableCondition(new User(1)) ;
+		assertEquals(session.list(cs.bind("userName", "lily"), 1, 1000).size(), 500) ;
+		assertEquals(session.list(cs.bind("userName", "lucy"), 1, 1000).size(), 0) ;
+
+		//BindedCompiledSQL.setTableCondition条件优先级高于Guzz.setTableCondition。但同样不能为null，否则继续按照Guzz.setTableCondition的条件执行。
+		assertEquals(session.list(cs.bind("userName", "lily").setTableCondition(u2), 1, 1000).size(), 0) ;
+		assertEquals(session.list(cs.bind("userName", "lucy").setTableCondition(u2), 1, 1000).size(), 500) ;
+}}}
+
+*第三：*在guzz.xml中配置的sql（类似ibatis）。
+
+ 首先我们需要在guzz.xml中配置sql语句以及属性和字段的映射关系，配置如下：
+
+{{{
+            <sqlMap dbgroup="default">
+		....		
+		<select id="listCommentsByName" orm="commentMap">
+			select * from @@commentMap where @userName = :userName
+		</select>
+		
+		<orm id="commentMap" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+		    <result property="id" column="id" type="int"/>
+		    <result property="userId" column="userId" type="int"/>
+		    <result property="userName" column="userName" type="string" />
+		    <result property="createdTime" column="createdTime" type="datetime" />
+		</orm>
+	</sqlMap>
+}}}
+
+ 配置了1个sql语句，id为listCommentsByName，映射orm名称为commentMap。在sql语句中使用了@@替代表名,@替代属性名。注意：如果使用shadow表，必须使用@@替换真实的表名，否则guzz无法知道动态获取的真实表名应该拼接到sql语句的什么位置。
+
+ 在这个例子里面我们可以看到，@@后面也可以接orm的名称，但要求orm必须配置table属性。此时，如果没有shadow属性，@@commentMap将被替换为TB_COMMENT；如果有shadow属性，将会按照org.guzz.test.CommentShadowView运行时获取的表名进行替换。
+
+ sql语句的orm也可以指定为领域对象名称，如：{{{<select id="listCommentsByName" orm="comment">}}}，此时将按照comment领域对象的映射关系（Comment.hbm.xml）进行orm操作（hibernate的映射方式），不用在重复配置映射。
+
+ 言归正传，下面开始使用配置的sql执行查询：
+
+{{{
+                TransactionManager tm = gf.getTransactionManager() ;
+		ReadonlyTranSession session = tm.openDelayReadTran() ;
+
+		Guzz.setTableCondition(new User(1)) ;
+		
+		HashMap<String, String> params = new HashMap<String, String>() ;
+		params.put("userName", "lily") ;
+		
+		List<Comment> comments = session.list("listCommentsByName", params, 1, 10000) ;
+}}}
+
+ 由于按照id查询方法不支持传入tableCondition参数，所有分表参数只能通过Guzz.setTableCondition设置。
+
+*第四：*在jsp页面上通过guzz taglib读取。
+
+ taglib的list, get, page, inc以及boundary标签都支持传入tableCondition属性。只要传入此属性，就将按照此属性的值分表。如果没有传入，或者传入的为null，按照Guzz.setTableCondition设置的值分表。如果boundary设置了tableCondition，所有boundary之内的标签自动继承，也可以覆盖。
+
+ 例如读取名称为lily的前20条评论，按照当前用户分表：
+
+{{{
+<g:list var="m_comments" business="comment" limit="userName=lily" orderBy="id desc" pageSize="20" tableCondition="${currentUser}" />
+}}}
+
+== 接口方法调用顺序 ==
+
+ * 1. 解析配置文件，生成类实例
+
+ * 2. 调用setConfiguredTableName(String tableName)
+
+ * 3. 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
+
+ * 4. 调用startup()
+
+ * 5. 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
+
+ * 6. 对外服务……
+
+ * 7. guzz关闭时调用shutdown()
