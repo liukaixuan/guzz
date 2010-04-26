@@ -1,6 +1,6 @@
 == 安装标签： ==
 
- 两步：
+两步：
  *  配置好guzz环境，让guzz跑起来。
  *  在需要的jsp页面上引入标签库：<%@ taglib uri="http://www.guzz.org/tags" prefix="g" %>
 
@@ -28,7 +28,7 @@
 *主要的属性有：*
 
 || *属性名称*  || *作用*  || *注意事项*  ||
-|| limit  || 查询条件。 如：userName=\$\{param.name\}；status=1；checked=true。 也可以为应用自己定义的条件，如"checkedPost"，如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。  || 1个limit只允许写1个条件。不支持多个条件的and or运算。 ||
+|| limit  || 查询条件。 如：userName=${param.name}；status=1；checked=true。 也可以为应用自己定义的条件，如"checkedPost"；如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。|| 1个limit只允许写1个条件。不支持多个条件的and or运算。 ||
 || var  || 将结果保存到jsp对象中的名称。类似c:set中var的定义。  || - ||
 || scope  || 结果保存的范围。类似c:set中scope的定义。  || page,request,session,application  ||
 || business  || 域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  ||- ||
