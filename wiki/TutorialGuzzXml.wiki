@@ -1,0 +1,102 @@
+== 核心配置 ==
+
+ guzz.xml为guzz框架的核心配置文件，用于定义应用配置，数据库使用，ORM，以及服务等。
+
+*guzz.xml样本:*
+
+{{{
+<guzz-configs>
+	
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resource" value="guzz_app.properties" />
+		</server>
+	</config-server>
+
+        <dialect class="org.guzz.dialect.H2Dialect"></dialect>
+	<dialect name="mysql5dialect" class="org.guzz.dialect.Mysql5Dialect" />
+	<dialect name="oracle10gdialect" class="org.guzz.dialect.Oracle10gDialect" />
+	
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB" />
+		<dbgroup name="log" masterDBConfigName="masterDB" dialectName="mysql5dialect" />
+		<dbgroup name="oracle" masterDBConfigName="oracleDB" dialectName="oracle10gdialect" />
+	</tran>	
+	
+	<import resource="include/part2.xml" />
+
+	<business name="user" dbgroup="default" class="org.guzz.test.User" interpret="" file="classpath:org/guzz/test/User.hbm.xml" />
+	<business name="book" class="org.guzz.test.Book" file="classpath:org/guzz/test/Book.hbm.xml" />
+	<business name="userInfo" dbgroup="oracle" class="org.guzz.test.UserInfo" file="classpath:org/guzz/test/UserInfo.hbm.xml" />
+	<business name="userInfo2" dbgroup="default" file="classpath:org/guzz/test/UserInfoH2.hbm.xml" />
+	<business name="comment" dbgroup="default" file="classpath:org/guzz/test/Comment.hbm.xml" />
+	<business name="cargo" dbgroup="default" file="classpath:org/guzz/test/shop/Cargo.hbm.xml" />
+	<business name="sp" dbgroup="default" file="classpath:org/guzz/test/shop/SpecialProperty.hbm.xml" />
+
+	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
+	<service name="onlyForTest2" configName="onlyForTest2Config" class="org.guzz.test.sample.SampleTestService2" />
+	
+	<sqlMap dbgroup="default">
+		<select id="selectUser" orm="user" dbgroup="default">
+			select-* from @@user
+			 where 
+			 	@id = :id 
+		</select>
+		
+		<select id="selectUserByName" orm="user">
+			select @id, @userName, @vip, @password from @@user where @userName = :userName
+		</select>
+	
+		<update id="updateUserFavCount" orm="userObjectMap">
+			update @@user set @favCount = favCount + 1
+		</update>
+		
+		<select id="selectUsers" orm="userObjectMap">
+			select @id, @name, @vip, @favCount from @@user
+		</select>
+		
+		<select id="listCommentsByName" orm="commentMap">
+			select-* from @@commentMap where @userName = :userName
+		</select>
+				
+		<orm id="userObjectMap" class="org.guzz.test.UserModel">
+			<result property="id" column="pk"/>
+		    <result property="name" column="userName"/>
+		    <result property="favCount" column="FAV_COUNT"/>
+		    <result property="vip" column="VIP_USER"/>
+		</orm>
+		
+		<orm id="commentMap" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+			<result property="id" column="id" type="int"/>
+		    <result property="userId" column="userId" type="int"/>
+		    <result property="userName" column="userName" type="string" />
+		    <result property="createdTime" column="createdTime" type="datetime" />
+		</orm>
+	</sqlMap>
+
+</guzz-configs>
+}}}
+
+其中：
+
+*config-server：*指定应用配置信息管理服务。guzz通过配置服务器读取应用的各项配置参数。默认实现为本地文件配置，本例中通过读取guzz_app.properties加载配置信息。
+
+*guzz_test2.properties：* 为应用配置文件，按照组进行设置。类似于Mysql数据库的配置文件，在下一节进行详细介绍。本例中为向org.guzz.config.LocalFileConfigServer配置管理服务器传入的参数。
+
+*dialect：*指定数据库的实现方言。目前dialect主要用来创建主键，以及进行物理分页查询。dialect可以指定1个名称，默认为default。guzz允许一次管理多组不同类型的数据库，dialect可以配置多个。
+
+*tran：*定义数据库组，1个tran下可以有多个 dbgroup，每个dbgroup可以指定主数据库配置名和从数据库配置名，以及dialect名（默认用default）。guzz通过配置名，从配置服务器中查询配置，本例中就是从guzz_app.properties读取此组名的配置信息。每个dbgroup对应1个物理的数据库组，可以有主库从库之分，也可以通过不同的dialect名称设置不同类型的数据库厂商，默认的dialect名称为default。
+
+*business：*定于领域对象。1个领域对象对应数据库中的一张表。领域对象必须指定一个名字name属性（以后称为 businessName），这个名字以后可以用来代替类名查询对象，以及在jsp taglib中标示读取什么对象。business可以指定dbgroup属性，标示对象存储在那一组数据库中，默认为default组。file属性制定hbm.xml文件位置。business可以指定interpret属性进行高级的taglib标签条件控制，interpret为实现 org.guzz.orm.BusinessInterpreter接口的完整类名，也可以指定class属性覆盖hbm.xml中设定的class。
+
+*import：*引入一个子配置文件，通过resource属性指定配置文件相对当前文件的位置。import工作时相当于汇编的宏或者c++的inline函数，他copy子文件的配置内容合并到import的位置，然后再按照1个整体来解析。
+
+*service：*用于外挂系统服务。name为服务名称，在程序中可以通过name查询到服务实例；configName为配置信息组名称，class为服务实现客户端。class必须实现org.guzz.Service接口。
+
+*sqlMap：*定义sql语句以及sql映射，类似于ibatis。sqlMap可以指定dbgroup属性标记此sqlMap下所有查询对应的数据库组，默认为default数据库组。
+
+*sqlMap/select|update：*定义sql查询和更新|删除语句，通过id指定名称（在程序中使用的名称），通过orm 属性指定要Mapping的配置。sql语句为可在数据库中执行的标准sql语句。在编写sql语句时，可以@@businessName或者 @@full-class-name的方式代替数据库表名，用@java属性名称或者@orm/result/property 名称代替对应的数据库字段，guzz在执行时会完成自动替换。如果sql中包含参数，使用“冒号+参数名称”代替，如“:userName”，在程序中执行时通过java.util.Map传入"userName"->value对进行调用，guzz将完成命名参数的参数设置（PreparedStatement方式）。
+
+*orm：*定义sql查询结果字段与对象的对应关系，类似ibatis。可以通过指定dbgroup覆盖sqlMap中设定的数据库。 orm可以放在sqlMap内，表示此ORM在本sqlmap内有效，也可以放在sqlMap外，表示所有sqlMap中的select/update都可以使用。放在sqlMap内的orm优先级高于放在sqlMap的，同时orm名称不能是business name，所有business name会按照自己的名字自动声明自己为一个全局的orm。因此，在配置的sql语句选择orm时，可以填写为business name使用hbm.xml的映射关系（hbm.xml中所有的特殊功能，包括表分切自定义属性延迟加载等将依然有效），但此时将查询结果转换成java对象时采用hibernate的规则，查询多少字段映射多少字段，没有select的属性设为默认值。
+
+*orm/result：*每1个Result代表一列的对应关系，property为java属性名，column为数据库属性，type为数据类型（与hbm.xml中的type含义和取值相同）；如果type没有指定，则通过orm/class按照property属性反射获取类型。
