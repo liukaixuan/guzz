@@ -14,8 +14,7 @@
 
 *内部调用流程：*
 
-[[Image(guzz_load_load_lct.png, 750px)]]
-
+[http://guzz.org/attachment/wiki/LazyLoad/guzz_load_load_lct.png]
 
 == 自定义加载属性(loader) ==
 
