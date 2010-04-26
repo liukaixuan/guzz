@@ -1,0 +1,170 @@
+== 基本使用 ==
+
+ guzz支持apache commons dbcp和C3P0连接池，并支持其他用户自定义的连接池。
+
+ 在进行数据参数配置时，通过指定参数 pool 选定连接池实现方式，使用 guzz.maxLoad 指定连接池最大连接数。
+
+ guzz内置有dbcp和c3p0两种连接池实现，如果不指定pool参数，则默认使用C3P0连接池。
+
+ 例如，下面例子使用c3p0连接池：
+
+{{{
+[masterDB]
+guzz.identifer=blogMasterDB
+guzz.IP=localhost
+guzz.maxLoad=120
+
+pool=c3p0
+
+driverClass=com.mysql.jdbc.Driver
+jdbcUrl=jdbc:mysql://localhost:3306/blog?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+user=root
+password=root
+acquireIncrement=10
+idleConnectionTestPeriod=60
+}}}
+
+ 下面的例子使用dbcp连接池：
+
+{{{
+[logSlaveDB]
+guzz.identifer=logSlaveDB1
+guzz.IP=localhost
+guzz.maxLoad=30
+
+pool=dbcp
+
+driverClassName=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3306/log?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true&amp;cachePrepStmts=truee&amp;prepStmtCacheSize=4096&amp;prepStmtCacheSqlLimit=4096&amp;rewriteBatchedStatements=true
+username=log
+password=log
+initialSize=10
+minIdle=10
+maxWait=1000
+logAbandoned=true
+removeAbandoned=true
+removeAbandonedTimeout=180
+}}}
+
+ 在配置项参数中：
+
+{{{
+guzz.identifer=logSlaveDB1
+guzz.IP=localhost
+guzz.maxLoad=xxx
+}}}
+
+ 为必填项目，其中guzz.identifer必须唯一，用于配置管理服务器对连接池动态调整时进行通知；guzz.IP为数据库IP，用于管理使用。guzz.maxLoad指定服务的负载能力，在数据库连接池中一般用于指定最大连接数。
+
+ 连接池配置的其他参数，除pool参数之外，所有参数都是连接池实现类自身的参数。guzz将把这些参数当做连接池实现类的属性，通过javabean setXXX方式进行注入，注入时自动判断数据类型。
+
+== 自定义连接池实现 ==
+
+=== 代码实现 ===
+
+ guzz在使用连接池时，通过DataSourceProvicer进行初始化和引用。自定义连接池需要实现此接口。DataSourceProvicer定义如下：
+
+{{{
+package org.guzz.connection;
+
+import java.util.Properties;
+import javax.sql.DataSource;
+
+public interface DataSourceProvicer {
+	
+	/**
+	 * init or re-config the underly datasource.
+	 * <p/>
+	 * this method will be invoked at the startup, and may also be called by the configServer to re-config the settings(eg: reducing maxLoad when new db servers installed.).
+	 * 
+	 * @param props  the config properties from the configServer
+	 * @param maxLoad usually means max database connections suggested.
+	 */
+	public void configure(Properties props, int maxLoad) ;
+	
+	/**
+	 * fetch the datasource. This will be called on every connection requiring, so make it fast! 
+	 */
+	public DataSource getDataSource() ;
+	
+	/**
+	 * shutdown the pool.
+	 */
+	public void shutdown() ;
+
+}
+}}}
+
+ 例如guzz DBCP连接池的实现：
+
+{{{
+public class DBCPDataSourceProvicer implements DataSourceProvicer{
+	private static transient final Log log = LogFactory.getLog(DBCPDataSourceProvicer.class) ;
+	BasicDataSource dataSource = null ;
+	
+	public void configure(Properties props, int maxLoad){
+		if(dataSource == null){
+			dataSource = new BasicDataSource() ;
+		}
+		
+		JavaBeanWrapper bw = BeanWrapper.createPOJOWrapper(dataSource.getClass()) ;
+		Enumeration e = props.keys() ;
+		while(e.hasMoreElements()){
+			String key = (String) e.nextElement() ;
+			String value = props.getProperty(key) ;
+			
+			try{
+				bw.setValueAutoConvert(dataSource, key, value) ;
+			}catch(Exception e1){
+				log.error("unknown property:[" + key + "=" + value + "]", e1) ;
+			}
+		}
+		
+		//数据库最大连接500
+		if(maxLoad > 1000 || maxLoad < 1){
+			maxLoad = 500 ;
+		}
+		
+                //设置最大连接数
+		dataSource.setMaxActive(maxLoad) ;
+		
+		//fetch a connection to force the datasource to build the pool
+		Connection c = null ;
+		try {
+			c = dataSource.getConnection() ;
+		} catch (SQLException e1) {
+			log.error(props, e1) ;
+		}finally{
+			CloseUtil.close(c) ;
+		}
+	}
+
+	public DataSource getDataSource() {
+		return dataSource ;
+	}
+
+	public void shutdown() {
+		if(dataSource != null){
+			try {
+				dataSource.close() ;
+			} catch (SQLException e) {
+				log.error("fail to shutdown the DBCPDataSource", e) ;
+			}
+			
+			dataSource = null ;
+		}
+	}
+}
+}}}
+
+ 其中方法 public void configure(Properties props, int maxLoad) ; 传入的props参数，将自动删除Properties中所有以guzz.开头的属性以及pool属性。
+
+ 自定义连接池在实现时，必须提供一个没有任何参数的默认构造函数，用于guzz生成类实例。
+
+=== 配置自定义连接池 ===
+
+ 将配置参数pool设置为自定义连接池实现的完整类名即可。如：
+
+{{{
+pool=org.guzz.connection.DBCPDataSourceProvicer
+}}}
