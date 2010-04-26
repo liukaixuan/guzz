@@ -1,0 +1,78 @@
+!TranSession用于进行数据库的持久化操作。
+
+== !GuzzBaseDao： ==
+
+ guzz建议所有的Dao继承!GuzzBaseDao，以使用base dao中提供的常用持久化方法。
+
+== !ReadonlyTranSession： ==
+
+ !ReadonlyTranSession为guzz对外提供的查询操作入口，获取方法：
+
+{{{
+TransactionManager tm = guzzContext.getTransactionManager() ;
+
+ReadonlyTranSession session = getTransactionManager().openDelayReadTran() ;
+
+try{
+	SearchExpression se = SearchExpression.forClass(SystemLog.class) ;
+	se.and(Terms.eq("categoryId", 18)) ;
+	se.setOrderBy("importance desc, id asc") ;
+	return session.list(se) ;
+}finally{
+	session.close() ;
+}
+}}}
+
+ !ReadonlyTranSession提供按照检索表达式[SearchExpression SearchExpression]，SQL语句CompiledSQL，以及guzz.xml中配置的sql语句id进行查询的接口。
+
+=== !SearchExpression： ===
+
+ [SearchExpression SearchExpression]类似于hibernate中的criteria查询，不过功能没有criteria强大，不过名字容易拼写多了。
+
+ [SearchExpression SearchExpression] 通过 [SearchExpression#SearchTerm SearchTerm] 组织查询条件。
+
+=== CompiledSQL： ===
+
+ guzz将sql语句进行预编译生成CompiledSQL，在预编译时sql语句允许参数命名和businessName，属性名替换，进行预编译的SQL和guzz.xml中允许定义的sql规则相同。示例如下：
+
+{{{
+TransactionManager tm = super.getTransactionManager() ;
+
+String sql = "update @@" + SystemLog.class.getName() +  " set @importance = :level where @id = :id" ;
+CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(SystemLog.class, sql) ;
+
+WriteTranSession session = tm.openRWTran(true) ;
+
+try{
+	session.executeUpdate(cs.bind("level", 3).bind("id", 5)) ;
+}finally{
+	session.close() ;
+}
+}}}
+
+ CompiledSQL为线程安全的对象，对于重复执行的sql，建议将编译好的CompiledSQL缓存以来，避免重复解析。在guzz.xml中定义的sql，在guzz内部就是以CompiledSQL进行存储和管理的。
+
+=== 通过guzz.xml中定义的id查询： ===
+
+ 类似ibatis。
+
+== !WriteTranSession ==
+
+ WriteTranSession为写api接口。
+
+{{{
+TransactionManager tm = super.getTransactionManager() ;
+WriteTranSession session = tm.openRWTran(true) ;
+}}}
+
+ 在获取时，传入参数是否自动提交事务。true：自动提交；false：手动提交。
+
+ 如果设置为false，在这执行完操作后，需要调用session.commit()或者session.rollback()结束事务。
+
+ WriteTranSession只允许通过主键进行查询操作，查询时从主数据库操作。其他方法与ReadonlyTranSession用法类似。
+
+== 事务一致性： ==
+
+ 如果需要执行事务处理，在获取WriteTranSession时需要关闭自动提交事务： tm.openRWTran(false) ;
+
+ 随后针对此WriteTranSession进行任意操作即可，包括从此WriteTranSession创建JDBCTemplate执行raw sql，或者创建Batcher执行批量操作，在所有操作完成后commit()或者rollback()，guzz将完成多组机器多项操作的分布式事务。
