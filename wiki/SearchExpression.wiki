@@ -33,7 +33,7 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
  SearchExpression的查询条件，通过SearchTerm进行拼装。
 
-=== 其他： ===
+=== SearchExpression API： ===
 
 * setCountSelectPhrase：*
  SearchExpression通过此方法设置count操作的查询对象，默认为count(*)。例如可以为：count(id), sum(score) 等。
@@ -53,7 +53,7 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 * setComputeRecordNumber：*
  设置在page操作时，是否执行count查询获得记录总数。或许您已经通过cache等其他途径获得了数据。
 
-== !SearchTerm： ==
+=== 用SearchTerm构造查询条件： ===
 
  SearchTerm可以直接通过实现类构造，也可以通过 org.guzz.orm.se.Terms 的静态方法生成（推荐尽量使用此方法）。
 
@@ -84,7 +84,6 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
  * !WhereTerm 拼接where语句。public !WhereTerm(!SearchTerm condition)。内部使用。
 
  对于大部分的SearchTerm不建议直接使用，推荐通过Terms静态方法和SearchExpression提供的方法进行操作。
-
 
 == 更加复杂的查询： ==
 
