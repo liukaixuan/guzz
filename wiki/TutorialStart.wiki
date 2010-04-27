@@ -10,27 +10,29 @@
 
  * 5. [TutorialHbmXml 配置数据库映射文件hbm.xml]
 
- * 6. [TutorialTranSession 编写数据库操作]
+ * 6. [TutorialHbmAnnotation 或通过annotation声明ORM]
 
- * 7. [SearchExpression 查询表达式]
+ * 7. [TutorialTranSession 编写数据库操作]
 
- * 8. [TutorialTaglib guzz taglib]
+ * 8. [SearchExpression 查询表达式]
 
- * 9. [TutorialDatasourceProvider 配置数据库连接池]
+ * 9. [TutorialTaglib guzz taglib]
+
+ * 10. [TutorialDatasourceProvider 配置数据库连接池]
 
 == 高级设置： ==
 
- * 10. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
+ * 11. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
 
- * 11. [TutorialLob Blob与Clob使用]
+ * 12. [TutorialLob Blob与Clob使用]
 
- * 12. [TutorialService Service1:服务的使用和编写]
+ * 13. [TutorialService Service1:服务的使用和编写]
 
- * 13. [TutorialFutureService Service2:编写支持异步调用的服务]
+ * 14. [TutorialFutureService Service2:编写支持异步调用的服务]
 
- * 14. [TutorialShadowTable 表分切（Shadow Table）]
+ * 15. [TutorialShadowTable 表分切（Shadow Table）]
 
- * 15. [TutorialCustomTable 自定义属性表（Custom Table）]
+ * 16. [TutorialCustomTable 自定义属性表（Custom Table）]
 
 == 附录： ==
 
