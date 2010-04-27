@@ -1,0 +1,26 @@
+== Guzz JPA Annotation ==
+
+Guzz支持JPA定义的注解，并参照hibernate进行了注解扩展，以满足guzz特性功能的声明需要。对于JPA自身的注解，使用方式与JPA规范规定的相同；对于扩展的注解，命名和使用方式与hibernate相同（除了包名不一样，其他几乎无差别）。
+
+Guzz仅支持单对象ORM映射，不支持对象之间的关联映射（one-one, one-many, many-to, many-many），也不支持JPA的持久化方法。guzz annotation仅用来替代hbm.xml配置文件。
+
+== Guzz JPA Annotation Reference ==
+
+The Java Persistence API (JPA), part of the Java Enterprise Edition 5 (Java EE 5) Enterprise JavaBeans (EJB) 3.0 specification, greatly simplifies Java persistence and provides an object-relational mapping approach that allows you to declaratively define how to map Java objects to relational database tables in a standard, portable way that works both inside a Java EE 5 application server and outside an EJB container in a Java Standard Edition (Java SE) 5 application.
+
+When using Guzz JPA, you can configure the JPA behavior of your entities using annotations. An annotation is a simple, expressive means of decorating Java source code with metadata that is compiled into the corresponding Java class files for interpretation at runtime by Guzz JPA to manage JPA behavior.
+
+For example, to designate a Java class as a JPA entity, use the @Entity annotation as follows:
+
+{{{
+@javax.persistence.Entity
+public class Employee implements Serializable {
+    ...
+}
+}}}
+
+You can selectively decorate your entity classes with annotations to override defaults. This is known as configuration by exception.
+
+This reference quotes extensively from the JSR-220 Enterprise JavaBeans v.3.0 Java Persistence API specification to summarize annotation information by category (see Table 1-1) and explains when and how you use these annotations to customize JPA behavior to meet your application requirements.
+
+
