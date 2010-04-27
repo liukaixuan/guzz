@@ -16,12 +16,12 @@ This reference quotes extensively from the [JSR-220  Enterprise JavaBeans v.3.0|
 For more information, see:
 * [Index  of Annotations#IndexOfAnnotations]
 * [Complete  JPA annotation Javadoc|http://java.sun.com/javaee/5/docs/api/index.html?javax/persistence/package-summary.html]Table 1-1 JPA Annotations by Category
-CategoryDescriptionAnnotations\| Entity \| By default, Guzz JPA assumes that a Java class is non-persistent and not  eligible for JPA services unless it is decorated with this annotation.
+CategoryDescriptionAnnotations|| Entity || By default, Guzz JPA assumes that a Java class is non-persistent and not  eligible for JPA services unless it is decorated with this annotation.
 \\
 Use this annotation to designate a plain old Java object (POJO) class as an  entity so that you can use it with JPA services.
 \\
-You must designate a class as a JPA entity (either using this annotation or  the orm.xml file) before you can use the class. \| [@Entity#Entity]\\
-\|
+You must designate a class as a JPA entity (either using this annotation or  the orm.xml file) before you can use the class. || [@Entity#Entity]\\
+||
 | Database Schema Attributes | By default, Guzz JPA assumes that an entity's name corresponds to a database  table of the same name and that an entity's data member names correspond to  database columns with the same names. \\
 Use these annotations to override this default behavior and fine-tune the  relationship between your object model and data model. | [@Table#Table]\\
 \\
@@ -35,13 +35,13 @@ You can also use these annotations to fine-tune how your database maintains  the
 [@#JoinColumn][org.guzz.annotations.Parameter#JoinColumn]\\
 [@GeneratedValue#GeneratedValue]\\
 [@SequenceGenerator#SequenceGenerator]\\
-[@TableGenerator#TableGenerator]\\ |
+[@TableGenerator#TableGenerator]||
 | Direct Mappings | By default, Guzz JPA automatically configures a Basic mapping  for most Java primitive types, wrappers of the primitive types, and enums. \\
 Use these annotations to fine-tune how your database implements these  mappings. | [@Basic#Basic]\\
 [@Enumerated#Enumerated]\\
 [@Temporal(not  supported)#Temporal]\\
 [@Lob(not  supported)#Lob]\\
-[@Transient#Transient]\\ |
+[@Transient#Transient]||
 | Inheritance | By default, Guzz JPA assumes that all persistent fields are defined by a  single entity class. \\
 Use these annotations if your entity class inherits some or all persistent  fields from one or more superclasses. | [@MappedSuperclass#MappedSuperclass] |
 
@@ -54,10 +54,10 @@ Use the @AttributeOverride annotation to customize a basic  mapping inherited fr
 If you have more than one @AttributeOverride change to make, you  must use [@AttributeOverrides#AttributeOverrides].
 
 [Table  1-4#CHDEEJFG] lists the attributes of this annotation. For  more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/AttributeOverride.html].Table 1-4 @AttributeOverride Attributes
-AttributeRequiredDescription\| name \| Required
+AttributeRequiredDescription|| name || Required
 \\
-\| The name of the field or property defined in the embedded object or mapped  superclass. \|
-| column | Required \\ | The [@Column#Column] that is being mapped to the persistent attribute. The mapping type will remain  the same as is defined in the embeddable class or mapped  superclass. |
+|| The name of the field or property defined in the embedded object or mapped  superclass. ||
+| column | Required || The [@Column#Column] that is being mapped to the persistent attribute. The mapping type will remain  the same as is defined in the embeddable class or mapped  superclass. |
 
 [Example  1-5#CHDIACBE] shows how to use @AttributeOverride in the entity subclass  to override the [@Column#Column] defined (by default) in the [@MappedSuperclass#MappedSuperclass] Employee for the basic mapping to id.
 
@@ -83,9 +83,9 @@ h2. @AttributeOverrides
 If you need to specify more than one [@AttributeOverride#AttributeOverride],  you must specify all your attribute overrides using a single @AttributeOverrides annotation.
 
 [Table  1-5#CHDFHDBB] lists the attributes of this annotation. For  more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/AttributeOverrides.html].Table 1-5 @AttributeOverrides Attributes
-AttributeRequiredDescription\| value \| Required
+AttributeRequiredDescription|| value || Required
 \\
-\| To specify two or more attribute overrides, set value to an  array of @AttributeOverride instances (see [@AttributeOverride#AttributeOverride]). \|
+|| To specify two or more attribute overrides, set value to an  array of @AttributeOverride instances (see [@AttributeOverride#AttributeOverride]). ||
 
 [Example  1-6#CHDBFEFG] shows how to use this annotation to specify two attribute overrides.
 
@@ -108,13 +108,13 @@ By default, Guzz JPA automatically configures a @Basic mapping  for most Java pr
 Use the @Basic annotation to configure the fetch type to LAZY.
 
 [Table  1-6#CHDCJEHE] lists the attributes of this annotation. For  more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/Basic.html].Table 1-6 @Basic Attributes
-AttributeRequiredDescription\| fetch \| Optional
+AttributeRequiredDescription|| fetch || Optional
 \\
-\| Default: FetchType.EAGER.
+|| Default: FetchType.EAGER.
 \\
 By default, Guzz JPA uses a fetch type of EAGER: this is a  requirement on Guzz JPA runtime that data must be eagerly fetched.
 \\
-If this is inappropriate for your application or a particular persistent  field, set fetch to FetchType.LAZY: this is a hint  that data should be fetched lazily when it is first accessed (if possible). For  more information, see "Lazy Loading" in the _Guide_. \|
+If this is inappropriate for your application or a particular persistent  field, set fetch to FetchType.LAZY: this is a hint  that data should be fetched lazily when it is first accessed (if possible). For  more information, see "Lazy Loading" in the _Guide_. ||
 
 [Example  1-7#CHDHHIEF] shows how to use this annotation to specify a fetch type of LAZY for a basic mapping.
 
@@ -139,24 +139,24 @@ Use the @Column annotation:
 * to fine-tune the characteristics of a column in your database
 
 [Table  1-7#CHDBAHAG] lists the attributes of this annotation. For  more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/Column.html].Table 1-7 @Column Attributes
-AttributeRequiredDescription\| name \| Optional
+AttributeRequiredDescription|| name || Optional
 \\
-\| Default: Guzz JPA assumes that each of an entity's  persistent attributes is stored in a database table column whose name matches  that of the persistent field or property.
+|| Default: Guzz JPA assumes that each of an entity's  persistent attributes is stored in a database table column whose name matches  that of the persistent field or property.
 \\
-To specify an alternative column name, set name to the String column name you want. \|
-| unique | Optional \\ | Not supported. \\ |
-| nullable | Optional \\ | Not supported. |
-| insertable | Optional \\ | Default: true. \\
+To specify an alternative column name, set name to the String column name you want. ||
+| unique | Optional || Not supported. ||
+| nullable | Optional || Not supported. |
+| insertable | Optional || Default: true. \\
 By default, Guzz JPA assumes that all columns are always included in SQL INSERT statements. \\
 If this column should not be included in these statements, set insertable to false. |
-| updatable | Optional \\ | Default: true. \\
+| updatable | Optional || Default: true. \\
 By default, Guzz JPA assumes that a column is always included in SQL  UPDATE statements. \\
 If this column should not be included in these statements, set updatable to false. |
-| columnDefinition | Optional \\ | Not supported. You have to create your table on your  own. |
-| table | Optional \\ | not supported. |
-| length | Optional \\ | not supported. \\ |
-| precision | Optional \\ | not  supported. |
-| scale | Optional \\ | not  supported. |
+| columnDefinition | Optional || Not supported. You have to create your table on your  own. |
+| table | Optional || not supported. |
+| length | Optional || not supported. ||
+| precision | Optional || not  supported. |
+| scale | Optional || not  supported. |
 
 [Example  1-8#CHDCEHDA] shows how to use this annotation to make Guzz JPA persist salary to column SAL in secondary table EMP_SAL. By default, Guzz JPA persists salary to  column salary in primary table EMPLOYEE.
 
@@ -177,9 +177,9 @@ h2. @Entity
 Use the @Entity annotation to designate a plain old Java object  (POJO) class as an entity and make it eligible for JPA services. You must  designate a POJO class as an entity before you can use any other JPA  annotations.
 
 [Table  1-11#CHDJBGAB] lists the attributes of this annotation.  For more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/Entity.html].Table 1-11 @Entity Attributes
-AttributeRequiredDescription\| name \| Optional
+AttributeRequiredDescription|| name || Optional
 \\
-\| not supported. Use  org.guzz.annotations.Entity to specify the business name  instead. \|
+|| not supported. Use  org.guzz.annotations.Entity to specify the business name  instead. ||
 
 [Example  1-18#CHDHIDBI] shows how to use this annotation.
 
@@ -200,13 +200,13 @@ Use the @Enumerated annotation to specify whether Guzz JPA  should persist ordin
 This annotation can be used with [@Basic#Basic].
 
 [Table  1-14#CHDFIAEE] lists the attributes of this annotation.  For more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/Enumerated.html].Table 1-14 @Enumerated Attributes
-AttributeRequiredDescription\| value \| Optional
+AttributeRequiredDescription|| value || Optional
 \\
-\| Default: EnumType.ORDINAL.
+|| Default: EnumType.ORDINAL.
 \\
 By default, Guzz JPA assumes that for a property or field mapped to an  enumerated constant, the ordinal value should be persisted. In [Example  1-26#CHDEJBHG], the ordinal value of EmployeeStatus is written to the  database when Employee is persisted.
 \\
-If you want the String value of the enumerated constant persisted, set value to EnumType.STRING. \|
+If you want the String value of the enumerated constant persisted, set value to EnumType.STRING. ||
 
 Given the enumerated constants in [Example  1-25#CHDEJJFC], [Example  1-26#CHDEJBHG] shows how to use this annotation to specify that the String value of SalaryRate should be written to the  database when Employee is persisted. By default, the ordinal value  of EmployeeStatus is written to the database.
 
@@ -235,9 +235,9 @@ By default, the application is responsible for supplying and setting entity  ide
 Use the @GeneratedValue annotation if you want Guzz JPA to  provide and manage entity identifiers.
 
 [Table  1-16#CHDBJHED] lists the attributes of this annotation.  For more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/GeneratedValue.html].Table 1-16 @GeneratedValue Attributes
-AttributeRequiredDescription\| strategy \| Optional
+AttributeRequiredDescription|| strategy || Optional
 \\
-\| Default: GenerationType.AUTO.
+|| Default: GenerationType.AUTO.
 \\
 By default, Guzz JPA chooses the type of primary key generator that is most  appropriate for the underlying database.
 \\
@@ -245,10 +245,10 @@ If you feel that another generator type is more appropriate for your database  o
 * IDENTITY - specify that Guzz JPA use a database identity  column
 * AUTO - specify that Guzz JPA should choose a primary key  generator that is most appropriate for the underlying database.
 * SEQUENCE - specify that Guzz JPA use a database sequence (see [@SequenceGenerator#SequenceGenerator])
-* TABLE - specify that Guzz JPA assign primary keys for the entity  using an underlying database table to ensure uniqueness (see [@TableGenerator#TableGenerator]) \|
-| generator | Optional \\ | Default:Guzz JPA assigns a name to the primary key  generator it selects. \\
+* TABLE - specify that Guzz JPA assign primary keys for the entity  using an underlying database table to ensure uniqueness (see [@TableGenerator#TableGenerator]) ||
+| generator | Optional || Default:Guzz JPA assigns a name to the primary key  generator it selects. \\
 If this name is awkward, a reserved word, incompatible with a pre-existing  data model, or invalid as a primary key generator name in your database, set generator to the String generator name you want to  use. \\
-If you want to use a expanded Generator in guzz, set the generator name you  want to use, and defined a @org.guzz.annotations.GenericGenerator with that  name. \\ |
+If you want to use a expanded Generator in guzz, set the generator name you  want to use, and defined a @org.guzz.annotations.GenericGenerator with that  name. ||
 
 [Example  1-33#CHDJHFBJ] shows how to use this annotation to tell Guzz JPA to use a primary key  generator of type GeneratorType.SEQUENCE named CUST_SEQ.
 
@@ -336,15 +336,15 @@ If you use the [@GeneratedValue#GeneratedValue] annotation to specify a primary 
 * use a pre-defined sequence in an existing data model
 
 [Table  1-42#CHDBBBBA] lists the attributes of this annotation. For more details,  see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/SequenceGenerator.html].Table 1-42 @SequenceGenerator Attributes
-AttributeRequiredDescription\| name \| Required
+AttributeRequiredDescription|| name || Required
 \\
-\| The name of the SequenceGenerator must match the generator name  in a GeneratedValue with its strategy set to SEQUENCE. \|
-| sequenceName | Optional \\ | Default: Guzz JPA assigns a sequence name of its own  creation. \\
+|| The name of the SequenceGenerator must match the generator name  in a GeneratedValue with its strategy set to SEQUENCE. ||
+| sequenceName | Optional || Default: Guzz JPA assigns a sequence name of its own  creation. \\
 If you prefer to use an existing or pre-defined sequence or have a specific  requirement for the name of the sequence, set sequenceName to the String name you want. |
-| initialValue | Optional \\ | Default: 0. \\
+| initialValue | Optional || Default: 0. \\
 By default, Guzz JPA starts all primary key values from 0. \\
 If this does not match an existing data model, set initialValue to the int value you want. |
-| allocationSize | Optional \\ | Default: 50. \\
+| allocationSize | Optional || Default: 50. \\
 By default, Guzz JPA uses an allocation size of 50. \\
 If this allocation size does not match your application requirements or  database performance parameters, set allocationSize to the int value you want. |
 
@@ -371,16 +371,16 @@ Use the @Table annotation to specify the primary table  associated with an entit
 * you need to control what catalog or schema the table belongs to
 
 [Table  1-45#CHDGEAJB] lists the attributes of this annotation.  For more details, see the [API|http://java.sun.com/javaee/5/docs/api/javax/persistence/Table.html].Table 1-45 @Table Attributes
-AttributeRequiredDescription\| name \| Optional
+AttributeRequiredDescription|| name || Optional
 \\
-\| Default: Guzz JPA assumes that an entity's database  table has the same name as the entity class. In [Example  1-84#CHDCGHGA], the default name is Employee.
+|| Default: Guzz JPA assumes that an entity's database  table has the same name as the entity class. In [Example  1-84#CHDCGHGA], the default name is Employee.
 \\
-If the entity class name is awkward, a reserved word, or incompatible with a  pre-existing data model, set name to the appropriate database table  name. In [Example  1-84#CHDCGHGA], Guzz JPA persists the entity class Employee in the  database table named EMP. \|
-| catalog | Optional \\ | Default: Guzz JPA uses whatever the default catalog  is for your database. \\
+If the entity class name is awkward, a reserved word, or incompatible with a  pre-existing data model, set name to the appropriate database table  name. In [Example  1-84#CHDCGHGA], Guzz JPA persists the entity class Employee in the  database table named EMP. ||
+| catalog | Optional || Default: Guzz JPA uses whatever the default catalog  is for your database. \\
 If the default catalog is inappropriate for your application, set the catalog to the String catalog name to  use. |
-| schema | Optional \\ | Default: Guzz JPA uses whatever the default schema is  for your database. \\
+| schema | Optional || Default: Guzz JPA uses whatever the default schema is  for your database. \\
 If the default schema is inappropriate for your application, set the schema to the String schema name to use. |
-| uniqueConstraints | Optional \\ | Not  supported. \\ |
+| uniqueConstraints | Optional || Not  supported. ||
 
 [Example  1-84#CHDCGHGA] shows how to use this annotation to specify the primary table name.
 Example 1-84 @Table
