@@ -23,4 +23,228 @@ You can selectively decorate your entity classes with annotations to override de
 
 This reference quotes extensively from the JSR-220 Enterprise JavaBeans v.3.0 Java Persistence API specification to summarize annotation information by category (see Table 1-1) and explains when and how you use these annotations to customize JPA behavior to meet your application requirements.
 
-
+<p>For more information, see:</p> 
+<ul> 
+<li> 
+<p><a href="#IndexOfAnnotations">Index of Annotations</a></p> 
+</li> 
+<li> 
+<p><a href="http://java.sun.com/javaee/5/docs/api/index.html?javax/persistence/package-summary.html">Complete JPA annotation Javadoc</a></p> 
+</li> 
+</ul> 
+<div class="tblruleformalwidemax"><a id="sthref2" name="sthref2"></a><a id="CHDHCEJG" name="CHDHCEJG"></a> 
+<p class="titleintable">Table 1-1 JPA Annotations by Category</p> 
+<table class="RuleFormalWideMax" title="JPA Annotations by Category" summary="This table summarizes the JPA annotations." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t2">Category</th> 
+<th align="left" valign="bottom" id="r1c2-t2">Description</th> 
+<th align="left" valign="bottom" id="r1c3-t2">Annotations</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t2" headers="r1c1-t2"><a id="EntityAnnotations" name="EntityAnnotations"></a> 
+<p>Entity</p> 
+</td> 
+<td align="left" headers="r2c1-t2 r1c2-t2"> 
+<p>By default, TopLink JPA assumes that a Java class is non-persistent and not eligible for JPA services unless it is decorated with this annotation.</p> 
+<p>Use this annotation to designate a plain old Java object (POJO) class as an entity so that you can use it with JPA services.</p> 
+<p>You must designate a class as a JPA entity (either using this annotation or the <code>orm.xml</code> file) before you can use the class with JPA services.</p> 
+</td> 
+<td align="left" headers="r2c1-t2 r1c3-t2"> 
+<p><a href="#Entity">@Entity</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r3c1-t2" headers="r1c1-t2"><a id="DatabaseSchemaAnnotations" name="DatabaseSchemaAnnotations"></a> 
+<p>Database Schema Attributes</p> 
+</td> 
+<td align="left" headers="r3c1-t2 r1c2-t2"> 
+<p>By default, TopLink JPA assumes that an entity's name corresponds to a database table of the same name and that an entity's data member names correspond to database columns with the same names.</p> 
+<p>Use these annotations to override this default behavior and fine-tune the relationship between your object model and data model.</p> 
+</td> 
+<td align="left" headers="r3c1-t2 r1c3-t2"> 
+<p><a href="#Table">@Table</a></p> 
+<p><a href="#SecondaryTable">@SecondaryTable</a></p> 
+<p><a href="#SecondaryTables">@SecondaryTables</a></p> 
+<p><a href="#Column">@Column</a></p> 
+<p><a href="#JoinColumn">@JoinColumn</a></p> 
+<p><a href="#JoinColumns">@JoinColumns</a></p> 
+<p><a href="#PrimaryKeyJoinColumn">@PrimaryKeyJoinColumn</a></p> 
+<p><a href="#PrimaryKeyJoinColumns">@PrimaryKeyJoinColumns</a></p> 
+<p><a href="#JoinTable">@JoinTable</a></p> 
+<p><a href="#UniqueConstraint">@UniqueConstraint</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r4c1-t2" headers="r1c1-t2"><a id="IdentityAnnotations" name="IdentityAnnotations"></a> 
+<p>Identity</p> 
+</td> 
+<td align="left" headers="r4c1-t2 r1c2-t2"> 
+<p>By default, TopLink JPA assumes that each entity must have at least one field or property that serves as a primary key.</p> 
+<p>Use these annotations to specify one of the following:</p> 
+<ul> 
+<li> 
+<p>one <code>@Id</code></p> 
+</li> 
+<li> 
+<p>multiple <code>@Id</code> and an <code>@IdClass</code></p> 
+</li> 
+<li> 
+<p>one <code>@EmbeddedId</code></p> 
+</li> 
+</ul> 
+<p>You can also use these annotations to fine-tune how your database maintains the identity of your entities.</p> 
+</td> 
+<td align="left" headers="r4c1-t2 r1c3-t2"> 
+<p><a href="#Id">@Id</a></p> 
+<p><a href="#IdClass">@IdClass</a></p> 
+<p><a href="#EmbeddedId">@EmbeddedId</a></p> 
+<p><a href="#GeneratedValue">@GeneratedValue</a></p> 
+<p><a href="#SequenceGenerator">@SequenceGenerator</a></p> 
+<p><a href="#TableGenerator">@TableGenerator</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r5c1-t2" headers="r1c1-t2"><a id="DirectMappingAnnotations" name="DirectMappingAnnotations"></a> 
+<p>Direct Mappings</p> 
+</td> 
+<td align="left" headers="r5c1-t2 r1c2-t2"> 
+<p>By default, TopLink JPA automatically configures a <code>Basic</code> mapping for most Java primitive types, wrappers of the primitive types, and <code>enums</code>.</p> 
+<p>Use these annotations to fine-tune how your database implements these mappings.</p> 
+</td> 
+<td align="left" headers="r5c1-t2 r1c3-t2"> 
+<p><a href="#Basic">@Basic</a></p> 
+<p><a href="#Enumerated">@Enumerated</a></p> 
+<p><a href="#Temporal">@Temporal</a></p> 
+<p><a href="#Lob">@Lob</a></p> 
+<p><a href="#Transient">@Transient</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r6c1-t2" headers="r1c1-t2"><a id="RelationshipMappingAnnotations" name="RelationshipMappingAnnotations"></a> 
+<p>Relationship Mappings</p> 
+</td> 
+<td align="left" headers="r6c1-t2 r1c2-t2"> 
+<p>TopLink JPA requires that you map relationships explicitly, but TopLink allows some defaulting.</p> 
+<p>Use these annotations to specify the type and characteristics of entity relationships to fine-tune how your database implements these relationships.</p> 
+</td> 
+<td align="left" headers="r6c1-t2 r1c3-t2"> 
+<p><a href="#OneToOne">@OneToOne</a></p> 
+<p><a href="#ManyToOne">@ManyToOne</a></p> 
+<p><a href="#OneToMany">@OneToMany</a></p> 
+<p><a href="#ManyToMany">@ManyToMany</a></p> 
+<p><a href="#MapKey">@MapKey</a></p> 
+<p><a href="#OrderBy">@OrderBy</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r7c1-t2" headers="r1c1-t2"><a id="CompositionAnnotations" name="CompositionAnnotations"></a> 
+<p>Composition</p> 
+</td> 
+<td align="left" headers="r7c1-t2 r1c2-t2"> 
+<p>Some objects cannot exist on their own, but can only be embedded within owning entities.</p> 
+<p>Use these annotations to specify objects that are embedded and to override how they are mapped in the owning entity's table.</p> 
+</td> 
+<td align="left" headers="r7c1-t2 r1c3-t2"> 
+<p><a href="#Embeddable">@Embeddable</a></p> 
+<p><a href="#Embedded">@Embedded</a></p> 
+<p><a href="#AttributeOverride">@AttributeOverride</a></p> 
+<p><a href="#AttributeOverrides">@AttributeOverrides</a></p> 
+<p><a href="#AssociationOverride">@AssociationOverride</a></p> 
+<p><a href="#AssociationOverrides">@AssociationOverrides</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r8c1-t2" headers="r1c1-t2"><a id="InheritanceAnnotations" name="InheritanceAnnotations"></a> 
+<p>Inheritance</p> 
+</td> 
+<td align="left" headers="r8c1-t2 r1c2-t2"> 
+<p>By default, TopLink JPA assumes that all persistent fields are defined by a single entity class.</p> 
+<p>Use these annotations if your entity class inherits some or all persistent fields from one or more superclasses.</p> 
+</td> 
+<td align="left" headers="r8c1-t2 r1c3-t2"> 
+<p><a href="#Inheritance">@Inheritance</a></p> 
+<p><a href="#DiscriminatorColumn">@DiscriminatorColumn</a></p> 
+<p><a href="#DiscriminatorValue">@DiscriminatorValue</a></p> 
+<p><a href="#MappedSuperclass">@MappedSuperclass</a></p> 
+<p><a href="#AssociationOverride">@AssociationOverride</a></p> 
+<p><a href="#AssociationOverrides">@AssociationOverrides</a></p> 
+<p><a href="#AttributeOverride">@AttributeOverride</a></p> 
+<p><a href="#AttributeOverrides">@AttributeOverrides</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r9c1-t2" headers="r1c1-t2"><a id="LockingAnnotations" name="LockingAnnotations"></a> 
+<p>Locking</p> 
+</td> 
+<td align="left" headers="r9c1-t2 r1c2-t2"> 
+<p>By default, TopLink JPA assumes that the application is responsible for data consistency.</p> 
+<p>It is recommended that you use this annotation to enable TopLink JPA-managed optimistic locking.</p> 
+</td> 
+<td align="left" headers="r9c1-t2 r1c3-t2"> 
+<p><a href="#Version">@Version</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r10c1-t2" headers="r1c1-t2"><a id="LifecycleCallbackAnnotations" name="LifecycleCallbackAnnotations"></a> 
+<p>Lifecycle Callback Events</p> 
+</td> 
+<td align="left" headers="r10c1-t2 r1c2-t2"> 
+<p>By default, TopLink JPA handles all persistence operations.</p> 
+<p>Use these annotations to associate methods with JPA lifecycle events if you need to invoke custom logic at any point during the entity lifecycle. <a href="#CHDCHFJJ">Figure 1-1</a> illustrates the relationship amongst these lifecycle events.</p> 
+</td> 
+<td align="left" headers="r10c1-t2 r1c3-t2"> 
+<p><a href="#PrePersist">@PrePersist</a></p> 
+<p><a href="#PostPersist">@PostPersist</a></p> 
+<p><a href="#PreRemove">@PreRemove</a></p> 
+<p><a href="#PostRemove">@PostRemove</a></p> 
+<p><a href="#PreUpdate">@PreUpdate</a></p> 
+<p><a href="#PostUpdate">@PostUpdate</a></p> 
+<p><a href="#PostLoad">@PostLoad</a></p> 
+<p><a href="#EntityListeners">@EntityListeners</a></p> 
+<p><a href="#ExcludeDefaultListeners">@ExcludeDefaultListeners</a></p> 
+<p><a href="#ExcludeSuperclassListeners">@ExcludeSuperclassListeners</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r11c1-t2" headers="r1c1-t2"><a id="EntityManagerAnnotations" name="EntityManagerAnnotations"></a> 
+<p>Entity Manager</p> 
+</td> 
+<td align="left" headers="r11c1-t2 r1c2-t2"> 
+<p>In an application that uses TopLink JPA, you perform all persistence operations (create, read, update, and delete) using an instance of <code>EntityManager</code>.</p> 
+<p>Use these annotations to declare or inject an entity manager or entity manager factory.</p> 
+</td> 
+<td align="left" headers="r11c1-t2 r1c3-t2"> 
+<p><a href="#PersistenceUnit">@PersistenceUnit</a></p> 
+<p><a href="#PersistenceUnits">@PersistenceUnits</a></p> 
+<p><a href="#PersistenceContext">@PersistenceContext</a></p> 
+<p><a href="#PersistenceContexts">@PersistenceContexts</a></p> 
+<p><a href="#PersistenceProperty">@PersistenceProperty</a></p> 
+<br /></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r12c1-t2" headers="r1c1-t2"><a id="QueryAnnotations" name="QueryAnnotations"></a> 
+<p>Queries</p> 
+</td> 
+<td align="left" headers="r12c1-t2 r1c2-t2"> 
+<p>In an application that uses TopLink JPA, you can use an entity manager to create and execute queries dynamically or you can pre-define queries and execute them by name at run time.</p> 
+<p>Use these annotations to pre-define queries and manage their result sets.</p> 
+</td> 
+<td align="left" headers="r12c1-t2 r1c3-t2"> 
+<p><a href="#NamedQuery">@NamedQuery</a></p> 
+<p><a href="#NamedQueries">@NamedQueries</a></p> 
+<p><a href="#NamedNativeQuery">@NamedNativeQuery</a></p> 
+<p><a href="#NamedNativeQueries">@NamedNativeQueries</a></p> 
+<p><a href="#QueryHint">@QueryHint</a></p> 
+<p><a href="#ColumnResult">@ColumnResult</a></p> 
+<p><a href="#EntityResult">@EntityResult</a></p> 
+<p><a href="#FieldResult">@FieldResult</a></p> 
+<p><a href="#SqlResultSetMapping">@SqlResultSetMapping</a></p> 
+<p><a href="#SqlResultSetMappings">@SqlResultSetMappings</a></p> 
+<br /></td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
