@@ -24,3 +24,4 @@
  * 附录
    * [AppendSpringBean guzz自带的基础服务介绍]
    * [AppendCoreService 在guzz中获取spring定义的bean]
+   * [AppendJPAAnnotation Guzz JPA Annotation参考]
