@@ -25,7 +25,7 @@ You can selectively decorate your entity classes with annotations to override  d
 This reference quotes extensively from the [http://jcp.org/aboutJava/communityprocess/pfd/jsr220/index.html JSR-220  Enterprise JavaBeans v.3.0] Java Persistence API specification to summarize  annotation information by category (see Table  1-1) and explains when and how you use these annotations to customize JPA  behavior to meet your application requirements.
 
 For more information, see:
- * [#@IndexOfAnnotations Index of Annotations]
+ * [#IndexOfAnnotations Index of Annotations]
  * [http://java.sun.com/javaee/5/docs/api/index.html?javax/persistence/package-summary.html Complete JPA annotation Javadoc ]
 
 === Table 1-1 JPA Annotations by Category ===
@@ -103,7 +103,7 @@ public class PartTimeEmployee extends Employee {
 }
 }}}
 
-===  @Basic ===
+=== @Basic ===
 
 By default, Guzz JPA automatically configures a @Basic mapping  for most Java primitive types, wrappers of the primitive types, and enums.
 
@@ -130,7 +130,7 @@ protected String toc;
 }
 }}}
 
-===  @Column ===
+=== @Column ===
 
 By default, Guzz JPA assumes that each of an entity's persistent attributes  is stored in a database table column whose name matches that of the persistent  field or property.
 
@@ -169,7 +169,7 @@ private Long salary;
 }
 }}}
 
-===  @Entity ===
+=== @Entity ===
 
 Use the @Entity annotation to designate a plain old Java object  (POJO) class as an entity and make it eligible for JPA services. You must  designate a POJO class as an entity before you can use any other JPA  annotations.
 
@@ -433,7 +433,7 @@ Example 1-87 shows how to use this annotation to specify Employee field currentS
 }
 }}}
 
-===  Index of Annotations ===
+=== IndexOfAnnotations ===
 
  * A
   # [#@AttributeOverride @AttributeOverride]
