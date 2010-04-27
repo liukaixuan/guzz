@@ -38,7 +38,7 @@ For more information, see:
 || Composition || Some objects cannot exist on their own, but can only be embedded within owning entities.<br><br>Use these annotations to specify objects that are embedded and to override how they are mapped in the owning entity's table. || [#@AttributeOverride @AttributeOverride]<br><br>[#@AttributeOverrides @AttributeOverrides] ||
 || Inheritance||By default, Guzz JPA assumes that all persistent fields are defined by a  single entity class. <br><br>Use these annotations if your entity class inherits some or all persistent  fields from one or more superclasses.||[#@MappedSuperclass @MappedSuperclass] ||
 
-===  @AttributeOverride ===
+=== @AttributeOverride ===
 
 By default, Guzz JPA automatically assumes that a subclass inherits both  persistent properties and their basic mappings as defined in a mapped  superclass.
 
@@ -78,7 +78,7 @@ public class PartTimeEmployee extends Employee {
 }
 }}}
 
-===  @AttributeOverrides ===
+=== @AttributeOverrides ===
 
 If you need to specify more than one [#@AttributeOverride], you must specify all your attribute overrides using a single @AttributeOverrides annotation.
 
@@ -436,27 +436,27 @@ Example 1-87 shows how to use this annotation to specify Employee field currentS
 ===  Index of Annotations ===
 
  * A
-  # [#@AttributeOverride]
-  # [#@AttributeOverrides]
+  # [#@AttributeOverride @AttributeOverride]
+  # [#@AttributeOverrides @AttributeOverrides]
  * B
-  # [#@Basic]
+  # [#@Basic @Basic]
  * C
-  # [#@Column]
+  # [#@Column @Column]
  * E
-  # [#@Entity]
-  # [#@Enumerated]
+  # [#@Entity @Entity]
+  # [#@Enumerated @Enumerated]
  * G
-  # [#@GeneratedValue]
+  # [#@GeneratedValue @GeneratedValue]
  * I
-  # [#@Id]
+  # [#@Id @Id]
  * L
-  # [#@Lob]
+  # [#@Lob @Lob]
  * M
-  # [#@MappedSuperclass]
+  # [#@MappedSuperclass @MappedSuperclass]
  * S
-  # [#@SequenceGenerator]
+  # [#@SequenceGenerator @SequenceGenerator]
  * T
-  # [#@Table]
-  # [#@TableGenerator]
-  # [#@Temporal]
-  # [#@Transient]
+  # [#@Table @Table]
+  # [#@TableGenerator @TableGenerator]
+  # [#@Temporal @Temporal]
+  # [#@Transient @Transient]
