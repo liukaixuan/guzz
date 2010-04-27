@@ -9,6 +9,7 @@
    * [TutorialGuzzXml 配置guzz.xml]
    * [TutorialAppProperties 配置guzz_app.properties]
    * [TutorialHbmXml 配置数据库映射文件hbm.xml]
+   * [TutorialHbmAnnotation 或通过annotation声明ORM]
    * [TutorialTranSession 编写数据库操作]
    * [SearchExpression 查询表达式]
    * [TutorialTaglib guzz taglib]
