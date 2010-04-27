@@ -19,10 +19,8 @@ public class Employee implements Serializable {
 }
 }}}
 
-You can selectively decorate your entity classes with annotations to override defaults. This is known as configuration by exception.
-
-This reference quotes extensively from the JSR-220 Enterprise JavaBeans v.3.0 Java Persistence API specification to summarize annotation information by category (see Table 1-1) and explains when and how you use these annotations to customize JPA behavior to meet your application requirements.
-
+<p>You can selectively decorate your entity classes with annotations to override defaults. This is known as <span class="italic">configuration by exception</span>.</p> 
+<p>This reference quotes extensively from the <a href="http://jcp.org/aboutJava/communityprocess/pfd/jsr220/index.html">JSR-220 Enterprise JavaBeans v.3.0</a> Java Persistence API specification to summarize annotation information by category (see <a href="#CHDHCEJG">Table 1-1</a>) and explains when and how you use these annotations to customize JPA behavior to meet your application requirements.</p> 
 <p>For more information, see:</p> 
 <ul> 
 <li> 
@@ -32,219 +30,1003 @@ This reference quotes extensively from the JSR-220 Enterprise JavaBeans v.3.0 Ja
 <p><a href="http://java.sun.com/javaee/5/docs/api/index.html?javax/persistence/package-summary.html">Complete JPA annotation Javadoc</a></p> 
 </li> 
 </ul> 
-<div class="tblruleformalwidemax"><a id="sthref2" name="sthref2"></a><a id="CHDHCEJG" name="CHDHCEJG"></a> 
-<p class="titleintable">Table 1-1 JPA Annotations by Category</p> 
-<table class="RuleFormalWideMax" title="JPA Annotations by Category" summary="This table summarizes the JPA annotations." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+ 
+<!-- class="tblruleformalwidemax" --> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --></div><div class="sect1"><a id="sthref2" name="sthref2"></a><a id="CHDHCEJG" name="CHDHCEJG"></a>  
+<p class="titleintable">Table 1-1 JPA Annotations by Category</p>  
+<table width="100%" rules="all" frame="border" cellspacing="0" cellpadding="3" border="1" class="RuleFormalWideMax" title="JPA Annotations by Category" summary="This table summarizes the JPA annotations." dir="ltr">  
+<thead>  
+<tr valign="top" align="left">  
+<th valign="bottom" align="left" id="r1c1-t2">Category</th>  
+<th valign="bottom" align="left" id="r1c2-t2">Description</th>  
+<th valign="bottom" align="left" id="r1c3-t2">Annotations</th>  
+</tr>  
+</thead>  
+<tbody>  
+<tr valign="top" align="left">  
+<td align="left" id="r2c1-t2" headers="r1c1-t2"><a id="EntityAnnotations" name="EntityAnnotations"></a>  
+<p>Entity</p>  
+</td>  
+<td align="left" headers="r2c1-t2 r1c2-t2">  
+<p>By default, Guzz JPA assumes that a Java class is non-persistent and not eligible for JPA services unless it is decorated with this annotation.</p>  
+<p>Use this annotation to designate a plain old Java object (POJO) class as an entity so that you can use it with JPA services.</p>  
+<p>You must designate a class as a JPA entity (either using this annotation or the <code>orm.xml</code> file) before you can use the class.</p>  
+</td>  
+<td align="left" headers="r2c1-t2 r1c3-t2">  
+<p><a href="#Entity">@Entity</a></p>  
+<br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r3c1-t2" headers="r1c1-t2"><a id="DatabaseSchemaAnnotations" name="DatabaseSchemaAnnotations"></a>  
+<p>Database Schema Attributes</p>  
+</td>  
+<td align="left" headers="r3c1-t2 r1c2-t2">  
+<p>By default, Guzz JPA assumes that an entity's name corresponds to a database table of the same name and that an entity's data member names correspond to database columns with the same names.</p>  
+<p>Use these annotations to override this default behavior and fine-tune the relationship between your object model and data model.</p>  
+</td>  
+<td align="left" headers="r3c1-t2 r1c3-t2">  
+  
+  
+<p><a href="#Table">@Table</a><br></p>  
+<p><a href="#Column">@Column</a></p>  
+<p><a href="#JoinColumn">@org.guzz.annotations.Table</a></p>  
+<p><a href="#JoinColumns">@org.guzz.annotations.Column</a></p>  
+  
+  
+  
+  
+</td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r4c1-t2" headers="r1c1-t2"><a id="IdentityAnnotations" name="IdentityAnnotations"></a>  
+<p>Identity</p>  
+</td>  
+<td align="left" headers="r4c1-t2 r1c2-t2" style="">  
+<p>By default, Guzz JPA assumes that each entity must have one field or property that serves as a primary key specifed by @Id.</p><p>You can also use these annotations to fine-tune how your database maintains the identity of your entities.</p>  
+</td>  
+<td align="left" headers="r4c1-t2 r1c3-t2">  
+<p><a href="#Id">@Id</a></p>  
+<p><a href="#IdClass">@</a><a href="#JoinColumn">org.guzz.annotations.GenericGenerator</a></p>  
+<p><a href="#EmbeddedId">@</a><a href="#JoinColumn">org.guzz.annotations.GenericGenerators</a></p><p><a href="#JoinColumn">@</a><a href="#JoinColumn">org.guzz.annotations.Parameter</a></p>  
+<p><a href="#GeneratedValue">@GeneratedValue</a></p>  
+<p><a href="#SequenceGenerator">@SequenceGenerator</a></p>  
+<p><a href="#TableGenerator">@TableGenerator</a></p>  
+<br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r5c1-t2" headers="r1c1-t2"><a id="DirectMappingAnnotations" name="DirectMappingAnnotations"></a>  
+<p>Direct Mappings</p>  
+</td>  
+<td align="left" headers="r5c1-t2 r1c2-t2">  
+<p>By default, Guzz JPA automatically configures a <code>Basic</code> mapping for most Java primitive types, wrappers of the primitive types, and <code>enums</code>.</p>  
+<p>Use these annotations to fine-tune how your database implements these mappings.</p>  
+</td>  
+<td align="left" headers="r5c1-t2 r1c3-t2">  
+<p><a href="#Basic">@Basic</a></p>  
+<p><a href="#Enumerated">@Enumerated</a></p>  
+<p><a href="#Temporal">@Temporal(not supported)</a></p>  
+<p><a href="#Lob">@Lob(not supported)</a></p>  
+<p><a href="#Transient">@Transient</a></p>  
+<br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r6c1-t2" headers="r1c1-t2"><br></td>  
+<td align="left" headers="r6c1-t2 r1c2-t2"><br></td>  
+<td align="left" headers="r6c1-t2 r1c3-t2"><br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r7c1-t2" headers="r1c1-t2"><br></td>  
+<td align="left" headers="r7c1-t2 r1c2-t2"><br></td>  
+<td align="left" headers="r7c1-t2 r1c3-t2"><br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r8c1-t2" headers="r1c1-t2"><a id="InheritanceAnnotations" name="InheritanceAnnotations"></a>  
+<p>Inheritance</p>  
+</td>  
+<td align="left" headers="r8c1-t2 r1c2-t2">  
+<p>By default, Guzz JPA assumes that all persistent fields are defined by a single entity class.</p>  
+<p>Use these annotations if your entity class inherits some or all persistent fields from one or more superclasses.</p>  
+</td>  
+<td align="left" headers="r8c1-t2 r1c3-t2">  
+  
+  
+  
+<p><a href="#MappedSuperclass">@MappedSuperclass</a></p></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r9c1-t2" headers="r1c1-t2"><br></td>  
+<td align="left" headers="r9c1-t2 r1c2-t2"><br></td>  
+<td align="left" headers="r9c1-t2 r1c3-t2"><br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r10c1-t2" headers="r1c1-t2"><br></td>  
+<td align="left" headers="r10c1-t2 r1c2-t2"><br></td>  
+<td align="left" headers="r10c1-t2 r1c3-t2"><br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r11c1-t2" headers="r1c1-t2"><br></td>  
+<td align="left" headers="r11c1-t2 r1c2-t2"><br></td>  
+<td align="left" headers="r11c1-t2 r1c3-t2"><br></td>  
+</tr>  
+<tr valign="top" align="left">  
+<td align="left" id="r12c1-t2" headers="r1c1-t2"><br></td>  
+<td align="left" headers="r12c1-t2 r1c2-t2"><br></td>  
+<td align="left" headers="r12c1-t2 r1c3-t2"><br></td>  
+</tr>  
+</tbody>  
+</table><br><!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="AttributeOverride" name="AttributeOverride"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@AttributeOverride</h2> 
+<p>By default, Guzz JPA automatically assumes that a subclass inherits both persistent properties and their basic mappings as defined in a mapped superclass.</p> 
+<p>Use the <code>@AttributeOverride</code> annotation to customize a basic mapping inherited from a <a href="#MappedSuperclass">@MappedSuperclass</a> to change the <a href="#Column">@Column</a> associated with the field or property.</p> 
+<p>If you have more than one <code>@AttributeOverride</code> change to make, you must use <a href="#AttributeOverrides">@AttributeOverrides</a>.</p> 
+ 
+<p><a href="#CHDEEJFG">Table 1-4</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/AttributeOverride.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref5" name="sthref5"></a><a id="CHDEEJFG" name="CHDEEJFG"></a> 
+<p class="titleintable">Table 1-4 @AttributeOverride Attributes</p> 
+<table class="RuleFormalMax" title="@AttributeOverride Attributes" summary="This table lists the attributes of the AttributeOverride annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
 <thead> 
 <tr align="left" valign="top"> 
-<th align="left" valign="bottom" id="r1c1-t2">Category</th> 
-<th align="left" valign="bottom" id="r1c2-t2">Description</th> 
-<th align="left" valign="bottom" id="r1c3-t2">Annotations</th> 
+<th align="left" valign="bottom" id="r1c1-t5">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t5">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t5">Description</th> 
 </tr> 
 </thead> 
 <tbody> 
 <tr align="left" valign="top"> 
-<td align="left" id="r2c1-t2" headers="r1c1-t2"><a id="EntityAnnotations" name="EntityAnnotations"></a> 
-<p>Entity</p> 
+<td align="left" id="r2c1-t5" headers="r1c1-t5"> 
+<p><code>name</code></p> 
 </td> 
-<td align="left" headers="r2c1-t2 r1c2-t2"> 
-<p>By default, TopLink JPA assumes that a Java class is non-persistent and not eligible for JPA services unless it is decorated with this annotation.</p> 
-<p>Use this annotation to designate a plain old Java object (POJO) class as an entity so that you can use it with JPA services.</p> 
-<p>You must designate a class as a JPA entity (either using this annotation or the <code>orm.xml</code> file) before you can use the class with JPA services.</p> 
-</td> 
-<td align="left" headers="r2c1-t2 r1c3-t2"> 
-<p><a href="#Entity">@Entity</a></p> 
+<td align="center" headers="r2c1-t5 r1c2-t5"> 
+<p>Required</p> 
 <br /></td> 
+<td align="left" headers="r2c1-t5 r1c3-t5"> 
+<p>The name of the field or property defined in the embedded object or mapped superclass.</p> 
+</td> 
 </tr> 
 <tr align="left" valign="top"> 
-<td align="left" id="r3c1-t2" headers="r1c1-t2"><a id="DatabaseSchemaAnnotations" name="DatabaseSchemaAnnotations"></a> 
-<p>Database Schema Attributes</p> 
+<td align="left" id="r3c1-t5" headers="r1c1-t5"> 
+<p><code>column</code></p> 
 </td> 
-<td align="left" headers="r3c1-t2 r1c2-t2"> 
-<p>By default, TopLink JPA assumes that an entity's name corresponds to a database table of the same name and that an entity's data member names correspond to database columns with the same names.</p> 
-<p>Use these annotations to override this default behavior and fine-tune the relationship between your object model and data model.</p> 
-</td> 
-<td align="left" headers="r3c1-t2 r1c3-t2"> 
-<p><a href="#Table">@Table</a></p> 
-<p><a href="#SecondaryTable">@SecondaryTable</a></p> 
-<p><a href="#SecondaryTables">@SecondaryTables</a></p> 
-<p><a href="#Column">@Column</a></p> 
-<p><a href="#JoinColumn">@JoinColumn</a></p> 
-<p><a href="#JoinColumns">@JoinColumns</a></p> 
-<p><a href="#PrimaryKeyJoinColumn">@PrimaryKeyJoinColumn</a></p> 
-<p><a href="#PrimaryKeyJoinColumns">@PrimaryKeyJoinColumns</a></p> 
-<p><a href="#JoinTable">@JoinTable</a></p> 
-<p><a href="#UniqueConstraint">@UniqueConstraint</a></p> 
+<td align="left" headers="r3c1-t5 r1c2-t5"> 
+<p>Required</p> 
 <br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r4c1-t2" headers="r1c1-t2"><a id="IdentityAnnotations" name="IdentityAnnotations"></a> 
-<p>Identity</p> 
+<td align="left" headers="r3c1-t5 r1c3-t5"> 
+<p>The <a href="#Column">@Column</a> that is being mapped to the persistent attribute. The mapping type will remain the same as is defined in the embeddable class or mapped superclass.</p> 
 </td> 
-<td align="left" headers="r4c1-t2 r1c2-t2"> 
-<p>By default, TopLink JPA assumes that each entity must have at least one field or property that serves as a primary key.</p> 
-<p>Use these annotations to specify one of the following:</p> 
-<ul> 
-<li> 
-<p>one <code>@Id</code></p> 
-</li> 
-<li> 
-<p>multiple <code>@Id</code> and an <code>@IdClass</code></p> 
-</li> 
-<li> 
-<p>one <code>@EmbeddedId</code></p> 
-</li> 
-</ul> 
-<p>You can also use these annotations to fine-tune how your database maintains the identity of your entities.</p> 
-</td> 
-<td align="left" headers="r4c1-t2 r1c3-t2"> 
-<p><a href="#Id">@Id</a></p> 
-<p><a href="#IdClass">@IdClass</a></p> 
-<p><a href="#EmbeddedId">@EmbeddedId</a></p> 
-<p><a href="#GeneratedValue">@GeneratedValue</a></p> 
-<p><a href="#SequenceGenerator">@SequenceGenerator</a></p> 
-<p><a href="#TableGenerator">@TableGenerator</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r5c1-t2" headers="r1c1-t2"><a id="DirectMappingAnnotations" name="DirectMappingAnnotations"></a> 
-<p>Direct Mappings</p> 
-</td> 
-<td align="left" headers="r5c1-t2 r1c2-t2"> 
-<p>By default, TopLink JPA automatically configures a <code>Basic</code> mapping for most Java primitive types, wrappers of the primitive types, and <code>enums</code>.</p> 
-<p>Use these annotations to fine-tune how your database implements these mappings.</p> 
-</td> 
-<td align="left" headers="r5c1-t2 r1c3-t2"> 
-<p><a href="#Basic">@Basic</a></p> 
-<p><a href="#Enumerated">@Enumerated</a></p> 
-<p><a href="#Temporal">@Temporal</a></p> 
-<p><a href="#Lob">@Lob</a></p> 
-<p><a href="#Transient">@Transient</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r6c1-t2" headers="r1c1-t2"><a id="RelationshipMappingAnnotations" name="RelationshipMappingAnnotations"></a> 
-<p>Relationship Mappings</p> 
-</td> 
-<td align="left" headers="r6c1-t2 r1c2-t2"> 
-<p>TopLink JPA requires that you map relationships explicitly, but TopLink allows some defaulting.</p> 
-<p>Use these annotations to specify the type and characteristics of entity relationships to fine-tune how your database implements these relationships.</p> 
-</td> 
-<td align="left" headers="r6c1-t2 r1c3-t2"> 
-<p><a href="#OneToOne">@OneToOne</a></p> 
-<p><a href="#ManyToOne">@ManyToOne</a></p> 
-<p><a href="#OneToMany">@OneToMany</a></p> 
-<p><a href="#ManyToMany">@ManyToMany</a></p> 
-<p><a href="#MapKey">@MapKey</a></p> 
-<p><a href="#OrderBy">@OrderBy</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r7c1-t2" headers="r1c1-t2"><a id="CompositionAnnotations" name="CompositionAnnotations"></a> 
-<p>Composition</p> 
-</td> 
-<td align="left" headers="r7c1-t2 r1c2-t2"> 
-<p>Some objects cannot exist on their own, but can only be embedded within owning entities.</p> 
-<p>Use these annotations to specify objects that are embedded and to override how they are mapped in the owning entity's table.</p> 
-</td> 
-<td align="left" headers="r7c1-t2 r1c3-t2"> 
-<p><a href="#Embeddable">@Embeddable</a></p> 
-<p><a href="#Embedded">@Embedded</a></p> 
-<p><a href="#AttributeOverride">@AttributeOverride</a></p> 
-<p><a href="#AttributeOverrides">@AttributeOverrides</a></p> 
-<p><a href="#AssociationOverride">@AssociationOverride</a></p> 
-<p><a href="#AssociationOverrides">@AssociationOverrides</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r8c1-t2" headers="r1c1-t2"><a id="InheritanceAnnotations" name="InheritanceAnnotations"></a> 
-<p>Inheritance</p> 
-</td> 
-<td align="left" headers="r8c1-t2 r1c2-t2"> 
-<p>By default, TopLink JPA assumes that all persistent fields are defined by a single entity class.</p> 
-<p>Use these annotations if your entity class inherits some or all persistent fields from one or more superclasses.</p> 
-</td> 
-<td align="left" headers="r8c1-t2 r1c3-t2"> 
-<p><a href="#Inheritance">@Inheritance</a></p> 
-<p><a href="#DiscriminatorColumn">@DiscriminatorColumn</a></p> 
-<p><a href="#DiscriminatorValue">@DiscriminatorValue</a></p> 
-<p><a href="#MappedSuperclass">@MappedSuperclass</a></p> 
-<p><a href="#AssociationOverride">@AssociationOverride</a></p> 
-<p><a href="#AssociationOverrides">@AssociationOverrides</a></p> 
-<p><a href="#AttributeOverride">@AttributeOverride</a></p> 
-<p><a href="#AttributeOverrides">@AttributeOverrides</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r9c1-t2" headers="r1c1-t2"><a id="LockingAnnotations" name="LockingAnnotations"></a> 
-<p>Locking</p> 
-</td> 
-<td align="left" headers="r9c1-t2 r1c2-t2"> 
-<p>By default, TopLink JPA assumes that the application is responsible for data consistency.</p> 
-<p>It is recommended that you use this annotation to enable TopLink JPA-managed optimistic locking.</p> 
-</td> 
-<td align="left" headers="r9c1-t2 r1c3-t2"> 
-<p><a href="#Version">@Version</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r10c1-t2" headers="r1c1-t2"><a id="LifecycleCallbackAnnotations" name="LifecycleCallbackAnnotations"></a> 
-<p>Lifecycle Callback Events</p> 
-</td> 
-<td align="left" headers="r10c1-t2 r1c2-t2"> 
-<p>By default, TopLink JPA handles all persistence operations.</p> 
-<p>Use these annotations to associate methods with JPA lifecycle events if you need to invoke custom logic at any point during the entity lifecycle. <a href="#CHDCHFJJ">Figure 1-1</a> illustrates the relationship amongst these lifecycle events.</p> 
-</td> 
-<td align="left" headers="r10c1-t2 r1c3-t2"> 
-<p><a href="#PrePersist">@PrePersist</a></p> 
-<p><a href="#PostPersist">@PostPersist</a></p> 
-<p><a href="#PreRemove">@PreRemove</a></p> 
-<p><a href="#PostRemove">@PostRemove</a></p> 
-<p><a href="#PreUpdate">@PreUpdate</a></p> 
-<p><a href="#PostUpdate">@PostUpdate</a></p> 
-<p><a href="#PostLoad">@PostLoad</a></p> 
-<p><a href="#EntityListeners">@EntityListeners</a></p> 
-<p><a href="#ExcludeDefaultListeners">@ExcludeDefaultListeners</a></p> 
-<p><a href="#ExcludeSuperclassListeners">@ExcludeSuperclassListeners</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r11c1-t2" headers="r1c1-t2"><a id="EntityManagerAnnotations" name="EntityManagerAnnotations"></a> 
-<p>Entity Manager</p> 
-</td> 
-<td align="left" headers="r11c1-t2 r1c2-t2"> 
-<p>In an application that uses TopLink JPA, you perform all persistence operations (create, read, update, and delete) using an instance of <code>EntityManager</code>.</p> 
-<p>Use these annotations to declare or inject an entity manager or entity manager factory.</p> 
-</td> 
-<td align="left" headers="r11c1-t2 r1c3-t2"> 
-<p><a href="#PersistenceUnit">@PersistenceUnit</a></p> 
-<p><a href="#PersistenceUnits">@PersistenceUnits</a></p> 
-<p><a href="#PersistenceContext">@PersistenceContext</a></p> 
-<p><a href="#PersistenceContexts">@PersistenceContexts</a></p> 
-<p><a href="#PersistenceProperty">@PersistenceProperty</a></p> 
-<br /></td> 
-</tr> 
-<tr align="left" valign="top"> 
-<td align="left" id="r12c1-t2" headers="r1c1-t2"><a id="QueryAnnotations" name="QueryAnnotations"></a> 
-<p>Queries</p> 
-</td> 
-<td align="left" headers="r12c1-t2 r1c2-t2"> 
-<p>In an application that uses TopLink JPA, you can use an entity manager to create and execute queries dynamically or you can pre-define queries and execute them by name at run time.</p> 
-<p>Use these annotations to pre-define queries and manage their result sets.</p> 
-</td> 
-<td align="left" headers="r12c1-t2 r1c3-t2"> 
-<p><a href="#NamedQuery">@NamedQuery</a></p> 
-<p><a href="#NamedQueries">@NamedQueries</a></p> 
-<p><a href="#NamedNativeQuery">@NamedNativeQuery</a></p> 
-<p><a href="#NamedNativeQueries">@NamedNativeQueries</a></p> 
-<p><a href="#QueryHint">@QueryHint</a></p> 
-<p><a href="#ColumnResult">@ColumnResult</a></p> 
-<p><a href="#EntityResult">@EntityResult</a></p> 
-<p><a href="#FieldResult">@FieldResult</a></p> 
-<p><a href="#SqlResultSetMapping">@SqlResultSetMapping</a></p> 
-<p><a href="#SqlResultSetMappings">@SqlResultSetMappings</a></p> 
-<br /></td> 
 </tr> 
 </tbody> 
 </table> 
 <br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDIACBE">Example 1-5</a> shows how to use <code>@AttributeOverride</code> in the entity subclass to override the <a href="#Column">@Column</a> defined (by default) in the <a href="#MappedSuperclass">@MappedSuperclass</a> <code>Employee</code> for the basic mapping to <code>id</code>.</p> 
+<p>With the <code>@AttributeOverride</code> annotation, the <code>PartTimeEmployee</code> table would have the <code>id</code> attribute mapped to the PTEMP_ID column. Other entity subclasses of <code>Employee</code> would inherit the default mapping to the <code>ID</code> column.</p> 
+<div class="example"><a id="CHDIJJEI" name="CHDIJJEI"></a> 
+<p class="titleinexample">Example 1-4 @MappedSuperclass</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@MappedSuperclass
+public class Employee {
+    @Id protected Integer id;
+    ... 
+}
+</pre></div> 
+<!-- class="example" --> 
+<div class="example"><a id="CHDIACBE" name="CHDIACBE"></a> 
+<p class="titleinexample">Example 1-5 @AttributeOverride</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+@AttributeOverride(name="id", column=@Column(name="PTEMP_ID"))
+public class PartTimeEmployee extends Employee {
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="AttributeOverrides" name="AttributeOverrides"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@AttributeOverrides</h2> 
+<p>If you need to specify more than one <a href="#AttributeOverride">@AttributeOverride</a>, you must specify all your attribute overrides using a single <code>@AttributeOverrides</code> annotation.</p> 
+<p><a href="#CHDFHDBB">Table 1-5</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/AttributeOverrides.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref6" name="sthref6"></a><a id="CHDFHDBB" name="CHDFHDBB"></a> 
+<p class="titleintable">Table 1-5 @AttributeOverrides Attributes</p> 
+<table class="RuleFormalMax" title="@AttributeOverrides Attributes" summary="This table lists the attributes of the AttributeOverrides annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t6">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t6">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t6">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t6" headers="r1c1-t6"> 
+<p><code>value</code></p> 
+</td> 
+<td align="left" headers="r2c1-t6 r1c2-t6"> 
+<p>Required</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t6 r1c3-t6"> 
+<p>To specify two or more attribute overrides, set <code>value</code> to an array of <code>@AttributeOverride</code> instances (see <a href="#AttributeOverride">@AttributeOverride</a>).</p> 
+</td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDBFEFG">Example 1-6</a> shows how to use this annotation to specify two attribute overrides.</p> 
+<div class="example"><a id="CHDBFEFG" name="CHDBFEFG"></a> 
+<p class="titleinexample">Example 1-6 @AttributeOverrides</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+@AttributeOverrides({
+    @AttributeOverride(name="id", column=@Column(name="PTEMP_ID")),
+    @AttributeOverride(name="salary", column=@Column(name="SAL"))
+})
+public class PartTimeEmployee extends Employee {
+        ... 
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="Basic" name="Basic"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Basic</h2> 
+<p>By default, Guzz JPA automatically configures a <code>@Basic</code> mapping for most Java primitive types, wrappers of the primitive types, and enums.</p> 
+<p>Use the <code>@Basic</code> annotation to configure the fetch type to <code>LAZY</code>.</p> 
+<p><a href="#CHDCJEHE">Table 1-6</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/Basic.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref7" name="sthref7"></a><a id="CHDCJEHE" name="CHDCJEHE"></a> 
+<p class="titleintable">Table 1-6 @Basic Attributes</p> 
+<table class="RuleFormalMax" title="@Basic Attributes" summary="This table lists the attributes of the Basic annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t7">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t7">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t7">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t7" headers="r1c1-t7"> 
+<p><code>fetch</code></p> 
+</td> 
+<td align="left" headers="r2c1-t7 r1c2-t7"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t7 r1c3-t7"> 
+<p><span class="bold">Default</span>: <code>FetchType.EAGER</code>.</p> 
+<p>By default, Guzz JPA uses a fetch type of <code>EAGER</code>: this is a requirement on Guzz JPA runtime that data must be eagerly fetched.</p> 
+<p>If this is inappropriate for your application or a particular persistent field, set <code>fetch</code> to <code>FetchType.LAZY</code>: this is a hint that data should be fetched lazily when it is first accessed (if possible). For more information, see &quot;Lazy Loading&quot; in the <i>Guide</i>.</p> 
+</td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDHHIEF">Example 1-7</a> shows how to use this annotation to specify a fetch type of <code>LAZY</code> for a basic mapping.</p> 
+<div class="example"><a id="CHDHHIEF" name="CHDHHIEF"></a> 
+<p class="titleinexample">Example 1-7 @Basic</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+public class Book implements Serializable {
+    ...
+    @Basic(fetch=LAZY)
+    protected String toc; 
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="Column" name="Column"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Column</h2> 
+<p>By default, Guzz JPA assumes that each of an entity's persistent attributes is stored in a database table column whose name matches that of the persistent field or property.</p> 
+<p>Use the <code>@Column</code> annotation:</p> 
+<ul> 
+<li> 
+<p>to associate a persistent attribute with a different name if the default column name is awkward, incompatible with a pre-existing data model, or invalid as a column name in your database</p> 
+</li> 
+ 
+<li> 
+<p>to fine-tune the characteristics of a column in your database</p> 
+</li> 
+</ul> 
+<p><a href="#CHDBAHAG">Table 1-7</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/Column.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref8" name="sthref8"></a><a id="CHDBAHAG" name="CHDBAHAG"></a> 
+<p class="titleintable">Table 1-7 @Column Attributes</p> 
+<table class="RuleFormalMax" title="@Column Attributes" summary="This table lists the attributes of the Column annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t8">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t8">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t8">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t8" headers="r1c1-t8"> 
+<p><code>name</code></p> 
+</td> 
+<td align="left" headers="r2c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t8 r1c3-t8"> 
+<p><span class="bold">Default</span>: Guzz JPA assumes that each of an entity's persistent attributes is stored in a database table column whose name matches that of the persistent field or property.</p> 
+<p>To specify an alternative column name, set <code>name</code> to the <code>String</code> column name you want.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r3c1-t8" headers="r1c1-t8"> 
+<p><code>unique</code></p> 
+</td> 
+<td align="left" headers="r3c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r3c1-t8 r1c3-t8">Not supported.<br></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r4c1-t8" headers="r1c1-t8"> 
+<p><code>nullable</code></p> 
+</td> 
+<td align="left" headers="r4c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r4c1-t8 r1c3-t8">Not supported.</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r5c1-t8" headers="r1c1-t8"> 
+<p><code>insertable</code></p> 
+</td> 
+<td align="left" headers="r5c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r5c1-t8 r1c3-t8"> 
+<p><span class="bold">Default</span>: <code>true</code>.</p> 
+<p>By default, Guzz JPA assumes that all columns are always included in <code>SQL INSERT</code> statements.</p> 
+<p>If this column should not be included in these statements, set <code>insertable</code> to <code>false</code>.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r6c1-t8" headers="r1c1-t8"> 
+<p><code>updatable</code></p> 
+</td> 
+<td align="left" headers="r6c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r6c1-t8 r1c3-t8"> 
+<p><span class="bold">Default</span>: <code>true</code>.</p> 
+<p>By default, Guzz JPA assumes that a column is always included in <code>SQL UPDATE</code> statements.</p> 
+<p>If this column should not be included in these statements, set <code>updatable</code> to <code>false</code>.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r7c1-t8" headers="r1c1-t8"> 
+<p><code>columnDefinition</code></p> 
+</td> 
+<td align="left" headers="r7c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r7c1-t8 r1c3-t8"> 
+<p><span class="bold">Not supported. You have to create your table on your own.</span></p></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r8c1-t8" headers="r1c1-t8"> 
+<p><code>table</code></p> 
+</td> 
+<td align="left" headers="r8c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r8c1-t8 r1c3-t8">not supported.</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r9c1-t8" headers="r1c1-t8"> 
+<p><code>length</code></p> 
+</td> 
+<td align="left" headers="r9c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r9c1-t8 r1c3-t8"> 
+<p><span class="bold">not supported.<br></span></p></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r10c1-t8" headers="r1c1-t8"> 
+<p><code>precision</code></p> 
+</td> 
+<td align="left" headers="r10c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r10c1-t8 r1c3-t8"><span class="bold">not supported.</span></td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r11c1-t8" headers="r1c1-t8"> 
+<p><code>scale</code></p> 
+</td> 
+<td align="left" headers="r11c1-t8 r1c2-t8"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r11c1-t8 r1c3-t8"><span class="bold">not supported.</span></td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDCEHDA">Example 1-8</a> shows how to use this annotation to make Guzz JPA persist <code>salary</code> to column <code>SAL</code> in secondary table <code>EMP_SAL</code>. By default, Guzz JPA persists <code>salary</code> to column <code>salary</code> in primary table <code>EMPLOYEE</code>.</p> 
+<div class="example"><a id="CHDCEHDA" name="CHDCEHDA"></a> 
+<p class="titleinexample">Example 1-8 @Column</p> 
+<pre xml:space="preserve" class="oac_no_warn">  
+@Entity 
+@SecondaryTable(name=&quot;EMP_SAL&quot;) 
+public class Employee implements Serializable { 
+    ... 
+    @Column(name=&quot;SAL&quot;, table=&quot;EMP_SAL&quot;) 
+    private Long salary; 
+    ... 
+} </pre></div></div> 
+<!-- class="sect1" --> 
+<a id="Entity" name="Entity"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Entity</h2> 
+<p>Use the <code>@Entity</code> annotation to designate a plain old Java object (POJO) class as an entity and make it eligible for JPA services. You must designate a POJO class as an entity before you can use any other JPA annotations.</p> 
+<p><a href="#CHDJBGAB">Table 1-11</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/Entity.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref12" name="sthref12"></a><a id="CHDJBGAB" name="CHDJBGAB"></a> 
+<p class="titleintable">Table 1-11 @Entity Attributes</p> 
+<table class="RuleFormalMax" title="@Entity Attributes" summary="This table lists the attributes of the Entity annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t12">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t12">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t12">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t12" headers="r1c1-t12"> 
+<p><code>name</code></p> 
+</td> 
+<td align="left" headers="r2c1-t12 r1c2-t12"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t12 r1c3-t12">not supported. Use org.guzz.annotations.Entity to specify the business name instead.</td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDHIDBI">Example 1-18</a> shows how to use this annotation.</p> 
+<div class="example"><a id="CHDHIDBI" name="CHDHIDBI"></a> 
+<p class="titleinexample">Example 1-18 @Entity</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+public class Employee implements Serializable {
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+ 
+<!-- class="sect1" --> 
+<a id="Enumerated" name="Enumerated"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Enumerated</h2> 
+<p>By default, Guzz JPA persists the ordinal values of enumerated constants.</p> 
+<p>Use the <code>@Enumerated</code> annotation to specify whether Guzz JPA should persist ordinal or <code>String</code> values of enumerated constants if the String value suits your application requirements or to match an existing database schema.</p> 
+<p>This annotation can be used with <a href="#Basic">@Basic</a>.</p> 
+<p><a href="#CHDFIAEE">Table 1-14</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/Enumerated.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref15" name="sthref15"></a><a id="CHDFIAEE" name="CHDFIAEE"></a> 
+<p class="titleintable">Table 1-14 @Enumerated Attributes</p> 
+<table class="RuleFormalMax" title="@Enumerated Attributes" summary="This table lists the attributes of the Enumerated annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t15">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t15">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t15">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t15" headers="r1c1-t15"> 
+<p><code>value</code></p> 
+</td> 
+<td align="left" headers="r2c1-t15 r1c2-t15"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t15 r1c3-t15"> 
+<p><span class="bold">Default</span>: <code>EnumType.ORDINAL</code>.</p> 
+<p>By default, Guzz JPA assumes that for a property or field mapped to an enumerated constant, the ordinal value should be persisted. In <a href="#CHDEJBHG">Example 1-26</a>, the ordinal value of <code>EmployeeStatus</code> is written to the database when <code>Employee</code> is persisted.</p> 
+<p>If you want the String value of the enumerated constant persisted, set <code>value</code> to <code>EnumType.STRING</code>.</p> 
+</td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p>Given the enumerated constants in <a href="#CHDEJJFC">Example 1-25</a>, <a href="#CHDEJBHG">Example 1-26</a> shows how to use this annotation to specify that the <code>String</code> value of <code>SalaryRate</code> should be written to the database when <code>Employee</code> is persisted. By default, the ordinal value of <code>EmployeeStatus</code> is written to the database.</p> 
+<div class="example"><a id="CHDEJJFC" name="CHDEJJFC"></a> 
+<p class="titleinexample">Example 1-25 Enumerated Constants</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+public enum EmployeeStatus {FULL_TIME, PART_TIME, CONTRACT}
+public enum SalaryRate {JUNIOR, SENIOR, MANAGER, EXECUTIVE}
+</pre></div> 
+<!-- class="example" --> 
+<div class="example"><a id="CHDEJBHG" name="CHDEJBHG"></a> 
+<p class="titleinexample">Example 1-26 @Enumerated</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity 
+public class Employee {
+    ...
+    public EmployeeStatus getStatus() {
+    ...
+    }
+ 
+    @Enumerated(STRING)
+    public SalaryRate getPayScale() {
+    ...
+    }
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<div class="sect1"><br><!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="GeneratedValue" name="GeneratedValue"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@GeneratedValue</h2> 
+<p>By default, the application is responsible for supplying and setting entity identifiers (see <a href="#Id">@Id</a>).</p> 
+<p>Use the <code>@GeneratedValue</code> annotation if you want Guzz JPA to provide and manage entity identifiers.</p> 
+<p><a href="#CHDBJHED">Table 1-16</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/GeneratedValue.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref18" name="sthref18"></a><a id="CHDBJHED" name="CHDBJHED"></a> 
+<p class="titleintable">Table 1-16 @GeneratedValue Attributes</p> 
+<table class="RuleFormalMax" title="@GeneratedValue Attributes" summary="This table lists the attributes of the GeneratedValue annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t17">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t17">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t17">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t17" headers="r1c1-t17"> 
+<p><code>strategy</code></p> 
+</td> 
+<td align="left" headers="r2c1-t17 r1c2-t17"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t17 r1c3-t17"> 
+<p><span class="bold">Default</span>: <code>GenerationType.AUTO</code>.</p> 
+<p>By default, Guzz JPA chooses the type of primary key generator that is most appropriate for the underlying database.</p> 
+<p>If you feel that another generator type is more appropriate for your database or application, set <code>strategy</code> to the <code>GeneratorType</code> you want:</p> 
+<ul> 
+<li> 
+<p><code>IDENTITY</code> - specify that Guzz JPA use a database identity column</p> 
+</li> 
+<li> 
+<p><code>AUTO</code> - specify that Guzz JPA should choose a primary key generator that is most appropriate for the underlying database.</p> 
+</li> 
+<li> 
+<p><code>SEQUENCE</code> - specify that Guzz JPA use a database sequence (see <a href="#SequenceGenerator">@SequenceGenerator</a>)</p> 
+</li> 
+<li> 
+<p><code>TABLE</code> - specify that Guzz JPA assign primary keys for the entity using an underlying database table to ensure uniqueness (see <a href="#TableGenerator">@TableGenerator</a>)</p> 
+</li> 
+</ul> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r3c1-t17" headers="r1c1-t17"> 
+<p><code>generator</code></p> 
+</td> 
+<td align="left" headers="r3c1-t17 r1c2-t17"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r3c1-t17 r1c3-t17"> 
+<p><span class="bold">Default</span>:Guzz JPA assigns a name to the primary key generator it selects.</p> 
+<p>If this name is awkward, a reserved word, incompatible with a pre-existing data model, or invalid as a primary key generator name in your database, set <code>generator</code> to the <code>String</code> generator name you want to use.</p><p>If you want to use a expanded Generator in guzz, set the generator name you want to use, and defined a @org.guzz.annotations.GenericGenerator with that name.<br></p> 
+</td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDJHFBJ">Example 1-33</a> shows how to use this annotation to tell Guzz JPA to use a primary key generator of type <code>GeneratorType.SEQUENCE</code> named <code>CUST_SEQ</code>.</p> 
+<div class="example"><a id="CHDJHFBJ" name="CHDJHFBJ"></a> 
+<p class="titleinexample">Example 1-33 @GeneratedValue</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+public class Employee implements Serializable {
+    ...
+    @Id
+    @GeneratedValue(strategy=SEQUENCE, generator="CUST_SEQ")
+    @Column(name="CUST_ID")
+    public Long getId() { 
+        return id; 
+    }
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="Id" name="Id"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Id</h2> 
+<p>Use the <code>@Id</code> annotation to designate one or more persistent fields or properties as the entity's primary key.<br></p><p>This annotation has no attributes<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/Id.html">API</a>.</p> 
+<p><a href="#CHDCEDIC">Example 1-34</a> shows how to use this annotation to designate persistent field <code>empID</code> as the primary key of the <code>Employee</code> table.</p> 
+<div class="example"><a id="CHDCEDIC" name="CHDCEDIC"></a> 
+<p class="titleinexample">Example 1-34 @Id</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+public class Employee implements Serializable {
+    @Id
+    private int empID;
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<div class="sect1"><br><!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="Lob" name="Lob"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Lob</h2> 
+<p>@Lob is not supported in guzz.</p><p>For a Clob, use @org.guzz.annotations.Column, and set type to &quot;clob&quot;.<br></p> 
+<p>
+</p><p>For a Blob, use @org.guzz.annotations.Column, and set type to &quot;blob&quot;.</p> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+ 
+<!-- class="sect1" --> 
+<a id="MappedSuperclass" name="MappedSuperclass"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@MappedSuperclass</h2> 
+<p>By default, Guzz JPA assumes that all the persistent fields of an entity are defined in that entity.</p> 
+<p>Use the <code>@MappedSuperclass</code> annotation to designate a superclass from which your entity class inherits persistent fields. This is a convenient pattern when multiple entity classes share common persistent fields or properties.</p> 
+ 
+<p>You can use the <a href="#AttributeOverride">@AttributeOverride</a> annotation in the subclass to override the superclass's mapping configuration.</p> 
+<p><code><a href=""></a></code>This annotation has no attributes. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/EmbeddableSuperclass.html">API</a>.</p> 
+<p><a href="#CHDFHDJD">Example 1-51</a> shows how to use this annotation to specify <code>Employee</code> as a mapped superclass. <a href="#CHDDAIHD">Example 1-52</a> shows how to extend this superclass in an entity and how to use <a href="#AttributeOverride">@AttributeOverride</a> in the entity class to override configuration made in the superclass.</p> 
+<div class="example"><a id="CHDFHDJD" name="CHDFHDJD"></a> 
+<p class="titleinexample">Example 1-51 @MappedSuperclass</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@MappedSuperclass
+public class Employee {
+    @Id 
+    protected Integer empId;
+ 
+    @Version 
+    protected Integer version;
+ 
+    @ManyToOne 
+    @JoinColumn(name="ADDR")
+    protected Address address;
+    ...
+}
+</pre></div> 
+<!-- class="example" --> 
+<div class="example"><a id="CHDDAIHD" name="CHDDAIHD"></a> 
+<p class="titleinexample">Example 1-52 Extending a @MappedSuperclass</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+@AttributeOverride(name="address", column=@Column(name="ADDR_ID"))
+public class PartTimeEmployee extends Employee {
+ 
+    @Column(name="WAGE")
+    protected Float hourlyWage;
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+ 
+<!-- class="sect1" --> 
+<a id="SequenceGenerator" name="SequenceGenerator"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@SequenceGenerator</h2> 
+<p>If you use the <a href="#GeneratedValue">@GeneratedValue</a> annotation to specify a primary key generator of type <code>SEQUENCE(create the sequence in the database yourself.)</code>, then you can use the <code>@SequenceGenerator</code> annotation to fine tune this primary key generator to:</p> 
+<ul> 
+<li> 
+<p>change the allocation size to match your application requirements or database performance parameters</p> 
+</li> 
+<li> 
+<p>the initial value is not supported. <br></p> 
+</li> 
+<li>  
+<p>use a pre-defined sequence in an existing data model</p></li></ul> 
+<p><a href="#CHDBBBBA">Table 1-42</a> lists the attributes of this annotation<code></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/SequenceGenerator.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref45" name="sthref45"></a><a id="CHDBBBBA" name="CHDBBBBA"></a> 
+<p class="titleintable">Table 1-42 @SequenceGenerator Attributes</p> 
+<table class="RuleFormalMax" title="@SequenceGenerator Attributes" summary="This table lists the attributes of the SequenceGenerator annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t43">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t43">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t43">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t43" headers="r1c1-t43"> 
+<p><code>name</code></p> 
+</td> 
+<td align="left" headers="r2c1-t43 r1c2-t43"> 
+<p>Required</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t43 r1c3-t43"> 
+<p>The name of the <code>SequenceGenerator</code> must match the generator name in a <code>GeneratedValue</code> with its <code>strategy</code> set to <code>SEQUENCE</code>.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r3c1-t43" headers="r1c1-t43"> 
+<p><code>sequenceName</code></p> 
+</td> 
+<td align="left" headers="r3c1-t43 r1c2-t43"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r3c1-t43 r1c3-t43"> 
+<p><span class="bold">Default</span>: Guzz JPA assigns a sequence name of its own creation.</p> 
+<p>If you prefer to use an existing or pre-defined sequence or have a specific requirement for the name of the sequence, set <code>sequenceName</code> to the <code>String</code> name you want.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r4c1-t43" headers="r1c1-t43"> 
+<p><code>initialValue</code></p> 
+</td> 
+<td align="left" headers="r4c1-t43 r1c2-t43"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r4c1-t43 r1c3-t43"> 
+<p><span class="bold">Default</span>: 0.</p> 
+<p>By default, Guzz JPA starts all primary key values from 0.</p> 
+<p>If this does not match an existing data model, set <code>initialValue</code> to the <code>int</code> value you want.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r5c1-t43" headers="r1c1-t43"> 
+<p><code>allocationSize</code></p> 
+</td> 
+<td align="left" headers="r5c1-t43 r1c2-t43"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r5c1-t43 r1c3-t43"> 
+<p><span class="bold">Default</span>: 50.</p> 
+<p>By default, Guzz JPA uses an allocation size of 50.</p> 
+<p>If this allocation size does not match your application requirements or database performance parameters, set <code>allocationSize</code> to the <code>int</code> value you want.</p> 
+</td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDBFFAH">Example 1-78</a> shows how to use this annotation to specify the allocation size for the <code>SEQUENCE</code> primary key generator named <code>CUST_SEQ</code>.</p> 
+<div class="example"><a id="CHDBFFAH" name="CHDBFFAH"></a> 
+<p class="titleinexample">Example 1-78 @SequenceGenerator</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+public class Employee implements Serializable {
+    ...
+    @Id
+    @SequenceGenerator(name="CUST_SEQ", allocationSize=25)
+    @GeneratedValue(strategy=SEQUENCE, generator="CUST_SEQ")
+    @Column(name="CUST_ID")
+    public Long getId() { 
+        return id; 
+    }
+    ...
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+ 
+<!-- class="sect1" --> 
+<a id="Table" name="Table"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Table</h2> 
+<p>By default, Guzz JPA assumes that all the persistent fields of an entity are stored in a single database table whose name is the entity name (see <a href="#Entity">@Entity</a>).</p> 
+<p>Use the <code>@Table</code> annotation to specify the primary table associated with an entity if:</p> 
+<ul> 
+<li> 
+<p>the entity name is awkward, a reserved word, incompatible with a pre-existing data model, or invalid as a table name in your database</p> 
+</li> 
+<li> 
+<p>you need to control what catalog or schema the table belongs to</p> 
+</li> 
+</ul> 
+ 
+<p><a href="#CHDGEAJB">Table 1-45</a> lists the attributes of this annotation<code><a href=""></a></code>. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/Table.html">API</a>.</p> 
+<div class="tblruleformalmax"><a id="sthref48" name="sthref48"></a><a id="CHDGEAJB" name="CHDGEAJB"></a> 
+<p class="titleintable">Table 1-45 @Table Attributes</p> 
+<table class="RuleFormalMax" title="@Table Attributes" summary="This table lists the attributes of the Table annotation." dir="ltr" border="1" width="100%" frame="border" rules="all" cellpadding="3" cellspacing="0"> 
+<thead> 
+<tr align="left" valign="top"> 
+<th align="left" valign="bottom" id="r1c1-t46">Attribute</th> 
+<th align="left" valign="bottom" id="r1c2-t46">Required</th> 
+<th align="left" valign="bottom" id="r1c3-t46">Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr align="left" valign="top"> 
+<td align="left" id="r2c1-t46" headers="r1c1-t46"> 
+<p><code>name</code></p> 
+</td> 
+<td align="left" headers="r2c1-t46 r1c2-t46"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r2c1-t46 r1c3-t46"> 
+<p><span class="bold">Default</span>: Guzz JPA assumes that an entity's database table has the same name as the entity class. In <a href="#CHDCGHGA">Example 1-84</a>, the default <code>name</code> is <code>Employee</code>.</p> 
+<p>If the entity class name is awkward, a reserved word, or incompatible with a pre-existing data model, set <code>name</code> to the appropriate database table name. In <a href="#CHDCGHGA">Example 1-84</a>, Guzz JPA persists the entity class <code>Employee</code> in the database table named <code>EMP</code>.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r3c1-t46" headers="r1c1-t46"> 
+<p><code>catalog</code></p> 
+</td> 
+<td align="left" headers="r3c1-t46 r1c2-t46"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r3c1-t46 r1c3-t46"> 
+<p><span class="bold">Default</span>: Guzz JPA uses whatever the default catalog is for your database.</p> 
+<p>If the default catalog is inappropriate for your application, set the <code>catalog</code> to the <code>String</code> catalog name to use.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r4c1-t46" headers="r1c1-t46"> 
+<p><code>schema</code></p> 
+</td> 
+<td align="left" headers="r4c1-t46 r1c2-t46"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r4c1-t46 r1c3-t46"> 
+<p><span class="bold">Default</span>: Guzz JPA uses whatever the default schema is for your database.</p> 
+<p>If the default schema is inappropriate for your application, set the <code>schema</code> to the <code>String</code> schema name to use.</p> 
+</td> 
+</tr> 
+<tr align="left" valign="top"> 
+<td align="left" id="r5c1-t46" headers="r1c1-t46"> 
+<p><code>uniqueConstraints</code></p> 
+</td> 
+<td align="left" headers="r5c1-t46 r1c2-t46"> 
+<p>Optional</p> 
+<br /></td> 
+<td align="left" headers="r5c1-t46 r1c3-t46"> 
+<p><span class="bold">Not supported.<br></span></p></td> 
+</tr> 
+</tbody> 
+</table> 
+<br /></div> 
+<!-- class="tblruleformalmax" --> 
+<p><a href="#CHDCGHGA">Example 1-84</a> shows how to use this annotation to specify the primary table name.</p> 
+<div class="example"><a id="CHDCGHGA" name="CHDCGHGA"></a> 
+<p class="titleinexample">Example 1-84 @Table</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entity
+@Table(name="EMP")
+public class Employee implements Serializable {
+    ...
+}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+ 
+<!-- class="sect1" --> 
+<a id="Temporal" name="Temporal"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Temporal</h2> 
+<p>Not supported.</p><p>For to <code>java.sql.</code><code>Timestamp</code><code>, use @org.guzz.annotations.Column, and set type to &quot;datetime&quot; .<br></code></p><p>
+</p><p>For to <code>java.sql.Date, use @org.guzz.annotations.Column, and set type to &quot;date&quot; .</code></p><p>
+</p><p>For to <code>java.sql.</code><code>Time</code><code>, use @org.guzz.annotations.Column, and set type to &quot;time&quot; .</code></p><!-- class="example" --></div> 
+<!-- class="sect1" --> 
+<a id="Transient" name="Transient"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">@Transient</h2> 
+<p>By default, Guzz JPA assumes that all the fields of an entity are persistent.</p> 
+<p>Use the <code>@Transient</code> annotation to specify a field or property of an entity that is not persistent, for example, a field or property that is used at run time but that is not part of the entity's state.</p> 
+<p>Guzz JPA will not persist (or create database schema) for a property or field annotated as <code>@Transient</code>.</p> 
+<p>This annotation can be used within classes denoted by <a href="#Entity">@Entity</a>, <a href="#MappedSuperclass">@MappedSuperclass</a>.</p> 
+<p><code><a href=""></a></code>This annotation has no attributes. For more details, see the <a href="http://java.sun.com/javaee/5/docs/api/javax/persistence/Transient.html">API</a>.</p> 
+<p><a href="#CHDIHFCF">Example 1-87</a> shows how to use this annotation to specify <code>Employee</code> field <code>currentSession</code> as not persistent. Guzz JPA will not persist this field.</p> 
+<div class="example"><a id="CHDIHFCF" name="CHDIHFCF"></a> 
+<p class="titleinexample">Example 1-87 @Transient</p> 
+<pre xml:space="preserve" class="oac_no_warn"> 
+@Entitypublic class Employee {    @Id int id;    @Transient Session currentSession;    ...}
+</pre></div> 
+<!-- class="example" --></div> 
+<!-- class="sect1" --> 
+ 
+<!-- class="sect1" --> 
+<a id="IndexOfAnnotations" name="IndexOfAnnotations"></a> 
+<div class="sect1"><!-- infolevel="all" infotype="General" --> 
+<h2 class="sect1">Index of Annotations</h2> 
+<ul> 
+<li> 
+<p><span class="bold">A</span></p> 
+<ul><li> 
+<p><a href="#AttributeOverride">@AttributeOverride</a></p> 
+</li> 
+<li> 
+<p><a href="#AttributeOverrides">@AttributeOverrides</a></p> 
+</li> 
+</ul> 
+</li> 
+<li> 
+<p><span class="bold">B</span></p> 
+<ul> 
+<li> 
+<p><a href="#Basic">@Basic</a></p> 
+</li> 
+</ul> 
+</li> 
+<li> 
+<p><span class="bold">C</span></p> 
+<ul> 
+<li> 
+<p><a href="#ColumnResult">@Column</a><br></p> 
+</li> 
+ 
+</ul> 
+</li> 
+ 
+<li> 
+<p><span class="bold">E</span></p> 
+<ul><li> 
+<p><a href="#Entity">@Entity</a></p> 
+</li><li> 
+<p><a href="#Enumerated">@Enumerated</a></p> 
+</li></ul> 
+</li> 
+ 
+<li> 
+<p><span class="bold">G</span></p> 
+<ul> 
+<li> 
+<p><a href="#GeneratedValue">@GeneratedValue</a></p> 
+</li> 
+</ul> 
+</li> 
+<li> 
+<p><span class="bold">I</span></p> 
+<ul> 
+<li> 
+<p><a href="#Id">@Id</a></p></li></ul> 
+</li> 
+ 
+<li> 
+<p><span class="bold">L</span></p> 
+<ul> 
+<li> 
+<p><a href="#Lob">@Lob</a></p> 
+</li> 
+</ul> 
+</li> 
+<li> 
+<p><span class="bold">M</span></p> 
+<ul><li> 
+<p><a href="#MappedSuperclass">@MappedSuperclass</a></p> 
+</li> 
+</ul> 
+</li><li> 
+<p><span class="bold">S</span></p> 
+<ul><li> 
+<p><a href="#SequenceGenerator">@SequenceGenerator</a></p></li></ul> 
+</li> 
+<li> 
+<p><span class="bold">T</span></p> 
+<ul> 
+<li> 
+<p><a href="#Table">@Table</a></p> 
+</li> 
+<li> 
+<p><a href="#TableGenerator">@TableGenerator</a></p> 
+</li> 
+<li> 
+<p><a href="#Temporal">@Temporal</a></p> 
+</li> 
+<li> 
+<p><a href="#Transient">@Transient</a></p> 
+</li> 
+</ul> 
+</li></ul> 
+</div> 
+<!-- class="sect1" --></div> 
+
+</div>
+
