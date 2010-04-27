@@ -915,7 +915,9 @@ public class Employee implements Serializable {
 </p><p>For to <code>java.sql.Date, use @org.guzz.annotations.Column, and set type to &quot;date&quot; .</code></p><p>
 </p><p>For to <code>java.sql.</code><code>Time</code><code>, use @org.guzz.annotations.Column, and set type to &quot;time&quot; .</code></p><!-- class="example" --></div> 
 <!-- class="sect1" --> 
+
 <a id="Transient" name="Transient"></a> 
+
 <div class="sect1"><!-- infolevel="all" infotype="General" --> 
 <h2 class="sect1">@Transient</h2> 
 <p>By default, Guzz JPA assumes that all the fields of an entity are persistent.</p> 
@@ -929,11 +931,11 @@ public class Employee implements Serializable {
 <pre xml:space="preserve" class="oac_no_warn"> 
 @Entitypublic class Employee {    @Id int id;    @Transient Session currentSession;    ...}
 </pre></div> 
-<!-- class="example" --></div> 
-<!-- class="sect1" --> 
- 
-<!-- class="sect1" --> 
+</div> 
+
+
 <a id="IndexOfAnnotations" name="IndexOfAnnotations"></a> 
+
 <div class="sect1"><!-- infolevel="all" infotype="General" --> 
 <h2 class="sect1">Index of Annotations</h2> 
 <ul> 
@@ -1026,7 +1028,5 @@ public class Employee implements Serializable {
 </ul> 
 </li></ul> 
 </div> 
-<!-- class="sect1" --></div> 
 
-</div>
 
