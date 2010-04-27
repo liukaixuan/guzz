@@ -15,6 +15,18 @@ Guzz仅支持单对象ORM映射，不支持对象之间的关联映射（one-one
 *一个典型域对象ORM定义如下：*
 
 {{{
+package org.guzz.test;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.TableGenerator;
+
+import org.guzz.annotations.Table;
+
+
 @javax.persistence.Entity
 @org.guzz.annotations.Entity(businessName = "comment")
 @Table(name="TB_COMMENT", shadow = CommentShadowView.class)
