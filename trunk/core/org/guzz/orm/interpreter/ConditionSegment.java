@@ -37,6 +37,27 @@ import org.guzz.util.javabean.JavaBeanWrapper;
 public class ConditionSegment /*implements Comparable*/{
 	private static final Log log = LogFactory.getLog(ConditionSegment.class) ;
 	
+	/**
+	 * 有限自动机匹配规则（顺序不能变）：
+	 * <pre>
+	 * ! --> = --> 结束（LogicOperation.NOT_EQUAL）
+	 * 
+	 *  > --> = --> 结束（LogicOperation.BIGGER_OR_EQUAL）
+	 *   --> 结束（LogicOperation.BIGGER）
+	 * 
+	 * < --> > --> 结束（LogicOperation.NOT_EQUAL）
+	 *   --> = --> 结束（LogicOperation.SMALLER_OR_EQUAL）
+	 *   --> 结束（LogicOperation.SMALLER）
+	 *   
+	 * = --> = --> 结束（LogicOperation.EQUAL）
+	 *   --> ~ --> = --> 结束（LogicOperation.EQUAL_IGNORE_CASE）
+	 *   --> 结束（LogicOperation.EQUAL）
+	 * 
+	 * ~ --> ~ --> 结束（LogicOperation.LIKE_IGNORE_CASE）
+	 *   --> = --> 结束（LogicOperation.LIKE_CASE_SENSTIVE）
+	 * 
+	 * </pre>
+	 */
 	private static String[] operates = {"!=", "~~", "=~=", "~=", "<>", "==", ">=", "<=", "=", ">", "<"} ;
 	private static LogicOperation[] opValues = {
 			LogicOperation.NOT_EQUAL,
@@ -116,32 +137,166 @@ public class ConditionSegment /*implements Comparable*/{
 		}
 	}
 	
-//	通过形如：abc=2的语法条件，创建一个ConditionSegment。如果传入的conditoin不识别，如为wellknown条件，返回null.
+	/**	
+	 * 通过形如：abc=2的语法条件，创建一个ConditionSegment。如果传入的conditoin不识别，如为wellknown条件，返回null.
+	 * @param mapping
+	 * @param condition
+	 */
 	public static ConditionSegment parseFromString(ObjectMapping mapping, String condition){
-		condition = condition.trim() ;	
-				
-		for(int i = 0 ; i < operates.length ; i++){
-			String m_op = operates[i] ;
+		/*
+		 * 有限自动机匹配规则：
+		 * <pre>
+		 * ! --> = --> 结束（LogicOperation.NOT_EQUAL）
+		 * 
+		 * ~ --> ~ --> 结束（LogicOperation.LIKE_IGNORE_CASE）
+		 *   --> = --> 结束（LogicOperation.LIKE_CASE_SENSTIVE）
+		 *   
+		 * = --> = --> 结束（LogicOperation.EQUAL）
+		 *   --> ~ --> = --> 结束（LogicOperation.EQUAL_IGNORE_CASE）
+		 *   --> 结束（LogicOperation.EQUAL）
+		 * 
+		 * > --> = --> 结束（LogicOperation.BIGGER_OR_EQUAL）
+		 *   --> 结束（LogicOperation.BIGGER）
+		 * 
+		 * < --> > --> 结束（LogicOperation.NOT_EQUAL）
+		 *   --> = --> 结束（LogicOperation.SMALLER_OR_EQUAL）
+		 *   --> 结束（LogicOperation.SMALLER）
+		 * </pre>
+		 */
+		
+		//为了解决传入的条件value部分包含特殊的字符（运算符），从左往右扫描，第一个找到的运算符作为表达式运算符。
+		char[] cs = condition.toCharArray() ;
+		int length = cs.length ;
+		
+		int keyEnd = 0, valueStart = 0 ;
+		LogicOperation op = null ;
+		char next ;
+		
+		for(int i = 0 ; i < length ; i++){
+			char now = cs[i] ;
 			
-			int pos = condition.indexOf(m_op) ;
-			if(pos < 0) continue ;
+			if(i == length -1){ //the last char
+				next = '\0' ;
+			}else{
+				next = cs[i + 1] ;
+			}			
 			
-			String fieldName = condition.substring(0, pos).trim() ;
-			String fieldValue = condition.substring(pos + m_op.length()).trim() ;
-			
-			SQLDataType dataType = mapping.getSQLDataTypeOfProperty(fieldName) ;
-			
-			if(dataType == null){
-				throw new DaoException("conditon:[" + condition + "] 's field:[" + fieldName + "]不存在，或者数据类型没有支持的SQLDataType") ;
+			if(now == '!' && next =='='){
+				keyEnd = i ;
+				valueStart = i + 2 ;
+				op = LogicOperation.NOT_EQUAL ;
+				break ;
+			}else if(now == '>'){
+				if(next == '='){
+					keyEnd = i ;
+					valueStart = i + 2 ;
+					op = LogicOperation.BIGGER_OR_EQUAL ;
+					break ;
+				}else{
+					keyEnd = i ;
+					valueStart = i + 1 ;
+					op = LogicOperation.BIGGER ;
+					break ;
+				}
+			}else if(now == '<'){
+				if(next == '>'){
+					keyEnd = i ;
+					valueStart = i + 2 ;
+					op = LogicOperation.NOT_EQUAL ;
+					break ;
+				}else if(next == '='){
+					keyEnd = i ;
+					valueStart = i + 2 ;
+					op = LogicOperation.SMALLER_OR_EQUAL ;
+					break ;
+				}else{
+					keyEnd = i ;
+					valueStart = i + 1 ;
+					op = LogicOperation.SMALLER ;
+					break ;
+				}
+			}else if(now == '='){
+				if(next == '='){
+					keyEnd = i ;
+					valueStart = i + 2 ;
+					op = LogicOperation.EQUAL ;
+					break ;
+				}else if(next == '~'){
+					//check the third char is =
+					if(i + 2 < length){ // has third char?
+						if(cs[i + 2] == '='){
+							keyEnd = i ;
+							valueStart = i + 3 ;
+							op = LogicOperation.EQUAL_IGNORE_CASE ;
+							break ;
+						}
+					}
+				}else{
+					keyEnd = i ;
+					valueStart = i + 1 ;
+					op = LogicOperation.EQUAL ;
+					break ;
+				}
+			}else if(now == '~'){
+				if(next == '~'){
+					keyEnd = i ;
+					valueStart = i + 2 ;
+					op = LogicOperation.LIKE_IGNORE_CASE ;
+					break ;
+				}else if(next == '='){
+					keyEnd = i ;
+					valueStart = i + 2 ;
+					op = LogicOperation.LIKE_CASE_SENSTIVE ;
+					break ;
+				}
 			}
-			
-			Object value = dataType.getFromString(fieldValue) ;
-			LogicOperation op = opValues[i] ;
-						
-			return new ConditionSegment(fieldName, op, value) ;
 		}
 		
-		return null ;
+		//no operator found.
+		if(op == null) {
+			return null ;
+		}
+		
+		String fieldName = condition.substring(0, keyEnd).trim() ;
+		String fieldValue = condition.substring(valueStart).trim() ;
+		
+		SQLDataType dataType = mapping.getSQLDataTypeOfProperty(fieldName) ;
+		
+		if(dataType == null){
+			throw new DaoException("conditon:[" + condition + "] 's field:[" + fieldName + "]不存在，或者数据类型没有支持的SQLDataType") ;
+		}
+		
+		Object value = dataType.getFromString(fieldValue) ;
+		
+//		System.out.println(new ConditionSegment(fieldName, op, value)) ;
+		
+		return new ConditionSegment(fieldName, op, value) ;
+//		
+//		
+//		condition = condition.trim() ;	
+//		
+//		for(int i = 0 ; i < operates.length ; i++){
+//			String m_op = operates[i] ;
+//			
+//			int pos = condition.indexOf(m_op) ;
+//			if(pos < 0) continue ;
+//			
+//			String fieldName = condition.substring(0, pos).trim() ;
+//			String fieldValue = condition.substring(pos + m_op.length()).trim() ;
+//			
+//			SQLDataType dataType = mapping.getSQLDataTypeOfProperty(fieldName) ;
+//			
+//			if(dataType == null){
+//				throw new DaoException("conditon:[" + condition + "] 's field:[" + fieldName + "]不存在，或者数据类型没有支持的SQLDataType") ;
+//			}
+//			
+//			Object value = dataType.getFromString(fieldValue) ;
+//			LogicOperation op = opValues[i] ;
+//						
+//			return new ConditionSegment(fieldName, op, value) ;
+//		}
+//		
+//		return null ;
 	}
 
 	public static ConditionSegment parseFromString(String fieldName, String operator, Object fieldValue) {

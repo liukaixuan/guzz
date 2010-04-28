@@ -34,6 +34,10 @@ public class LogicOperation{
 		return symbol;
 	}
 	
+	public String toString(){
+		return symbol ;
+	}
+	
 	public static final LogicOperation EQUAL = new LogicOperation("==") ;
 	public static final LogicOperation EQUAL_IGNORE_CASE = new LogicOperation("=~=") ;
 	public static final LogicOperation BIGGER = new LogicOperation(">") ;
