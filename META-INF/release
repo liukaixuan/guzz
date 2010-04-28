@@ -3,6 +3,7 @@
 	2. add a new Id generator hilo-multi.
 	3. add byte data type support.
 	4. fix a bug in "hilo" id generator.
+	5. fix a bug in guzz jsp taglib.
 	
 
 1.2.7 build20100406

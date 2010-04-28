@@ -37,7 +37,7 @@ import org.guzz.util.StringUtil;
  * If sequences are not available, <tt>TableHiLoGenerator</tt> might be an
  * alternative.<br>
  * <br>
- * Mapping parameters supported: sequence, max_lo, db_group, parameters.
+ * Mapping parameters supported: sequence, max_lo, db_group.
  *
  * @see TableHiLoGenerator
  */

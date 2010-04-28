@@ -23,6 +23,7 @@ import junit.framework.TestSuite;
 import org.guzz.asm.EnchancerTest;
 import org.guzz.builder.TestMainConfigBuilder;
 import org.guzz.connection.C3P0DSTest;
+import org.guzz.dao.se.TestInterpreter;
 import org.guzz.dialect.TestH2Dialect;
 import org.guzz.impl.TestLocalFileConfigServer;
 import org.guzz.jdbc.TestObjectBatcher;
@@ -52,14 +53,15 @@ import org.guzz.util.lb.TestRound;
 public class TestGuzz extends TestCase {
 	
 	public static Test suite() {
-//		GuzzTestCase.configFile = "classpath:guzzmain_test1.xml" ;
-		GuzzTestCase.configFile = "classpath:guzzmain_test1_annotation.xml" ;
+		GuzzTestCase.configFile = "classpath:guzzmain_test1.xml" ;
+//		GuzzTestCase.configFile = "classpath:guzzmain_test1_annotation.xml" ;
 		
 		TestSuite s= new TestSuite();
 		
 		s.addTestSuite(TestSearchExpression.class) ;
 		s.addTestSuite(TestSQLCompiler.class) ;
 		s.addTestSuite(TestHbmXMLBuilder.class) ;
+		s.addTestSuite(TestInterpreter.class) ;
 		s.addTestSuite(C3P0DSTest.class) ;
 		s.addTestSuite(TestTranSession.class) ;
 		s.addTestSuite(TestMainConfigBuilder.class) ;

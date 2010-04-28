@@ -35,9 +35,9 @@ public class CompareTerm implements SearchTerm {
 	public static final String BIGGER_OR_EQUALS = ">=" ;
 	public static final String SMALLER_OR_EQUALS = "<=" ;
 	
-	protected String propName ;
-	protected Object propValue ;
-	protected String operator ;
+	final String propName ;
+	final Object propValue ;
+	final String operator ;
 
 	public CompareTerm(String propName, String operator ,Object propValue) {
 		this.propName = propName ;
