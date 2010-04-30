@@ -123,6 +123,7 @@ public class CookieUtil {
 	 */
 	public static String readCookieIgnoreSpecialCharacters(HttpServletRequest request, String cookieName) {
 		String cs = request.getHeader("cookie") ;
+		if(cs == null) return null ;
 		
 		int start = cs.indexOf(cookieName) ;
 		if(start < 0 ) return null ;
