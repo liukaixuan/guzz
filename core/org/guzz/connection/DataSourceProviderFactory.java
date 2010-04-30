@@ -39,6 +39,7 @@ public abstract class DataSourceProviderFactory {
 	static{
 		systemProviders.put("c3p0", C3P0DataSourceProvicer.class.getName()) ;
 		systemProviders.put("dbcp", DBCPDataSourceProvicer.class.getName()) ;
+		systemProviders.put("nopool", NoPooledDataSourceProvicer.class.getName()) ;
 	}	
 	
 	public static DataSourceProvicer buildDataSourceProvicer(Properties props, int maxLoad){
