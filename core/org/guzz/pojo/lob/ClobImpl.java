@@ -151,6 +151,19 @@ public class ClobImpl implements Clob {
 		throw new UnsupportedOperationException("Blob may not be manipulated from creating session");
 	}
 
+	/**
+	 * @since 1.6
+	 */
+	public void free() throws SQLException {
+	}
+
+	/**
+	 * @since 1.6
+	 */
+	public Reader getCharacterStream(long pos, long length) throws SQLException {
+		return null;
+	}
+
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2008-2010 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,23 @@
  * limitations under the License.
  *
  */
-package org.guzz.service.remote;
-
-import java.util.Properties;
+package org.guzz.orm.type;
 
 /**
  * 
- * 
+ * Allow the {@link SQLDataType} to accept a parameter.
+ * <p>
+ * The parameter is passed with the type name with a "|" seperator. eg:<br>
+ * enum.ordinal|org.guzz.MyEnumType sets the mapped dataType to enum(ordinal) and pass the parameter "org.guzz.MyEnumType" telling the enum's class name.
+ * </p>
  *
- * @author liukaixuan(liukaixuan@gmail.com)
+ * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface RemoteRPCProxy {
+public interface ParameteredType {
 	
-	public static final String RPC_PARAM_PREFIX ="rpc." ;
-
-	public void startup(Properties props) ;
-
 	/**
-	 * 获取远程对象的调用方法。返回的对象可能会被调用者缓存，并多次重复使用。
+	 * Inject the parameter.
 	 */
-	public Object getRemoteStub(Class serviceInterface) ;
-	
-	/**关闭此proxy，释放相关的资源。*/
-	public void close() ;
-	
+	public void setParameter(String param) ;
+
 }

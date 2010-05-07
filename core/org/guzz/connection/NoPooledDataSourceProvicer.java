@@ -92,6 +92,22 @@ public class NoPooledDataSourceProvicer implements DataSourceProvicer{
 
 		public void setLoginTimeout(int seconds) throws SQLException {
 			this.loginTimeout = seconds ;
+		}
+
+		/**
+		 * not supported.
+		 * @since 1.6
+		 */
+		public boolean isWrapperFor(Class<?> iface) throws SQLException {
+			return false;
+		}
+
+		/**
+		 * not supported.
+		 * @since 1.6
+		 */
+		public <T> T unwrap(Class<T> iface) throws SQLException {
+			return null;
 		}		
 	}
 

@@ -60,7 +60,7 @@ public class JavaBeanWrapper extends BeanWrapper{
 	public void setValue(Object beanInstance, String propName, Object value){
 		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
 		if(pd == null){
-			throw new ORMException("unknow property[" + propName + "] in :" + this.beanClass) ;
+			throw new ORMException("unknown property[" + propName + "] in :" + this.beanClass) ;
 		}
 		
 		Method writeMethod = pd.getWriteMethod();
@@ -92,7 +92,7 @@ public class JavaBeanWrapper extends BeanWrapper{
 		
 		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
 		if(pd == null){
-			throw new ORMException("unknow property[" + propName + "] in :" + this.beanClass) ;
+			throw new ORMException("unknown property[" + propName + "] in :" + this.beanClass) ;
 		}
 		
 		Method writeMethod = pd.getWriteMethod();
@@ -110,7 +110,7 @@ public class JavaBeanWrapper extends BeanWrapper{
 	public void setValueAutoConvert(Object beanInstance, String propName, String value){
 		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
 		if(pd == null){
-			throw new ORMException("unknow property[" + propName + "] in :" + this.beanClass) ;
+			throw new ORMException("unknown property[" + propName + "] in :" + this.beanClass) ;
 		}
 		
 		Method writeMethod = pd.getWriteMethod();
@@ -134,7 +134,7 @@ public class JavaBeanWrapper extends BeanWrapper{
 	public Object getValue(Object beanInstance, String propName){
 		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
 		if(pd == null){
-			throw new ORMException("unknow property[" + propName + "] in :" + this.beanClass) ;
+			throw new ORMException("unknown property[" + propName + "] in :" + this.beanClass) ;
 		}
 		
 		Method readMethod = pd.getReadMethod();

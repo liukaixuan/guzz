@@ -12,7 +12,7 @@
         </property>
         <property name="content" type="string" column="DESCRIPTION">
         </property>
-        <property name="createdTime" type="datetime" column="createdTime" />
+        <property name="createdTime" type="datetime|yyyy-MM-dd HH:mm:ss" column="createdTime" />
         
         <set name="projects" inverse="true">
             <key>

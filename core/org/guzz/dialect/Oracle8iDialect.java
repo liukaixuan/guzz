@@ -32,10 +32,10 @@ public class Oracle8iDialect extends AbstractDialect {
 	public Oracle8iDialect(){
 		super() ;
 		
-		this.registerUserDefinedTypes("Oracle.Long", new StringSQLDataType()) ;
-		this.registerUserDefinedTypes("varchar2", new StringSQLDataType()) ;
-		this.registerUserDefinedTypes("nclob", new ClobSQLDataType()) ;
-		this.registerUserDefinedTypes("raw", new BytesSQLDataType()) ;
+		this.registerUserDefinedTypes("Oracle.Long", StringSQLDataType.class) ;
+		this.registerUserDefinedTypes("varchar2", StringSQLDataType.class) ;
+		this.registerUserDefinedTypes("nclob", ClobSQLDataType.class) ;
+		this.registerUserDefinedTypes("raw", BytesSQLDataType.class) ;
 	}
 
 	public String getLimitedString(String sql, int offset, int limit) {

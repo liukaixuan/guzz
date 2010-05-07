@@ -22,20 +22,25 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.guzz.exception.DataTypeException;
 import org.guzz.orm.type.BigDecimalSQLDataType;
 import org.guzz.orm.type.BigIntSQLDataType;
-import org.guzz.orm.type.ByteSQLDataType;
-import org.guzz.orm.type.BytesSQLDataType;
 import org.guzz.orm.type.BlobSQLDataType;
 import org.guzz.orm.type.BooleanSQLDataType;
+import org.guzz.orm.type.ByteSQLDataType;
+import org.guzz.orm.type.BytesSQLDataType;
 import org.guzz.orm.type.CalendarSQLDataType;
 import org.guzz.orm.type.ClobSQLDataType;
 import org.guzz.orm.type.DateSQLDataType;
 import org.guzz.orm.type.DateTimeSQLDataType;
 import org.guzz.orm.type.DoubleSQLDataType;
+import org.guzz.orm.type.EnumOrdinalSQLDataType;
+import org.guzz.orm.type.EnumStringSQLDataType;
 import org.guzz.orm.type.FloatSQLDataType;
 import org.guzz.orm.type.IntegerSQLDataType;
+import org.guzz.orm.type.ParameteredType;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.orm.type.ShortSQLDataType;
 import org.guzz.orm.type.StringSQLDataType;
@@ -48,7 +53,8 @@ import org.guzz.orm.type.TimeSQLDataType;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public abstract class AbstractDialect implements Dialect {
-
+	protected transient final Log log = LogFactory.getLog(getClass()) ;	
+	
 	protected final Map sqlTypes = new HashMap() ;
 	
 	public AbstractDialect(){
@@ -56,83 +62,87 @@ public abstract class AbstractDialect implements Dialect {
 	}
 	
 	protected void regSystemTypes(){
-		sqlTypes.put("int", new IntegerSQLDataType()) ;
-		sqlTypes.put(Integer.class.getName(), new IntegerSQLDataType()) ;
+		sqlTypes.put("int", IntegerSQLDataType.class) ;
+		sqlTypes.put(Integer.class.getName(), IntegerSQLDataType.class) ;
 		
-		sqlTypes.put("string", new StringSQLDataType()) ;
-		sqlTypes.put("varchar", new StringSQLDataType()) ;
-		sqlTypes.put("nvarchar", new StringSQLDataType()) ;
-		sqlTypes.put("char", new StringSQLDataType()) ;
-		sqlTypes.put("nchar", new StringSQLDataType()) ;
-		sqlTypes.put("text", new StringSQLDataType()) ;
-		sqlTypes.put("tinytext", new StringSQLDataType()) ;
-		sqlTypes.put(String.class.getName(), new StringSQLDataType()) ;
+		sqlTypes.put("string", StringSQLDataType.class) ;
+		sqlTypes.put("varchar", StringSQLDataType.class) ;
+		sqlTypes.put("nvarchar", StringSQLDataType.class) ;
+		sqlTypes.put("char", StringSQLDataType.class) ;
+		sqlTypes.put("nchar", StringSQLDataType.class) ;
+		sqlTypes.put("text", StringSQLDataType.class) ;
+		sqlTypes.put("tinytext", StringSQLDataType.class) ;
+		sqlTypes.put(String.class.getName(), StringSQLDataType.class) ;
 		
 		//java.sql.Timestamp
-		sqlTypes.put("datetime", new DateTimeSQLDataType()) ;
-		sqlTypes.put("timestamp", new DateTimeSQLDataType()) ;
-		sqlTypes.put(java.util.Date.class.getName(), new DateTimeSQLDataType()) ;
-		sqlTypes.put(java.sql.Timestamp.class.getName(), new DateTimeSQLDataType()) ;
+		sqlTypes.put("datetime", DateTimeSQLDataType.class) ;
+		sqlTypes.put("timestamp", DateTimeSQLDataType.class) ;
+		sqlTypes.put(java.util.Date.class.getName(), DateTimeSQLDataType.class) ;
+		sqlTypes.put(java.sql.Timestamp.class.getName(), DateTimeSQLDataType.class) ;
 
 		//java.sql.Date
-		sqlTypes.put("date", new DateSQLDataType()) ;
-		sqlTypes.put(java.sql.Date.class.getName(), new DateSQLDataType()) ;
+		sqlTypes.put("date", DateSQLDataType.class) ;
+		sqlTypes.put(java.sql.Date.class.getName(), DateSQLDataType.class) ;
 		
 		//java.util.Calendar
-		sqlTypes.put(java.util.Calendar.class.getName(), new CalendarSQLDataType()) ;
+		sqlTypes.put(java.util.Calendar.class.getName(), CalendarSQLDataType.class) ;
 		
 		//java.sql.Time
-		sqlTypes.put("time", new TimeSQLDataType()) ;
-		sqlTypes.put(java.sql.Time.class.getName(), new TimeSQLDataType()) ;
+		sqlTypes.put("time", TimeSQLDataType.class) ;
+		sqlTypes.put(java.sql.Time.class.getName(), TimeSQLDataType.class) ;
 		
 		//boolean
-		sqlTypes.put("bool", new BooleanSQLDataType()) ;
-		sqlTypes.put("boolean", new BooleanSQLDataType()) ;	
-		sqlTypes.put(Boolean.class.getName(), new BooleanSQLDataType()) ;		
+		sqlTypes.put("bool", BooleanSQLDataType.class) ;
+		sqlTypes.put("boolean", BooleanSQLDataType.class) ;	
+		sqlTypes.put(Boolean.class.getName(), BooleanSQLDataType.class) ;		
 
-		sqlTypes.put("bigint", new BigIntSQLDataType()) ;
-		sqlTypes.put("long", new BigIntSQLDataType()) ;
-		sqlTypes.put(Long.class.getName(), new BigIntSQLDataType()) ;
+		sqlTypes.put("bigint", BigIntSQLDataType.class) ;
+		sqlTypes.put("long", BigIntSQLDataType.class) ;
+		sqlTypes.put(Long.class.getName(), BigIntSQLDataType.class) ;
 		
-		sqlTypes.put("double", new DoubleSQLDataType()) ;
-		sqlTypes.put(Double.class.getName(), new DoubleSQLDataType()) ;
+		sqlTypes.put("double", DoubleSQLDataType.class) ;
+		sqlTypes.put(Double.class.getName(), DoubleSQLDataType.class) ;
 		
-		sqlTypes.put("money", new BigDecimalSQLDataType()) ;	
-		sqlTypes.put("decimal", new BigDecimalSQLDataType()) ;
-		sqlTypes.put(BigDecimal.class.getName(), new BigDecimalSQLDataType()) ;		
+		sqlTypes.put("money", BigDecimalSQLDataType.class) ;	
+		sqlTypes.put("decimal", BigDecimalSQLDataType.class) ;
+		sqlTypes.put(BigDecimal.class.getName(), BigDecimalSQLDataType.class) ;		
 
-		sqlTypes.put("float", new FloatSQLDataType()) ;
-		sqlTypes.put(Float.class.getName(), new FloatSQLDataType()) ;
+		sqlTypes.put("float", FloatSQLDataType.class) ;
+		sqlTypes.put(Float.class.getName(), FloatSQLDataType.class) ;
 
-		sqlTypes.put("short", new ShortSQLDataType()) ;
-		sqlTypes.put("smallint", new ShortSQLDataType()) ;
-		sqlTypes.put("tinyint", new ShortSQLDataType()) ;
-		sqlTypes.put(Short.class.getName(), new ShortSQLDataType()) ;
+		sqlTypes.put("short", ShortSQLDataType.class) ;
+		sqlTypes.put("smallint", ShortSQLDataType.class) ;
+		sqlTypes.put("tinyint", ShortSQLDataType.class) ;
+		sqlTypes.put(Short.class.getName(), ShortSQLDataType.class) ;
 		
 		//bit
-		sqlTypes.put("byte", new ByteSQLDataType()) ;
-		sqlTypes.put("bit", new ByteSQLDataType()) ;
-		sqlTypes.put(java.lang.Byte.class.getName(), new ByteSQLDataType()) ;
+		sqlTypes.put("byte", ByteSQLDataType.class) ;
+		sqlTypes.put("bit", ByteSQLDataType.class) ;
+		sqlTypes.put(java.lang.Byte.class.getName(), ByteSQLDataType.class) ;
 		
 		//byte[]
-		sqlTypes.put("bytes", new BytesSQLDataType()) ;
-		sqlTypes.put("[B", new BytesSQLDataType()) ;//byte[]
-		sqlTypes.put("[Ljava.lang.Byte;", new BytesSQLDataType()) ;//Byte[]
-		sqlTypes.put("binary", new BytesSQLDataType()) ;
+		sqlTypes.put("bytes", BytesSQLDataType.class) ;
+		sqlTypes.put("[B", BytesSQLDataType.class) ;//byte[]
+		sqlTypes.put("[Ljava.lang.Byte;", BytesSQLDataType.class) ;//Byte[]
+		sqlTypes.put("binary", BytesSQLDataType.class) ;
 		
 		//clob
-		sqlTypes.put("clob", new ClobSQLDataType()) ;
-		sqlTypes.put(java.sql.Clob.class.getName(), new ClobSQLDataType()) ;
-		sqlTypes.put(org.guzz.pojo.lob.TranClob.class.getName(), new ClobSQLDataType()) ;
+		sqlTypes.put("clob", ClobSQLDataType.class) ;
+		sqlTypes.put(java.sql.Clob.class.getName(), ClobSQLDataType.class) ;
+		sqlTypes.put(org.guzz.pojo.lob.TranClob.class.getName(), ClobSQLDataType.class) ;
 		
 		//blob
-		sqlTypes.put("blob", new BlobSQLDataType()) ;
-		sqlTypes.put(java.sql.Blob.class.getName(), new BlobSQLDataType()) ;
-		sqlTypes.put(org.guzz.pojo.lob.TranBlob.class.getName(), new BlobSQLDataType()) ;
+		sqlTypes.put("blob", BlobSQLDataType.class) ;
+		sqlTypes.put(java.sql.Blob.class.getName(), BlobSQLDataType.class) ;
+		sqlTypes.put(org.guzz.pojo.lob.TranBlob.class.getName(), BlobSQLDataType.class) ;
+		
+		//enum
+		sqlTypes.put("enum.ordinal", EnumOrdinalSQLDataType.class) ;
+		sqlTypes.put("enum.string", EnumStringSQLDataType.class) ;
 		
 	}
 	
-	public void registerUserDefinedTypes(String typeName, SQLDataType dataType){
+	public void registerUserDefinedTypes(String typeName, Class dataType){
 		sqlTypes.put(typeName, dataType) ;
 	}
 
@@ -141,25 +151,50 @@ public abstract class AbstractDialect implements Dialect {
 	 * @return 用于处理@param数据类型的处理类，如果不支持抛出异常@link DataTypeException。
 	 */
 	public SQLDataType getDataType(String colType){
+		String param = null ;
+		int pos = colType.indexOf('|') ;
+		
+		if(pos != -1){
+			param = colType.substring(pos + 1) ;
+			colType = colType.substring(0, pos) ;
+		}
+		
 		if(colType.indexOf('(') > 0){ //handle varchar(255), number(10, 4)...
 			colType = colType.substring(0, colType.indexOf('(')) ;
 		}
 		
-		SQLDataType type = (SQLDataType) sqlTypes.get(colType) ;
+		Class type = (Class) sqlTypes.get(colType) ;
 		
-		if(type != null){
-			return type ;
-		}else{
+		if(type == null){
 			Iterator i = this.sqlTypes.entrySet().iterator() ;
 			while(i.hasNext()){
 				Map.Entry e = (Entry) i.next() ;
 				if(colType.equalsIgnoreCase((String) e.getKey())){
-					return (SQLDataType) e.getValue() ;
+					type = (Class) e.getValue() ;
 				}
 			}
 		}
 		
-		throw new DataTypeException("column type[" + colType + "] is not supported.") ;
+		if(type != null){
+			SQLDataType typeInstance ;
+			try {
+				typeInstance = (SQLDataType) type.newInstance() ;
+			} catch (InstantiationException e) {
+				throw new DataTypeException("unable to instance type class[" + type.getName() + "] for type:[" + colType + "].") ;
+			} catch (IllegalAccessException e) {
+				throw new DataTypeException("unable to instance type class[" + type.getName() + "] for type:[" + colType + "].") ;
+			}
+			
+			if(typeInstance instanceof ParameteredType){
+				((ParameteredType) typeInstance).setParameter(param) ;
+			}else if(param != null){
+				log.warn("data type class[" + type.getName() + "] for type:[" + colType + "] doesn't support parameter. parameter:[" + param + "] is ignored.") ;
+			}
+			
+			return typeInstance ;
+		}else{
+			throw new DataTypeException("column type[" + colType + "] is not supported.") ;
+		}
 	}
 
 	public String getForUpdateNoWaitString(String sql) {

@@ -53,8 +53,8 @@ import org.guzz.util.lb.TestRound;
 public class TestGuzz extends TestCase {
 	
 	public static Test suite() {
-		GuzzTestCase.configFile = "classpath:guzzmain_test1.xml" ;
-//		GuzzTestCase.configFile = "classpath:guzzmain_test1_annotation.xml" ;
+//		GuzzTestCase.configFile = "classpath:guzzmain_test1.xml" ;
+		GuzzTestCase.configFile = "classpath:guzzmain_test1_annotation.xml" ;
 		
 		TestSuite s= new TestSuite();
 		

@@ -24,6 +24,7 @@ import java.util.Date;
 
 import org.guzz.exception.DataTypeException;
 import org.guzz.util.DateUtil;
+import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -31,20 +32,27 @@ import org.guzz.util.DateUtil;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class TimeSQLDataType implements SQLDataType {
+public class TimeSQLDataType implements SQLDataType, ParameteredType {
+	private static final String FMT = "HH:mm:ss" ;
 	
 	private Time nullTime = null ;
 	
 	private boolean saveAsNow = false ;
 	
-	private static final String FMT = "HH:mm:ss" ;
+	private String dateFormat = FMT ;
+
+	public void setParameter(String param) {
+		if(StringUtil.notEmpty(param)){
+			dateFormat = param ;
+		}
+	}
 	
 	public void setNullToValue(String nullValue){
 		if(nullValue != null){
 			if("now()".equalsIgnoreCase(nullValue)){
 				this.saveAsNow = true ;
 			}else{
-				Date d = DateUtil.stringToDate(nullValue, FMT) ;
+				Date d = DateUtil.stringToDate(nullValue, dateFormat) ;
 				if(d == null){
 					nullTime = null ;
 				}else{
@@ -55,9 +63,9 @@ public class TimeSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		Date d = DateUtil.stringToDate(value, FMT) ;
+		Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){
-			throw new DataTypeException("unknown date:" + value + ", date format should be:" + FMT) ;
+			throw new DataTypeException("unknown time:" + value + ", time format should be:" + dateFormat) ;
 		}
 		
 		return new Time(d.getTime()) ;

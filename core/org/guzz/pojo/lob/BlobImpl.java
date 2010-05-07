@@ -127,6 +127,19 @@ public class BlobImpl implements Blob {
 		throw new UnsupportedOperationException("Blob may not be manipulated from creating session");
 	}
 
+	/**
+	 * @since 1.6
+	 */
+	public void free() throws SQLException {
+	}
+
+	/**
+	 * @since 1.6
+	 */
+	public InputStream getBinaryStream(long pos, long length) throws SQLException {
+		return null;
+	}
+
 }
 
 

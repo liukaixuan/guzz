@@ -25,6 +25,7 @@ import java.util.Date;
 
 import org.guzz.exception.DataTypeException;
 import org.guzz.util.DateUtil;
+import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -32,13 +33,20 @@ import org.guzz.util.DateUtil;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class CalendarSQLDataType implements SQLDataType {
+public class CalendarSQLDataType implements SQLDataType, ParameteredType {
+	private static final String FMT = "yyyy-MM-dd" ;
 	
 	private Calendar nullDate = null ;
 	
-	private boolean saveAsNow = false ;
+	private boolean saveAsNow = false ;	
 	
-	private static final String FMT = "yyyy-MM-dd" ;
+	private String dateFormat = FMT ;
+
+	public void setParameter(String param) {
+		if(StringUtil.notEmpty(param)){
+			dateFormat = param ;
+		}
+	}
 	
 	public void setNullToValue(String nullValue){
 		if(nullValue != null){
@@ -46,7 +54,7 @@ public class CalendarSQLDataType implements SQLDataType {
 				this.saveAsNow = true ;
 			}else{
 				this.nullDate = Calendar.getInstance() ;
-				this.nullDate.setTime(DateUtil.stringToDate(nullValue, FMT)) ;
+				this.nullDate.setTime(DateUtil.stringToDate(nullValue, dateFormat)) ;
 			}
 		}
 	}
@@ -108,9 +116,9 @@ public class CalendarSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		Date d = DateUtil.stringToDate(value, FMT) ;
+		Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){
-			throw new DataTypeException("unknown calendar date:" + value + ", date format shoule be:" + FMT) ;
+			throw new DataTypeException("unknown calendar date:" + value + ", date format shoule be:" + dateFormat) ;
 		}
 		
 		Calendar c = Calendar.getInstance() ;
