@@ -33,7 +33,6 @@ import org.guzz.Guzz;
 import org.guzz.dao.PageFlip;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
-import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
 import org.guzz.exception.ORMException;
 import org.guzz.jdbc.JDBCTemplate;
@@ -321,10 +320,6 @@ public class AbstractTranSessionImpl {
 					return loader.rs2Object(m, rs) ;
 				}else if(returnType != null){
 					SQLDataType type = db.getDialect().getDataType(returnType) ;
-							
-					if(type == null){
-						throw new DataTypeException("unknown type:[" + returnType + "]") ;
-					}
 							
 					return type.getSQLValue(rs, 1) ;
 				}else{

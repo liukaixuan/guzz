@@ -23,6 +23,7 @@ import java.util.Date;
 
 import org.guzz.exception.DataTypeException;
 import org.guzz.util.DateUtil;
+import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -30,20 +31,27 @@ import org.guzz.util.DateUtil;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class DateSQLDataType implements SQLDataType {
+public class DateSQLDataType implements SQLDataType, ParameteredType {
+	private static final String FMT = "yyyy-MM-dd" ;
 	
 	private Date nullDate = null ;
 	
-	private boolean saveAsNow = false ;
+	private boolean saveAsNow = false ;	
 	
-	private static final String FMT = "yyyy-MM-dd" ;
+	private String dateFormat = FMT ;
+
+	public void setParameter(String param) {
+		if(StringUtil.notEmpty(param)){
+			dateFormat = param ;
+		}
+	}
 	
 	public void setNullToValue(String nullValue){
 		if(nullValue != null){
 			if("now()".equalsIgnoreCase(nullValue)){
 				this.saveAsNow = true ;
 			}else{
-				this.nullDate = DateUtil.stringToDate(nullValue, FMT) ;
+				this.nullDate = DateUtil.stringToDate(nullValue, dateFormat) ;
 			}
 		}
 	}
@@ -97,9 +105,9 @@ public class DateSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		Date d = DateUtil.stringToDate(value, FMT) ;
+		Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){
-			throw new DataTypeException("unknown date:" + value + ", date format shoule be:" + FMT) ;
+			throw new DataTypeException("unknown date:" + value + ", date format shoule be:" + dateFormat) ;
 		}
 		
 		return new java.sql.Date(d.getTime()) ;

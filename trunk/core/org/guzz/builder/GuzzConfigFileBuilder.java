@@ -53,6 +53,7 @@ import org.guzz.orm.type.SQLDataType;
 import org.guzz.service.ServiceInfo;
 import org.guzz.transaction.DBGroup;
 import org.guzz.util.Assert;
+import org.guzz.util.ClassUtil;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
@@ -229,9 +230,10 @@ public class GuzzConfigFileBuilder {
 				String typeName = t.attributeValue("name") ;
 				String className = t.attributeValue("class") ;
 				
-				SQLDataType sdt = (SQLDataType) BeanCreator.newBeanInstance(className) ;
+				Class cls = ClassUtil.getClass(className) ;
+				Assert.assertTrue(SQLDataType.class.isAssignableFrom(cls), "user-defined data type must be a instance of type:" + SQLDataType.class.getName()) ;
 				
-				dialect.registerUserDefinedTypes(typeName, sdt) ;
+				dialect.registerUserDefinedTypes(typeName, cls) ;
 			}
 			
 			ds.put(d_name, dialect) ;

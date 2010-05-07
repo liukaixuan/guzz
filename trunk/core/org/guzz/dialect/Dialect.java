@@ -32,7 +32,7 @@ public interface Dialect {
 	 */
 	public SQLDataType getDataType(String colType) ;
 	
-	public void registerUserDefinedTypes(String typeName, SQLDataType dataType) ;
+	public void registerUserDefinedTypes(String typeName, Class dataType) ;
 	
 	/**
 	 * 

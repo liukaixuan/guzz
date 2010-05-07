@@ -17,6 +17,7 @@
 package org.guzz.service;
 
 import org.guzz.exception.GuzzException;
+import org.guzz.service.remote.RPCServiceProxyImplFactory;
 import org.guzz.service.remote.RemoteRPCProxy;
 import org.guzz.util.javabean.BeanCreator;
 
@@ -34,12 +35,17 @@ public abstract class AbstractRPCService<T> extends AbstractRemoteService<T> {
 		if(super.configure(scs)){
 			//TODO: add support for many servers.
 			
-			String protocol = (String) scs[0].getProps().remove("protocol") ;
+			String protocol = (String) scs[0].getProps().remove(RemoteRPCProxy.RPC_PARAM_PREFIX + "protocol") ;
 			if(protocol == null){
-				throw new GuzzException("property:[protocol] is required. it should be fcn implements RemoteRPCProxy") ;
+				throw new GuzzException("property:[protocol] is required. it should be a fcn implements RemoteRPCProxy") ;
 			}
 			
-			remoteRPCProxy = (RemoteRPCProxy) BeanCreator.newBeanInstance(protocol) ;
+			String protocolClassName = RPCServiceProxyImplFactory.getRPCProxyProviderClass(protocol) ;
+			if(protocolClassName == null){
+				protocolClassName = protocol ;
+			}
+			
+			remoteRPCProxy = (RemoteRPCProxy) BeanCreator.newBeanInstance(protocolClassName) ;
 			remoteRPCProxy.startup(scs[0].getProps()) ;
 			
 			return true ;

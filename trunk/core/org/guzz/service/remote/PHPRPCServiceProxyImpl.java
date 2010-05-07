@@ -22,26 +22,32 @@ import org.phprpc.PHPRPC_Client;
 
 /**
  * 
+ * PHPRPC protocol(http://www.phprpc.org/).
  * 
+ * <p>Accepted parameters:rpc.serviceURL(remote service url) and all fields that has a POJO style's set-xxx method in {@link PHPRPC_Client}. <br>
+ * The corresponding parameter name of the field would be: "rpc." + field name.
+ * </p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class PHPRPCServiceProxyImpl implements RemoteRPCProxy{
 	
+	private PHPRPC_Client client ; 
+	
 	private String serviceURL ;
 	
 	public void startup(Properties props){
-		serviceURL = props.getProperty("serviceURL") ;
+		this.serviceURL = (String) props.remove(RPC_PARAM_PREFIX + "serviceURL") ;
+		this.client = new PHPRPC_Client(serviceURL) ;
+		
+		RPCServiceProxyImplFactory.setProperties(client, props) ;
 	}
 
 	public Object getRemoteStub(Class serviceInterface) {
-		PHPRPC_Client client = new PHPRPC_Client(serviceURL); 
-		
 		return client.useService(serviceInterface);
 	}	
 
 	public void close(){
-		
 	}
 
 }

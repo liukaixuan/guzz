@@ -157,4 +157,18 @@ public class TranBlob implements Blob, Serializable {
 		this.blobBufferSize = blobBuffer;
 	}
 
+	/**
+	 * @since 1.6
+	 */
+	public void free() throws SQLException {
+		throw new SQLException("In jdk 1.6, try getWrappedBlob().free(). You still need to call close() to release the database connection in lazy load mode.") ;
+	}
+
+	/**
+	 * @since 1.6
+	 */
+	public InputStream getBinaryStream(long pos, long length) throws SQLException {
+		throw new SQLException("In jdk 1.6, try getWrappedBlob().getBinaryStream(long pos, long length).") ;
+	}
+
 }

@@ -189,4 +189,18 @@ public class TranClob implements Clob, Serializable {
 		this.blobBufferSize = blobBufferSize;
 	}
 
+	/**
+	 * @since 1.6
+	 */
+	public void free() throws SQLException {
+		throw new SQLException("In jdk 1.6, try getWrappedClob().free(). You still need to call close() to release the database connection in lazy load mode.") ;
+	}
+
+	/**
+	 * @since 1.6
+	 */
+	public Reader getCharacterStream(long pos, long length) throws SQLException {
+		throw new SQLException("In jdk 1.6, try getWrappedClob().getCharacterStream(long pos, long length).") ;
+	}
+
 }

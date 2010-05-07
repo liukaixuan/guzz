@@ -19,7 +19,6 @@ package org.guzz.orm.mapping;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.guzz.exception.DataTypeException;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.ColumnORM;
 import org.guzz.orm.type.SQLDataType;
@@ -67,10 +66,6 @@ public class FirstColumnDataLoader implements RowDataLoader {
 		
 		if(this.dataType == null){
 			this.dataType = mapping.getDbGroup().getDialect().getDataType(typeName) ;
-			
-			if(this.dataType == null){
-				throw new DataTypeException("unknown dataType:" + typeName) ;
-			}
 		}
 		
 		return this.dataType.getSQLValue(rs, 1) ;
