@@ -32,6 +32,7 @@ import org.guzz.orm.mapping.TestHbmXMLBuilder;
 import org.guzz.orm.mapping.TestLazyLoad;
 import org.guzz.orm.rdms.TestShadowTableView;
 import org.guzz.orm.rdms.TestCustomTableView;
+import org.guzz.orm.se.TestBeanMap;
 import org.guzz.orm.se.TestDaoRead;
 import org.guzz.orm.se.TestDaoWrite;
 import org.guzz.orm.se.TestSearchExpression;
@@ -67,6 +68,7 @@ public class TestGuzz extends TestCase {
 		s.addTestSuite(TestMainConfigBuilder.class) ;
 		s.addTestSuite(TestDaoRead.class) ;
 		s.addTestSuite(TestInnerSQLBuilder.class) ;
+		s.addTestSuite(TestBeanMap.class) ;
 		s.addTestSuite(TestDaoWrite.class) ;
 		s.addTestSuite(TestRound.class) ;
 		s.addTestSuite(TestLocalFileConfigServer.class) ;

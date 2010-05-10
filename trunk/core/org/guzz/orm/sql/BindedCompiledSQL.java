@@ -17,6 +17,7 @@
 package org.guzz.orm.sql;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +29,7 @@ import org.guzz.Guzz;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.lang.NullValue;
+import org.guzz.orm.mapping.FormBeanRowDataLoader;
 import org.guzz.orm.mapping.MapDataLoader;
 import org.guzz.orm.mapping.RowDataLoader;
 import org.guzz.orm.type.SQLDataType;
@@ -35,8 +37,11 @@ import org.guzz.transaction.LockMode;
 
 /**
  * 
- * 绑定完参数的 {@link CompiledSQL} ，这是临时对象，需要时生成，用完就消失。
- * 此对象方法不支持多线程操作。
+ * A {@link CompiledSQL} with binded parameters.
+ * <p>
+ * BindedCompiledSQL should be used as a temporary object, never cache it.
+ * All methods in this class are not thread-safe.
+ * </p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -160,10 +165,23 @@ public abstract class BindedCompiledSQL {
 	}
 
 	/**
-	 * 指定特殊的ORM策略，将临时覆盖在配置文件中配置默认ORM。
+	 * Set a special {@link RowDataLoader} to temporary override the default ORM settings for this query one time.
 	 */
 	public BindedCompiledSQL setRowDataLoader(RowDataLoader rowDataLoader) {
 		this.rowDataLoader = rowDataLoader;
+		return this ;
+	}
+	
+	/**
+	 * Set the {@link RowDataLoader} to a {@link FormBeanRowDataLoader}.
+	 * <br>
+	 * Map each row of the {@link ResultSet} to a instance of the @param beanCls.
+	 * 
+	 * @param beanCls the pojo or Map class to store the value of the ResultSet
+	 * @see FormBeanRowDataLoader
+	 */
+	public BindedCompiledSQL setBeanMapRowDataLoader(Class beanCls) {
+		this.rowDataLoader = FormBeanRowDataLoader.newInstanceForClass(beanCls) ;
 		return this ;
 	}
 

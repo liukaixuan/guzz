@@ -38,11 +38,16 @@ public interface ReadonlyTranSession {
 	/**
 	 * @param id
 	 * @param params
-	 * @param startPos 从1开始
+	 * @param startPos the first is 1, the second is 2...
 	 * @param maxSize
 	 **/
 	public List list(String id, Map params, int startPos, int maxSize) ;
 	
+	/**
+	 * @param bsql
+	 * @param startPos the first is 1, the second is 2...
+	 * @param maxSize
+	 **/
 	public List list(BindedCompiledSQL bsql, int startPos, int maxSize) ;
 
 	public List list(SearchExpression se) ;

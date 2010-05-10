@@ -24,9 +24,13 @@ import org.guzz.orm.type.SQLDataType;
 
 /**
  * 
- * 编译好的sql语句。包括可以直接在数据库执行的sql语句，sql执行参数（参数值可以替换），以及ORM信息。
+ * Compiled (detached) Sql, including separated sql statement that can be executed directly in the database,
+ *  the ordered parameters in the sql, and the default ORM settings.
+ * <p>
+ * In Guzz, almost every sql should be converted to a CompiledSQL, then bind its parameters, and then execute.
+ * </p>
  * 
- * <br><br>一般来说，所有的sql都需要转换成CompliedSQL，然后绑定参数后进行实际的执行操作。
+ * The CompiledSQL is thread-safe, and is recommended to be cached in all cases for higher performance and a much cleaner code.
  * 
  * @see BindedCompiledSQL
  * @author liukaixuan(liukaixuan@gmail.com)
