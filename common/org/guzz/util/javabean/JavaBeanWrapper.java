@@ -23,7 +23,11 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.guzz.exception.ORMException;
 import org.guzz.pojo.GuzzProxy;
@@ -235,7 +239,32 @@ public class JavaBeanWrapper extends BeanWrapper{
 		return pd.getPropertyType() ;
 	}
 	
+	public String getPropertyTypeName(String propName){
+		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
+		if(pd == null){
+			throw new ORMException("unknown property:" + propName + " in :" + this.beanClass) ;
+		}
+		
+		return pd.getPropertyType().getName() ;
+	}
 	
+	public List getAllWritabeProps(){
+		LinkedList props = new LinkedList() ;
+		Iterator i = this.propertyDescriptors.entrySet().iterator() ;
+		
+		while(i.hasNext()){
+			Entry e  = (Entry) i.next() ;
+			
+			String propName = (String) e.getKey() ;
+			PropertyDescriptor pd = (PropertyDescriptor) e.getValue() ; 
+			
+			if(pd.getWriteMethod() != null){
+				props.addLast(propName) ;
+			}
+		}
+		
+		return props ;
+	}
 	
 
 }

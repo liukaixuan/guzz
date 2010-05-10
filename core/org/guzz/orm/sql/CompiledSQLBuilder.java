@@ -21,7 +21,7 @@ import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
 
 /**
  * 
- * 用于生成CompiledSQL.
+ * A builder to create CompiledSQL.
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

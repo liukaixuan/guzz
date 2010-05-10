@@ -42,6 +42,7 @@ import org.guzz.orm.Business;
 import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.ShadowTableView;
+import org.guzz.orm.mapping.BeanMapBasedObjectMapping;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
@@ -559,15 +560,50 @@ public class GuzzConfigFileBuilder {
 			}
 		}
 		
-		List select_nodes = fragment.selectNodes("select") ;
-		List update_nodes = fragment.selectNodes("update") ;
-		
-		select_nodes.addAll(update_nodes) ;
-		
 		HashMap css = new HashMap() ;
 		
+		//select可以接收@xxx的orm，update不允许接收。必须分开。
+		List select_nodes = fragment.selectNodes("select") ;
 		for(int i = 0 ; i < select_nodes.size() ; i++){
 			Element s_node = (Element) select_nodes.get(i) ;
+			String m_id = s_node.attributeValue("id") ;
+			String m_orm = s_node.attributeValue("orm") ;
+			String value = s_node.getTextTrim() ;
+			value = StringUtil.replaceString(value, "\r\n", " ") ;
+			value = StringUtil.replaceString(value, "\n", " ") ;
+			
+			ObjectMapping map = null ;
+				
+			if(m_orm.startsWith("@")){
+				Class beanCls = ClassUtil.getClass(m_orm.substring(1)) ;
+				
+				DBGroup db = this.gf.getDBGroup(StringUtil.isEmpty(m_dbgroup)? "default" : m_dbgroup) ;
+				
+				map = new BeanMapBasedObjectMapping(db, beanCls) ;
+			}else{
+				map = (ObjectMapping) local_orms.get(m_orm) ;
+				
+				if(map == null){
+					map = omm.getStaticObjectMapping(m_orm) ;
+				}
+			}
+			
+			if(map == null){
+				throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
+			}
+			
+			CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
+			//TODO: find some way to link the markedSQL's param names with the orm's propertyNames to satisify SQLDataType's better user-defined data binding. 
+			//
+			
+			css.put(m_id, cs) ;
+		}
+		
+		
+		
+		List update_nodes = fragment.selectNodes("update") ;
+		for(int i = 0 ; i < update_nodes.size() ; i++){
+			Element s_node = (Element) update_nodes.get(i) ;
 			String m_id = s_node.attributeValue("id") ;
 			String m_orm = s_node.attributeValue("orm") ;
 			String value = s_node.getTextTrim() ;
