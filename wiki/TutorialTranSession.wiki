@@ -1,10 +1,10 @@
 !TranSession用于进行数据库的持久化操作。
 
-== !GuzzBaseDao： ==
+== !GuzzBaseDao基类： ==
 
  guzz建议所有的Dao继承!GuzzBaseDao，以使用base dao中提供的常用持久化方法。
 
-== !ReadonlyTranSession： ==
+== !ReadonlyTranSession读API： ==
 
  !ReadonlyTranSession为guzz对外提供的查询操作入口，获取方法：
 
@@ -56,7 +56,7 @@ try{
 
  类似ibatis。
 
-== !WriteTranSession ==
+== !WriteTranSession写API ==
 
  WriteTranSession为写api接口。
 
@@ -70,6 +70,48 @@ WriteTranSession session = tm.openRWTran(true) ;
  如果设置为false，在这执行完操作后，需要调用session.commit()或者session.rollback()结束事务。
 
  WriteTranSession只允许通过主键进行查询操作，查询时从主数据库操作。其他方法与ReadonlyTranSession用法类似。
+
+== 批量操作 ==
+ 
+ guzz提供两种批量操作接口，一种基于对象，一种基于SQL语句。执行批量操作，需要首先获取WriteTranSession。
+
+*基于对象： *
+{{{
+		WriteTranSession session = tm.openRWTran(false) ;
+		ObjectBatcher batcher = session.createObjectBatcher() ;
+				
+		for(int loop = 0 ; loop < 1000 ; loop++){
+			User user = new User() ;
+			user.setUserName("hello un " + i) ;
+				
+			batcher.insert(user) ;
+		}
+
+                batcher.executeUpdate() ;
+		session.commit() ;
+
+		session.close() ;
+}}}
+
+*基于SQL语句： *
+{{{
+CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(User.class, "delete from @@" + User.class.getName() + " where @id = :id") ;
+
+WriteTranSession session = tm.openRWTran(false) ;
+SQLBatcher batcher = session.createCompiledSQLBatcher(cs) ;
+
+for(int loop = 0 ; loop < 100 ; loop++){
+	batcher.addNewBatchParams("id", user.getId()) ;
+}
+	
+batcher.executeUpdate() ;
+session.commit() ;
+
+}}}
+
+ 两种方式都需要首先打开写事务连接，创建Batcher，随后按照各自的API参加批量操作参数，最后执行批量提交并提交事务。
+
+*注意：* 一个Batcher只能用于处理同一领域对象在同一张表的操作，如果需要批量插入多个表的数据，需要创建多个Batcher。
 
 == 事务一致性： ==
 
