@@ -28,7 +28,7 @@
 *主要的属性有：*
 
 || *属性名称*  || *作用*  || *注意事项*  ||
-|| limit  || 查询条件。 如：userName=${param.name}；status=1；checked=true。 也可以为应用自己定义的条件，如"checkedPost"；如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。|| 1个limit只允许写1个条件。不支持多个条件的and or运算。 ||
+|| limit  || 查询条件。 如：userName=${param.name}；status=1；checked=true。 也可以为应用自己定义的条件，如"checkedPost"；如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。*注意：*1个limit只能是一个条件，不能进行条件组合。如果需要多个条件进行and查询，使用g:boundary标签包含查询标签，并通过g:addLimit或g:addInLimit添加更多条件。|| 1个limit只允许写1个条件。不支持多个条件的and or运算。 ||
 || var  || 将结果保存到jsp对象中的名称。类似c:set中var的定义。  || - ||
 || scope  || 结果保存的范围。类似c:set中scope的定义。  || page,request,session,application  ||
 || business  || 域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  ||- ||
@@ -41,17 +41,17 @@
 其中limit查询条件支持的运算符包括：
 
 || *operator* || *function* || *memo* ||
-|| =  || EQUAL || - ||
-|| == || EQUAL || - ||
-|| >  || BIGGER || - ||
-|| <  || SMALLER  || - ||
-|| >= || BIGGER_OR_EQUAL || - ||
-|| <= || SMALLER_OR_EQUAL || - ||
-|| != || NOT_EQUAL || - ||
-|| <> || NOT_EQUAL || - ||
-|| !~~ || LIKE_IGNORE_CASE || string ||
-|| =~= || EQUAL_IGNORE_CASE || string ||
-|| ~= || LIKE_CASE_SENSTIVE || string ||
+|| =  || EQUAL || 等于 ||
+|| == || EQUAL || 等于 ||
+|| =~= || EQUAL_IGNORE_CASE || 字符相同（不区分大小写） ||
+|| >  || BIGGER || 大于 ||
+|| <  || SMALLER  || 小于 ||
+|| >= || BIGGER_OR_EQUAL || 大于等于 ||
+|| <= || SMALLER_OR_EQUAL || 小于等于 ||
+|| != || NOT_EQUAL || 不相等 ||
+|| <> || NOT_EQUAL || 不相等 ||
+|| `~~` || LIKE_IGNORE_CASE || 字符相似（不区分大小写）。需要自己添加模糊查询的模糊匹配，与数据库匹配规则相同。%用于表示任意多个字符，?代表1个字符。如：limit="name`~~`%${param.name}%" ||
+|| ~= || LIKE_CASE_SENSTIVE || 字符相似（大小写按照数据库字段定义决定是否区分）。注意事项同上。 ||
 
 == 标签的使用示例 ==
 
