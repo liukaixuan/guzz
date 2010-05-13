@@ -16,7 +16,8 @@
  */
 package org.guzz.orm.se;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.guzz.exception.DaoException;
 import org.guzz.orm.ObjectMapping;
@@ -29,7 +30,7 @@ import org.guzz.orm.ObjectMapping;
 public class InTerm implements SearchTerm {
 	
 	private String propName ;
-	private List values ;
+	private Collection values ;
 	private int[] i_values ;
 
 	/**
@@ -39,7 +40,7 @@ public class InTerm implements SearchTerm {
 	 *   注意：sql将直接连接，如果参数值为string，应该注意将每个string加上''（引号）之类的，避免sql语法错误。
 	 *        InTerm不会自动补上这些引号之类的东西。
 	 */
-	public InTerm(String propName, List values) {
+	public InTerm(String propName, Collection values) {
 		this.propName = propName ;
 		this.values = values ;
 	}
@@ -60,16 +61,22 @@ public class InTerm implements SearchTerm {
 		sb.append(colName).append(" in(") ;
 		
 		if(values != null){
-			for(int i = 0 ; i < values.size() ; i++){
-				if(i > 0){
+			boolean notFirstElement = false ; 
+			Iterator ii = values.iterator() ;
+			
+			while(ii.hasNext()){
+				Object value = ii.next() ;
+				
+				if(notFirstElement){
 					sb.append(",") ;
+				}else{
+					notFirstElement = true ;
 				}
 				
 				String m_mark = propName + "_" + params.getNextSeq() ;
-				params.addParam(propName, m_mark, values.get(i)) ;
+				params.addParam(propName, m_mark, value) ;
 				
 				sb.append(" :").append(m_mark) ;
-				
 			}
 		}else if(i_values != null){
 			for(int i = 0 ; i < i_values.length ; i++){
