@@ -16,6 +16,8 @@
  */
 package org.guzz.orm.se;
 
+import java.util.Collection;
+
 /**
  * 
  * 
@@ -73,6 +75,14 @@ public class Terms {
 	
 	public static CompareTerm stringEq(String paramName, String paramValue, boolean ignoreCase){
 		return new StringCompareTerm(paramName, StringCompareTerm.EQUALS , paramValue, ignoreCase) ;
+	}
+	
+	public static InTerm in(String paramName, int[] values){		
+		return new InTerm(paramName, values) ;
+	}
+	
+	public static InTerm in(String paramName, Collection values){		
+		return new InTerm(paramName, values) ;
 	}
 	
 }

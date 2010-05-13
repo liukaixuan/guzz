@@ -132,6 +132,15 @@ public class AbstractTranSessionImpl {
 		
 		return list(sql.bind(params), startPos, maxSize);
 	}
+	
+	/**
+	 * Execute query without pagination.
+	 * 
+	 * @param bsql
+	 **/
+	public List list(BindedCompiledSQL bsql){
+		return list(bsql, 1, Integer.MAX_VALUE) ;
+	}
 
 	/**
 	 * @param bsql
@@ -161,8 +170,11 @@ public class AbstractTranSessionImpl {
 		
 		//TODO: check if the defaultDialect supports prepared bind in limit clause, and put the limit to compiledSQL
 				
-		//add limit clause.		
-		rawSQL = db.getDialect().getLimitedString(rawSQL, startPos - 1, maxSize) ;
+		//add limit clause.	
+		if(!(startPos == 1 && maxSize == Integer.MAX_VALUE)){
+			rawSQL = db.getDialect().getLimitedString(rawSQL, startPos - 1, maxSize) ;
+		}
+		
 		this.debugService.logSQL(bsql, rawSQL) ;
 		
 		PreparedStatement pstm = null ;

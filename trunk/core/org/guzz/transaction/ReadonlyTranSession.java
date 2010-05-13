@@ -27,7 +27,7 @@ import org.guzz.orm.sql.BindedCompiledSQL;
 
 /**
  * 
- * 
+ * TranSession for read-only database queries.
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -50,6 +50,13 @@ public interface ReadonlyTranSession {
 	 **/
 	public List list(BindedCompiledSQL bsql, int startPos, int maxSize) ;
 
+	/**
+	 * Execute query without pagination.
+	 * 
+	 * @param bsql
+	 **/
+	public List list(BindedCompiledSQL bsql) ;
+	
 	public List list(SearchExpression se) ;
 	
 	/**分页查询*/
