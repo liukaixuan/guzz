@@ -23,6 +23,7 @@ import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.MarkedSQL;
 
 
@@ -167,7 +168,7 @@ public abstract class SearchExpression {
         	 */
         	sb.append("select ") ;
         	
-    		String[] columns = table.getColumnsForSelect() ;
+    		TableColumn[] columns = table.getColumnsForSelect() ;
     		
     		boolean firstProp = true ;
     		for(int i = 0 ; i < columns.length ; i++){
@@ -177,7 +178,7 @@ public abstract class SearchExpression {
     				firstProp = false ;
     			}
     			
-    			sb.append(columns[i]) ;
+    			sb.append(columns[i].getColNameForSQL()) ;
     		}
         }
 		
@@ -235,7 +236,7 @@ public abstract class SearchExpression {
 			}
 			
 			String colName = countSelectPhrase.subSequence(startPos + 1, endPos).toString().trim() ;
-			String m_propName = mapping.getColNameByPropName(colName) ;
+			String m_propName = mapping.getColNameByPropNameForSQL(colName) ;
 			if(m_propName == null){
 				throw new GuzzException("unknown column:[" + colName + "] in mapping:[" + mapping.dump() + "], countSelectPhrase is:[" + countSelectPhrase + "]") ;
 			}

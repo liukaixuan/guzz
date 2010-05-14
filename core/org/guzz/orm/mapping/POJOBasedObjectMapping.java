@@ -117,7 +117,7 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping{
 		
 		for(int i = 1 ; i <= count ; i++){
 			String colName = meta.getColumnName(i) ;
-			TableColumn col = t.getColumnByColName(colName) ;
+			TableColumn col = t.getColumnByColNameInRS(colName) ;
 			ColumnORM orm = col != null ? col.getOrm() : null ;
 			
 			//没有对应的映射，不进行映射。TODO: 在debug模式下，发出警告。

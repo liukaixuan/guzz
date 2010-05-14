@@ -95,7 +95,7 @@ public class HbmXMLBuilder {
 		
 		document = reader.read(r.getInputStream());
 		final Element root = document.getRootElement();
-		final SimpleTable st = new SimpleTable() ;
+		final SimpleTable st = new SimpleTable(dbGroup.getDialect()) ;
 		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, st) ;
 		
 		business.setTable(st) ;
@@ -172,9 +172,6 @@ public class HbmXMLBuilder {
 					
 					props.addLast(name) ;
 					
-					st.setPKColName(column) ;
-					st.setPKPropName(name) ;
-					
 					TableColumn col = new TableColumn(st) ;
 					col.setColName(column) ;
 					col.setPropName(name) ;
@@ -184,7 +181,7 @@ public class HbmXMLBuilder {
 					col.setLazy(false) ;
 					map.initColumnMapping(col, null) ;
 
-					st.addColumn(col) ;
+					st.addPKColumn(col) ;
 					
 				}else if("property".equalsIgnoreCase(e.getName())){
 					String name = e.attributeValue("name") ;
@@ -215,7 +212,7 @@ public class HbmXMLBuilder {
 					ColumnDataLoader dl = null ;
 					if(StringUtil.notEmpty(loader)){
 						dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
-						dl.configure(map, st, name, column) ;
+						dl.configure(map, st, col) ;
 						
 						//register the loader
 						gf.getDataLoaderManager().addDataLoader(dl) ;

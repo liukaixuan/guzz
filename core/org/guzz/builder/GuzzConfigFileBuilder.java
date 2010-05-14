@@ -424,7 +424,7 @@ public class GuzzConfigFileBuilder {
 		}
 		
 		//orm的shadow table支持。
-		SimpleTable st = new SimpleTable() ;
+		SimpleTable st = new SimpleTable(db.getDialect()) ;
 		if(StringUtil.notEmpty(shadow)){
 			ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
 				
@@ -466,7 +466,7 @@ public class GuzzConfigFileBuilder {
 			ColumnDataLoader dl = null ;
 			if(StringUtil.notEmpty(loader)){
 				dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
-				dl.configure(map, null, property, column) ;
+				dl.configure(map, st, col) ;
 				
 				//register the loader
 				gf.getDataLoaderManager().addDataLoader(dl) ;

@@ -35,6 +35,13 @@ public interface Dialect {
 	public void registerUserDefinedTypes(String typeName, Class dataType) ;
 	
 	/**
+	 * Transform the given @param columnName to allied name accepted by the database.
+	 * 
+	 * @param columnName The column name, could be a key word of the database.
+	 */
+	public String getEscapedColunmName(String columnName) ;
+	
+	/**
 	 * 
 	 * @param sql
 	 * @param offset no offset = 0, skip one = 1, ...

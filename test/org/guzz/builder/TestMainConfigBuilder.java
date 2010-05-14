@@ -90,10 +90,10 @@ public class TestMainConfigBuilder extends TestCase {
 		ResultMapBasedObjectMapping map = b.loadORM(null, (Element) es.get(0)) ;
 		assertNotNull(map) ;
 	    
-		assertEquals(map.getColNameByPropName("id"), "pk") ;
-		assertEquals(map.getColNameByPropName("name"), "userName") ;
-		assertEquals(map.getColNameByPropName("favCount"), "FAV_COUNT") ;
-		assertEquals(map.getColNameByPropName("vip"), "VIP_USER") ;		
+		assertEquals(map.getColNameByPropNameForSQL("id"), "pk") ;
+		assertEquals(map.getColNameByPropNameForSQL("name"), "userName") ;
+		assertEquals(map.getColNameByPropNameForSQL("favCount"), "FAV_COUNT") ;
+		assertEquals(map.getColNameByPropNameForSQL("vip"), "VIP_USER") ;		
 		
 		((GuzzContextImpl) gf).shutdown() ;
 	}

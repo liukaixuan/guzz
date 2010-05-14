@@ -150,7 +150,7 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 		executeUpdate(oracleConn, "insert into TB_BOOK values(1, 'book title 1', 'book content 1', sysdate, 'isdn-b1')") ;
 		
 		executeUpdateNoException(oracleConn, "drop table TB_USER_INFO") ;
-		executeUpdate(oracleConn, "create table TB_USER_INFO(pk number(10) not null primary key , userId varchar(64), aboutMe CLOB, portraitImg BLOB)") ;
+		executeUpdate(oracleConn, "create table TB_USER_INFO(\"ID\" number(10) not null primary key , userId varchar(64), aboutMe CLOB, portraitImg BLOB)") ;
 	}
 
 	protected void tearDown() throws Exception {		

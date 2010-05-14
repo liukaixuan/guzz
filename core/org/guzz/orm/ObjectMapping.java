@@ -36,9 +36,9 @@ import org.guzz.util.javabean.BeanWrapper;
 public interface ObjectMapping {
 	
 	/**根据属性名获许对应的数据库字段名。如果没有映射，返回null*/
-	public String getColNameByPropName(String propName) ;
+	public String getColNameByPropNameForSQL(String propName) ;
 	
-	public String getPropNameByColName(String colName) ;
+//	public String getPropNameByColName(String colName) ;
 	
 	public Object rs2Object(ResultSet rs) throws SQLException ;
 	
@@ -49,13 +49,13 @@ public interface ObjectMapping {
 	public String[] getUniqueName() ;
 	
 	/**如果不支持抛出异常@link {@link DataTypeException}*/
-	public SQLDataType getSQLDataTypeOfColumn(String colName) ;
+//	public SQLDataType getSQLDataTypeOfColumn(String colName) ;
 	
 	/** throw {@link DataTypeException} if no {@link SQLDataType} associated. */
 	public SQLDataType getSQLDataTypeOfProperty(String propName) ;
 	
 	/** throw {@link DataTypeException} if col not found. */
-	public ColumnORM getORMByColumn(String colName) ;
+//	public ColumnORM getORMByColumn(String colName) ;
 	
 	/** throw {@link DataTypeException} if property not found. */
 	public ColumnORM getORMByProperty(String propName) ;

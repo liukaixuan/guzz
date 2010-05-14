@@ -226,7 +226,7 @@ public class SQLCompiler {
 				m_mark = sb.substring(startPos + 1, i) ;
 				
 				if(alpha_count == 1){ //属性替换开始
-					String colName = mapping.getColNameByPropName(m_mark) ;
+					String colName = mapping.getColNameByPropNameForSQL(m_mark) ;
 					if(colName == null){
 						throw new ORMException("unknown property[" + m_mark + "] in sql:" + markedSQL) ;
 					}

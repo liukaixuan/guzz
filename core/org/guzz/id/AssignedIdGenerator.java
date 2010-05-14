@@ -57,8 +57,7 @@ public class AssignedIdGenerator implements IdentifierGenerator, Configurable {
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.mapping = mapping ;
 		this.table = mapping.getTable() ;
-		String colName = table.getPKColName() ;
-		primaryKeyPropName = mapping.getPropNameByColName(colName.toLowerCase()) ;
+		primaryKeyPropName = table.getPKPropName() ;
 	}
 
 }

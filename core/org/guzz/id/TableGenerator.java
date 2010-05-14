@@ -27,6 +27,7 @@ import org.guzz.dialect.Dialect;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.SQLQueryCallBack;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.transaction.WriteTranSession;
@@ -75,21 +76,15 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 	private String update;
 	
 	private POJOBasedObjectMapping mapping ;
-	protected Table table ;
-	protected String primaryKeyPropName ;
-	protected SQLDataType pkDataType ;
 	private Class domainClass ;	
+	protected TableColumn pkColumn ;
 	
 	protected String dbGroup ;
 
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.mapping = mapping ;
-		this.table = mapping.getTable() ;
 		this.domainClass = this.mapping.getBusiness().getDomainClass() ;
-		
-		String colName = table.getPKColName().toLowerCase() ;
-		primaryKeyPropName = mapping.getPropNameByColName(colName) ;
-		this.pkDataType = mapping.getSQLDataTypeOfColumn(colName) ;
+		this.pkColumn =  mapping.getTable().getPKColumn() ;
 		
 		tableName = PropertyUtil.getString(params, TABLE, DEFAULT_TABLE_NAME);
 		columnName = PropertyUtil.getString(params, COLUMN, DEFAULT_COLUMN_NAME);
@@ -118,7 +113,7 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 	}
 	
 	protected void setPrimaryKey(Object domainObject, Object value){
-		mapping.getBeanWrapper().setValue(domainObject, primaryKeyPropName, value) ;
+		mapping.getBeanWrapper().setValue(domainObject, pkColumn.getPropName(), value) ;
 	}
 
 	public Object generatorKey() {
@@ -145,7 +140,7 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 					new SQLQueryCallBack(){
 						public Object iteratorResultSet(ResultSet rs) throws Exception {
 							if(rs.next()){
-								return pkDataType.getSQLValue(rs, 1) ;
+								return pkColumn.getSqlDataType().getSQLValue(rs, 1) ;
 							}
 							
 							throw new SQLException("could not read a hi value - you need to populate the table: " + tableName) ;

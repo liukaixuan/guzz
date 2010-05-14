@@ -20,8 +20,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.guzz.GuzzContext;
+import org.guzz.dao.PersistListener;
 import org.guzz.exception.DaoException;
 import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.web.context.GuzzContextAware;
 
@@ -42,26 +44,28 @@ import org.guzz.web.context.GuzzContextAware;
  * <li>loader.shutdown()</li>
  * </ol>
  * 
+ * <p>The ColumnDataLoader can implement the interface of {@link PersistListener} to performing more advanced operations.<p>
  * 
+ * @see PersistListener
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public interface ColumnDataLoader {
 	
 	/**
-	 * config the property info.
+	 * configure the loader.
 	 * 
+	 * @param mapping
 	 * @param table fetch Object stored table.
-	 * @param propName property name
-	 * @param columnName the corrsponding columnName of the property.
+	 * @param tableColumn the column to be loaded. The passed tableColumn is not fully inited, the orm and dataType will not be available.
 	 */
-	public void configure(ObjectMapping mapping, Table table, String propName, String columnName) ;
+	public void configure(ObjectMapping mapping, Table table, TableColumn tableColumn) ;
 	
 	/**
-	 * load the data instancely during other properties reading from the dabase.
+	 * load the data immediately during other properties reading from the database.
 	 * 
-	 * @param rs The current resultset. the resultset(and connection) will be closed after all properties are loaded. Your returning value cann't rely on this for future usage.
-	 * @param objectFetching The object being orm. the property before this property in the hbm.xml config file is already setted, so you can use it here. this param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
-	 * @param indexToLoad the propName index in the resultset.
+	 * @param rs The current ResultSet. the ResultSet(and connection) will be closed after all properties are loaded. Your returning value cann't rely on this for future usage.
+	 * @param objectFetching The object being orm. the property before this property in the hbm.xml config file is already set, so you can use it here. this param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
+	 * @param indexToLoad the propName index in the ResultSet.
 	 * @return the returned object will be set to the pojo property.
 	 */
 	public Object loadData(ResultSet rs, Object objectFetching, int indexToLoad) throws SQLException ;
@@ -73,7 +77,7 @@ public interface ColumnDataLoader {
 	 * 
 	 * @param fetchedObject the already loaded pojo.
 	 * 
-	 * @return the loaded object. the object will be setted to the fetchedObject automatically.
+	 * @return the loaded object. the object will be set to the fetchedObject automatically.
 	 */
 	public Object loadLazyData(Object fetchedObject) ;
 
@@ -85,8 +89,8 @@ public interface ColumnDataLoader {
 	 * @param tran the current opened read-write database transactional environment.
 	 * @param fetchedObject the already loaded pojo.
 	 * 
-	 * @return the loaded object. the object will <b>NOT</b> be setted to the fetchedObject automatically.
-	 * @exception DaoException throw exception on @param fetchedObject doesn't exsit in the database.
+	 * @return the loaded object. the object will <b>NOT</b> be set to the fetchedObject automatically.
+	 * @exception DaoException throw exception on @param fetchedObject doesn't exist in the database.
 	 */
 	public Object loadLazyDataForWrite(WriteTranSession tran, Object fetchedObject) throws DaoException ;
 	

@@ -49,7 +49,7 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 	protected abstract String getColDataType(String propName, String colName, String dataType) ;
 		
 	public void initColumnMapping(TableColumn tc, ColumnDataLoader columnDataLoader){
-		String colName = tc.getColName() ;
+		String colName = tc.getColNameForSQL() ;
 		
 		String dataType2 = getColDataType(tc.getPropName(), colName, tc.getType()) ;
 		tc.setType(dataType2) ;
@@ -77,23 +77,23 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 		tc.setOrm(o) ;
 	}
 	
-	public SQLDataType getSQLDataTypeOfColumn(String colName){
-		return getORMByColumn(colName).sqlDataType ;
-	}
+//	public SQLDataType getSQLDataTypeOfColumn(String colName){
+//		return getORMByColumn(colName).sqlDataType ;
+//	}
 	
 	public SQLDataType getSQLDataTypeOfProperty(String propName){
 		return getORMByProperty(propName).sqlDataType ;
 	}
 	
-	public ColumnORM getORMByColumn(String colName){
-		TableColumn col = table.getColumnByColName(colName) ;
-		
-		if(col == null){
-			throw new DataTypeException("column[" + colName + "] has no mapping.") ;
-		}
-		
-		return col.getOrm() ;
-	}
+//	public ColumnORM getORMByColumn(String colName){
+//		TableColumn col = table.getColumnByColName(colName) ;
+//		
+//		if(col == null){
+//			throw new DataTypeException("column[" + colName + "] has no mapping.") ;
+//		}
+//		
+//		return col.getOrm() ;
+//	}
 	
 	public ColumnORM getORMByProperty(String propName){
 		TableColumn col = table.getColumnByPropName(propName) ;
@@ -105,24 +105,24 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 		return col.getOrm() ;
 	}
 	
-	public String getColNameByPropName(String propName){
+	public String getColNameByPropNameForSQL(String propName) {
 		TableColumn col = table.getColumnByPropName(propName) ;
 		
 		if(col == null){
 			return null ;
 		}
  		
-		return col.getColName() ;
+		return col.getColNameForSQL() ;
 	}
 	
-	public String getPropNameByColName(String colName){
-		TableColumn col = table.getColumnByColName(colName) ;
-		if(col == null){
-			return null ;
-		}
- 		
-		return col.getPropName() ;
-	}	
+//	public String getPropNameByColName(String colName){
+//		TableColumn col = table.getColumnByColName(colName) ;
+//		if(col == null){
+//			return null ;
+//		}
+// 		
+//		return col.getPropName() ;
+//	}	
 	
 	public Table getTable(){
 		return table ;

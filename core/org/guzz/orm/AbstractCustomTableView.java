@@ -111,7 +111,7 @@ public abstract class AbstractCustomTableView extends BeanWrapper implements Cus
 		ColumnDataLoader dl = null ;
 		if(columnDataLoaderCls != null){
 			dl = (ColumnDataLoader) BeanCreator.newBeanInstance(columnDataLoaderCls) ;
-			dl.configure(mapping, mapping.getTable(), propName, colName) ;
+			dl.configure(mapping, mapping.getTable(), tc) ;
 			
 			//register the loader
 			this.guzzContext.getDataLoaderManager().addDataLoader(dl) ;

@@ -114,5 +114,8 @@ public class Oracle8iDialect extends AbstractDialect {
 	public String getForUpdateString(String sql) {
 		return sql + " for update";
 	}
-
+	
+	public String getEscapedColunmName(String columnName) {
+		return '"' + columnName + '"' ;
+	}
 }

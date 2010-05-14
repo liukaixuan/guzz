@@ -55,7 +55,7 @@ public class PropsSelectTerm implements SearchTerm {
 		for(int i = 0 ; i < props.size() ; i++){
 			String propName = (String) props.get(i) ;
 			
-			String colName = mapping.getColNameByPropName(propName) ;
+			String colName = mapping.getColNameByPropNameForSQL(propName) ;
 			if(colName == null){
 				if("*".equalsIgnoreCase(propName)){
 					colName = propName ;

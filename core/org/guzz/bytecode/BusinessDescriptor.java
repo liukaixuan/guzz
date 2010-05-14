@@ -151,7 +151,7 @@ public class BusinessDescriptor {
 			this.wrap = wrap ;
 			this.orm = orm ;
 			
-			String sql = "select " + orm.tableColumn.getColName() + " from " + MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName + " where " + table.getPKColName() + "=:id" ;
+			String sql = "select " + orm.tableColumn.getColNameForSQL() + " from " + MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName + " where " + table.getPKColumn().getColNameForSQL() + "=:id" ;
 			sqlForLoadLazy = tm.getCompiledSQLBuilder().buildCompiledSQL(businessName, sql) ;
 		}
 		

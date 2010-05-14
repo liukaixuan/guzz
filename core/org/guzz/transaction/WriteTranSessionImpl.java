@@ -331,7 +331,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		if(column.getDataLoader() != null){
 			return column.getDataLoader().loadLazyDataForWrite(this, domainObject) ;
 		}else{
-			CompiledSQL sqlForLoadLazy = this.compiledSQLManager.buildLoadColumnByPkSQL(mapping, column.getColName()) ;
+			CompiledSQL sqlForLoadLazy = this.compiledSQLManager.buildLoadColumnByPkSQL(mapping, column.getColNameForSQL()) ;
 			Object pkValue = mapping.getBeanWrapper().getValue(domainObject, table.getPKPropName()) ;
 			
 			// 从主数据库读取，不进行缓存。

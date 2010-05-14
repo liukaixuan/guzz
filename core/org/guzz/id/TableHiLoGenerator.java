@@ -63,7 +63,7 @@ public class TableHiLoGenerator extends TableGenerator {
 		
 		this.maxLo = StringUtil.toInt(params.getProperty(MAX_LO), Short.MAX_VALUE) ;
 		lo = maxLo + 1; // so we "clock over" on the first invocation
-		this.returnType = pkDataType.getDataType() ;
+		this.returnType = pkColumn.getSqlDataType().getDataType() ;
 	}
 
 	public Serializable preInsert(WriteTranSession session, Object domainObject) {

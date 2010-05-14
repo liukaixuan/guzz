@@ -234,9 +234,6 @@ public class JPA2AnnotationsBuilder {
 			log.info("override @Id in the parent class of [" + st.getBusinessName() + "].") ;
 		}
 		
-		st.setPKColName(column) ;
-		st.setPKPropName(name) ;
-		
 		col.setColName(column) ;
 		col.setPropName(name) ;
 		col.setType(type) ;
@@ -246,7 +243,7 @@ public class JPA2AnnotationsBuilder {
 		map.initColumnMapping(col, null) ;
 
 		if(newId){
-			st.addColumn(col) ;
+			st.addPKColumn(col) ;
 		}		
 
 		//@Id generator
@@ -408,7 +405,7 @@ public class JPA2AnnotationsBuilder {
 		ColumnDataLoader dl = null ;
 		if(loader != null && !NullValue.class.isAssignableFrom(loader)){
 			dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
-			dl.configure(map, st, name, column) ;
+			dl.configure(map, st, col) ;
 			
 			//register the loader
 			gf.getDataLoaderManager().addDataLoader(dl) ;
@@ -511,13 +508,12 @@ public class JPA2AnnotationsBuilder {
 		Assert.assertNotEmpty(m_businessName, "business name must be defined. you can define it either with org.guzz.annotations.Entity annotation in domain class or a-bussiness's attribute in guzz.xml") ;
 		Business business = gf.instanceNewGhost(m_businessName, m_dbGroupName, info.interpreter, domainCls) ;
 		
-		final SimpleTable st = new SimpleTable() ;
+		DBGroup dbGroup = gf.getDBGroup(business.getDbGroup()) ;
+		Assert.assertNotNull(dbGroup, "unknown dbGroup:[" + business.getDbGroup() + "] for domain class:" + domainCls.getName()) ;
+		
+		final SimpleTable st = new SimpleTable(dbGroup.getDialect()) ;
 		st.setTableName(tableName) ;
 		st.setDynamicUpdate(dynamicUpdate) ;
-		
-		DBGroup dbGroup = gf.getDBGroup(business.getDbGroup()) ;
-		
-		Assert.assertNotNull(dbGroup, "unknown dbGroup:[" + business.getDbGroup() + "] for domain class:" + domainCls.getName()) ;
 		
 		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, st) ;
 		

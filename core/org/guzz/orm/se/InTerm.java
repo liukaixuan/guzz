@@ -52,7 +52,7 @@ public class InTerm implements SearchTerm {
 
 	public String toExpression(SearchExpression se, ObjectMapping mapping, SearchParams params) {
 		//don't check the params, this shouldn't be null!
-		String colName = mapping.getColNameByPropName(propName) ;
+		String colName = mapping.getColNameByPropNameForSQL(propName) ;
 		if(colName == null){
 			throw new DaoException("unknown property [" + propName + "] in se.") ;
 		}

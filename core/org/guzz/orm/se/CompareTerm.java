@@ -46,7 +46,7 @@ public class CompareTerm implements SearchTerm {
 	}
 
 	public String toExpression(SearchExpression se, ObjectMapping mapping, SearchParams params) {
-		String colName = mapping.getColNameByPropName(propName) ;
+		String colName = mapping.getColNameByPropNameForSQL(propName) ;
 		if(colName == null){
 			throw new DaoException("unknown property [" + propName + "] in se.") ;
 		}
