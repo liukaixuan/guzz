@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.guzz.dialect.Dialect;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
-import org.guzz.orm.rdms.Table;
 import org.guzz.orm.sql.SQLQueryCallBack;
 import org.guzz.transaction.WriteTranSession;
 
@@ -35,7 +34,6 @@ import org.guzz.transaction.WriteTranSession;
  */
 public class GUIDIdGenerator implements IdentifierGenerator, Configurable {
 	private POJOBasedObjectMapping mapping ;
-	private Table table ;
 	private String primaryKeyPropName ;
 	
 	private String selectSequenceClause = null ;
@@ -74,11 +72,7 @@ public class GUIDIdGenerator implements IdentifierGenerator, Configurable {
 	
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.mapping = mapping ;
-		this.table = mapping.getTable() ;
-		
-		String colName = table.getPKColName().toLowerCase() ;
-		primaryKeyPropName = mapping.getPropNameByColName(colName) ;
-		
+		primaryKeyPropName = mapping.getTable().getPKPropName() ;
 		this.selectSequenceClause = dialect.getSelectGUIDClause() ;
 	}
 

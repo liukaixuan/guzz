@@ -22,6 +22,7 @@ import java.util.Map;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
@@ -132,9 +133,9 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	protected NormalCompiledSQL buildNormalInsertSQLWithoutPK(POJOBasedObjectMapping mapping){
 		Table table = mapping.getTable() ;
 		
-		String[] columns = table.getColumnsForInsert() ;
+		TableColumn[] columns = table.getColumnsForInsert() ;
 //		String primaryProp = mapping.getTable().getPKPropName() ;
-		String primaryColumn = table.getPKColName() ;
+		String primaryColumn = table.getPKColumn().getColNameForSQL() ;
 		
 		HashMap paramPropMapping = new HashMap() ;
 		
@@ -149,7 +150,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		boolean firstProp = true ;
 		
 		for(int i = 0 ; i < columns.length ; i++){
-			if(primaryColumn.equals(columns[i])) continue ;
+			if(primaryColumn.equals(columns[i].getColNameForSQL())) continue ;
 						
 			if(!firstProp){
 				sb_insert.append(", ") ;
@@ -157,14 +158,14 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 				firstProp = false ;
 			}
 			
-			sb_insert.append(columns[i]) ;
+			sb_insert.append(columns[i].getColNameForSQL()) ;
 		}		
 		
 		sb_insert.append(") values(") ;
 		
 		firstProp = true ;
 		for(int i = 0 ; i < columns.length ; i++){
-			if(primaryColumn.equals(columns[i])) continue ;
+			if(primaryColumn.equals(columns[i].getColNameForSQL())) continue ;
 			
 			if(!firstProp){
 				sb_insert.append(", ") ;
@@ -172,7 +173,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 				firstProp = false ;
 			}
 			
-			String propName = mapping.getPropNameByColName(columns[i].toLowerCase()) ;
+			String propName = columns[i].getPropName() ;
 			sb_insert.append(":").append(propName) ;
 			
 			paramPropMapping.put(propName, propName) ;
@@ -197,7 +198,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	}
 	
 	protected NormalCompiledSQL buildNormalInsertSQLWithPK(POJOBasedObjectMapping mapping){
-		String[] columns = mapping.getTable().getColumnsForInsert() ;
+		TableColumn[] columns = mapping.getTable().getColumnsForInsert() ;
 		
 		//insert
 		StringBuffer sb_insert = new StringBuffer() ;
@@ -212,7 +213,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 			if(i > 0){
 				sb_insert.append(", ") ;
 			}
-			sb_insert.append(columns[i]) ;
+			sb_insert.append(columns[i].getColNameForSQL()) ;
 		}
 		
 		
@@ -222,7 +223,8 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 			if(i > 0){
 				sb_insert.append(", ") ;
 			}
-			String propName = mapping.getPropNameByColName(columns[i].toLowerCase()) ;
+			String propName = columns[i].getPropName() ;
+			
 			sb_insert.append(":").append(propName) ;
 			paramPropMapping.put(propName, propName) ;
 		}
@@ -248,8 +250,8 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	protected NormalCompiledSQL buildNormalUpdateSQL(POJOBasedObjectMapping mapping){
 		Table table = mapping.getTable() ;
 		
-		String[] columns = table.getColumnsForUpdate() ;
-		String primaryKey = table.getPKColName() ;
+		TableColumn[] columns = table.getColumnsForUpdate() ;
+		String primaryKey = table.getPKColumn().getColNameForSQL() ;
 		String primaryProp = table.getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
 			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
@@ -266,7 +268,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		
 		boolean firstProp = true ;
 		for(int i = 0 ; i < columns.length ; i++){
-			if(primaryKey.equals(columns[i])) continue ;
+			if(primaryKey.equals(columns[i].getColNameForSQL())) continue ;
 			
 			if(!firstProp){
 				sb.append(", ") ;
@@ -274,8 +276,8 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 				firstProp = false ;
 			}
 			
-			String propName = mapping.getPropNameByColName(columns[i].toLowerCase()) ;
-			sb.append(columns[i]).append("=:").append(propName) ;
+			String propName = columns[i].getPropName() ;
+			sb.append(columns[i].getColNameForSQL()).append("=:").append(propName) ;
 			paramPropMapping.put(propName, propName) ;
 		}
 		
@@ -304,7 +306,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	protected NormalCompiledSQL buildNormalDeleteSQL(POJOBasedObjectMapping mapping){
 		Table table = mapping.getTable() ;
 		
-		String primaryKey = table.getPKColName() ;
+		String primaryKey = table.getPKColumn().getColNameForSQL() ;
 		String primaryProp = table.getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
 			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
@@ -341,9 +343,9 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	protected NormalCompiledSQL buildNormalSelectSQL(POJOBasedObjectMapping mapping){
 		Table table = mapping.getTable() ;
 		
-		String primaryKey = table.getPKColName() ;
+		String primaryKey = table.getPKColumn().getColNameForSQL() ;
 		String primaryProp = table.getPKPropName() ;
-		String[] columns = table.getColumnsForSelect() ;
+		TableColumn[] columns = table.getColumnsForSelect() ;
 		
 		if(StringUtil.isEmpty(primaryProp)){
 			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
@@ -360,7 +362,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 				firstProp = false ;
 			}
 			
-			sb.append(columns[i]) ;
+			sb.append(columns[i].getColNameForSQL()) ;
 		}
 		
 		sb.append(" from ")
@@ -382,7 +384,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	public CompiledSQL buildUpdateSQL(POJOBasedObjectMapping mapping, String[] propsToUpdate){
 		Table table = mapping.getTable() ;
 		
-		String primaryKey = table.getPKColName() ;
+		String primaryKey = table.getPKColumn().getColNameForSQL() ;
 		String primaryProp = table.getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
 			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
@@ -436,7 +438,7 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		  .append(mapping.getBusiness().getName())
 //		  .append(table.getTableName())
 		  .append(" where ")
-		  .append(table.getPKColName())
+		  .append(table.getPKColumn().getColNameForSQL())
 		  .append("=:guzz_pk");
 		
 		CompiledSQL sqlForLoadProp = compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()) ;

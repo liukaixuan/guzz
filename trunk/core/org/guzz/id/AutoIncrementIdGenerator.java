@@ -23,9 +23,8 @@ import java.util.Properties;
 import org.guzz.dialect.Dialect;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
-import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.SQLQueryCallBack;
-import org.guzz.orm.type.SQLDataType;
 import org.guzz.transaction.WriteTranSession;
 
 /**
@@ -37,12 +36,10 @@ import org.guzz.transaction.WriteTranSession;
 public class AutoIncrementIdGenerator implements IdentifierGenerator, Configurable {
 	private Dialect dialect ;
 	private POJOBasedObjectMapping mapping ;
-	private Table table ;
-	private String primaryKeyPropName ;
-	private SQLDataType dataTypeForPK ;
+	private TableColumn pkColumn ;
 	
 	protected void setPrimaryKey(Object domainObject, Object value){
-		mapping.getBeanWrapper().setValue(domainObject, primaryKeyPropName, value) ;
+		mapping.getBeanWrapper().setValue(domainObject, pkColumn.getPropName(), value) ;
 	}
 
 	public Serializable preInsert(WriteTranSession session, Object domainObject) {
@@ -57,7 +54,7 @@ public class AutoIncrementIdGenerator implements IdentifierGenerator, Configurab
 
 					public Object iteratorResultSet(ResultSet rs) throws Exception {
 						if(rs.next()){
-							return dataTypeForPK.getSQLValue(rs, 1) ;
+							return pkColumn.getSqlDataType().getSQLValue(rs, 1) ;
 						}else{
 							throw new IdentifierGenerationException("IdentifierGenerator is invalid.") ;
 						}
@@ -78,10 +75,7 @@ public class AutoIncrementIdGenerator implements IdentifierGenerator, Configurab
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.dialect = dialect ;
 		this.mapping = mapping ;
-		this.table = mapping.getTable() ;
-		String colName = table.getPKColName().toLowerCase() ;
-		primaryKeyPropName = mapping.getPropNameByColName(colName) ;
-		dataTypeForPK = mapping.getSQLDataTypeOfColumn(colName) ;
+		this.pkColumn = mapping.getTable().getPKColumn() ;
 	}
 
 }

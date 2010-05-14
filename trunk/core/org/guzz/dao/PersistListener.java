@@ -30,7 +30,7 @@ import org.guzz.transaction.WriteTranSession;
  * Listener for {@link WriteTranSession} 's object inserting/deleting/updating events. 
  * <br>Caution: operation through {@link JDBCTemplate}, {@link Batcher}, {@link BindedCompiledSQL}, and other sql statements won't be notified.
  * <p>
- * Used for {@link ColumnDataLoader} to perform advanced operations in most of the time.
+ * Used for {@link ColumnDataLoader} to perform advanced operations.
  * </p>
  *
  * @author liu kaixuan(liukaixuan@gmail.com)

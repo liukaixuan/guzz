@@ -17,6 +17,7 @@
 package org.guzz.orm.rdms;
 
 import org.guzz.dao.PersistListener;
+import org.guzz.dialect.Dialect;
 import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ColumnORM;
 import org.guzz.orm.type.SQLDataType;
@@ -29,7 +30,11 @@ import org.guzz.orm.type.SQLDataType;
  */
 public class TableColumn {
 	
-	private String colName ;
+	private static final char ESCAPE_COL_CHAR = '`' ;
+	
+	private String colNameForSQL ;
+
+	private String colNameForRS ;
 	
 	private String propName ;
 	
@@ -47,16 +52,23 @@ public class TableColumn {
 	
 	private final Table table ;
 	
+	private final Dialect dialect ;
+	
 	public TableColumn(Table table){
 		this.table = table ;
+		this.dialect = table.getDialect() ;
 	}
-
-	public String getColName() {
-		return colName;
-	}
-
-	public void setColName(String colName) {
-		this.colName = colName;
+	
+	public void setColName(String colName){
+		int len = colName.length() ;
+		
+		if(colName.charAt(0) == ESCAPE_COL_CHAR && colName.charAt(len - 1) == ESCAPE_COL_CHAR){
+			this.colNameForRS = colName.substring(1, len -1) ;
+			this.colNameForSQL = dialect.getEscapedColunmName(this.colNameForRS) ;
+		}else{
+			this.colNameForRS = colName ;
+			this.colNameForSQL = colName ;
+		}
 	}
 
 	public String getPropName() {
@@ -125,6 +137,14 @@ public class TableColumn {
 		if(orm.columnDataLoader instanceof PersistListener){
 			this.table.addPersistListener((PersistListener) orm.columnDataLoader) ;
 		}
+	}
+
+	public String getColNameForSQL() {
+		return colNameForSQL;
+	}
+
+	public String getColNameForRS() {
+		return colNameForRS;
 	}
 	
 }

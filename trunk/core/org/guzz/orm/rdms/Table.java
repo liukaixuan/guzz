@@ -17,6 +17,7 @@
 package org.guzz.orm.rdms;
 
 import org.guzz.dao.PersistListener;
+import org.guzz.dialect.Dialect;
 import org.guzz.id.IdentifierGenerator;
 import org.guzz.orm.CustomTableView;
 
@@ -45,22 +46,24 @@ public interface Table {
 	 */
 	public String getConfigTableName() ;
 	
-	public String getPKColName() ;
+	public TableColumn getPKColumn() ;
 	
-	public String getPKPropName() ;
+//	public String getPKColName() ;
+//	
+//	public String getPKPropName() ;
 	
 	public IdentifierGenerator getIdentifierGenerator() ;	
 
-	public String[] getColumnsForInsert() ;
+	public TableColumn[] getColumnsForInsert() ;
 	
-	public String[] getColumnsForUpdate() ;
+	public TableColumn[] getColumnsForUpdate() ;
 	
 	/**
 	 * 不包含lazy字段。
 	 */
 	public String[] getPropsForUpdate() ;
 	
-	public String[] getColumnsForSelect() ;
+	public TableColumn[] getColumnsForSelect() ;
 	
 	/**
 	 * props can be updated to db, and is lazily loaded.
@@ -75,7 +78,9 @@ public interface Table {
 	
 	public TableColumn getColumnByPropName(String propName) ;
 	
-	public TableColumn getColumnByColName(String colName) ;
+	public TableColumn getColumnByColNameInSQL(String colName) ;
+	
+	public TableColumn getColumnByColNameInRS(String colName) ;
 
 	public PersistListener[] getPersistListeners() ;
 	
@@ -93,5 +98,9 @@ public interface Table {
 	 */
 	public void removeColumn(TableColumn column) ;
 	
+	public Dialect getDialect() ;
+	
 	public Table newCopy() ;
+
+	public String getPKPropName() ;
 }

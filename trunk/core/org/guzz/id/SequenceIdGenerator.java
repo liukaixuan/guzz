@@ -24,7 +24,7 @@ import java.util.Properties;
 import org.guzz.dialect.Dialect;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
-import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.SQLQueryCallBack;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.transaction.WriteTranSession;
@@ -38,18 +38,17 @@ import org.guzz.util.PropertyUtil;
  */
 public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 
-	/** the seqence parameter */
+	/** the sequence parameter */
 	public static final String PARAM_SEQUENCE = "sequence" ;
 	
-	/** default seqence name */
+	/** default sequence name */
 	public static final String DEFAULT_SEQUENCE_NAME = "guzz_sequence" ;
 	
 	/** The dbGroup's name parameter. Default value is null telling guzz to use the same database of the table the id generated for. */
 	public static final String DATABASE_GROUP_NAME = "db_group";
 	
 	private POJOBasedObjectMapping mapping ;
-	private Table table ;
-	private String primaryKeyPropName ;
+	private TableColumn pkColumn ;
 	protected SQLDataType pkDataType ;
 	private Class domainClass ;
 	private String dbGroup ;
@@ -57,7 +56,7 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 	private String selectSequenceClause = null ;
 	
 	protected void setPrimaryKey(Object domainObject, Object value){
-		mapping.getBeanWrapper().setValue(domainObject, primaryKeyPropName, value) ;
+		mapping.getBeanWrapper().setValue(domainObject, pkColumn.getPropName(), value) ;
 	}
 	
 	protected Number nextSequenceValue(WriteTranSession session){
@@ -73,7 +72,7 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 				new SQLQueryCallBack(){
 					public Object iteratorResultSet(ResultSet rs) throws Exception {
 						if(rs.next()){
-							return pkDataType.getSQLValue(rs, 1) ;
+							return pkColumn.getSqlDataType().getSQLValue(rs, 1) ;
 						}
 						
 						throw new SQLException("unknown sequenceCause:" + selectSequenceClause) ;
@@ -100,12 +99,8 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 	
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.mapping = mapping ;
-		this.table = mapping.getTable() ;
-		this.domainClass = this.mapping.getBusiness().getDomainClass() ;
-		
-		String colName = table.getPKColName().toLowerCase() ;
-		primaryKeyPropName = mapping.getPropNameByColName(colName) ;
-		this.pkDataType = mapping.getSQLDataTypeOfColumn(colName) ;
+		this.domainClass = mapping.getBusiness().getDomainClass() ;
+		this.pkColumn =  mapping.getTable().getPKColumn() ;
 		
 		this.selectSequenceClause = dialect.getSelectSequenceClause(PropertyUtil.getString(params, PARAM_SEQUENCE, DEFAULT_SEQUENCE_NAME)) ;
 		this.dbGroup = PropertyUtil.getString(params, DATABASE_GROUP_NAME, null) ;

@@ -75,4 +75,7 @@ public class Mysql5Dialect extends AbstractDialect {
 		return "identity";
 	}
 
+	public String getEscapedColunmName(String columnName) {
+		return '`' + columnName + '`' ;
+	}
 }

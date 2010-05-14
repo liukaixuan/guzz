@@ -86,7 +86,7 @@ public class OrderByTerm implements SearchTerm {
 		for(int i = 0 ; i < orders.size() ; i++){
 			_OrderBy o = (_OrderBy) orders.get(i) ;
 			
-			String colName = mapping.getColNameByPropName(o.propName) ;
+			String colName = mapping.getColNameByPropNameForSQL(o.propName) ;
 			if(colName == null){
 				throw new DaoException("unknown property [" + o.propName + "] in order by.") ;
 			}

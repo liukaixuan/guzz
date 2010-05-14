@@ -66,7 +66,7 @@ public final class BeanMapBasedObjectMapping implements ObjectMapping {
 		return dbGroup ;
 	}
 
-	public String getColNameByPropName(String propName) {
+	public String getColNameByPropNameForSQL(String propName) {
 		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
 	}
 

@@ -1,3 +1,8 @@
+1.2.8 beta2
+	1. new feature: rpc protocol:hessian, burlap.
+	2. new feature: escape character `` to avoid column name conflicting with the keywords of some database.
+	3. new feature: allow pass a parameter to enum and date/time related data types.
+	
 1.2.8 beta1
 	1. limited(but enough for guzz) JPA annotation support.
 	2. add a new Id generator hilo-multi.

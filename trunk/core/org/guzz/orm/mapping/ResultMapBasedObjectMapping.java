@@ -63,12 +63,12 @@ public final class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 		
 		Object obj = BeanCreator.newBeanInstance(this.domainClass) ;
 		
-		String[] colNames = getTable().getColumnsForSelect() ;
+		TableColumn[] cols = getTable().getColumnsForSelect() ;
 		
-		for(int i = 0 ; i < colNames.length ; i++){
-			TableColumn col = table.getColumnByColName(colNames[i]) ;
+		for(int i = 0 ; i < cols.length ; i++){
+			TableColumn col = cols[i] ;
 			
-			int index = rs.findColumn(col.getColName()) ;
+			int index = rs.findColumn(col.getColNameForRS()) ;
 			Object value = col.getOrm().loadResult(rs, obj, index) ;
 			
 			this.beanWrapper.setValue(obj, col.getPropName(), value) ;

@@ -73,5 +73,9 @@ public class MSSQLDialect extends AbstractDialect {
 	public String getForUpdateString(String sql) {
 		throw new UnsupportedOperationException( "sql server row lock is not supported" );
 	}
+	
+	public String getEscapedColunmName(String columnName) {
+		return '[' + columnName + ']' ;
+	}
 
 }

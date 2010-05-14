@@ -91,4 +91,8 @@ public class H2Dialect extends AbstractDialect {
 		return sql + " for update nowait";
 	}
 
+	public String getEscapedColunmName(String columnName) {
+		return '`' + columnName + '`' ;
+	}
+
 }

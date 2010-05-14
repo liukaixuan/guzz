@@ -34,6 +34,7 @@ import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.mapping.RowDataLoader;
 import org.guzz.orm.rdms.Table;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.pojo.lob.TranClob;
@@ -93,12 +94,12 @@ public class TwoPhaseClobDataLoader extends PersistListenerAdapter implements Co
 		}
 	} ;
 	
-	public void configure(ObjectMapping mapping, Table table, String propName, String columnName) {
+	public void configure(ObjectMapping mapping, Table table, TableColumn tableColumn) {
 		this.mapping = mapping ;
 		this.wrap = mapping.getBeanWrapper() ;
 		
 		this.table = table ;
-		this.columnName = columnName ;
+		this.columnName = tableColumn.getColNameForSQL() ;
 	}
 	
 	public void postInsert(WriteTranSession tran, Connection conn, Object domainObject, Serializable pk) {
@@ -194,11 +195,11 @@ public class TwoPhaseClobDataLoader extends PersistListenerAdapter implements Co
 	}
 
 	public void startup() {
-		String sqlForLazyLoad = "select " + columnName + " from " + table.getBusinessShape() + " where " + table.getPKColName() + " = :pkValue" ;
+		String sqlForLazyLoad = "select " + columnName + " from " + table.getBusinessShape() + " where " + table.getPKColumn().getColNameForSQL() + " = :pkValue" ;
 		this.sqlToLoadLazily = tm.getCompiledSQLBuilder().buildCompiledSQL(mapping, sqlForLazyLoad) ;
 		this.sqlToLoadLazily.addParamPropMapping("pkValue", table.getPKPropName()) ;
 
-		String sql = "update " + table.getBusinessShape() + " set " + this.columnName + " = ? where " + table.getPKColName() + " = :pkValue" ;
+		String sql = "update " + table.getBusinessShape() + " set " + this.columnName + " = ? where " + table.getPKColumn().getColNameForSQL() + " = :pkValue" ;
 		this.sqlInsertCallback = tm.getCompiledSQLBuilder().buildCompiledSQL(mapping, sql) ;
 		this.sqlInsertCallback.addParamPropMapping("pkValue", table.getPKPropName()) ;
 	}

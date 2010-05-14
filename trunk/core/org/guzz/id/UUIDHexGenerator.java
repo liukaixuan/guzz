@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import org.guzz.dialect.Dialect;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
-import org.guzz.orm.rdms.Table;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.util.StringUtil;
 
@@ -40,7 +39,6 @@ import org.guzz.util.StringUtil;
 
 public class UUIDHexGenerator extends AbstractUUIDGenerator implements Configurable {
 	private POJOBasedObjectMapping mapping ;
-	private Table table ;
 	private String primaryKeyPropName ;
 	
 	private String sep = "";
@@ -75,10 +73,7 @@ public class UUIDHexGenerator extends AbstractUUIDGenerator implements Configura
 
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
 		this.mapping = mapping ;
-		this.table = mapping.getTable() ;
-		
-		String colName = table.getPKColName().toLowerCase() ;
-		primaryKeyPropName = mapping.getPropNameByColName(colName) ;
+		primaryKeyPropName = mapping.getTable().getPKPropName() ;
 		
 		String sep = params.getProperty("separator") ;
 		if(StringUtil.notEmpty(sep)){

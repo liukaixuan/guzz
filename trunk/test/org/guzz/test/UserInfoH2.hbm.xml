@@ -8,8 +8,8 @@
         		<param name="seq">guzz_sequence</param>
         	</generator>
         </id>
-        <property name="userId" type="string" column="userId"></property> 
-        <property name="aboutMe" type="clob" column="aboutMe" lazy="true" />
-        <property name="portraitImg" type="blob" column="portraitImg" lazy="false"></property> 
+        <property name="userId" type="string" column="`userId`"></property> 
+        <property name="aboutMe" type="clob" column="`aboutMe`" lazy="true" />
+        <property name="portraitImg" type="blob" column="`portraitImg`" lazy="false"></property> 
     </class>
 </guzz-mapping>
