@@ -50,12 +50,12 @@ public class ShadowTableViewManager {
 			gc.registerContextStartedAware((GuzzContextAware) view) ;
 		}
 		
-		if(view instanceof ExtendedBeanFactoryAware){
-			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) view) ;
-		}
-		
 		if(gc.isFullStarted()){
 			view.startup() ;
+		}
+		
+		if(view instanceof ExtendedBeanFactoryAware){
+			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) view) ;
 		}
 	}
 	

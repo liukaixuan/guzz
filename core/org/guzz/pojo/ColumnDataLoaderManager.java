@@ -50,12 +50,12 @@ public class ColumnDataLoaderManager {
 			gc.registerContextStartedAware((GuzzContextAware) loader) ;
 		}
 		
-		if(loader instanceof ExtendedBeanFactoryAware){
-			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) loader) ;
-		}
-		
 		if(gc.isFullStarted()){
 			loader.startup() ;
+		}
+		
+		if(loader instanceof ExtendedBeanFactoryAware){
+			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) loader) ;
 		}
 	}
 	
