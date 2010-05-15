@@ -97,7 +97,7 @@ public class UserInfo {
 <g:get business="userInfo" limit="userId=${param.uid}" var="m_userInfo" />
 
 <%
-UserInfo info = (UserInfo) page.getAttribute("m_userInfo") ;
+UserInfo info = (UserInfo) pageContext.getAttribute("m_userInfo") ;
 
 //获取Blob字段。此处为lazy读取，会打开一个从数据库连接，读取blob字段。
 TranBlob img = info.getPortraitImg() ;
