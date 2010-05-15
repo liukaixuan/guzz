@@ -97,6 +97,8 @@
 
 *sqlMap/select|update：*定义sql查询和更新|删除语句，通过id指定名称（在程序中使用的名称），通过orm 属性指定要Mapping的配置。sql语句为可在数据库中执行的标准sql语句。在编写sql语句时，可以@@businessName或者 @@full-class-name的方式代替数据库表名，用@java属性名称或者@orm/result/property 名称代替对应的数据库字段，guzz在执行时会完成自动替换。如果sql中包含参数，使用“冒号+参数名称”代替，如“:userName”，在程序中执行时通过java.util.Map传入"userName"->value对进行调用，guzz将完成命名参数的参数设置（PreparedStatement方式）。
 
+select|update的orm属性值可以是本文件中定义的orm元素的值，也可以是领域对象的businessName（直接使用hbm.xml或者annotation定义的映射）。orm也可以直接映射到一个javabean类或Map中，这类映射只需要在类全名前加@。如...orm="@org.guzz.SomeBeanForm"，或orm="@java.util.HashMap"。
+
 *orm：*定义sql查询结果字段与对象的对应关系，类似ibatis。可以通过指定dbgroup覆盖sqlMap中设定的数据库。 orm可以放在sqlMap内，表示此ORM在本sqlmap内有效，也可以放在sqlMap外，表示所有sqlMap中的select/update都可以使用。放在sqlMap内的orm优先级高于放在sqlMap的，同时orm名称不能是business name，所有business name会按照自己的名字自动声明自己为一个全局的orm。因此，在配置的sql语句选择orm时，可以填写为business name使用hbm.xml的映射关系（hbm.xml中所有的特殊功能，包括表分切自定义属性延迟加载等将依然有效），但此时将查询结果转换成java对象时采用hibernate的规则，查询多少字段映射多少字段，没有select的属性设为默认值。
 
 *orm/result：*每1个Result代表一列的对应关系，property为java属性名，column为数据库属性，type为数据类型（与hbm.xml中的type含义和取值相同）；如果type没有指定，则通过orm/class按照property属性反射获取类型。
