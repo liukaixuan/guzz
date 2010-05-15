@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContext;
+import org.guzz.GuzzContextImpl;
 import org.guzz.Service;
 import org.guzz.config.ConfigServer;
 import org.guzz.exception.GuzzException;
@@ -32,6 +33,7 @@ import org.guzz.service.ServiceInfo;
 import org.guzz.service.ServiceManager;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.javabean.BeanCreator;
+import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
 
 /**
@@ -45,11 +47,11 @@ public class ServiceManagerImpl implements ServiceManager {
 	
 	protected ConfigServer configServer ;
 	
-	private GuzzContext guzzContext ;
+	private GuzzContextImpl guzzContext ;
 	
 	protected Map services = new HashMap() ;
 	
-	public ServiceManagerImpl(GuzzContext guzzContext, ConfigServer configServer){
+	public ServiceManagerImpl(GuzzContextImpl guzzContext, ConfigServer configServer){
 		this.guzzContext = guzzContext ;
 		this.configServer = configServer ;
 	}
@@ -57,27 +59,6 @@ public class ServiceManagerImpl implements ServiceManager {
 	public Service getService(String serviceName) {
 		return (Service) services.get(serviceName) ;
 	}
-
-//	public void registerService(Class serviceImpl) {
-//		Service service = (Service) BeanCreator.newBeanInstance(serviceImpl) ;
-//		registerService(service) ;
-//	}
-	
-//	public void registerService(Service service){
-//		if(log.isInfoEnabled()){
-//			log.info("registering service:[" + service.getServiceInfo().getServiceName() + "]...") ;
-//		}
-//		
-//		if(service instanceof GuzzContextAware){
-//			((GuzzContextAware) service).setGuzzContext(guzzContext) ;
-//		}
-//		
-//		service.configure(configServer) ;		
-//		
-//		service.startup() ;
-//		
-//		services.put(service.getServiceInfo().getServiceName(), service) ;
-//	}
 	
 	public Service createService(String serviceName, String configName, Class serviceImpl){
 		ServiceInfo serviceInfo = new ServiceInfo(serviceName, configName, serviceImpl) ;
@@ -109,12 +90,12 @@ public class ServiceManagerImpl implements ServiceManager {
 	}
 	
 	
-	public static Service createNewService(GuzzContext guzzContext, ConfigServer configServer, ServiceInfo serviceInfo){
+	public static Service createNewService(GuzzContextImpl guzzContext, ConfigServer configServer, ServiceInfo serviceInfo){
 		Service s = (Service) BeanCreator.newBeanInstance(serviceInfo.getImplClass()) ;
 		s.setServiceInfo(serviceInfo) ;
 		
 		if(s instanceof GuzzContextAware){
-			((GuzzContextAware) s).setGuzzContext(guzzContext) ;
+			guzzContext.registerContextStartedAware((GuzzContextAware) s) ;
 		}
 		
 		boolean configOK = false ;
@@ -133,6 +114,10 @@ public class ServiceManagerImpl implements ServiceManager {
 			s.startup() ;
 		}else{
 			log.info("service:[" + serviceInfo.getServiceName() + "] is not started. configuration not exsit or failed. configName is :[" + serviceInfo.getConfigName() + "]") ;
+		}
+		
+		if(s instanceof ExtendedBeanFactoryAware){
+			guzzContext.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) s) ;
 		}
 		
 		return s ;
