@@ -26,11 +26,13 @@ import org.guzz.service.ServiceInfo;
  * Service的具体服务者可以运行在远程，也可以运行在本地。
  * <p>
  * Service初始化过程：
+ * <li>
  * 1. 根据Service的类名初始化对象, 
  * 2. 根据GuzzContextAware进行注入, 
  * 3. 调用configure(ConfigServer)方法初始化, 
  * 4. 调用startup(),
  * 5. 保存到ServiceManager中对外服务。
+ * </li>
  *</p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
@@ -40,10 +42,11 @@ public interface Service {
 	public static final _FamousService FAMOUSE_SERVICE = new _FamousService() ;
 	
 	static class _FamousService{
-		public final String MASTER_DATABASE = "masterDB" ;
-		public final String SLAVE_DATABASE = "slaveDB" ;
-		public final String GUZZ_DEBUG = "debugService" ;
-		public final String SLOW_UPDATE = "slowUpdate" ;
+		public final String MASTER_DATABASE = "guzzMasterDB" ;
+		public final String SLAVE_DATABASE = "guzzSlaveDB" ;
+		public final String GUZZ_DEBUG = "guzzDebug" ;
+		public final String SLOW_UPDATE = "guzzSlowUpdate" ;
+		public final String DYNAMIC_SQL = "guzzDynamicSQL" ;
 	}
 	
 //	public void configure(ConfigServer configServer) ;

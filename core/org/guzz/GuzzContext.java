@@ -21,6 +21,7 @@ import org.guzz.exception.GuzzException;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.mapping.ObjectMappingManager;
+import org.guzz.orm.rdms.ShadowTableViewManager;
 import org.guzz.pojo.ColumnDataLoaderManager;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
@@ -89,5 +90,7 @@ public interface GuzzContext {
 	public Object getExtendedBean(String beanName) ;
 	
 	public void shutdown() ;
+
+	public ShadowTableViewManager getShadowTableViewManager();
 
 }

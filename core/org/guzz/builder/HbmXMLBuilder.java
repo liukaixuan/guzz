@@ -35,9 +35,9 @@ import org.guzz.id.IdentifierGenerator;
 import org.guzz.id.IdentifierGeneratorFactory;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
-import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ShadowTableView;
+import org.guzz.orm.mapping.ObjectMappingUtil;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.rdms.TableColumn;
@@ -172,14 +172,7 @@ public class HbmXMLBuilder {
 					
 					props.addLast(name) ;
 					
-					TableColumn col = new TableColumn(st) ;
-					col.setColName(column) ;
-					col.setPropName(name) ;
-					col.setType(type) ;
-					col.setAllowInsert(true) ;
-					col.setAllowUpdate(true) ;
-					col.setLazy(false) ;
-					map.initColumnMapping(col, null) ;
+					TableColumn col = ObjectMappingUtil.createTableColumn(gf, map, name, column, type, null) ;
 
 					st.addPKColumn(col) ;
 					
@@ -199,26 +192,12 @@ public class HbmXMLBuilder {
 					}
 					
 					props.addLast(name) ;
-															
-					TableColumn col = new TableColumn(st) ;
-					col.setColName(column) ;
-					col.setPropName(name) ;
-					col.setType(type) ;
+					
+					TableColumn col = ObjectMappingUtil.createTableColumn(gf, map, name, column, type, loader) ;
 					col.setNullValue(nullValue) ;
 					col.setAllowInsert(insertIt) ;
 					col.setAllowUpdate(updateIt) ;
 					col.setLazy("true".equalsIgnoreCase(lazy)) ;
-					
-					ColumnDataLoader dl = null ;
-					if(StringUtil.notEmpty(loader)){
-						dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
-						dl.configure(map, st, col) ;
-						
-						//register the loader
-						gf.getDataLoaderManager().addDataLoader(dl) ;
-					}
-					
-					map.initColumnMapping(col, dl) ;
 					
 					st.addColumn(col) ;
 				}

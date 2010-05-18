@@ -32,6 +32,12 @@ public interface ConfigServer {
 	/**注册服务，以便在系统配置发生变化时，@link ControlCenter 通知对应的Service */
 	public void registerService(String serviceName, Service service) ;
 	
+	/**
+	 * 
+	 * Query configuration for a service.
+	 * 
+	 * @return return new ServiceConfig[0] if no configuration found.
+	 */
 	public ServiceConfig[] queryConfig(String serviceName) throws IOException ;
 	
 	public void startup() ;
