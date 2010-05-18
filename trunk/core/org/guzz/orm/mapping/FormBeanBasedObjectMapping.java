@@ -24,6 +24,7 @@ import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.transaction.DBGroup;
+import org.guzz.util.Assert;
 import org.guzz.util.javabean.BeanWrapper;
 
 /**
@@ -43,14 +44,16 @@ import org.guzz.util.javabean.BeanWrapper;
  * 
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public final class BeanMapBasedObjectMapping implements ObjectMapping {
+public final class FormBeanBasedObjectMapping implements ObjectMapping {
 
 	private final FormBeanRowDataLoader rowLoader ;
 	
 	private final DBGroup dbGroup ;
 		
-	public BeanMapBasedObjectMapping(DBGroup dbGroup, Class beanCls){
+	public FormBeanBasedObjectMapping(Class beanCls, DBGroup dbGroup){
 		this.dbGroup = dbGroup ;
+		Assert.assertResouceNotNull(dbGroup, "dbGroup cann't be null. beanCls:" + beanCls) ;
+		
 		rowLoader = FormBeanRowDataLoader.newInstanceForClass(beanCls) ;
 	}
 

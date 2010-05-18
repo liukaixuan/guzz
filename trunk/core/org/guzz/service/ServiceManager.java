@@ -38,7 +38,7 @@ public interface ServiceManager{
 //	public void registerService(Service service) ;
 	
 	/**保存已经初始化完毕的Service，ServiceManager不在调用configure和startup()方法*/
-	public void putService(Service service) ;
+	public void registerService(Service service) ;
 	
 	/**初始化一个Service，并启动Service。但是并不注册中服务中。返回的Service由调用者自己管理和释放。*/
 	public Service createService(String serviceName, String configName, Class serviceImpl) ;

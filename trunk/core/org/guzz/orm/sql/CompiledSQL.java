@@ -30,7 +30,7 @@ import org.guzz.orm.type.SQLDataType;
  * In Guzz, almost every sql should be converted to a CompiledSQL, then bind its parameters, and then execute.
  * </p>
  * 
- * The CompiledSQL is thread-safe, and is recommended to be cached in all cases for higher performance and a much cleaner code.
+ * The CompiledSQL is thread-safe, and is recommended to be cached in all cases for higher performance and cleaner code.
  * 
  * @see BindedCompiledSQL
  * @author liukaixuan(liukaixuan@gmail.com)

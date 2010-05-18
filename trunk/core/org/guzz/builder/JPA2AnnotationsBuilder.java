@@ -52,9 +52,9 @@ import org.guzz.id.SequenceIdGenerator;
 import org.guzz.id.TableMultiIdGenerator;
 import org.guzz.lang.NullValue;
 import org.guzz.orm.Business;
-import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ShadowTableView;
+import org.guzz.orm.mapping.ObjectMappingUtil;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.rdms.TableColumn;
@@ -393,26 +393,16 @@ public class JPA2AnnotationsBuilder {
 			return ;
 		}
 		
-		col = new TableColumn(st) ;
-		col.setColName(column) ;
-		col.setPropName(name) ;
-		col.setType(type) ;
-		col.setNullValue(nullValue) ;
-		col.setAllowInsert(insertIt) ;
-		col.setAllowUpdate(updateIt) ;
-		col.setLazy(lazy) ;
-		
-		ColumnDataLoader dl = null ;
-		if(loader != null && !NullValue.class.isAssignableFrom(loader)){
-			dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
-			dl.configure(map, st, col) ;
-			
-			//register the loader
-			gf.getDataLoaderManager().addDataLoader(dl) ;
+		if(loader == null || NullValue.class.isAssignableFrom(loader)){
+			loader = null ;
 		}
 		
 		try{
-			map.initColumnMapping(col, dl) ;
+			col = ObjectMappingUtil.createTableColumn(gf, map, name, column, type, loader == null ? null : loader.getName()) ;
+			col.setNullValue(nullValue) ;
+			col.setAllowInsert(insertIt) ;
+			col.setAllowUpdate(updateIt) ;
+			col.setLazy(lazy) ;
 			
 			st.addColumn(col) ;
 		}catch(DataTypeException dte){

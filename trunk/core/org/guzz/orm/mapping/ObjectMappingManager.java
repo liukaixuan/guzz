@@ -48,9 +48,10 @@ public class ObjectMappingManager {
 	}
 	
 	/**
+	 * If table is custom, return runtime {@link ObjectMapping} with tableCondition, or return static {@link ObjectMapping}.
 	 * 
-	 * if table is custom, return runtime ObjectMapping with tableCondition, or return static objectmapping.
-	 * 
+	 * @param name business name
+	 * @param tableCondition tableCondition
 	 */
 	public ObjectMapping getObjectMapping(String name, Object tableCondition) {
 		CustomTableView view = (CustomTableView) this.ghostVSCustomViews.get(name) ;
@@ -63,12 +64,20 @@ public class ObjectMappingManager {
 	}
 	
 	/**
-	 * get object mapping that is not custom.
+	 * Get object mapping that is not custom.
+	 * 
+	 * @param name business name
 	 */
 	public ObjectMapping getStaticObjectMapping(String name) {
 		return (ObjectMapping) ghostVSOMs.get(name) ;
 	}
 	
+	/**
+	 * Return runtime {@link ObjectMapping} with tableCondition for custom tables.
+	 * 
+	 * @param name business name
+	 * @param tableCondition tableCondition
+	 */
 	public POJOBasedObjectMapping getCustomObjectMapping(String name, Object tableCondition) {
 		CustomTableView view = (CustomTableView) this.ghostVSCustomViews.get(name) ;
 		

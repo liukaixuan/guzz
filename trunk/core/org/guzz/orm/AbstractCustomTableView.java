@@ -21,11 +21,11 @@ import java.lang.reflect.Method;
 import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
 import org.guzz.exception.DaoException;
+import org.guzz.orm.mapping.ObjectMappingUtil;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.transaction.DBGroup;
-import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
 import org.guzz.web.context.GuzzContextAware;
@@ -83,7 +83,7 @@ public abstract class AbstractCustomTableView extends BeanWrapper implements Cus
 	/**
 	 * Init the special mapping for the giving tableCondition. Called by {@link #createRuntimeObjectMapping(Object)}.
 	 * <p>
-	 * Only mappings besides the configured mapping in the xml are needed to add here.
+	 * Only mappings besides the configured mappings in the xml are needed to add here.
 	 * </p>
 	 * 
 	 * @param mapping
@@ -103,23 +103,7 @@ public abstract class AbstractCustomTableView extends BeanWrapper implements Cus
 	 * @return modify the returned TableColumn if necessary.
 	 */
 	protected TableColumn createTableColumn(POJOBasedObjectMapping mapping, String propName, String colName, String dataType, Class columnDataLoaderCls){
-		TableColumn tc = new TableColumn(mapping.getTable()) ;
-		tc.setPropName(propName) ;
-		tc.setColName(colName) ;
-		tc.setType(dataType) ;
-		
-		ColumnDataLoader dl = null ;
-		if(columnDataLoaderCls != null){
-			dl = (ColumnDataLoader) BeanCreator.newBeanInstance(columnDataLoaderCls) ;
-			dl.configure(mapping, mapping.getTable(), tc) ;
-			
-			//register the loader
-			this.guzzContext.getDataLoaderManager().addDataLoader(dl) ;
-		}
-		
-		mapping.initColumnMapping(tc, dl) ;
-		
-		return tc ;
+		return ObjectMappingUtil.createTableColumn(guzzContext, mapping, propName, colName, dataType, columnDataLoaderCls == null ? null : columnDataLoaderCls.getName()) ;
 	}
 	
 	/**
@@ -130,7 +114,7 @@ public abstract class AbstractCustomTableView extends BeanWrapper implements Cus
 	 * @param column 
 	 */
 	protected void addTableColumn(POJOBasedObjectMapping mapping, TableColumn column){
-		mapping.getTable().addColumn(column) ;
+		ObjectMappingUtil.addTableColumn(mapping, column) ;
 	}
 	
 	protected Class getCustomPropertyType(String propName){

@@ -39,14 +39,11 @@ import org.guzz.exception.GuzzException;
 import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
-import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ObjectMapping;
-import org.guzz.orm.ShadowTableView;
-import org.guzz.orm.mapping.BeanMapBasedObjectMapping;
 import org.guzz.orm.mapping.ObjectMappingManager;
+import org.guzz.orm.mapping.ObjectMappingUtil;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
-import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
@@ -412,30 +409,9 @@ public class GuzzConfigFileBuilder {
 		
 		if(StringUtil.isEmpty(m_dbgroup)){
 			m_dbgroup = parentDBGroup ;
-		}
-		if(StringUtil.isEmpty(m_dbgroup)){
-			m_dbgroup = "default" ;
-		}
+		}	
 		
-		DBGroup db = this.gf.getDBGroup(m_dbgroup) ;
-				
-		if(StringUtil.isEmpty(m_id)){
-			throw new GuzzException("orm id cann't be null. xml is:" + ormFragment.asXML()) ;
-		}
-		
-		//orm的shadow table支持。
-		SimpleTable st = new SimpleTable(db.getDialect()) ;
-		if(StringUtil.notEmpty(shadow)){
-			ShadowTableView sv = (ShadowTableView) BeanCreator.newBeanInstance(shadow) ;
-				
-			gf.getShadowTableViewManager().addShadowView(sv) ;
-			st.setShadowTableView(sv) ;
-		}		
-	
-		st.setTableName(table) ;
-		st.setBusinessName(m_id) ;		
-		
-		ResultMapBasedObjectMapping map = new ResultMapBasedObjectMapping(db, m_id, Class.forName(m_class), st) ;
+		ResultMapBasedObjectMapping map =  ObjectMappingUtil.createResultMapping(gf, m_id, Class.forName(m_class), m_dbgroup, shadow, table) ;
 		
 		List results = ormFragment.selectNodes("result") ;
 		
@@ -448,33 +424,16 @@ public class GuzzConfigFileBuilder {
 			String nullValue = e.attributeValue("null") ;
 			String type = e.attributeValue("type") ;
 			
-			Assert.assertNotEmpty(property, "invalid property") ;
+			Assert.assertNotEmpty(property, "invalid property. xml is:" + e.asXML()) ;		
 			
 			if(StringUtil.isEmpty(column)){
 				column = property ;
 			}
 			
-			TableColumn col = new TableColumn(st) ;
-			col.setColName(column) ;
-			col.setPropName(property) ;
-			col.setType(type) ;
+			TableColumn col = ObjectMappingUtil.createTableColumn(gf, map, property, column, type, loader) ;
 			col.setNullValue(nullValue) ;
-			col.setAllowInsert(true) ;
-			col.setAllowUpdate(true) ;
-			col.setLazy(false) ;
 			
-			ColumnDataLoader dl = null ;
-			if(StringUtil.notEmpty(loader)){
-				dl = (ColumnDataLoader) BeanCreator.newBeanInstance(loader) ;
-				dl.configure(map, st, col) ;
-				
-				//register the loader
-				gf.getDataLoaderManager().addDataLoader(dl) ;
-			}
-			
-			map.initColumnMapping(col, dl) ;
-			
-			st.addColumn(col) ;
+			ObjectMappingUtil.addTableColumn(map, col) ;
 		}
 		
 		return map ;
@@ -573,33 +532,36 @@ public class GuzzConfigFileBuilder {
 			value = StringUtil.replaceString(value, "\n", " ") ;
 			
 			ObjectMapping map = null ;
-				
+			CompiledSQL cs = null ;
+			
 			if(m_orm.startsWith("@")){
 				Class beanCls = ClassUtil.getClass(m_orm.substring(1)) ;
-				
-				DBGroup db = this.gf.getDBGroup(StringUtil.isEmpty(m_dbgroup)? "default" : m_dbgroup) ;
-				
-				map = new BeanMapBasedObjectMapping(db, beanCls) ;
+				map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup) ;
 			}else{
 				map = (ObjectMapping) local_orms.get(m_orm) ;
-				
 				if(map == null){
-					map = omm.getStaticObjectMapping(m_orm) ;
+					if(gf.getBusiness(m_orm) != null){
+						//build cs with the business name which supports custom table.
+						cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+					}else{
+						map = omm.getStaticObjectMapping(m_orm) ;
+					}
 				}
 			}
 			
-			if(map == null){
-				throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
+			if(cs == null){
+				if(map == null){
+					throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
+				}
+				
+				cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
 			}
 			
-			CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
 			//TODO: find some way to link the markedSQL's param names with the orm's propertyNames to satisify SQLDataType's better user-defined data binding. 
 			//
 			
 			css.put(m_id, cs) ;
 		}
-		
-		
 		
 		List update_nodes = fragment.selectNodes("update") ;
 		for(int i = 0 ; i < update_nodes.size() ; i++){
@@ -611,16 +573,25 @@ public class GuzzConfigFileBuilder {
 			value = StringUtil.replaceString(value, "\n", " ") ;
 			
 			ObjectMapping map = (ObjectMapping) local_orms.get(m_orm) ;
+			CompiledSQL cs = null ;
 			
 			if(map == null){
-				map = omm.getStaticObjectMapping(m_orm) ;
+				if(gf.getBusiness(m_orm) != null){
+					//build cs with the business name which supports custom table.
+					cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+				}else{
+					map = omm.getStaticObjectMapping(m_orm) ;
+				}
 			}
 			
-			if(map == null){
-				throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
+			if(cs == null){
+				if(map == null){
+					throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
+				}
+				
+				cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
 			}
 			
-			CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
 			//TODO: find some way to link the markedSQL's param names with the orm's propertyNames to satisify SQLDataType's better user-defined data binding. 
 			//
 			

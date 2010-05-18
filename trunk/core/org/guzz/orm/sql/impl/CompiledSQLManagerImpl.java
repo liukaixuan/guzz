@@ -30,6 +30,7 @@ import org.guzz.orm.sql.CustomCompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
+import org.guzz.service.core.DynamicSQLService;
 import org.guzz.util.StringUtil;
 
 /**
@@ -44,12 +45,34 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 	
 	private final CompiledSQLBuilder compiledSQLBuilder ;
 	
+	private DynamicSQLService dynamicSQLService ;
+	
 	public CompiledSQLManagerImpl(CompiledSQLBuilder compiledSQLBuilder){
-		this.compiledSQLBuilder = compiledSQLBuilder ;	
+		this.compiledSQLBuilder = compiledSQLBuilder ;
 	}
 
 	public CompiledSQL getSQL(String id) {
-		return (CompiledSQL) sqls.get(id) ;
+		if(dynamicSQLService == null){
+			return (CompiledSQL) sqls.get(id) ;
+		}
+		
+		if(dynamicSQLService.overrideSqlInGuzzXML()){
+			CompiledSQL cs = this.dynamicSQLService.getSql(id) ;
+			
+			if(cs == null){
+				cs = (CompiledSQL) sqls.get(id) ;
+			}
+			
+			return cs ;
+		}else{
+			CompiledSQL cs = (CompiledSQL) sqls.get(id) ;
+			
+			if(cs == null){
+				cs = this.dynamicSQLService.getSql(id) ;
+			}
+			
+			return cs ;
+		}
 	}
 	
 	public void addCompliedSQL(String id, CompiledSQL cs){
@@ -449,6 +472,14 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 
 	public CompiledSQLBuilder getCompiledSQLBuilder() {
 		return compiledSQLBuilder;
+	}
+
+	public DynamicSQLService getDynamicSQLService() {
+		return dynamicSQLService;
+	}
+
+	public void setDynamicSQLService(DynamicSQLService dynamicSQLService) {
+		this.dynamicSQLService = dynamicSQLService;
 	}
 
 }

@@ -54,10 +54,14 @@ import org.guzz.service.ServiceInfo;
 import org.guzz.service.ServiceManager;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
+import org.guzz.service.core.DynamicSQLService;
 import org.guzz.service.core.impl.DebugServiceImpl;
+import org.guzz.service.core.impl.DebugServiceProxy;
+import org.guzz.service.core.impl.DynamicSQLServiceProxy;
 import org.guzz.service.core.impl.MultiMachinesDatabaseServiceImpl;
 import org.guzz.service.core.impl.SingleMachineDatabaseServiceImpl;
 import org.guzz.service.core.impl.SlowUpdateServiceImpl;
+import org.guzz.service.core.impl.SlowUpdateServiceProxy;
 import org.guzz.service.impl.ServiceManagerFactory;
 import org.guzz.service.impl.ServiceManagerImpl;
 import org.guzz.transaction.DBGroup;
@@ -88,7 +92,7 @@ public class GuzzContextImpl implements GuzzContext{
 	
 	CompiledSQLBuilder compiledSQLBuilder ;
 	
-	CompiledSQLManager compiledSQLManager ;
+	CompiledSQLManagerImpl compiledSQLManager ;
 	
 	BusinessInterpreterManager businessInterpreterManager ;
 	
@@ -99,6 +103,8 @@ public class GuzzContextImpl implements GuzzContext{
 	ServiceManager serviceManager ;
 	
 	DebugService debugService ;
+	
+	DynamicSQLService dynamicSQLService ;
 	
 	ColumnDataLoaderManager columnDataLoaderManager ;
 	
@@ -150,7 +156,7 @@ public class GuzzContextImpl implements GuzzContext{
 		}
 		
 		//加载系统内核Service
-		this.debugService = (DebugService) ServiceManagerImpl.createNewService(this, configServer, new ServiceInfo(Service.FAMOUSE_SERVICE.GUZZ_DEBUG, "guzzDebug", DebugServiceImpl.class)) ;
+		this.debugService = new DebugServiceProxy((DebugService) ServiceManagerImpl.createNewService(this, configServer, new ServiceInfo(Service.FAMOUSE_SERVICE.GUZZ_DEBUG, "guzzDebug", DebugServiceImpl.class))) ;
 		
 		//2. 加载数据库连接池
 		List groups = builder.listDBGroups() ;
@@ -206,7 +212,11 @@ public class GuzzContextImpl implements GuzzContext{
 		serviceManager = ServiceManagerFactory.buildServiceManager(this) ;
 		//初始话Service
 				
-		serviceManager.putService((Service) debugService) ;
+		serviceManager.registerService((Service) debugService) ;
+		
+		this.dynamicSQLService = (DynamicSQLService) ServiceManagerImpl.createNewService(this, configServer, new ServiceInfo(Service.FAMOUSE_SERVICE.DYNAMIC_SQL, "guzzDynamicSQL", DynamicSQLServiceProxy.class)) ;
+		compiledSQLManager.setDynamicSQLService(dynamicSQLService) ;
+		serviceManager.registerService((Service) dynamicSQLService) ;
 		
 		//7. 启动事务
 		if(log.isInfoEnabled()){
@@ -217,16 +227,16 @@ public class GuzzContextImpl implements GuzzContext{
 				compiledSQLBuilder,
 				this.debugService, dbGroupManager) ;
 				
-		SlowUpdateServiceImpl sus = (SlowUpdateServiceImpl) ServiceManagerImpl.createNewService(this, configServer, new ServiceInfo(Service.FAMOUSE_SERVICE.SLOW_UPDATE, "guzzSlowUpdate", SlowUpdateServiceImpl.class)) ;
+		Service sus = new SlowUpdateServiceProxy((SlowUpdateServiceImpl) ServiceManagerImpl.createNewService(this, configServer, new ServiceInfo(Service.FAMOUSE_SERVICE.SLOW_UPDATE, "guzzSlowUpdate", SlowUpdateServiceImpl.class))) ;
 
-		serviceManager.putService(sus) ;
+		serviceManager.registerService(sus) ;
 		
 		//加载应用自定义Service
 		List services = builder.loadServices() ;
 		for(int i = 0 ; i < services.size() ; i++){
 			ServiceInfo info = (ServiceInfo) services.get(i) ;
 			Service s = ServiceManagerImpl.createNewService(this, configServer, info) ;
-			serviceManager.putService(s) ;
+			serviceManager.registerService(s) ;
 		}
 		
 		//8. 完成启动
@@ -322,6 +332,7 @@ public class GuzzContextImpl implements GuzzContext{
 		businessInterpreterManager = new BusinessInterpreterManager(this) ;
 		dbGroupManager = new DBGroupManager() ;
 		compiledSQLBuilder = new CompiledSQLBuilderImpl(objectMappingManager) ;
+		
 		compiledSQLManager = new CompiledSQLManagerImpl(compiledSQLBuilder) ;
 	}
 	

@@ -23,11 +23,11 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
 import org.guzz.Service;
 import org.guzz.config.ConfigServer;
 import org.guzz.exception.GuzzException;
+import org.guzz.service.ProxyService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
 import org.guzz.service.ServiceManager;
@@ -66,13 +66,21 @@ public class ServiceManagerImpl implements ServiceManager {
 		return createNewService(this.guzzContext, this.configServer, serviceInfo) ;
 	}
 	
-	public void putService(Service service){
+	public void registerService(Service service){
+		String serviceName = service.getServiceInfo().getServiceName() ;
+		
 		if(log.isInfoEnabled()){
-			log.info("registering service:[" + service.getServiceInfo().getServiceName() + "]...") ;
+			log.info("registering service:[" + serviceName + "]...") ;
 		}
 		
-		services.put(service.getServiceInfo().getServiceName(), service) ;
-	}	
+		Service oldService = (Service) this.services.get(serviceName) ;
+		
+		if(oldService != null && oldService instanceof ProxyService && !(service instanceof ProxyService)){
+			((ProxyService) oldService).setServiceImpl(service) ;
+		}else{
+			services.put(serviceName, service) ;
+		}
+	}
 
 	public void shutdown() {
 		Iterator i = services.values().iterator() ;
