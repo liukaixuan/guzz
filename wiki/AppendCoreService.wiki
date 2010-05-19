@@ -45,43 +45,44 @@ ignoreDemonThreadSQL=true
 
 == 2. 动态SQL服务： ==
 
-*用途：*根据id，动态的加载并执行配置的sql语句。guzz允许在guzz.xml中配置sql和sql映射，按照id执行，类似于ibatis；这种方式不支持sql的变化，一旦需要修改sql或者添加新的sql，必须重启应用方可生效。动态SQL服务即用来解决此问题，她允许应用自己定义sql和sql映射的来源（如存储在数据库中），按照应用自身需要动态的调整sql。动态SQL服务有2中应用场景：
- * 1. 动态的调试SQL。当发现某些SQL存在性能隐患时，用新优化的SQL动态的替换旧的SQL语句，无需重启系统完成升级。
+*用途：*根据id，动态的加载并执行配置的sql语句。guzz允许在guzz.xml中配置sql和sql映射，按照id执行，类似于ibatis；但这种方式不支持sql的变化，一旦需要修改sql或者添加新的sql，必须重启应用方可生效。动态SQL服务即用来解决此问题，他允许应用自己定义sql和sql映射的来源（如存储在数据库中），并可以按照应用自身的需要动态调整sql，无法重启。动态SQL服务主要有两种应用场景：
+ * 1. 动态的调试SQL。当发现某些SQL存在性能隐患时，用新优化的SQL在线替换旧的SQL语句，无需重启系统完成升级。
  * 2. 提供动态数据源。当系统添加新功能时，动态配置增加1条新的sql语句和映射，通过一个统一的servelt按照页面传入的id，参数，分页信息等完成查询并将结果转为json/xml返给调用者处理（如AJAX前端页面），避免后台开发和部署。
  
 *接口：*org.guzz.service.core.DynamicSQLService
 
 *服务注册名称：*guzzDynamicSQL
 
-*guzzDynamicSQL内部使用范围：*
+*guzz内部使用范围：*
 
  * 1. guzz按id执行sql时，通过DynamicSQLService服务查询需要执行的sql语句。
 
 *配置加载方法：* 配置1个名称为“guzzDynamicSQL”并且实现了org.guzz.service.core.DynamicSQLService接口的服务到guzz中。
 
-*guzz默认实现：* guzz默认实现了1个基于文件系统的动态sql服务，每个xml文件包含1个sql及其映射，文件名除去.xml后为id。
+*guzz默认实现：* guzz默认实现了1个基于文件系统的动态sql服务，每个xml文件包含1个sql及其映射，文件名除去.xml后为其id。
  
- 配置方法：在guzz.xml中声明：
-{{{
-<service name="guzzDynamicSQL" configName="guzzDynamicSQL" class="org.guzz.service.core.impl.FileDynamicSQLServiceImpl" />
-}}}
+ 配置方法：
+  在guzz.xml中声明：
+ {{{
+ <service name="guzzDynamicSQL" configName="guzzDynamicSQL" class="org.guzz.service.core.impl.FileDynamicSQLServiceImpl" />
+ }}}
 
-*在properties文件中配置参数：* 
+ 在properties文件中配置参数：
 
-{{{
-[guzzDynamicSQL]
-#where to find the sql .xml files
-folder=/nas/conf/sqls/
+ {{{
+ [guzzDynamicSQL]
+ #where to find the sql .xml files
+ folder=/nas/conf/sqls/
 
-#file encoding
-encoding=UTF-8
+ #file encoding
+ encoding=UTF-8
 
-#When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority? true: use sql from this service.<br>false: use sql in the guzz.xml.
-overrideSqlInGuzzXML=false
+ #When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority? true: use sql from this service. false: use sql in the guzz.xml.
+ overrideSqlInGuzzXML=false
 
-#cache the parsed sql in memory util the file changed?
-useCache=true
-}}}
+ #cache the parsed sql in memory util the file changed?
+ useCache=true
+ }}}
 
 注意，服务的名称必须为：guzzDynamicSQL
 
@@ -178,7 +179,7 @@ pageSize=40
 combinePageCount=10
 }}}
 
- slowUpdateServer一次从临时表读取pageSize*combinePageCount条记录，进行一次sql更新合并，然后按照batchSize创建批处理写入到主库中。
+*内部工作原理：* slowUpdateServer一次从临时表读取pageSize*combinePageCount条记录，进行一次sql更新合并，然后按照batchSize创建批处理写入到主库中。
 
 *提示：* slowUpdateServer需要在guzz.xml中和properties文件中都配置时才会启动。一般我们将slowUpdate和slowUpdateServer一起配置到guzz.xml中，但只在其中1台机器上配置slowUpdateServer的properties参数，以保证只有1台机器启动后台同步服务（将临时表更新到主库中）。这样开发与生产系统中的guzz.xml都可以保持一份，每台机器唯一需要额外处理的就是properties参数文件。
 
@@ -220,5 +221,5 @@ commitSize=2048
 queueSize=20480
 }}}
 
- 内部工作原理：与默认的slowUpdate服务相同。唯一不同的是logService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。logService处理的对象一般是应用系统自己定义的对象。
+*内部工作原理：* 与默认的slowUpdate服务相同。唯一不同的是logService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。logService处理的对象一般是应用系统自己定义的对象。
  
