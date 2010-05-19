@@ -1,15 +1,149 @@
 == 概念介绍 ==
 
- 动态SQL（Dynamic SQL）不是指应用程序动态的拼接SQL语句，动态SQL是指应用程序可以动态的获取配置好的SQL语句。在获取的过程中，SQL语句如何管理，完全由应用系统自己决定。
+ 动态SQL（Dynamic SQL）不是指应用程序动态的拼接SQL语句，动态SQL是指应用程序可以动态的获取配置好的SQL语句。在获取的过程中，SQL语句如何管理，由应用系统自身决定。
 
- 换句话说，在ibatis中，sql语句配置到ibatis.xml文件中，在guzz中，配置到guzz.xml中。但当配置完成后，在系统运行期间这些sql都是不能变动的，如果需要添加1个sql或者修改优化1个sql语句，必须重启应用才能生效。而动态SQL允许应用系统动态的管理（添加/修改/优化/删除）sql语句以及sql映射关系，对于SQL的变更不再需要重启应用系统，降低维护成本。
+ 换句话说，在ibatis中，sql语句配置到ibatis.xml文件中，在guzz中，配置到guzz.xml中。但当配置完成后，在系统运行期间这些sql都是不能修改的，如果需要添加1个sql或者修改优化1个sql语句，必须重启应用才能生效。而动态SQL允许应用系统动态的管理（添加/修改/优化/删除）sql语句以及查询结果到对象的映射关系（ORM），对于SQL的变更不再需要重启应用系统，以简化维护。
 
 == 应用场景 ==
 
  动态SQL主要有两种应用场景：SQL优化和动态数据源。
 
-*SQL优化：* 当发现某些SQL存在性能隐患时，用新优化的SQL在线替换旧的SQL语句。动态SQL允许配置策略，允许动态配置的SQL覆盖guzz.xml中定义的SQL；这样开发时依然按照传统模式，需要修改SQL时，配置1条动态SQL在线覆盖guzz.xml中的定义，无需重启系统完成升级。
+*SQL优化：* 当发现某些SQL存在性能隐患时，用新优化的SQL在线替换旧的SQL语句。动态SQL可以配置策略，允许动态配置的SQL覆盖guzz.xml中同名的定义；这样开发时依然按照传统模式，需要修改SQL时，配置1条动态SQL在线覆盖guzz.xml中的定义，无需重启系统完成升级。
 
-*提供动态数据源：* 这是一种比较新的设计模式，适合页面经常变动或者对外提供各式各样经常变化数据的系统。主要设计与使用模式：当系统添加新功能时，动态配置1条新的sql语句和映射（如上传1个新的sql文件），通过一个统一的servelt按照页面传入的id，参数，分页信息等（读取sql文件，id就是文件名）完成查询并将结果转为json/xml返给调用者处理（如AJAX前端页面），避免后台开发和部署。在这个过程中，动态SQL根据id读取sql文件并进行解析，然后按照页面传入的参数进行命名查询，返回结果。
+*提供动态数据源：* 这是一种比较新的设计模式，适合页面经常变动或者对外提供各式各样经常变化数据的系统。主要设计与使用模式：当系统添加新功能时，动态配置1条新的sql语句和映射（如上传1个新的sql文件），通过一个统一的jsp/servlet按照页面传入的id，参数，分页信息等读取sql（如定义id就是文件名，根据id换成文件名读取）完成查询并将结果转为json/xml返给调用者处理（如AJAX前端页面）。这样一个新功能的上线，只需要传1个sql定义文件，然后开发ajax前端展示数据即可，无需后台的开发和部署。在这个过程中，动态SQL根据id读取sql文件并进行解析，然后按照页面传入的参数进行命名查询，返回结果。
 
 有时候两种场景也可能混合使用，场景一为场景二的子集。下面以第二种场景为例说明动态SQL如何使用。
+
+== 配置动态SQL ==
+
+ 动态SQL在guzz中按照服务的方式进行配置，服务名称*必须*为guzzDynamicSQL，服务实现者必须实现org.guzz.service.core.DynamicSQLService接口。
+ 
+ guzz默认提供了一个基于文件系统的实现，实现类：org.guzz.service.core.impl.FileDynamicSQLServiceImpl。此实现设定每个xml文件包含1个sql及其映射，文件名除去.xml后为sql的id（guzz通过id进行查询）。
+
+ 下面以此为例，进行配置。首先在guzz.xml中声明服务：
+ {{{
+ <service name="guzzDynamicSQL" configName="guzzDynamicSQL" class="org.guzz.service.core.impl.FileDynamicSQLServiceImpl" />
+ }}}
+
+ 再在properties文件中配置服务参数：
+
+ {{{
+ [guzzDynamicSQL]
+ #where to find the sql .xml files
+ folder=/nas/conf/sqls/
+
+ #file encoding
+ encoding=UTF-8
+
+ #When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority? true: use sql from this service. false: use sql in the guzz.xml.
+ overrideSqlInGuzzXML=false
+
+ #cache the parsed sql in memory util the file changed?
+ useCache=true
+ }}}
+ 
+其中folder参数最为关键，指定sql文件的存储目录。文件格式后面会详细介绍。
+
+== 使用动态SQL ==
+
+ 动态SQL配置完成后，在使用时是透明的。下面按照场景2，设计1个SpringMVC Action，按照参数查询动态sql，并返回结果。
+
+*定义Action：*
+ {{{
+public class AnyDataAction implements Controller {
+	private GuzzContext guzzContext;
+
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String id = request.getParameter("id") ;
+		int startPos = RequestUtil.getParameterAsInt(request, "startPos", 1);
+		int maxSize = RequestUtil.getParameterAsInt(request, "maxSize", 20);
+		
+		Map<String, String> params = RequestUtil.getAllParamsAsMap(request) ;
+
+		List<Map> data = null ;
+		
+		ReadonlyTranSession session = guzzContext.getTransactionManager().openDelayReadTran() ;
+		try{
+			data = session.list(id, params, startPos, maxSize) ;
+		}finally{
+			session.close() ;
+		}
+		
+		//output the data as json
+		String json = new Gson().toJson(data);
+		
+		PrintWriter out = response.getWriter();
+		out.println(json);
+		
+		return null ;
+	}
+
+	public GuzzContext getGuzzContext() {
+		return guzzContext;
+	}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		this.guzzContext = guzzContext;
+	}
+}
+ }}}
+
+这个action通过参数id执行要查询的SQL，根据startPos和maxSize进行物理翻页，并将页面传入的所有参数，按照命名参数的方式传给ReadonlyTranSession实现参数绑定查询。
+
+（略去springMVC的配置，）假设我们配置好的Action地址为：http://company/anyData.do，并已经上线开始使用。
+
+*定义SQL：*
+
+现在配置一个新的sql，取名为"some-uuid-no-dup-id"。我们创建一个文件some-uuid-no-dup-id.xml，并存放到/nas/conf/sqls/中。文件内容如下：
+
+{{{
+<sqlMap dbgroup="bookDB">
+	<select orm="@java.util.HashMap">
+	select m_bookname as bookName, m_price as price from tb_book join xxxx on xxx...... 
+	....very
+   so long...
+		very long where bookISBN = :isbn and book_author = :author order by ...... long long.
+	</select>
+</sqlMap>
+}}}
+
+在这个xml文件中，dbgroup属性指定sql在guzz.xml中定义的哪个数据库组中执行。orm="@java.util.HashMap" 表示将每条记录集映射为java.util.HashMap。xml文件的格式类似于guzz.xml。[MoreFileDynamicSQLServiceFileFmt ,阅读更多格式介绍]。
+
+同时在sql语句中我们看到有两个参数isbn和author，需要传入。
+
+*执行SQL：*
+
+ 执行很简单，我们只需要访问http://company/anyData.do?id=some-uuid-no-dup-id&pageNo=1&pageSize=50&isbn=xxx-aaaa&author=me 这个SQL就会动态加载并执行，以json格式返回我们需要的前30条数据。sql中需要的参数通过http参数传入即可。
+
+ 如果系统需要一个新的数据源，只需要创建1个类似的xml文件，放到/nas/conf/sqls/下，给http://company/anyData.do传入不同的参数即可。
+
+== 编写应用自己的动态SQL策略 ==
+
+ 按照“guzz服务”帮助文档，编写一个服务实现org.guzz.service.core.DynamicSQLService接口，并配置到系统中即可。DynamicSQLService接口定义如下：
+
+{{{
+public interface DynamicSQLService {
+	
+	/**
+	 * 
+	 * Get sql by the id. 
+	 * 
+	 * <p>
+	 * If the sql has been changed and should take effects, this method should return the new one.<br><br>
+	 * The implementation is responsible for moniting the change of sqls, making decisions whether it should take effects now or not, and caching(flushing cache) it for performance.
+	 * </p>
+	 * 
+	 * @param id The id used to identify sqls.
+	 * @return CompiledSQL to be executed. Return null if no sql found for the given id.
+	 */
+	public CompiledSQL getSql(String id) ;
+	
+	/**
+	 * When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority?
+	 * 
+	 * @return true: use sql from this service.<br>false: use sql in the guzz.xml.
+	 */
+	public boolean overrideSqlInGuzzXML() ;
+
+}
+}}}
