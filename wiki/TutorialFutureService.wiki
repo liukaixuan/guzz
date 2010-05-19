@@ -46,20 +46,20 @@ FutureDataFetcher有2个方法：
 
  public T getDefaultData() ; 在调用出错、或者任务取消时返回给调用者的默认值。有时候调用者希望忽略异常（避免烦人的try catch），使用默认值代替真正的结果，或使用默认值确定调用是否出错时使用。
 
- AbstractRemoteService内部通过JDK concurrent包建立线程池，可以通过guzz服务配置的以下属性对线程池进行调节：
+AbstractRemoteService内部通过JDK concurrent包建立线程池，可以通过guzz服务配置的以下属性对线程池进行调节：
 
 {{{
 #最少线程数
-corePoolSize=5
+remote.corePoolSize=5
 
 #最大线程数
-maxPoolSize=50
+remote.maxPoolSize=50
 
 #线程空闲最大时间（单位：毫秒），超出空闲时间的线程将被停掉，直到总线程数降到corePoolSize为止。
-keepAliveMilSeconds=60000
+remote.keepAliveMilSeconds=60000
 
 #没有空闲线程时，任务排队队列最大程度
-queueSize=2048
+remote.queueSize=2048
 
 }}}
 
@@ -71,14 +71,14 @@ queueSize=2048
 
  guzz为RPC做了一些准备，服务实现类通过继承org.guzz.service.AbstractRPCService{{{<T>}}}实现，其中T为服务返回数据类型。AbstractRPCService继承AbstractRemoteService，因此上面提到的FutureResult调用方法、线程池的配置参数依然有效。
 
- AbstractRPCService本身只是制定了RPC的一种使用规范。AbstractRPCService会在启动时初始化RPC调用代理（org.guzz.service.remote.RemoteRPCProxy），调用代理通过服务配置参数protocol传入，例如：
+ AbstractRPCService本身只是制定了RPC的一种使用规范。AbstractRPCService会在启动时初始化RPC调用代理（org.guzz.service.remote.RemoteRPCProxy），调用代理是具体RPC实现协议的对象生成工厂。调用代理通过服务配置参数rpc.protocol传入(protocol值为内置的代理名称或代理完整类名)，例如：
 
 {{{
 #设定rpc代理为PHPRPC实现
-protocol=org.guzz.service.remote.PHPRPCServiceProxyImpl
+rpc.protocol=phprpc
 
 #实际服务的地址。这个参数是每个代理(protocol)自身要求的参数
-serviceURL=http://services.guzz.org/service/IPService
+rpc.serviceURL=http://services.guzz.org/service/IPService
 }}}
 
  在实际的服务实现过程中，是否将某个服务方法设置为异步，将由服务自身需要决定。如果不需要，则直接调用并返回结果；如果需要，则通过调用父类方法
@@ -88,3 +88,11 @@ public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
 }}}
 
  返回FutureResult即可。
+
+=== guzz自带RPC协议实现代理 ===
+
+|| 实现协议 || rpc.protocol值 || 支持的参数 || 更多资料 ||
+|| hessian  || hessian        || rpc.url 接口实现服务地址<br>com.caucho.hessian.client.HessianProxyFactory中能够通过setXXX方法注入的属性（属性名前加rpc.）。<br>eg: rpc.user, rpc.password, rpc.connectionFactoryName, rpc.debug, rpc.overloadEnabled, rpc.chunkedPost, rpc.readTimeout, rpc.hessian2Request. || http://hessian.caucho.com/ ||
+|| burlap  || burlap  || rpc.url 接口实现服务地址<br>com.caucho.burlap.client.BurlapProxyFactory中能够通过setXXX方法注入的属性（属性名前加rpc.）。<br>eg: rpc.user, rpc.password, rpc.overloadEnabled. || http://hessian.caucho.com/doc/burlap.xtp ||
+|| PHPRPC   || phprpc         || rpc.serviceURL 接口实现服务地址<br>org.phprpc.PHPRPC_Client中能够通过setXXX方法注入的属性（属性名前加rpc.）。 || http://www.phprpc.org/ ||
+
