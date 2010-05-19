@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
 import org.guzz.Service;
 import org.guzz.config.ConfigServer;
@@ -74,6 +75,9 @@ public class ServiceManagerImpl implements ServiceManager {
 		}
 		
 		Service oldService = (Service) this.services.get(serviceName) ;
+		if(oldService != null){
+			log.info("override service from :[" + oldService.getServiceInfo().getImplClass() + "] to [" + service.getServiceInfo().getImplClass() + "]") ;
+		}
 		
 		if(oldService != null && oldService instanceof ProxyService && !(service instanceof ProxyService)){
 			((ProxyService) oldService).setServiceImpl(service) ;
@@ -98,14 +102,32 @@ public class ServiceManagerImpl implements ServiceManager {
 	}
 	
 	
-	public static Service createNewService(GuzzContextImpl guzzContext, ConfigServer configServer, ServiceInfo serviceInfo){
-		Service s = (Service) BeanCreator.newBeanInstance(serviceInfo.getImplClass()) ;
+	public static Service createNewService(final GuzzContextImpl guzzContext, final ConfigServer configServer, final ServiceInfo serviceInfo){
+		final Service s = (Service) BeanCreator.newBeanInstance(serviceInfo.getImplClass()) ;
 		s.setServiceInfo(serviceInfo) ;
 		
 		if(s instanceof GuzzContextAware){
-			guzzContext.registerContextStartedAware((GuzzContextAware) s) ;
+			guzzContext.registerContextStartedAware(
+					new GuzzContextAware(){
+						public void setGuzzContext(GuzzContext guzzContext) {
+							((GuzzContextAware) s).setGuzzContext(guzzContext) ;
+							startupService(configServer, s) ;
+						}
+					}
+			) ;
+		}else{
+			startupService(configServer, s) ;
 		}
 		
+		if(s instanceof ExtendedBeanFactoryAware){
+			guzzContext.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) s) ;
+		}
+		
+		return s ;
+	}
+	
+	private static void startupService(ConfigServer configServer, Service s){
+		ServiceInfo serviceInfo = s.getServiceInfo() ;
 		boolean configOK = false ;
 		
 		ServiceConfig[] scs;
@@ -123,12 +145,6 @@ public class ServiceManagerImpl implements ServiceManager {
 		}else{
 			log.info("service:[" + serviceInfo.getServiceName() + "] is not started. configuration not exsit or failed. configName is :[" + serviceInfo.getConfigName() + "]") ;
 		}
-		
-		if(s instanceof ExtendedBeanFactoryAware){
-			guzzContext.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) s) ;
-		}
-		
-		return s ;
 	}
 
 }

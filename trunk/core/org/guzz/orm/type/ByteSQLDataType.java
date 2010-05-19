@@ -45,6 +45,10 @@ public class ByteSQLDataType implements SQLDataType {
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
+		if(value instanceof String){
+			value = getFromString((String) value) ;
+		}
+		
 		pstm.setByte(parameterIndex, ((Byte) value).byteValue()) ;
 	}
 	

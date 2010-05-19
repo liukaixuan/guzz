@@ -497,7 +497,7 @@ public class GuzzContextImpl implements GuzzContext{
 	}
 	
 	/**
-	 * Add a callback on guzz's ExtendedBeanFactoryAware setted.
+	 * Add a callback on guzz's {@link ExtendedBeanFactory} setted.
 	 */
 	public void registerExtendedBeanFactoryAware(ExtendedBeanFactoryAware aware){
 		if(this.extendedBeanFactory != null){
