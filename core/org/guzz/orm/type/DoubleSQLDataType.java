@@ -51,10 +51,10 @@ public class DoubleSQLDataType implements SQLDataType {
 			pstm.setDouble(parameterIndex, this.nullValue) ;
 			return ;
 		}
-		
 		if(value instanceof String){
-			value = Double.valueOf((String) value) ;
+			value = getFromString((String) value) ;
 		}
+		
 		double v = ((Number) value).doubleValue() ;
 		
 		pstm.setDouble(parameterIndex, v) ;

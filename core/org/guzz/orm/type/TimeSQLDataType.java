@@ -105,6 +105,9 @@ public class TimeSQLDataType implements SQLDataType, ParameteredType {
 			
 			return ;
 		}
+		if(value instanceof String){
+			value = getFromString((String) value) ;
+		}
 		
 		if(value instanceof java.util.Date){
 			pstm.setTime(parameterIndex, new java.sql.Time(((Date) value).getTime())) ;

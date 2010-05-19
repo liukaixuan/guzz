@@ -1,7 +1,9 @@
 1.2.8 beta2
-	1. new feature: rpc protocol:hessian, burlap.
-	2. new feature: escape character `` to avoid column name conflicting with the keywords of some database.
+	1. new feature: support 2 new rpc protocols: hessian, burlap.
+	2. new feature: support escape character `` to avoid column name conflicting with the keywords of some database.
+	3. new feature: support JDK5's enum.
 	3. new feature: allow pass a parameter to enum and date/time related data types.
+	4. new feature: support dynamic sql(say:you can define sqls in ibatis's config file, now you can define sqls in anywhere(eg: database), and put the new sqls online dynamically.).
 	
 1.2.8 beta1
 	1. limited(but enough for guzz) JPA annotation support.

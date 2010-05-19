@@ -19,20 +19,26 @@ package org.guzz;
 import org.guzz.service.ServiceChangeCommand;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
+import org.guzz.service.ServiceManager;
+import org.guzz.web.context.ExtendedBeanFactory;
+import org.guzz.web.context.ExtendedBeanFactoryAware;
+import org.guzz.web.context.GuzzContextAware;
 
 /**
  * 
  * Service用于模块化定义，Service一般为远程的服务，如数据库DataSource Service，过滤词Service，用户认证Service等。
  * Service的具体服务者可以运行在远程，也可以运行在本地。
+ * 
  * <p>
- * Service初始化过程：
- * <li>
- * 1. 根据Service的类名初始化对象, 
- * 2. 根据GuzzContextAware进行注入, 
- * 3. 调用configure(ConfigServer)方法初始化, 
- * 4. 调用startup(),
- * 5. 保存到ServiceManager中对外服务。
- * </li>
+ * Service bootstrap sequence：
+ * <ol>
+ * <li> Class.forName(service class name).newInstance()</li>
+ * <li> set {@link GuzzContext} if the service implements {@link GuzzContextAware}</li>
+ * <li> call {@link #configure(ServiceConfig[])} to start the initialization</li>
+ * <li> call {@link #startup()}</li>
+ * <li> register the service to guzz's {@link ServiceManager} (where you can query the service by name).</li>
+ * <li> set {@link ExtendedBeanFactory} if the service implements {@link ExtendedBeanFactoryAware}</li>
+ * </ol>
  *</p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
@@ -52,7 +58,7 @@ public interface Service {
 //	public void configure(ConfigServer configServer) ;
 	
 	/**
-	 * 如果没有配置此项，@param scs 传入null 
+	 * 如果没有配置此项，@param scs 传入 new ServiceConfig[0]
 	 * 
 	 * @return 是否成功配置，返回true则继续执行startup，否则打印异常并跳过此服务的启动。
 	 */

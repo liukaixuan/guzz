@@ -149,9 +149,9 @@ public class TestMainConfigBuilder extends TestCase {
 		ConfigServer server = b.loadConfigServer() ;
 		
 		assertNotNull(server) ;
-		assertNotNull(server.queryConfig("masterDB")) ;
-		assertNotNull(server.queryConfig("guzzDebug")) ;
-		assertNull(server.queryConfig("slaveDB")) ;
+		assertTrue(server.queryConfig("masterDB").length > 0) ;
+		assertTrue(server.queryConfig("guzzDebug").length > 0) ;
+		assertEquals(server.queryConfig("slaveDB").length, 0) ;
 		
 		ServiceConfig sc = server.queryConfig("masterDB")[0] ;
 		assertEquals(sc.getUniqueIdentifer(),"testmaster") ;

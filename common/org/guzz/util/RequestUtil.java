@@ -16,6 +16,11 @@
  */
 package org.guzz.util;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -138,6 +143,33 @@ public class RequestUtil {
         }
         return req.getRequestURL().append('?').append(qryStr).toString();
     }
+    
+    /**
+     * Get all parameters in the request. This method is different of {@link HttpServletRequest#getParameterMap()} in returning.
+     * 
+     * @return Both the key and the value are of type String. If a key has multiple values, the first one is used as the value. 
+     */
+    public static Map getAllParamsAsMap(HttpServletRequest req){
+    	Map p = req.getParameterMap() ;
+    	HashMap params = new HashMap() ;
+    	
+    	Iterator i = p.entrySet().iterator() ;
+    	
+    	while(i.hasNext()){
+    		Entry e = (Entry) i.next() ;
+    		String key = (String) e.getKey() ;
+    		String[] values = (String[]) e.getValue() ;
+    		
+    		if(values != null && params.size() > 0){
+    			params.put(key, values[0]) ;
+    		}else{
+    			params.put(key, "") ;
+    		}
+    	}
+    	
+    	return params ;
+    }
+    
 //
 //    public static String getCurrentPage(HttpServletRequest req) {
 //        final String requestURI = req.getRequestURI();

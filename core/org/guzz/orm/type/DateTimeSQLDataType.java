@@ -100,7 +100,10 @@ public class DateTimeSQLDataType implements SQLDataType, ParameteredType {
 			
 			return ;
 		}
-		
+		if(value instanceof String){
+			value = getFromString((String) value) ;
+		}
+				
 		if(value instanceof java.sql.Timestamp){
 			pstm.setTimestamp(parameterIndex, (Timestamp) value) ;
 		}else if(value instanceof java.util.Date){

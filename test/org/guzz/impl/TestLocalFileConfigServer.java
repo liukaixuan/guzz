@@ -65,7 +65,8 @@ public class TestLocalFileConfigServer extends TestCase {
 		assertEquals(scs.length, 2) ;
 		
 		scs = server.queryConfig("mail") ;
-		assertNull(scs) ;
+		assertNotNull(scs) ;
+		assertEquals(scs.length, 0) ;
 	}
 
 }

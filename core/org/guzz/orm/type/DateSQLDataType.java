@@ -90,6 +90,9 @@ public class DateSQLDataType implements SQLDataType, ParameteredType {
 			
 			return ;
 		}
+		if(value instanceof String){
+			value = getFromString((String) value) ;
+		}
 		
 		if(value instanceof java.util.Date){
 			pstm.setDate(parameterIndex, new java.sql.Date(((Date) value).getTime())) ;

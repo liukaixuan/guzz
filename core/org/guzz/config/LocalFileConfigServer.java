@@ -132,11 +132,20 @@ public class LocalFileConfigServer implements ConfigServer {
 		}
 	}	
 
-	public ServiceConfig[] queryConfig(String serviceName) throws IOException {
-		return (ServiceConfig[]) configs.get(serviceName) ;
+	public ServiceConfig[] queryConfig(String configName) throws IOException {
+		ServiceConfig[] scs = (ServiceConfig[]) configs.get(configName) ;
+		
+		if(scs == null){
+			scs = new ServiceConfig[0] ;
+			if(log.isWarnEnabled()){
+				log.warn("no configuration found for config:" + configName) ;
+			}
+		}
+		
+		return scs ;
 	}
 
-	public void registerService(String serviceName, Service service) {
+	public void registerService(String configName, Service service) {
 		//never notify others
 	}
 	

@@ -55,11 +55,10 @@ public class IntegerSQLDataType implements SQLDataType {
 			pstm.setInt(parameterIndex, this.nullValue) ;
 			return ;
 		}
-		
 		if(value instanceof String){
-			value = Integer.valueOf((String) value) ;
+			value = getFromString((String) value) ;
 		}
-		
+				
 		int v = ((Number) value).intValue() ;
 		
 		pstm.setInt(parameterIndex, v) ;

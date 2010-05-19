@@ -74,6 +74,9 @@ public class EnumStringSQLDataType implements SQLDataType, ParameteredType {
 		if(value == null){
 			value = this.nullValue ;
 		}
+		if(value instanceof String){
+			value = getFromString((String) value) ;
+		}
 		
 		if(value == null){
 			pstm.setString(parameterIndex, null) ;
