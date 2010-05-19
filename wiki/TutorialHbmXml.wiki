@@ -30,6 +30,23 @@ guzz mapping相对hibernate mapping也有一些变化。
 
  loader： 指定字段的特殊读取类。通过loader可以定义某些字段的特殊读取策略，如从文件加载，或先读缓存再读数据库，或从第三方系统读取等。详细介绍请参看：LazyLoad
 
+*type属性支持定义日期格式：*
+
+ type用于指定数据类型，如：int, string等。对于日期类型数据，一般有三种：datetime表示时间戳（日期+时间），date表示日期，time表示时间。对于这三种类型，在定义时可以在类型后加"|"线，并跟上日期格式(参看DateFormat定义)完成格式定义。
+
+ 例如：type="datetime|YYYY-MM-dd HH:mm:SS"，type="date|MM-dd"。
+
+ 传入日期格式后，进行sql查询时，对于日期字段，可以传入按照格式生成的日期字符串直接查询，guzz将会自动按照格式转成需要的数据类型。这种特性，在按照用户输入日期进行查询或向guzz taglib传入日期参数时，会比较方便。
+
+*枚举类型支持：*
+ 
+ guzz支持按照ordinal和value两种方式映射枚举类型。对于ordinal方式，数据库字段需要定义为int整数类型；对于value方式，数据库字段需要定义为可以保存字符串的varchar等类型。
+
+ 按照ordinal映射枚举定义方式：type="enum.ordinal|枚举类完整类名"，如：type="enum.ordinal|com.company.EmployeeStatus"。
+
+ 按照value映射枚举定义方式：type="enum.string|枚举类完整类名"，如：type="enum.string|com.company.EmployeeStatus"。
+
+
 *主键生成(id generator)支持变化：*
 
 || *Generator* || *hibernate* || *guzz* || *Description for guzz* ||
