@@ -58,6 +58,13 @@ guzz.maxLoad=xxx
 
  连接池配置的其他参数，除pool参数之外，所有参数都是连接池实现类自身的参数。guzz将把这些参数当做连接池实现类的属性，通过javabean setXXX方式进行注入，注入时自动判断数据类型。
 
+== guzz内置连接池实现 ==
+
+|| *连接池名称* || *pool参数取值* || *调节参数* ||
+|| C3P0 || c3p0 || http://www.mchange.com/projects/c3p0/index.html#configuration_properties ||
+|| Apache DBCP || dbcp || http://commons.apache.org/dbcp/configuration.html ||
+|| 无连接池（每次直接连接，关闭即释放） || nopool || *driverClass*: driver class<br>*jdbcUrl*:jdbc url<br>*user*:user name<br>*password*:password ||
+
 == 自定义连接池实现 ==
 
 === 代码实现 ===
