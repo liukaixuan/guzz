@@ -33,7 +33,9 @@ try{
 
 === CompiledSQL： ===
 
- guzz将sql语句进行预编译生成CompiledSQL，在预编译时sql语句允许参数命名和businessName，属性名替换，进行预编译的SQL和guzz.xml中允许定义的sql规则相同。示例如下：
+ 由于SearchExpression不能永久强大，有时候我们需要直接编写SQL语句进行查询。对于SQL语句查询，guzz将sql语句进行预编译生成CompiledSQL以提高性能，并要求SQL必须先编译成CompiledSQL才能执行。
+
+ 在编写sql语句时guzz额外支持参数命名和businessName属性名替换，规则和guzz.xml中定义的sql规则相同（@@对象名用来替换表明，@属性名用来替换字段名）。示例如下：
 
 {{{
 TransactionManager tm = super.getTransactionManager() ;
@@ -49,6 +51,36 @@ try{
 	session.close() ;
 }
 }}}
+
+ 这段代码通过调用CompiledSQLBuilder的buildCompiledSQL方法编译SQL，其中第一个参数为对象类名，guzz根本此参数判定SQL语句应该在哪个数据库组执行。
+
+ 上面的示例是更新操作，如果是查询操作，查询到的结果记录集，guzz还会按照参数1传入的类名进行ORM映射，返回的查询结果将会是List<SystemLog>。
+
+ CompiledSQL的使用比较灵活，对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部要求的。幸运的是，CompiledSQL在编译时以及编译后都允许自定义OR映射方式。如：
+
+{{{
+TransactionManager tm = super.getTransactionManager() ;
+CompiledSQLBuilder builder =  tm.getCompiledSQLBuilder() ;
+
+String sql = "select count(*) as count, company from mycompany join xxx... where group by company having @salary = :salary " ;
+
+//create a new ORM, map the ResultSet to HashMap
+ObjectMapping mapping = new FormBeanBasedObjectMapping(HashMap.class, builder.getDBGroup(Company.class))
+
+CompiledSQL cs = builder.buildCompiledSQL(mapping, sql) ;
+
+WriteTranSession session = tm.openRWTran(true) ;
+
+try{
+	List<Map> result = session.list(cs.bind("salary", 3000)) ;
+}finally{
+	session.close() ;
+}
+}}}
+
+ 这段代码生成自己的OR映射FormBeanBasedObjectMapping，并根据新的映射生成CompiledSQL。
+
+ CompiledSQL在需要执行时，通过bind()方法绑定命名参数生成BindedCompiledSQL，然后执行。如果需要临时调整某1次查询的ORM，也可以通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
 
  CompiledSQL为线程安全的对象，对于重复执行的sql，建议将编译好的CompiledSQL缓存以来，避免重复解析。在guzz.xml中定义的sql，在guzz内部就是以CompiledSQL进行存储和管理的。
 
