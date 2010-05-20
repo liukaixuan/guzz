@@ -38,10 +38,10 @@
 
 == 附录： ==
 
- * 1. [AppendSpringBean 在guzz中获取spring定义的bean] 
+ * 1. [AppendCoreService guzz自带的基础服务介绍]
 
- * 2. [AppendCoreService guzz自带的基础服务介绍] 
+ * 2. [AppendSpringBean 在guzz中获取spring定义的bean] 
 
  * 3. [AppendJPAAnnotation Guzz JPA Annotation参考]
 
- 
+ * 4. [AppendTestCoverage 单元测试覆盖情况]
