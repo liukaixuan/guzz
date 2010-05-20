@@ -331,7 +331,7 @@ public class GuzzContextImpl implements GuzzContext{
 		objectMappingManager = new ObjectMappingManager() ;
 		businessInterpreterManager = new BusinessInterpreterManager(this) ;
 		dbGroupManager = new DBGroupManager() ;
-		compiledSQLBuilder = new CompiledSQLBuilderImpl(objectMappingManager) ;
+		compiledSQLBuilder = new CompiledSQLBuilderImpl(this, objectMappingManager) ;
 		
 		compiledSQLManager = new CompiledSQLManagerImpl(compiledSQLBuilder) ;
 	}

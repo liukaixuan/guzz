@@ -16,6 +16,9 @@
  */
 package org.guzz.orm.sql.impl;
 
+import org.guzz.GuzzContextImpl;
+import org.guzz.exception.ORMException;
+import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.sql.CompiledSQL;
@@ -24,6 +27,7 @@ import org.guzz.orm.sql.CustomCompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
+import org.guzz.transaction.DBGroup;
 
 /**
  * 
@@ -33,13 +37,30 @@ import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
  */
 public class CompiledSQLBuilderImpl implements CompiledSQLBuilder {
 	
-	protected ObjectMappingManager omm ;
+	protected final GuzzContextImpl guzzContext ;
 	
-	protected SQLCompiler sc ;
+	protected final ObjectMappingManager omm ;
 	
-	public CompiledSQLBuilderImpl(ObjectMappingManager omm){
+	protected final SQLCompiler sc ;
+	
+	public CompiledSQLBuilderImpl(GuzzContextImpl guzzContext, ObjectMappingManager omm){
+		this.guzzContext = guzzContext ;
 		this.omm = omm ;
 		this.sc = new SQLCompiler(omm, this) ;
+	}
+	
+	public DBGroup getDBGroup(String businessName){
+		Business business = this.guzzContext.getBusiness(businessName) ;
+		
+		if(business == null){
+			throw new ORMException("unknown business:[" + businessName + "]") ;
+		}
+		
+		return guzzContext.getDBGroup(business.getDbGroup()) ;
+	}
+	
+	public DBGroup getDBGroup(Class domainClass){
+		return getDBGroup(domainClass.getName()) ;
 	}
 
 	public NormalCompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) {

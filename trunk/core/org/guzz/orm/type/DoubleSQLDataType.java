@@ -30,19 +30,27 @@ public class DoubleSQLDataType implements SQLDataType {
 	
 	private double nullValue ;
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = Double.parseDouble(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = ((Double) nullValue).doubleValue() ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
 		double value = rs.getDouble(colName) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Double(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
 		double value = rs.getDouble(colIndex) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Double(value) ;
 	}
 

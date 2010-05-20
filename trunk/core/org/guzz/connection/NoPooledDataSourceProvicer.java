@@ -98,7 +98,7 @@ public class NoPooledDataSourceProvicer implements DataSourceProvicer{
 		 * not supported.
 		 * @since 1.6
 		 */
-		public boolean isWrapperFor(Class<?> iface) throws SQLException {
+		public boolean isWrapperFor(Class iface) throws SQLException {
 			return false;
 		}
 

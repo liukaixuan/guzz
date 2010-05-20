@@ -60,10 +60,8 @@ public class EnumOrdinalSQLDataType implements SQLDataType, ParameteredType {
 		}
 	}
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = getEnumFromOrdinal(Integer.parseInt(nullValue)) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = nullValue ;
 	}
 	
 	protected Object getEnumFromOrdinal(int ordinal){
@@ -80,7 +78,7 @@ public class EnumOrdinalSQLDataType implements SQLDataType, ParameteredType {
 		}
 		
 		if(ordinal >= enums.length){
-			throw new DataTypeException("ordinal value:[" + ordinal + "] too bigger for enum class:" + enumClassType.getName() + "].") ;
+			throw new DataTypeException("ordinal value:[" + ordinal + "] too bigger for enum class:" + enumClassType.getName() + "]. Max length is:" + enums.length) ;
 		}
 		
 		return enums[ordinal] ;
@@ -89,11 +87,19 @@ public class EnumOrdinalSQLDataType implements SQLDataType, ParameteredType {
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
 		int value = rs.getInt(colName) ;
 		
+		if(rs.wasNull()){
+			return nullValue ;
+		}
+		
 		return getEnumFromOrdinal(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
 		int value = rs.getInt(colIndex) ;
+		
+		if(rs.wasNull()){
+			return nullValue ;
+		}
 		
 		return getEnumFromOrdinal(value) ;
 	}

@@ -36,8 +36,6 @@ public class DateSQLDataType implements SQLDataType, ParameteredType {
 	
 	private Date nullDate = null ;
 	
-	private boolean saveAsNow = false ;	
-	
 	private String dateFormat = FMT ;
 
 	public void setParameter(String param) {
@@ -46,14 +44,8 @@ public class DateSQLDataType implements SQLDataType, ParameteredType {
 		}
 	}
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			if("now()".equalsIgnoreCase(nullValue)){
-				this.saveAsNow = true ;
-			}else{
-				this.nullDate = DateUtil.stringToDate(nullValue, dateFormat) ;
-			}
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullDate= (Date) nullValue ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
@@ -78,14 +70,10 @@ public class DateSQLDataType implements SQLDataType, ParameteredType {
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value == null){
-			if(this.saveAsNow){
-				pstm.setDate(parameterIndex, new java.sql.Date(new Date().getTime())) ;
+			if(this.nullDate == null){
+				pstm.setDate(parameterIndex, null) ;
 			}else{
-				if(this.nullDate == null){
-					pstm.setDate(parameterIndex, null) ;
-				}else{
-					pstm.setDate(parameterIndex, new java.sql.Date(this.nullDate.getTime())) ;
-				}
+				pstm.setDate(parameterIndex, new java.sql.Date(this.nullDate.getTime())) ;
 			}
 			
 			return ;

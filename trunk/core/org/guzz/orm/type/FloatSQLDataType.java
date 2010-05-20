@@ -30,19 +30,27 @@ public class FloatSQLDataType implements SQLDataType {
 	
 	private float nullValue ;
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = Float.parseFloat(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = ((Float) nullValue).floatValue() ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
 		float value = rs.getFloat(colName) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Float(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
 		float value = rs.getFloat(colIndex) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Float(value) ;
 	}
 

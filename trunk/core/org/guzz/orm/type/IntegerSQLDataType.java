@@ -30,23 +30,27 @@ public class IntegerSQLDataType implements SQLDataType {
 
 	private int nullValue ;
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = Integer.parseInt(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = ((Integer) nullValue).intValue() ;
 	}
 	
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		//TODO:add support for null value.
-		
 		int value = rs.getInt(colName) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Integer(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		//TODO:add support for null value.
-		
 		int value = rs.getInt(colIndex) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Integer(value) ;
 	}
 

@@ -33,7 +33,9 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * 
- * 
+ * C3P0 connection pool. 
+ * <br>Configuration details: 
+ * <a target="_blank" href="http://www.mchange.com/projects/c3p0/index.html#configuration_properties">http://www.mchange.com/projects/c3p0/index.html#configuration_properties</a>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

@@ -30,7 +30,6 @@ import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.lang.NullValue;
 import org.guzz.orm.mapping.FormBeanRowDataLoader;
-import org.guzz.orm.mapping.MapDataLoader;
 import org.guzz.orm.mapping.RowDataLoader;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.transaction.LockMode;
@@ -48,7 +47,7 @@ import org.guzz.transaction.LockMode;
 public abstract class BindedCompiledSQL {
 	private static final Log log = LogFactory.getLog(BindedCompiledSQL.class) ;
 	
-	public static final RowDataLoader MAP_ROW_DATA_LOADER = new MapDataLoader() ;
+	public static final RowDataLoader MAP_ROW_DATA_LOADER = FormBeanRowDataLoader.newInstanceForClass(HashMap.class) ;
 	
 	private Map bindedParams = new HashMap() ;
 	

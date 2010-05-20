@@ -11,5 +11,7 @@
         <property name="storeCount" type="int" column="storeCount" />
         <property name="price" type="double" column="price" />
         <property name="onlineTime" type="datetime" column="onlineTime" />
+        <property name="statusThisWeek" />
+        <property name="statusNextWeek" type="enum.string|org.guzz.test.shop.CargoStatus"  />
     </class>
 </guzz-mapping>

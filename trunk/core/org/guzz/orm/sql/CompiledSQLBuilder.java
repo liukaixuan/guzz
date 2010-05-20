@@ -18,6 +18,7 @@ package org.guzz.orm.sql;
 
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
+import org.guzz.transaction.DBGroup;
 
 /**
  * 
@@ -26,6 +27,10 @@ import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface CompiledSQLBuilder {
+	
+	public DBGroup getDBGroup(String businessName) ;
+	
+	public DBGroup getDBGroup(Class domainClass) ;
 		
 	public NormalCompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) ;
 	

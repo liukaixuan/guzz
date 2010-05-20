@@ -30,8 +30,8 @@ public class StringSQLDataType implements SQLDataType {
 	
 	private String nullValue = null ;
 	
-	public void setNullToValue(String nullValue){
-		this.nullValue = nullValue ;
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = (String) nullValue ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {

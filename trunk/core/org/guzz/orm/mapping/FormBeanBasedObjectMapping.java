@@ -98,7 +98,7 @@ public final class FormBeanBasedObjectMapping implements ObjectMapping {
 	}
 
 	public String[] getUniqueName() {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
+		return new String[0] ;
 	}
 
 }

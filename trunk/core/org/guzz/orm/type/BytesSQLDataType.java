@@ -16,50 +16,71 @@
  */
 package org.guzz.orm.type;
 
-import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.guzz.exception.DataTypeException;
-
 /**
  * 
  * Represents a byte array. For very long arrays, use BLOB. 
- * the whole binary array is kept in memory when using this data type. 
+ * The whole binary array is kept in memory when using this data type. 
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class BytesSQLDataType implements SQLDataType {
+	
+	private byte[] nullValue ;
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		return rs.getBytes(colName) ;
+		byte[] value = rs.getBytes(colName) ;
+		
+		if(value == null && this.nullValue != null){
+			int len = this.nullValue.length ;
+			byte[] newBytes = new byte[len] ;
+			System.arraycopy(this.nullValue, 0, newBytes, 0, len) ;
+			
+			return newBytes ;
+		}
+		
+		return value ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		return rs.getBytes(colIndex) ;
+		byte[] value = rs.getBytes(colIndex) ;
+		
+		if(value == null && this.nullValue != null){
+			int len = this.nullValue.length ;
+			byte[] newBytes = new byte[len] ;
+			System.arraycopy(this.nullValue, 0, newBytes, 0, len) ;
+			
+			return newBytes ;
+		}
+		
+		return value ;
 	}
 
-	public void setNullToValue(String nullValue) {
-		if(nullValue != null){
-			throw new DataTypeException("null value unsupported. nullValue is:" + nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = (byte[]) nullValue ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value instanceof String){
 			value = getFromString((String) value) ;
+		}else if(value == null){
+			value = this.nullValue ;
 		}
 		
 		pstm.setBytes(parameterIndex, (byte[]) value) ;
 	}
 	
 	public Class getDataType(){
-		return Array.class ;
+		return byte[].class ;
 	}
 
 	public Object getFromString(String value) {
-		throw new DataTypeException("unsupported operation. value is:" + value) ;
+		if(value == null) return null ;
+		
+		return value.getBytes() ;
 	}
 
 }

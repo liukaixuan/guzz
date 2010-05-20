@@ -39,8 +39,6 @@ public class DateTimeSQLDataType implements SQLDataType, ParameteredType {
 	
 	private Timestamp nullDate = null ;
 	
-	private boolean saveAsNow = false ;
-	
 	private String dateFormat = FMT ;
 
 	public void setParameter(String param) {
@@ -49,17 +47,8 @@ public class DateTimeSQLDataType implements SQLDataType, ParameteredType {
 		}
 	}
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			if("now()".equalsIgnoreCase(nullValue)){
-				this.saveAsNow = true ;
-			}else{
-				Date d = DateUtil.stringToDate(nullValue, dateFormat) ;
-				if(d != null){
-					this.nullDate = new Timestamp(d.getTime()) ;
-				}
-			}
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullDate = (Timestamp) nullValue ;
 	}
 
 	public Object getFromString(String value) {
@@ -92,11 +81,7 @@ public class DateTimeSQLDataType implements SQLDataType, ParameteredType {
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value == null){
-			if(this.saveAsNow){
-				pstm.setTimestamp(parameterIndex, new Timestamp(new Date().getTime())) ;
-			}else{
-				pstm.setTimestamp(parameterIndex, this.nullDate) ;
-			}
+			pstm.setTimestamp(parameterIndex, this.nullDate) ;
 			
 			return ;
 		}

@@ -43,10 +43,8 @@ public class BigDecimalSQLDataType implements SQLDataType {
 		return bd == null ? this.nullValue : bd ;
 	}
 
-	public void setNullToValue(String nullValue) {
-		if(nullValue != null){
-			this.nullValue = new BigDecimal(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = (BigDecimal) nullValue ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
