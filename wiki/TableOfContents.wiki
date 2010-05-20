@@ -20,7 +20,7 @@
    * [TutorialFutureService Service2:编写支持异步调用的服务]
    * [TutorialShadowTable 表分切（Shadow Table）]
    * [TutorialCustomTable 自定义属性表（Custom Table）]
-   * [TutorialDynamicSQLService 动态SQL]
+   * [TutorialDynamicSQLService 动态（加载）SQL]
  * [TaglibBook JSP页面快速开发指南]
  * 附录
    * [AppendCoreService guzz自带的基础服务介绍]
