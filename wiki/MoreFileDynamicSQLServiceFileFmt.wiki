@@ -1,0 +1,42 @@
+== FileDynamicSQLServiceImpl服务 ==
+
+提供来自文件系统的动态SQL。文件为xml文件，文件名除去.xml后为SQL id，文件内容提供sql语句和OR映射。
+
+一个文件，一个SQL。xml格式类似于guzz.xml的sqlMap片段。例如: 
+
+{{{
+ <sqlMap dbgroup="default">
+	<select orm="userMap">
+		select * from @@user
+		 where 
+		 	@id = :id 
+	</select>
+	
+	<orm id="userMap" class="org.guzz.test.UserModel" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+	    <result property="id" column="id" type="int"/>
+	    <result property="userId" column="userId" type="int"/>
+	    <result property="userName" column="userName" type="string" />
+	    <result property="createdTime" column="createdTime" type="datetime" />
+	</orm>
+ </sqlMap> 
+}}}
+
+ 或者，你也可以简单的将结果映射为一个Map：
+
+{{{
+ <sqlMap dbgroup="default">
+	<select orm="@java.util.HashMap">
+		select * from @@user
+		 where 
+		 	@id = :id 
+	</select>
+ </sqlMap> 
+}}}
+
+ "dbgroup"属性指定sql在哪个数据库组执行。
+
+ "orm"属性指定映射方式名称，可以是business name，guzz.xml中定义的全局orm名称，或是本文件中定义的orm。如果orm名称重名，优先使用本文件中定义的orm映射。
+
+ "orm"属性也可以指定为一个任意的javaban对象或者java.util.Map接口的实现类。对于javabean对象，FileDynamicSQLServiceImpl将查询到的结果集根据列名称调用javabean的setxxx方法赋值；对于Map，FileDynamicSQLServiceImpl将查询到的结果集按照列名称和字段值，以key-value存储到Map中。定义时，orm传入完整的类名，并以"@"开头。如：orm="@java.util.Hashtable"
+
+ "result"元素支持的属性有： property, column, type, loader, null；含义与guzz.xml中的定义相同。
