@@ -33,9 +33,9 @@ try{
 
 === CompiledSQL： ===
 
- 由于SearchExpression不能永久强大，有时候我们需要直接编写SQL语句进行查询。对于SQL语句查询，guzz将sql语句进行预编译生成CompiledSQL以提高性能，并要求SQL必须先编译成CompiledSQL才能执行。
+ 由于SearchExpression不可能无限强大，有时候我们需要直接编写SQL语句进行查询。对于SQL语句查询，guzz将sql语句进行预编译生成CompiledSQL以提高性能，并要求SQL必须先编译成CompiledSQL才能执行。
 
- 在编写sql语句时guzz额外支持参数命名和businessName属性名替换，规则和guzz.xml中定义的sql规则相同（@@对象名用来替换表明，@属性名用来替换字段名）。示例如下：
+ 在编写sql语句时guzz额外支持参数命名和businessName属性名替换，规则和guzz.xml中定义的sql规则相同（@@对象名用来替换表名，@属性名用来替换字段名）。示例如下：
 
 {{{
 TransactionManager tm = super.getTransactionManager() ;
@@ -54,9 +54,9 @@ try{
 
  这段代码通过调用CompiledSQLBuilder的buildCompiledSQL方法编译SQL，其中第一个参数为对象类名，guzz根本此参数判定SQL语句应该在哪个数据库组执行。
 
- 上面的示例是更新操作，如果是查询操作，查询到的结果记录集，guzz还会按照参数1传入的类名进行ORM映射，返回的查询结果将会是List<SystemLog>。
+ 上面的示例是更新操作，如果是查询操作，查询到的结果记录集，guzz还会按照参数1传入的类名进行ORM映射，返回的查询结果将会是List`<`SystemLog`>`。
 
- CompiledSQL的使用比较灵活，对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部要求的。幸运的是，CompiledSQL在编译时以及编译后都允许自定义OR映射方式。如：
+ CompiledSQL的使用比较灵活，对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的。幸运的是，CompiledSQL在编译时以及编译后都允许自定义OR映射方式。如：
 
 {{{
 TransactionManager tm = super.getTransactionManager() ;
@@ -78,9 +78,9 @@ try{
 }
 }}}
 
- 这段代码生成自己的OR映射FormBeanBasedObjectMapping，并根据新的映射生成CompiledSQL。
+ 这段代码生成自己的OR映射FormBeanBasedObjectMapping，并根据新的映射生成CompiledSQL；这样执行查询时，guzz将按照新FormBeanBasedObjectMapping进行OR映射。
 
- CompiledSQL在需要执行时，通过bind()方法绑定命名参数生成BindedCompiledSQL，然后执行。如果需要临时调整某1次查询的ORM，也可以通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
+ CompiledSQL在执行前通过bind()方法绑定命名参数，生成了一个临时对象BindedCompiledSQL，而我们实际上是使用BindedCompiledSQL进行查询。BindedCompiledSQL不是线程安全的，只能使用一次，开发时，应用可以在BindedCompiledSQL中设置仅限本次查询有效的参数。例如如果需要临时调整某1次查询的ORM，可以通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换对象映射关系。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
 
  CompiledSQL为线程安全的对象，对于重复执行的sql，建议将编译好的CompiledSQL缓存以来，避免重复解析。在guzz.xml中定义的sql，在guzz内部就是以CompiledSQL进行存储和管理的。
 
