@@ -58,15 +58,15 @@ public abstract class AbstractRemoteService<ServiceReturnType> extends AbstractS
 	 * 默认使用ArrayBlockingQueue
 	 */
 	protected BlockingQueue<Runnable> createBlockingQueue(Properties config){
-		int queueSize = StringUtil.toInt(config.getProperty("queueSize"), 2048) ;
+		int queueSize = StringUtil.toInt((String) config.remove("remote.queueSize"), 2048) ;
 		
 		return new ArrayBlockingQueue<Runnable>(queueSize) ;
 	}
 	
 	protected ExecutorService createExecutorService(Properties config){
-		int corePoolSize = StringUtil.toInt(config.getProperty("corePoolSize"), 5) ;
-		int maximumPoolSize = StringUtil.toInt(config.getProperty("maxPoolSize"), 50) ;
-		int keepAliveMilSeconds = StringUtil.toInt(config.getProperty("keepAliveMilSeconds"), 60000) ;
+		int corePoolSize = StringUtil.toInt((String) config.remove("remote.corePoolSize"), 5) ;
+		int maximumPoolSize = StringUtil.toInt((String) config.remove("remote.maxPoolSize"), 50) ;
+		int keepAliveMilSeconds = StringUtil.toInt((String) config.remove("remote.keepAliveMilSeconds"), 60000) ;
 		
 		ThreadPoolExecutor e = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveMilSeconds, TimeUnit.MILLISECONDS, createBlockingQueue(config), createThreadFactory(config)) ;
 

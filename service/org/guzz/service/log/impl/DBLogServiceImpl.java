@@ -45,7 +45,7 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 	
 	protected DBLogThread updateThread ;
 	
-	private int batchSize = 2048 ;
+	private int commitSize = 2048 ;
 	private int queueSize = 20480 ;
 
 	public boolean configure(ServiceConfig[] scs) {			
@@ -57,10 +57,10 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 		
 		ServiceConfig sc = scs[0] ;
 		
-		String m_batchSize = (String) sc.getProps().get("batchSize") ;
+		String m_commitSize = (String) sc.getProps().get("commitSize") ;
 		String m_queueSize = (String) sc.getProps().get("queueSize") ;
 		
-		this.batchSize = StringUtil.toInt(m_batchSize, this.batchSize) ;
+		this.commitSize = StringUtil.toInt(m_commitSize, this.commitSize) ;
 		this.queueSize = StringUtil.toInt(m_queueSize, this.queueSize) ;
 		
 		return true ;
@@ -129,7 +129,7 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 					tran.insert(log.logObject) ;
 					addedCount++ ;
 					
-					if(addedCount >= batchSize){
+					if(addedCount >= commitSize){
 						tran.commit() ;
 						
 						addedCount = 0 ;

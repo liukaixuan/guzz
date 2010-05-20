@@ -216,7 +216,7 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 				map = ObjectMappingUtil.createFormBeanMapping(this.guzzContext, beanCls, m_dbgroup) ;
 			}else{
 				//首先提取本sqlmap内的orm信息，这些orm优先于global orm定义。
-				map = this.loadORM(root, m_orm) ;
+				map = this.loadORM(root, m_orm, m_dbgroup) ;
 				
 				if(map == null){
 					if(this.guzzContext.getBusiness(m_orm) != null){
@@ -244,7 +244,7 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 			value = StringUtil.replaceString(value, "\n", " ") ;
 			
 			//首先提取本sqlmap内的orm信息，这些orm优先于global orm定义。
-			ObjectMapping map = this.loadORM(root, m_orm) ;
+			ObjectMapping map = this.loadORM(root, m_orm, m_dbgroup) ;
 			
 			if(map == null){
 				if(this.guzzContext.getBusiness(m_orm) != null){
@@ -267,7 +267,7 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 		throw new GuzzException("no sql found for id:[" + id + "]") ;
 	}
 	
-	protected ResultMapBasedObjectMapping loadORM(Element root, String ormId) throws IOException, ClassNotFoundException{
+	protected ResultMapBasedObjectMapping loadORM(Element root, String ormId, String parentDbGroup) throws IOException, ClassNotFoundException{
 		List ormFragments = root.selectNodes("orm") ;
 		if(ormFragments.isEmpty()) return null ;
 		
@@ -283,6 +283,10 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 			String m_dbgroup = ormFragment.attributeValue("dbgroup") ;
 			String shadow = ormFragment.attributeValue("shadow") ;
 			String table = ormFragment.attributeValue("table") ;
+			
+			if(StringUtil.isEmpty(m_dbgroup)){
+				m_dbgroup = parentDbGroup ;
+			}
 			
 			ResultMapBasedObjectMapping map =  ObjectMappingUtil.createResultMapping(this.guzzContext, m_id, Class.forName(m_class), m_dbgroup, shadow, table) ;
 			
