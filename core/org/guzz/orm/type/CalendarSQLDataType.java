@@ -38,8 +38,6 @@ public class CalendarSQLDataType implements SQLDataType, ParameteredType {
 	
 	private Calendar nullDate = null ;
 	
-	private boolean saveAsNow = false ;	
-	
 	private String dateFormat = FMT ;
 
 	public void setParameter(String param) {
@@ -48,15 +46,8 @@ public class CalendarSQLDataType implements SQLDataType, ParameteredType {
 		}
 	}
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			if("now()".equalsIgnoreCase(nullValue)){
-				this.saveAsNow = true ;
-			}else{
-				this.nullDate = Calendar.getInstance() ;
-				this.nullDate.setTime(DateUtil.stringToDate(nullValue, dateFormat)) ;
-			}
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullDate = (Calendar) nullValue ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
@@ -87,14 +78,10 @@ public class CalendarSQLDataType implements SQLDataType, ParameteredType {
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value == null){
-			if(this.saveAsNow){
-				pstm.setTimestamp(parameterIndex, new Timestamp(System.currentTimeMillis())) ;
+			if(this.nullDate == null){
+				pstm.setTimestamp(parameterIndex, null) ;
 			}else{
-				if(this.nullDate == null){
-					pstm.setTimestamp(parameterIndex, null) ;
-				}else{
-					pstm.setTimestamp(parameterIndex, new Timestamp(this.nullDate.getTimeInMillis())) ;
-				}
+				pstm.setTimestamp(parameterIndex, new Timestamp(this.nullDate.getTimeInMillis())) ;
 			}
 			
 			return ;

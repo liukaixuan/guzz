@@ -25,6 +25,7 @@ import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.transaction.DBGroup;
+import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -66,7 +67,10 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 			}
 			
 			SQLDataType type = dialect.getDataType(dataType2) ;
-			type.setNullToValue(tc.getNullValue()) ;
+			if(StringUtil.notEmpty(tc.getNullValue())){
+				Object value = type.getFromString(tc.getNullValue()) ;
+				type.setNullToValue(value) ;
+			}
 			
 			o = new ColumnORM(tc, type) ;
 		}else{

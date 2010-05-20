@@ -20,12 +20,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.guzz.Guzz;
+import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.se.Terms;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.shop.Cargo;
+import org.guzz.test.shop.CargoStatus;
 import org.guzz.transaction.LockMode;
 import org.guzz.transaction.ReadonlyTranSession;
 import org.guzz.transaction.WriteTranSession;
@@ -67,14 +69,14 @@ public class TestCustomTableView extends DBBasedTestCase {
 		//we know the rule is : return "tb_cargo_" + cargoName;
 		//cargo book:
 		executeUpdate(H2Conn, "drop table if exists tb_cargo_book") ;
-		executeUpdate(H2Conn, "create table tb_cargo_book(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime" +
+		executeUpdate(H2Conn, "create table tb_cargo_book(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime, statusThisWeek int(11), statusNextWeek varchar(32)" +
 				", ISBN varchar(64) not null" +
 				", author varchar(64)" +
 				", publisher varchar(64)" +
 				")") ;
 		//cargo cross-stitch:
 		executeUpdate(H2Conn, "drop table if exists tb_cargo_crossStitch") ;
-		executeUpdate(H2Conn, "create table tb_cargo_crossStitch(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime" +
+		executeUpdate(H2Conn, "create table tb_cargo_crossStitch(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime, statusThisWeek int(11), statusNextWeek varchar(32)" +
 				", gridNum int(11) not null" +
 				", backColor varchar(64)" +
 				", size varchar(64)" +
@@ -92,6 +94,8 @@ public class TestCustomTableView extends DBBasedTestCase {
 			book.setDescription("nice book " + i) ;
 			book.setPrice(33.56) ;
 			book.setStoreCount(i % 10) ;
+			book.setStatusThisWeek(CargoStatus.NORMAL) ;
+			book.setStatusNextWeek(CargoStatus.LIMITED) ;
 			
 			Date now = new Date() ;
 			book.setOnlineTime(now) ;
@@ -123,6 +127,8 @@ public class TestCustomTableView extends DBBasedTestCase {
 			cs.setDescription("good cross-stitch " + i) ;
 			cs.setPrice(86.56) ;
 			cs.setStoreCount(i % 30) ;
+			cs.setStatusThisWeek(CargoStatus.ON_SALE) ;
+			cs.setStatusNextWeek(null) ;
 			
 			Date now = new Date() ;
 			cs.setOnlineTime(now) ;
@@ -166,6 +172,8 @@ public class TestCustomTableView extends DBBasedTestCase {
 		assertEquals(book.getSpecialProps().get("ISBN"), "isbn-bbb-" + pk) ;
 		assertEquals(book.getSpecialProps().get("author"), "not me") ;
 		assertEquals(book.getSpecialProps().get("publisher"), "wolf") ;
+		assertEquals(book.getStatusThisWeek(), CargoStatus.NORMAL) ;
+		assertEquals(book.getStatusNextWeek(), CargoStatus.LIMITED) ;
 		
 		book.setName("new book" + pk) ;
 		book.getSpecialProps().put("ISBN", "new-ISBN-xxxxxxxxxxxxxxxxxx-" + pk) ;
@@ -185,6 +193,8 @@ public class TestCustomTableView extends DBBasedTestCase {
 		//test refresh
 		book.setPrice(65d) ;
 		book.getSpecialProps().put("publisher", "egg") ;
+		book.setStatusThisWeek(CargoStatus.SHORTAGE) ;
+		book.setStatusNextWeek(CargoStatus.SHORTAGE) ;
 		session.update(book) ;
 		
 		session.refresh(book, LockMode.UPGRADE) ;
@@ -195,6 +205,8 @@ public class TestCustomTableView extends DBBasedTestCase {
 		assertEquals(book.getSpecialProps().get("ISBN"), "new-ISBN-xxxxxxxxxxxxxxxxxx-" + pk) ;
 		assertEquals(book.getSpecialProps().get("author"), "not me") ;
 		assertEquals(book.getSpecialProps().get("publisher"), "egg") ;
+		assertEquals(book.getStatusThisWeek(), CargoStatus.SHORTAGE) ;
+		assertEquals(book.getStatusNextWeek(), CargoStatus.SHORTAGE) ;
 		
 		session.close() ;
 	}
@@ -238,10 +250,10 @@ public class TestCustomTableView extends DBBasedTestCase {
 		//add conditon for special property
 		se.and(Terms.eq("publisher", "wolf")) ;
 		assertEquals(session.count(se), 500) ;
-				
+		
 		se = SearchExpression.forClass(Cargo.class) ;
 		assertEquals(session.count(se), 1000) ;
-		
+				
 		//SearchExpression.setTableCondition条件优先级高于Guzz.setTableCondition。
 		se = SearchExpression.forClass(Cargo.class) ;
 		se.and(Terms.eq("brand", "湘湘绣铺")).setTableCondition("crossStitch") ;
@@ -277,6 +289,55 @@ public class TestCustomTableView extends DBBasedTestCase {
 			assertEquals(book.getSpecialProps().get("ISBN"), "isbn-bbb-" + pk) ;
 			assertEquals(book.getSpecialProps().get("author"), "not me") ;
 			assertEquals(book.getSpecialProps().get("publisher"), "wolf") ;
+		}
+		
+		session.close() ;
+	}
+	
+	public void testEnum() throws Exception{
+		testInsert() ;
+		
+		ReadonlyTranSession session = tm.openDelayReadTran() ;
+		
+		Guzz.setTableCondition("book") ;
+		
+		//find by enum condition
+		SearchExpression se = SearchExpression.forClass(Cargo.class) ;
+		se.and(Terms.eq("statusThisWeek", CargoStatus.NORMAL)) ;
+		se.and(Terms.eq("statusNextWeek", CargoStatus.LIMITED)) ;
+		assertEquals(session.count(se), 1000) ;
+
+		se = SearchExpression.forClass(Cargo.class) ;
+		se.and(Terms.eq("statusThisWeek", CargoStatus.NORMAL)) ;
+		se.and(Terms.eq("statusNextWeek", CargoStatus.SHORTAGE)) ;
+		assertEquals(session.count(se), 0) ;
+		
+		//test read null enum
+		se = SearchExpression.forClass(Cargo.class) ;
+		se.and(Terms.eq("brand", "湘湘绣铺")).setTableCondition("crossStitch") ;
+		assertEquals(session.count(se), 500) ;
+		
+		List cts = session.list(se) ;
+		for(int i = 0 ; i < cts.size() ; i++){
+			Cargo ct = (Cargo) cts.get(i) ;
+
+			assertEquals(ct.getStatusThisWeek(), CargoStatus.ON_SALE) ;
+			assertEquals(ct.getStatusNextWeek(), null) ;
+		}
+		
+		//test enum value changed in the database.
+		WriteTranSession write = tm.openRWTran(true) ;
+		JDBCTemplate jdbc = write.createJDBCTemplate(Cargo.class) ;
+		jdbc.executeUpdate("update tb_cargo_crossStitch set statusThisWeek = null, statusNextWeek='LIMITED'") ;
+		write.close() ;
+		
+		cts = session.list(se) ;
+		for(int i = 0 ; i < cts.size() ; i++){
+			Cargo ct = (Cargo) cts.get(i) ;
+
+			//
+			assertEquals(ct.getStatusThisWeek(), null) ;
+			assertEquals(ct.getStatusNextWeek(), CargoStatus.LIMITED) ;
 		}
 		
 		session.close() ;

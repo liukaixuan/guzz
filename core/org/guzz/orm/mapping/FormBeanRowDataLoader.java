@@ -90,12 +90,12 @@ public final class FormBeanRowDataLoader implements RowDataLoader {
 		
 		if(isMap){
 			for(int i = 1 ; i <= count ; i++){
-				String colName = meta.getColumnName(i) ;
+				String colName = meta.getColumnLabel(i) ;
 				((Map) obj).put(colName, rs.getObject(i)) ;
 			}
 		}else{
 			for(int i = 1 ; i <= count ; i++){
-				String colName = meta.getColumnName(i) ;
+				String colName = meta.getColumnLabel(i) ;
 				String propName = (String) this.writableProps.get(colName.toLowerCase()) ;
 				
 				if(propName == null){

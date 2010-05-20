@@ -20,8 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.guzz.exception.DataTypeException;
-
 /**
  * 
  * Represents for a byte.
@@ -29,24 +27,37 @@ import org.guzz.exception.DataTypeException;
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class ByteSQLDataType implements SQLDataType {
+	
+	private Byte nullValue ;
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		return rs.getByte(colName) ;
+		byte value = rs.getByte(colName) ;
+		
+		if(rs.wasNull()){
+			return this.nullValue ;
+		}
+		
+		return new Byte(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		return rs.getByte(colIndex) ;
+		byte value = rs.getByte(colIndex) ;
+		if(rs.wasNull()){
+			return this.nullValue ;
+		}
+		
+		return new Byte(value) ;
 	}
 
-	public void setNullToValue(String nullValue) {
-		if(nullValue != null){
-			throw new DataTypeException("null value is not supported. nullValue is:" + nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = (Byte) nullValue ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value instanceof String){
 			value = getFromString((String) value) ;
+		}else if(value == null){
+			value = this.nullValue ;
 		}
 		
 		pstm.setByte(parameterIndex, ((Byte) value).byteValue()) ;
@@ -57,7 +68,7 @@ public class ByteSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		throw new DataTypeException("unsupported operation. value is:" + value) ;
+		return new Byte(value) ;
 	}
 
 }

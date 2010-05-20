@@ -29,10 +29,12 @@ import java.sql.SQLException;
 public interface SQLDataType {
 	
 	/**
-	 * 设置当字段值为null时，字段使用的取值。如果不设置，采用默认值：所有java对象有null值的对象，按照null处理；没有null值的java类型，按照java类型的默认值（如数字为0）处理。
-	 * @param nullValue string类型的值，每个具体的 {@link SQLDataType} 根据自身情况转换格式。
+	 * 设置当字段值为null时，字段使用的取值。
+	 * 如果不设置，采用默认值：所有java对象有null值的对象，按照null处理；没有null值的java类型，按照java类型的默认值（如数字为0）处理。
+	 * 
+	 * @param nullValue 默认值
 	 */
-	public void setNullToValue(String nullValue) ;
+	public void setNullToValue(Object nullValue) ;
 	
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException ;
 	

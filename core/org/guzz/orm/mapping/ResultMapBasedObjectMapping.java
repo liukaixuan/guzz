@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.transaction.DBGroup;
+import org.guzz.util.JRTInfo;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
@@ -49,8 +50,17 @@ public final class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 
 	protected String getColDataType(String propName, String colName, String dataType) {
 		if (StringUtil.isEmpty(dataType)){
-			dataType = beanWrapper.getPropertyType(propName).getName() ;
+			Class type = beanWrapper.getPropertyType(propName) ;
+			
+			if(JRTInfo.isJDK50OrHigher()){
+				if(type.isEnum()){
+					return  "enum.ordinal|" + type.getName() ;
+				}
+			}
+			
+			dataType = type.getName() ;
 		}
+		
 		return dataType ;
 	}
 

@@ -30,20 +30,27 @@ public class BigIntSQLDataType implements SQLDataType {
 
 	private long nullValue ;
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = Long.parseLong(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = ((Long) nullValue).longValue() ;
 	}
 	
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		//TODO: add suuport for null value. and other SQLDataTypes
 		long value = rs.getLong(colName) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Long(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
 		long value = rs.getLong(colIndex) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Long(value) ;
 	}
 

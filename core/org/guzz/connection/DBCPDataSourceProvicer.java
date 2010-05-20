@@ -32,7 +32,11 @@ import org.guzz.util.javabean.JavaBeanWrapper;
 
 /**
  * 
- * apache commons dbcp datasource provider.
+ * Apache commons dbcp datasource provider.
+ * 
+ * <br>Configuration details: 
+ * <a target="_blank" href="http://commons.apache.org/dbcp/configuration.html">http://commons.apache.org/dbcp/configuration.html</a>
+ *
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

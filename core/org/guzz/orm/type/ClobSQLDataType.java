@@ -48,7 +48,7 @@ public class ClobSQLDataType implements SQLDataType {
 		return c == null ? null : new TranClob(c) ;
 	}
 
-	public void setNullToValue(String nullValue) {
+	public void setNullToValue(Object nullValue) {
 		if(nullValue != null){
 			throw new DataTypeException("null value unsupported. nullValue is:" + nullValue) ;
 		}

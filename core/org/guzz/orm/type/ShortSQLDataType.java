@@ -30,19 +30,27 @@ public class ShortSQLDataType implements SQLDataType {
 
 	private short nullValue ;
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = Short.parseShort(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = ((Short) nullValue).shortValue() ;
 	}
 	
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
 		short value = rs.getShort(colName) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Short(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
 		short value = rs.getShort(colIndex) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
 		return new Short(value) ;
 	}
 

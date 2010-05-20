@@ -48,13 +48,15 @@ public class EnumStringSQLDataType implements SQLDataType, ParameteredType {
 		this.enumClassType = cls ;
 	}
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = getEnumFromString(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = nullValue ;
 	}
 	
 	protected Object getEnumFromString(String name){
+		if(name == null){
+			return null ;
+		}
+		
 		return Enum.valueOf(this.enumClassType, name) ;
 	}
 	

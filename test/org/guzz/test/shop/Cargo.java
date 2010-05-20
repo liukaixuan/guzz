@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 /**
  * 
  * item for sale.
@@ -45,6 +48,11 @@ public class Cargo {
 	private double price ;
 	
 	private Date onlineTime ;
+	
+	private CargoStatus statusThisWeek ;
+	
+	@Enumerated(EnumType.STRING)
+	private CargoStatus statusNextWeek ;
 	
 	/*for the sake of concision, igore other useful properties.*/
 	
@@ -107,6 +115,22 @@ public class Cargo {
 
 	public void setSpecialProps(Map specialProps) {
 		this.specialProps = specialProps;
+	}
+
+	public CargoStatus getStatusThisWeek() {
+		return statusThisWeek;
+	}
+
+	public void setStatusThisWeek(CargoStatus statusThisWeek) {
+		this.statusThisWeek = statusThisWeek;
+	}
+
+	public CargoStatus getStatusNextWeek() {
+		return statusNextWeek;
+	}
+
+	public void setStatusNextWeek(CargoStatus statusNextWeek) {
+		this.statusNextWeek = statusNextWeek;
 	}
 
 }

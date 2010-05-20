@@ -30,18 +30,28 @@ public class BooleanSQLDataType implements SQLDataType {
 	
 	private boolean nullValue ;
 	
-	public void setNullToValue(String nullValue){
-		if(nullValue != null){
-			this.nullValue = Boolean.getBoolean(nullValue) ;
-		}
+	public void setNullToValue(Object nullValue) {
+		this.nullValue = ((Boolean) nullValue).booleanValue() ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		return new Boolean(rs.getBoolean(colName)) ;
+		boolean value = rs.getBoolean(colName) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
+		return value ? Boolean.TRUE : Boolean.FALSE ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		return new Boolean(rs.getBoolean(colIndex)) ;
+		boolean value = rs.getBoolean(colIndex) ;
+		
+		if(rs.wasNull()){
+			value = this.nullValue ;
+		}
+		
+		return value ? Boolean.TRUE : Boolean.FALSE ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
