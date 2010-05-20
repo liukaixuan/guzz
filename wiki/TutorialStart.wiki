@@ -34,6 +34,8 @@
 
  * 16. [TutorialCustomTable 自定义属性表（Custom Table）]
 
+ * 17. [TutorialDynamicSQLService 动态（加载）SQL]
+
 == 附录： ==
 
  * 1. [AppendSpringBean 在guzz中获取spring定义的bean] 
