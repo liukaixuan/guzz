@@ -27,6 +27,7 @@ import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.EnumType;
 import javax.persistence.FetchType;
 import javax.persistence.GenerationType;
 import javax.persistence.MappedSuperclass;
@@ -147,7 +148,7 @@ public class JPA2AnnotationsBuilder {
 				if(f.isAnnotationPresent(javax.persistence.Id.class)){
 					addIdMapping(gf, map, st, dbGroup, f.getName(), domainClass, f) ;
 				}else{
-					addPropertyMapping(gf, map, st, f.getName(), f) ;
+					addPropertyMapping(gf, map, st, f.getName(), f, f.getType()) ;
 				}
 			}
 		}else{
@@ -160,6 +161,12 @@ public class JPA2AnnotationsBuilder {
 				
 				String methodName = m.getName() ;
 				String fieldName = null ;
+				
+				if(m.getParameterTypes().length != 0){
+					continue ;
+				}else if(Void.TYPE.equals(m.getReturnType())){
+					continue ;
+				}
 				
 				if(methodName.startsWith("get")){
 					fieldName = methodName.substring(3) ;
@@ -183,7 +190,7 @@ public class JPA2AnnotationsBuilder {
 				if(m.isAnnotationPresent(javax.persistence.Id.class)){
 					addIdMapping(gf, map, st, dbGroup, fieldName, domainClass, m) ;
 				}else{
-					addPropertyMapping(gf, map, st, fieldName, m) ;
+					addPropertyMapping(gf, map, st, fieldName, m, m.getReturnType()) ;
 				}
 			}
 		}
@@ -368,16 +375,31 @@ public class JPA2AnnotationsBuilder {
 		st.setIdentifierGenerator(ig) ;
 	}
 	
-	protected static void addPropertyMapping(GuzzContextImpl gf, POJOBasedObjectMapping map, SimpleTable st, String name, AnnotatedElement element){
-		javax.persistence.Column pc = (javax.persistence.Column) element.getAnnotation(javax.persistence.Column.class) ;
-		javax.persistence.Basic pb = (javax.persistence.Basic) element.getAnnotation(javax.persistence.Basic.class) ;
-		org.guzz.annotations.Column gc = (org.guzz.annotations.Column) element.getAnnotation(org.guzz.annotations.Column.class) ;
+	protected static void addPropertyMapping(GuzzContextImpl gf, POJOBasedObjectMapping map, SimpleTable st, String name, AnnotatedElement element, Class dataType){
+		javax.persistence.Column pc = element.getAnnotation(javax.persistence.Column.class) ;
+		javax.persistence.Basic pb = element.getAnnotation(javax.persistence.Basic.class) ;
+		javax.persistence.Enumerated pe = element.getAnnotation(javax.persistence.Enumerated.class) ;
+		org.guzz.annotations.Column gc = element.getAnnotation(org.guzz.annotations.Column.class) ;
 		
 		String type = gc == null ? null : gc.type() ;
 		String nullValue = gc == null ? null : gc.nullValue() ;
 		String column = pc == null ? null : pc.name() ;
 		boolean lazy = pb == null ? false : pb.fetch() == FetchType.LAZY ;
 		Class loader = gc == null ? null : gc.loader() ;
+		
+		if(dataType.isEnum()){
+			EnumType etype = EnumType.ORDINAL ;
+			
+			if(pe != null){
+				etype = pe.value() ;
+			}
+			
+			if(etype == EnumType.ORDINAL){
+				type = "enum.ordinal|" + dataType.getClass().getName() ;
+			}else{
+				type = "enum.string|" + dataType.getClass().getName() ;
+			}
+		}
 		
 		boolean insertIt = pc == null ? true : pc.insertable() ;
 		boolean updateIt = pc == null ? true : pc.updatable() ;
