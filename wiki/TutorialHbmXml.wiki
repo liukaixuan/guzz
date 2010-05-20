@@ -58,9 +58,9 @@ guzz mapping相对hibernate mapping也有一些变化。
 || uuid || √ || √ || The uuid generator uses a 128-bit UUID algorithm to generate identifiers of type string, unique within a network (the IP address is used). The UUID is encoded as a string of hexadecimal digits of length 32. ||
 || guid || √ || √ || It uses a database-generated GUID string on MS SQL Server and MySQL. ||
 || native || √ || √ || It picks identity, sequence or hilo depending upon the capabilities of the underlying database. Take it as an alias of the real identity generator used. ||
-|| assigned || √ || √ || lets the application to assign an identifier to the object before save() is called. This is the default strategy if no <generator> element is specified. ||
+|| assigned || √ || √ || lets the application to assign an identifier to the object before save() is called. This is the default strategy if no `<generator>` element is specified. ||
 || select || √ || × || retrieves a primary key assigned by a database trigger by selecting the row by some unique key and retrieving the primary key value. ||
-|| foreign || √ || × || uses the identifier of another associated object. Usually used in conjunction with a <one-to-one> primary key association. ||
+|| foreign || √ || × || uses the identifier of another associated object. Usually used in conjunction with a `<one-to-one>` primary key association. ||
 || slient || × || √ || The slient generator does nothing. Usually used when you need to manage the id in the database, for example with a trigger. ||
 || hilo.multi || × || √ || Works as hilo, but allows many Ids stored in a single table disguised by the primary key of each row. Mapping parameters supported: table, column, db_group, max_lo, pk_column_name, pk_column_value(requried, and must be a positive integer)||
 
@@ -129,4 +129,3 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 	</sqlMap>
 
 }}}
-
