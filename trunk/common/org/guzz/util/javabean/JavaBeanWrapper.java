@@ -239,15 +239,6 @@ public class JavaBeanWrapper extends BeanWrapper{
 		return pd.getPropertyType() ;
 	}
 	
-	public String getPropertyTypeName(String propName){
-		PropertyDescriptor pd = (PropertyDescriptor) this.propertyDescriptors.get(propName) ;
-		if(pd == null){
-			throw new ORMException("unknown property:" + propName + " in :" + this.beanClass) ;
-		}
-		
-		return pd.getPropertyType().getName() ;
-	}
-	
 	public List getAllWritabeProps(){
 		LinkedList props = new LinkedList() ;
 		Iterator i = this.propertyDescriptors.entrySet().iterator() ;

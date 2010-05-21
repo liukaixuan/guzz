@@ -23,17 +23,20 @@ import org.guzz.orm.ObjectMapping;
 
 /**
  * 
- * transform one row to one object instance.
+ * Transform one row to one object instance.
  * 
  * <p/>
- * be care of lazy prop.
+ * Be care of lazy properties.
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface RowDataLoader {
 
 	/**
-	 * must be thread-safe.
+	 * Map a row of the {@link ResultSet} to a java object.
+	 * 
+	 * @param mapping ObjectMapping
+	 * @param rs ResultSet in the right position for read.
 	 */
 	public Object rs2Object(ObjectMapping mapping, ResultSet rs) throws SQLException ;
 	

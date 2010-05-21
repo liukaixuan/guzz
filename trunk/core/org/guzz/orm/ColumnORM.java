@@ -39,6 +39,14 @@ public class ColumnORM{
 		this.columnDataLoader = columnDataLoader ;
 	}
 	
+	/**
+	 * 
+	 * Load the column value from the {@link ResultSet}.
+	 * 
+	 * @param rs ResultSet
+	 * @param objectFetching The mapped java object for this ResultSet to map.
+	 * @param columnIndex The first column is 1, the second column is 2, ...
+	 */
 	public Object loadResult(ResultSet rs, Object objectFetching, int index) throws SQLException{
 		if(columnDataLoader != null){
 			return columnDataLoader.loadData(rs, objectFetching, index) ;
