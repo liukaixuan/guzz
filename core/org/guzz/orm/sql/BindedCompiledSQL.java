@@ -47,6 +47,9 @@ import org.guzz.transaction.LockMode;
 public abstract class BindedCompiledSQL {
 	private static final Log log = LogFactory.getLog(BindedCompiledSQL.class) ;
 	
+	/**
+	 * A instance of {@link FormBeanRowDataLoader} maps ResultSet to a {@link HashMap}.
+	 */
 	public static final RowDataLoader MAP_ROW_DATA_LOADER = FormBeanRowDataLoader.newInstanceForClass(HashMap.class) ;
 	
 	private Map bindedParams = new HashMap() ;

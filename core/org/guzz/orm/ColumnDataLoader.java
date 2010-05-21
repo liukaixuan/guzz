@@ -65,7 +65,7 @@ public interface ColumnDataLoader {
 	 * 
 	 * @param rs The current ResultSet. the ResultSet(and connection) will be closed after all properties are loaded. Your returning value cann't rely on this for future usage.
 	 * @param objectFetching The object being orm. the property before this property in the hbm.xml config file is already set, so you can use it here. this param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
-	 * @param indexToLoad the propName index in the ResultSet.
+	 * @param indexToLoad the propName index in the ResultSet. The first column is 1, the second column is 2, ...
 	 * @return the returned object will be set to the pojo property.
 	 */
 	public Object loadData(ResultSet rs, Object objectFetching, int indexToLoad) throws SQLException ;

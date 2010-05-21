@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.util.javabean.BeanCreator;
@@ -32,16 +34,17 @@ import org.guzz.util.javabean.JavaBeanWrapper;
 /**
  * 
  * Map the ResultSet to any given class with set-xxx methods. The data type of each property is auto-detected
- * through the reflection from the given class.
+ * through the reflections of the given class.
  * 
  * <p>
  * If the class is a java.util.Map(for example:java.util.HashMap), the returned value will be put to the Map.
- * The map's key is the columnName, while the value is rs.getObject(columnName).
+ * The map's key is the columnName, and the value is {@link ResultSet#getObject(columnName)}.
  * </p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public final class FormBeanRowDataLoader implements RowDataLoader {
+	private final static Log log = LogFactory.getLog(FormBeanRowDataLoader.class) ;
 	
 	private final Class beanCls ;
 
@@ -99,7 +102,9 @@ public final class FormBeanRowDataLoader implements RowDataLoader {
 				String propName = (String) this.writableProps.get(colName.toLowerCase()) ;
 				
 				if(propName == null){
-					//TODO:add warnings here in debug mode.
+					if(log.isWarnEnabled()){
+						log.warn("rs column:[" + colName + "] cann't be mapped to java class:[" + this.beanCls.getName() + "]. The column name should be the same of a field name in javabean.") ;
+					}
 					continue ;
 				}
 				

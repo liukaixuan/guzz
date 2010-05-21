@@ -18,6 +18,8 @@ package org.guzz.util.javabean;
 
 import java.lang.reflect.Method;
 
+import org.guzz.util.JRTInfo;
+
 /**
  * 
  * 用于对POJO对象进行读写。BeanWrapper在初始化后会缓存bean的方法信息，构造完毕后可以重复使用。
@@ -51,5 +53,17 @@ public abstract class BeanWrapper {
 	public abstract Method getWriteMethod(String propName) ;
 	
 	public abstract Class getPropertyType(String propName) ;
+	
+	public String getPropertyTypeName(String propName){
+		Class type = getPropertyType(propName) ;
+		
+		if(JRTInfo.isJDK50OrHigher()){
+			if(type.isEnum()){
+				return  "enum.ordinal|" + type.getName() ;
+			}
+		}
+		
+		return type.getName() ;
+	}
 
 }
