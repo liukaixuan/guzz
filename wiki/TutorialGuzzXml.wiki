@@ -112,3 +112,45 @@ select|update的orm属性值可以是本文件中定义的orm元素的值，也�
 || Oracle 10g || org.guzz.dialect.Oracle10gDialect || - ||
 || H2 Database || org.guzz.dialect.H2Dialect|| - ||
 || Microsoft SQL Server 2000 & 2005 || org.guzz.dialect.MSSQLDialect|| 不支持分页查询。未测试。 ||
+
+== guzz支持的数据类型 ==
+|| *数据库* || *数据库数据类型* || *guzz中type取值* || *含义* ||
+|| 所有 || int || int || 整数 ||
+|| 所有 || string || string || 字符型 ||
+|| 所有 || varchar || string || 字符型 ||
+|| 所有 || nvarchar || string || 字符型 ||
+|| 所有 || char || string || 字符型 ||
+|| 所有 || nchar || string || 字符型 ||
+|| 所有 || text || string || 字符型 ||
+|| 所有 || datetime || datetime || 时间戳，包含日期和时间 ||
+|| 所有 || timestamp || datetime || 时间戳，包含日期和时间 ||
+|| 所有 || date || date || 日期 ||
+|| 所有 || time || time || 时间 ||
+|| 所有 || bool || boolean || 布尔型 ||
+|| 所有 || boolean || boolean || 布尔型 ||
+|| 所有 || bigint || bigint || 长整型 ||
+|| 所有 || long || bigint || 长整型 ||
+|| 所有 || double || double || 长浮点型 ||
+|| 所有 || money || decimal || 货币类型 ||
+|| 所有 || decimal || decimal || 货币类型 ||
+|| 所有 || float || float || 浮点型 ||
+|| 所有 || short || short || 短整型 ||
+|| 所有 || smallint || short || 短整型 ||
+|| 所有 || tinyint || short || 短整型 ||
+|| 所有 || byte || byte || 字节 ||
+|| 所有 || bit || byte || 字节 ||
+|| 所有 || bytes || bytes || 字节数组 ||
+|| 所有 || binary || bytes || 字节数组 ||
+|| 所有 || clob || clob || 大字符 ||
+|| 所有 || blob || blob || 大二进制 ||
+|| 所有 || int || enum.ordinal|full.enum.class.name || java枚举类型。数据库中为整数定义，full.enum.class.name为枚举类的完整类名。 ||
+|| 所有 || varchar || enum.string|full.enum.class.name || java枚举类型。数据库中为字符定义，full.enum.class.name为枚举类的完整类名。 ||
+|| Microsoft SQL Server || image || bytes || 字节数组 ||
+|| Microsoft SQL Server || varbinary || bytes || 字节数组 ||
+|| Oracle8i+ || oracle long类型 || Oracle.Long || string字符型 ||
+|| Oracle8i+ || varchar2 || string || 字符型 ||
+|| Oracle8i+ || nclob || clob || 大字符 ||
+|| Oracle8i+ || raw || bytes || 字节数组 ||
+
+
+
