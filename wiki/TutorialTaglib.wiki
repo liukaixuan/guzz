@@ -37,6 +37,7 @@
 || pageNo  || 页号。从1开始。  ||- ||
 || pageSize  || 每页读取记录数。  ||- ||
 || orderBy  || 排序方式，多个排序用英文的逗号分隔，如：name asc, id desc, friendCount asc  ||- ||
+|| test  || addLimit和addInLimit标签使用，类似于c:if中的test。如果条件为true，添加条件；如果为false，忽略条件。默认为true。  ||- ||
 
 其中limit查询条件支持的运算符包括：
 
