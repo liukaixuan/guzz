@@ -18,7 +18,7 @@
 || g:get  || 执行list操作，并读取list的第一个对象。  || 不可以  ||
 || g:list  || 读取一个列表。  || 不可以。  ||
 || g:page  || 读取一页对象。返回的对象默认为org.guzz.dao.PageFlip 对象。  || 不可以。  ||
-|| g:out  || 输出标签，类似c:out，但增加了javascript过滤处理，xslt，js串输出，native2ascii等功能。 g:out默认对xml进行转义，并对javascript转义，如果需要2这都打开，需要将2个属性都设置为false。|| 不可以||
+|| g:out  || 输出标签，类似c:out，但增加了javascript过滤处理，xslt，js串输出，native2ascii等功能。<br> g:out默认对xml进行转义，并对javascript转义，如果需要2这都打开，需要将2个属性都设置为false。|| 不可以||
 || 其他  || 执行数据库写操作，不计划支持。  || 请勿使用 ||
 
 == 标签中属性介绍： ==
@@ -28,7 +28,7 @@
 *主要的属性有：*
 
 || *属性名称*  || *作用*  || *注意事项*  ||
-|| limit  || 查询条件。 如：userName=${param.name}；status=1；checked=true。 也可以为应用自己定义的条件，如"checkedPost"；如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。*注意：*1个limit只能是一个条件，不能进行条件组合。如果需要多个条件进行and查询，使用g:boundary标签包含查询标签，并通过g:addLimit或g:addInLimit添加更多条件。|| 1个limit只允许写1个条件。不支持多个条件的and or运算。 ||
+|| limit  || 查询条件。 如：userName=${param.name}；status=1；checked=true。 <br>也可以为应用自己定义的条件，如"checkedPost"；如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。<br><br>*注意：*1个limit只能是一个条件，不能进行条件组合。<br>如果需要多个条件进行and查询，使用g:boundary标签包含查询标签，并通过g:addLimit或g:addInLimit添加更多条件。|| 1个limit只允许写1个条件。<br>不支持多个条件的and or运算。 ||
 || var  || 将结果保存到jsp对象中的名称。类似c:set中var的定义。  || - ||
 || scope  || 结果保存的范围。类似c:set中scope的定义。  || page,request,session,application  ||
 || business  || 域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  ||- ||
@@ -37,7 +37,7 @@
 || pageNo  || 页号。从1开始。  ||- ||
 || pageSize  || 每页读取记录数。  ||- ||
 || orderBy  || 排序方式，多个排序用英文的逗号分隔，如：name asc, id desc, friendCount asc  ||- ||
-|| test  || addLimit和addInLimit标签使用，类似于c:if中的test。如果条件为true，添加条件；如果为false，忽略条件。默认为true。  ||- ||
+|| test  || addLimit和addInLimit标签使用，类似于c:if中的test。<br><br>如果条件为true，添加条件；如果为false，忽略条件。默认为true。  ||- ||
 
 其中limit查询条件支持的运算符包括：
 
@@ -51,7 +51,7 @@
 || <= || SMALLER_OR_EQUAL || 小于等于 ||
 || != || NOT_EQUAL || 不相等 ||
 || <> || NOT_EQUAL || 不相等 ||
-|| `~~` || LIKE_IGNORE_CASE || 字符相似（不区分大小写）。需要自己添加模糊查询的模糊匹配，与数据库匹配规则相同。%用于表示任意多个字符，?代表1个字符。如：limit="name`~~`%${param.name}%" ||
+|| `~~` || LIKE_IGNORE_CASE || 字符相似（不区分大小写）。<br><br>需要自己添加模糊查询的模糊匹配，与数据库匹配规则相同。%用于表示任意多个字符，?代表1个字符。<br>如：limit="name`~~`%${param.name}%" ||
 || ~= || LIKE_CASE_SENSTIVE || 字符相似（大小写按照数据库字段定义决定是否区分）。注意事项同上。 ||
 
 == 标签的使用示例 ==
