@@ -35,10 +35,18 @@ public class GhostAddLimitTag extends TagSupport {
 	
 	private Object limit3 ;
 	
+	private boolean test ;
+	
 	protected void resetToDefault(){
 		this.limit3 = null ;
 		this.limit2 = null ;
+		this.test = true ;
 	}
+	
+	// receives the tag's 'test' attribute
+    public void setTest(boolean test) {
+        this.test = test;
+    }
 
 	public void setPageContext(PageContext pageContext) {
 		super.setPageContext(pageContext);
@@ -46,6 +54,7 @@ public class GhostAddLimitTag extends TagSupport {
 	}
 	
 	public int doStartTag() throws JspException {
+		if(!test) return SKIP_BODY ;
 		
 		GhostBoundaryTag m_parent = (GhostBoundaryTag) findAncestorWithClass(this, GhostBoundaryTag.class) ;
 		

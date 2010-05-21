@@ -71,6 +71,15 @@
     <body-content>JSP</body-content>
     <attribute>
         <description>
+			If the test is true, add the conditon, or ignore it. Default is true.
+        </description>
+        <name>test</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>boolean</type>
+    </attribute>
+    <attribute>
+        <description>
 			Condition
         </description>
         <name>limit</name>
@@ -130,6 +139,15 @@
         <name>retrieveValueProp</name>
         <required>false</required>
         <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+			If the test is true, add the conditon, or ignore it. Default is true.
+        </description>
+        <name>test</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+		<type>boolean</type>
     </attribute>
   </tag>
   

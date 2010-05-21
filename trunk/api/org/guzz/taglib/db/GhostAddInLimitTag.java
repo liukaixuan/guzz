@@ -48,9 +48,17 @@ public class GhostAddInLimitTag extends TagSupport {
 	
 	private GuzzContext guzzContext ;
 	
+	private boolean test ;
+	
 	protected void resetToDefault(){
 		this.retrieveValueProp = null ;
+		this.test = true ;
 	}
+	
+	// receives the tag's 'test' attribute
+    public void setTest(boolean test) {
+        this.test = test;
+    }
 
 	public void setPageContext(PageContext pageContext) {
 		super.setPageContext(pageContext);
@@ -62,6 +70,8 @@ public class GhostAddInLimitTag extends TagSupport {
 	}
 	
 	public int doStartTag() throws JspException {
+		if(!test) return SKIP_BODY ;
+		
 		GhostBoundaryTag m_parent = (GhostBoundaryTag) findAncestorWithClass(this, GhostBoundaryTag.class) ;
 		
 		if(m_parent == null){
