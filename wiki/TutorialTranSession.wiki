@@ -82,6 +82,28 @@ try{
 
  CompiledSQL在执行前通过bind()方法绑定命名参数，生成了一个临时对象BindedCompiledSQL，而我们实际上是使用BindedCompiledSQL进行查询。BindedCompiledSQL不是线程安全的，只能使用一次，开发时，应用可以在BindedCompiledSQL中设置仅限本次查询有效的参数。例如如果需要临时调整某1次查询的ORM，可以通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换对象映射关系。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
 
+ RowDataLoader为轻量级对象，建议尽量通过RowDataLoader来自定义结果集映射。示例：
+
+{{{
+TransactionManager tm = super.getTransactionManager() ;
+
+String sql = "select count(*) as count, company from mycompany join xxx... where group by company having @salary = :salary " ;
+
+CompiledSQL cs = builder.buildCompiledSQL(Company.class, sql) ;
+
+WriteTranSession session = tm.openRWTran(true) ;
+
+try{
+        //Map the ResultSet to HashMap, bind parameters, and execute the query.
+	List<Map> result = session.list(cs.setRowDataLoader(FormBeanRowDataLoader.newInstanceForClass(HashMap.class)).bind("salary", 3000)) ;
+}finally{
+	session.close() ;
+}
+}}}
+
+ 对于特殊的OR映射，开发者可以实现自己的RowDataLoader。
+
+
  CompiledSQL为线程安全的对象，对于重复执行的sql，建议将编译好的CompiledSQL缓存以来，避免重复解析。在guzz.xml中定义的sql，在guzz内部就是以CompiledSQL进行存储和管理的。
 
 === 通过guzz.xml中定义的id查询： ===
