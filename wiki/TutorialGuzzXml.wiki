@@ -143,12 +143,11 @@ select|update的orm属性值可以是本文件中定义的orm元素的值，也�
 || 所有 || binary || bytes || 字节数组 ||
 || 所有 || clob || clob || 大字符 ||
 || 所有 || blob || blob || 大二进制 ||
-|| 所有 || int || enum.ordinal| enum.class.fullname || java枚举类型。数据库中为整数定义，enum.class.fullname为枚举类的完整类名。 ||
-|| 所有 || varchar || enum.string| enum.class.fullname || java枚举类型。数据库中为字符定义，enum.class.fullname为枚举类的完整类名。 ||
+|| 所有 || int || enum.ordinal|enum.class.fullname || java枚举类型。数据库中为整数定义，enum.class.fullname为枚举类的完整类名。 ||
+|| 所有 || varchar || enum.string|enum.class.fullname || java枚举类型。数据库中为字符定义，enum.class.fullname为枚举类的完整类名。 ||
 || Microsoft SQL Server || image || bytes || 字节数组 ||
 || Microsoft SQL Server || varbinary || bytes || 字节数组 ||
 || Oracle8i+ || oracle long类型 || Oracle.Long || string字符型 ||
 || Oracle8i+ || varchar2 || string || 字符型 ||
 || Oracle8i+ || nclob || clob || 大字符 ||
 || Oracle8i+ || raw || bytes || 字节数组 ||
-
