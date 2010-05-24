@@ -37,7 +37,7 @@ public abstract class AbstractRPCService<T> extends AbstractRemoteService<T> {
 			
 			String protocol = (String) scs[0].getProps().remove(RemoteRPCProxy.RPC_PARAM_PREFIX + "protocol") ;
 			if(protocol == null){
-				throw new GuzzException("property:[protocol] is required. it should be a fcn implements RemoteRPCProxy") ;
+				throw new GuzzException("property:[rpc.protocol] is required. it should be a fcn implements RemoteRPCProxy") ;
 			}
 			
 			String protocolClassName = RPCServiceProxyImplFactory.getRPCProxyProviderClass(protocol) ;
