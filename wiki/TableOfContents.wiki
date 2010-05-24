@@ -3,6 +3,7 @@
   * [AboutGuzz 关于guzz]
   * [AboutFAQ 常见问题FAQ]
   * [AboutFeedback 反馈与建议]
+  * [AboutJoinUs 如何成为贡献者]
  * [TutorialStart 开发指南]
    * [TutorialRuntime Guzz运行环境]
    * [TutorialConfig 配置与启动guzz]
