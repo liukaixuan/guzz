@@ -23,6 +23,8 @@
    * [TutorialCustomTable 自定义属性表（Custom Table）]
    * [TutorialDynamicSQLService 动态（加载）SQL]
  * [TaglibBook JSP页面快速开发指南]
+ * [http://www.guzz.org/docs/javadoc/index.html java doc]
+ * [http://www.guzz.org/docs/tlddocs/index.html taglib doc]
  * 附录
    * [AppendCoreService guzz自带的基础服务介绍]
    * [AppendSpringBean 在guzz中获取spring定义的bean]
