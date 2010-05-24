@@ -27,8 +27,9 @@ guzz的目标是使得大型化网站设计更加简单，团队分工更加明�
 
 == 示例代码 ==
 
- * [DemoExamplesVote 示例工程]
- * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip 基于spring IOC的启动空工程]
+ * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip 基于spring IOC + springMVC的空工程（新项目可以以此为基础搭建）]
+ * [DemoExamplesVote 示例工程1]
+ 
 
 == 反馈与建议 ==
 
