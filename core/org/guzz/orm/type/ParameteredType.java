@@ -20,7 +20,7 @@ package org.guzz.orm.type;
  * 
  * Allow the {@link SQLDataType} to accept a parameter.
  * <p>
- * The parameter is passed with the type name with a "|" seperator. eg:<br>
+ * The parameter is passed with the type name after "|" seperator. <br>eg:<br>
  * enum.ordinal|org.guzz.MyEnumType sets the mapped dataType to enum(ordinal) and pass the parameter "org.guzz.MyEnumType" telling the enum's class name.
  * </p>
  *

@@ -352,7 +352,7 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 		available = true ;
 	}
 	
-	public static class CachedCompiledSQL implements Serializable{
+	public static class CachedCompiledSQL {
 		private CompiledSQL compiledSQL ;
 		private String key ;
 		private Serializable mark ;
