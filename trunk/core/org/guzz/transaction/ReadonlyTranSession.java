@@ -36,6 +36,17 @@ public interface ReadonlyTranSession {
 	public JDBCTemplate createJDBCTemplate(Class domainClass) ;
 	
 	/**
+	 * 
+	 * query without pagination.
+	 * 
+	 * @param id
+	 * @param params
+	 * @param startPos the first is 1, the second is 2...
+	 * @param maxSize
+	 **/
+	public List list(String id, Map params) ;
+	
+	/**
 	 * @param id
 	 * @param params
 	 * @param startPos the first is 1, the second is 2...

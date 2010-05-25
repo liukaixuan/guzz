@@ -124,6 +124,10 @@ public class AbstractTranSessionImpl {
 		return conn ;
 	}
 	
+	public List list(String id, Map params){
+		return list(id, params, 1, Integer.MAX_VALUE) ;
+	}
+	
 	public List list(String id, Map params, int startPos, int maxSize){
 		CompiledSQL sql = compiledSQLManager.getSQL(id) ;
 		if(sql == null){
