@@ -98,16 +98,23 @@ public class AnyDataAction implements Controller {
 
 {{{
 <sqlMap dbgroup="bookDB">
-	<select orm="@java.util.HashMap">
-	select m_bookname as bookName, m_price as price from tb_book join xxxx on xxx...... 
+	<select orm="book" result-class="java.util.HashMap">
+	select @bookName, m_price as price from tb_book join xxxx on xxx...... 
 	....very
    so long...
-		very long where bookISBN = :isbn and book_author = :author order by ...... long long.
+		very long where @bookISBN = :isbn and book_author = :author order by ...... long long sql.
+
+		<paramsMapping>
+			<map paramName="isbn" propName="bookISBN" />
+			<map paramName="author" propName="author" />
+		</paramsMapping>
 	</select>
 </sqlMap>
 }}}
 
-在这个xml文件中，dbgroup属性指定sql在guzz.xml中定义的哪个数据库组中执行。orm="@java.util.HashMap" 表示将每条记录集映射为java.util.HashMap。xml文件的格式类似于guzz.xml。[MoreFileDynamicSQLServiceFileFmt 阅读更多格式介绍]。
+在这个xml文件中，dbgroup属性指定sql在guzz.xml中定义的哪个数据库组中执行。orm="book"表示结果按照领域对象book映射（book的hbm.xml或者annotation定义的映射关系）。result-class表示将每条记录集映射为java.util.HashMap，而不是域对象book默认会映射的Book类。paramsMapping定义参数与对象属性的对应关系，用于guzz确定参数类型，将浏览器传入的字符串参数转换成需要的格式（如数字，日期，枚举等）。
+
+xml文件的格式类似于guzz.xml。[MoreFileDynamicSQLServiceFileFmt 阅读更多格式介绍]。
 
 同时在sql语句中我们看到有两个参数isbn和author，需要传入。
 
