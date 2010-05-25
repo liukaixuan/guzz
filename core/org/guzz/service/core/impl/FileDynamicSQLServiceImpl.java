@@ -30,6 +30,7 @@ import org.apache.xerces.impl.Constants;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.guzz.builder.GuzzConfigFileBuilder;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.mapping.ObjectMappingUtil;
@@ -45,13 +46,17 @@ import org.guzz.util.StringUtil;
 /**
  * 
  * Provide sqls from the file system. The file name is the "id", and xml content contains the sql statement.
- * <br>One File, One Sql. The file format is similar to the definition in guzz.xml. For example:
+ * <br>One File, One Sql. The file format is similar to the definition in guzz.xml. For example(query the user by id and map the result to org.guzz.test.UserModel):
  * <pre>
  * &lt;sqlMap dbgroup="default"&gt;
- *	&lt;select orm="userMap"&gt;
+ *	&lt;select orm="userMap" &gt;
  *		select * from @@user
  *		 where 
- *		 	&#64;id = :id 
+ *		 	&#64;id = :paramId 
+ *
+ * 		&lt;paramsMapping&gt;
+ *			&lt;map paramName="paramId" propName="id" /&gt;
+ * 		&lt;/paramsMapping&gt;
  *	&lt;/select&gt;
  *	
  *	&lt;orm id="userMap" class="org.guzz.test.UserModel" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView"&gt;
@@ -62,18 +67,23 @@ import org.guzz.util.StringUtil;
  *	&lt;/orm&gt;
  * &lt;/sqlMap&gt;<pre>
  * 
- * <b>OR, you just want to map the result into a Map:</b>
+ * Here, we also use paramsMapping to indicate that parameter "paramId" in the sql is used for property "id", 
+ * so guzz should convert the value of paramId to the class type of property "id".
+ * 
+ * <b>OR, you want to map the result into a Map:</b>
  * <pre>
  * &lt;sqlMap dbgroup="default"&gt;
- *	&lt;select orm="@java.util.HashMap"&gt;
+ *	&lt;select orm="user" result-class="java.util.HashMap" &gt;
  *		select * from @@user
  *		 where 
  *		 	&#64;id = :id 
  *	&lt;/select&gt;
  * &lt;/sqlMap&gt;<pre>
  * 
+ * This means: Query the sql, set up relationships between column names and property names with business "user"'s mapping(hbm.xml or annotations), and then put the result to a HashMap.
+ * 
  * The "orm" attribute can be a business name, a global orm defined in guzz.xml, or a local orm in this file.<br>
- * The 'orm' attribute can also be a wildcard fully qualified javabean or java.util.Map class name with the prefix of '@'. 
+ * The 'result-class' attribute can be a wildcard fully qualified javabean or java.util.Map class name. If the result-class if specified, The ResultSet will be mapped to this class.
  * <br>
  * 
  * @author liu kaixuan(liukaixuan@gmail.com)
@@ -157,7 +167,7 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 			
 			return loadCSFromStream(id, fis) ;
 		} catch (Exception e) {
-			log.error("cann't load sql. id:{" + id + "], file:" + file.getAbsolutePath()) ;
+			log.error("cann't load sql. id:{" + id + "], file:" + file.getAbsolutePath(), e) ;
 		}finally{
 			CloseUtil.close(fis) ;
 		}
@@ -204,64 +214,55 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 		//select可以接收@xxx的orm，update不允许接收。必须分开。
 		Element s_node = (Element) root.selectSingleNode("//sqlMap/select") ;
 		if(s_node != null){
-			String m_orm = s_node.attributeValue("orm") ;
-			String value = s_node.getTextTrim() ;
-			value = StringUtil.replaceString(value, "\r\n", " ") ;
-			value = StringUtil.replaceString(value, "\n", " ") ;
+			String ormName = s_node.attributeValue("orm") ;
+			String resultClass = s_node.attributeValue("result-class") ;
+			String sql = s_node.getTextTrim() ;
+			sql = StringUtil.replaceString(sql, "\r\n", " ") ;
+			sql = StringUtil.replaceString(sql, "\n", " ") ;
+			Map paramPropMapping = GuzzConfigFileBuilder.loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			ObjectMapping map = null ;
-				
-			if(m_orm.startsWith("@")){
-				Class beanCls = ClassUtil.getClass(m_orm.substring(1)) ;
+			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
+			
+			if(StringUtil.isEmpty(ormName)){
 				map = ObjectMappingUtil.createFormBeanMapping(this.guzzContext, beanCls, m_dbgroup) ;
 			}else{
-				//首先提取本sqlmap内的orm信息，这些orm优先于global orm定义。
-				map = this.loadORM(root, m_orm, m_dbgroup) ;
+				ObjectMapping localColMapping = this.loadORM(root, ormName, m_dbgroup) ;
 				
-				if(map == null){
-					if(this.guzzContext.getBusiness(m_orm) != null){
-						//build cs with the business name which supports custom table.
-						return compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+				if(resultClass == null){
+					if(localColMapping == null){
+						return compiledSQLBuilder.buildCompiledSQL(ormName, sql).addParamPropMappings(paramPropMapping) ;
+					}else{
+						return compiledSQLBuilder.buildCompiledSQL(localColMapping, sql).addParamPropMappings(paramPropMapping) ;
 					}
-					
-					map = this.guzzContext.getObjectMappingManager().getStaticObjectMapping(m_orm) ;
+				}else{
+					if(localColMapping != null){
+						map = ObjectMappingUtil.createFormBeanMapping(this.guzzContext, beanCls, m_dbgroup, localColMapping) ;
+					}else{
+						map = ObjectMappingUtil.createFormBeanMapping(this.guzzContext, beanCls, m_dbgroup, ormName) ;
+					}
 				}
 			}
 			
-			if(map == null){
-				throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
-			}
-			
-			return compiledSQLBuilder.buildCompiledSQL(map, value) ;
+			return compiledSQLBuilder.buildCompiledSQL(map, sql).addParamPropMappings(paramPropMapping) ;
 		}
-		
 		
 		Element u_node = (Element) root.selectSingleNode("//sqlMap/update") ;
 		if(u_node != null){
 			String m_orm = u_node.attributeValue("orm") ;
-			String value = u_node.getTextTrim() ;
-			value = StringUtil.replaceString(value, "\r\n", " ") ;
-			value = StringUtil.replaceString(value, "\n", " ") ;
+			String sql = u_node.getTextTrim() ;
+			sql = StringUtil.replaceString(sql, "\r\n", " ") ;
+			sql = StringUtil.replaceString(sql, "\n", " ") ;
+			Map paramPropMapping = GuzzConfigFileBuilder.loadParamPropsMapping((Element) u_node.selectSingleNode("paramsMapping")) ;
 			
 			//首先提取本sqlmap内的orm信息，这些orm优先于global orm定义。
 			ObjectMapping map = this.loadORM(root, m_orm, m_dbgroup) ;
 			
 			if(map == null){
-				if(this.guzzContext.getBusiness(m_orm) != null){
-					//build cs with the business name which supports custom table.
-					return compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
-				}
-				
-				map = this.guzzContext.getObjectMappingManager().getStaticObjectMapping(m_orm) ;
+				return compiledSQLBuilder.buildCompiledSQL(m_orm, sql).addParamPropMappings(paramPropMapping) ;
+			}else{
+				return compiledSQLBuilder.buildCompiledSQL(map, sql).addParamPropMappings(paramPropMapping) ;
 			}
-			
-			if(map == null){
-				throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + u_node.asXML()) ;
-			}
-			
-			CompiledSQL cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
-			
-			return cs ;
 		}
 		
 		throw new GuzzException("no sql found for id:[" + id + "]") ;

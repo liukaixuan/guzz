@@ -223,5 +223,9 @@ public abstract class AbstractCustomTableView extends BeanWrapper implements Cus
 	public void shutdown() throws Exception {
 	}
 
+	public POJOBasedObjectMapping getConfiguredMapping() {
+		return configuredMapping;
+	}
+
 }
 

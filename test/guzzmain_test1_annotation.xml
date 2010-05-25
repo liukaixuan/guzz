@@ -2,9 +2,6 @@
 <!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
 
 <guzz-configs>
-
-	<!-- 从Properties 文件中读取配置项，替换guzz.xml文档中的$xxx参数 -->
-	<properties file="guzz.properties" />
 	
 	<config-server>
 		<server class="org.guzz.config.LocalFileConfigServer">

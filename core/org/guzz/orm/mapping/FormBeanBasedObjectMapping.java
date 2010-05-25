@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.guzz.orm.ColumnORM;
+import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.type.SQLDataType;
@@ -38,8 +39,8 @@ import org.guzz.util.javabean.BeanWrapper;
  * </p>
  * 
  * <p>
- * In the configuration file, the given class must be a qualified class name prefixed with "@". eg:
- * &ltselect id="listCommentsByName" orm="@java.util.HashMap"&gt OR &ltselect id="listCommentsByName" orm="@org.guzz.SomeBean"&gt
+ * In the configuration file, the given class must be a qualified class name in the attribute "result-class". eg:
+ * &ltselect id="listCommentsByName" orm="user" result-class="java.util.HashMap"&gt OR &ltselect id="listCommentsByName" result-class="org.guzz.SomeBean"&gt
  * </p>
  * 
  * @author liukaixuan(liukaixuan@gmail.com)
@@ -49,12 +50,29 @@ public final class FormBeanBasedObjectMapping implements ObjectMapping {
 	private final FormBeanRowDataLoader rowLoader ;
 	
 	private final DBGroup dbGroup ;
+	
+	private ObjectMapping colsMapping ;
 		
 	public FormBeanBasedObjectMapping(Class beanCls, DBGroup dbGroup){
 		this.dbGroup = dbGroup ;
 		Assert.assertResouceNotNull(dbGroup, "dbGroup cann't be null. beanCls:" + beanCls) ;
 		
 		rowLoader = FormBeanRowDataLoader.newInstanceForClass(beanCls) ;
+	}
+
+	public FormBeanBasedObjectMapping(Class beanCls, DBGroup dbGroup, ObjectMapping colsMapping){
+		this.dbGroup = dbGroup ;
+		this.colsMapping = colsMapping ;
+		Assert.assertResouceNotNull(dbGroup, "dbGroup cann't be null. beanCls:" + beanCls) ;
+		
+		rowLoader = FormBeanRowDataLoader.newInstanceForClass(colsMapping, beanCls) ;
+	}
+	
+	public FormBeanBasedObjectMapping(Class beanCls, DBGroup dbGroup, CustomTableView customTableView){
+		this.dbGroup = dbGroup ;
+		Assert.assertResouceNotNull(dbGroup, "dbGroup cann't be null. beanCls:" + beanCls) ;
+		
+		rowLoader = FormBeanRowDataLoader.newInstanceForClass(customTableView, beanCls) ;
 	}
 
 	public Object rs2Object(ResultSet rs) throws SQLException {
@@ -68,33 +86,29 @@ public final class FormBeanBasedObjectMapping implements ObjectMapping {
 	public DBGroup getDbGroup() {
 		return dbGroup ;
 	}
-
-	public String getColNameByPropNameForSQL(String propName) {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
+	
+	protected ObjectMapping getMapping(){
+		if(colsMapping != null){
+			return colsMapping ;
+		}else{
+			throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
+		}
 	}
 
-	public ColumnORM getORMByColumn(String colName) {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
+	public String getColNameByPropNameForSQL(String propName) {
+		return getMapping().getColNameByPropNameForSQL(propName) ;
 	}
 
 	public ColumnORM getORMByProperty(String propName) {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
-	}
-
-	public String getPropNameByColName(String colName) {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
-	}
-
-	public SQLDataType getSQLDataTypeOfColumn(String colName) {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
+		return getMapping().getORMByProperty(propName) ;
 	}
 
 	public SQLDataType getSQLDataTypeOfProperty(String propName) {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
+		return getMapping().getSQLDataTypeOfProperty(propName) ;
 	}
 
 	public Table getTable() {
-		throw new UnsupportedOperationException("bean class has no mappings. class:" + this.rowLoader.getBeanCls().getName()) ;
+		return getMapping().getTable() ;
 	}
 
 	public String[] getUniqueName() {

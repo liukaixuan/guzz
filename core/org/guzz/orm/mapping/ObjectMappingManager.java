@@ -86,6 +86,16 @@ public class ObjectMappingManager {
 		return view.getRuntimeObjectMapping(tableCondition) ;
 	}
 	
+	/**
+	 * Return CustomTableView for custom tables.
+	 * 
+	 * @param businessName business name
+	 * @return return null if the table is not a custom one.
+	 */
+	public CustomTableView getCustomTableView(String businessName) {
+		return (CustomTableView) this.ghostVSCustomViews.get(businessName) ;
+	}
+	
 	public void registerObjectMapping(ObjectMapping map){
 		String[] names = map.getUniqueName() ;
 		Table table = map.getTable() ;

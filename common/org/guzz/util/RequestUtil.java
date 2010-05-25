@@ -160,7 +160,7 @@ public class RequestUtil {
     		String key = (String) e.getKey() ;
     		String[] values = (String[]) e.getValue() ;
     		
-    		if(values != null && params.size() > 0){
+    		if(values != null && values.length > 0){
     			params.put(key, values[0]) ;
     		}else{
     			params.put(key, "") ;
