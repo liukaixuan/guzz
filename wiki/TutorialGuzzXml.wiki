@@ -38,9 +38,13 @@
 	
 	<sqlMap dbgroup="default">
 		<select id="selectUser" orm="user" dbgroup="default">
-			select-* from @@user
+			select * from @@user
 			 where 
-			 	@id = :id 
+			 	@id = :id and @status = :checked
+                        <paramsMapping>
+				<map paramName="userName" propName="userName" />
+				<map paramName="checked" propName="status" />
+			</paramsMapping>
 		</select>
 		
 		<select id="selectUserByName" orm="user">
@@ -95,9 +99,15 @@
 
 *sqlMap：*定义sql语句以及sql映射，类似于ibatis。sqlMap可以指定dbgroup属性标记此sqlMap下所有查询对应的数据库组，默认为default数据库组。
 
-*sqlMap/select|update：*定义sql查询和更新|删除语句，通过id指定名称（在程序中使用的名称），通过orm 属性指定要Mapping的配置。sql语句为可在数据库中执行的标准sql语句。在编写sql语句时，可以@@businessName或者 @@full-class-name的方式代替数据库表名，用@java属性名称或者@orm/result/property 名称代替对应的数据库字段，guzz在执行时会完成自动替换。如果sql中包含参数，使用“冒号+参数名称”代替，如“:userName”，在程序中执行时通过java.util.Map传入"userName"->value对进行调用，guzz将完成命名参数的参数设置（PreparedStatement方式）。
+*sqlMap/select|update：*定义sql查询和更新|删除语句，通过id指定名称（在程序中使用的名称），通过orm 属性指定要Mapping的配置。sql语句为可在数据库中执行的标准sql语句。在编写sql语句时，可以@@businessName或者@@full-class-name的方式代替数据库表名，用@java属性名称或者@orm/result/property 名称代替对应的数据库字段，guzz在执行时会完成自动替换。
 
-select|update的orm属性值可以是本文件中定义的orm元素的值，也可以是领域对象的businessName（直接使用hbm.xml或者annotation定义的映射）。orm也可以直接映射到一个javabean类或Map中，这类映射只需要在类全名前加@。如...orm="@org.guzz.SomeBeanForm"，或orm="@java.util.HashMap"。
+ 如果sql中包含参数，使用“冒号+参数名称”代替，如“:userName”，在程序中执行时通过java.util.Map传入"userName"->value对进行调用，guzz将完成命名参数的参数设置（PreparedStatement方式）。
+
+ 参数设置时，需要确定参数的数据类型。默认情况下，数据类型由JDBC驱动自动检测与匹配，用户也可以自己定义参数的数据类型。设置方法是将参数与映射后对象的属性名称做映射，guzz将按照java属性的类型对待参数类型。定义方法为在select/update中增加paramsMapping/map配置，如上面示例中id为selectUser的sql配置。做完映射后，guzz支持自动把字符串类型转为需要的类型，在使用动态SQL需要自动传入与解析不确定的参数时，非常有用。
+
+ select|update的orm属性值可以是本文件中定义的orm元素的值，也可以是领域对象的businessName（直接使用hbm.xml或者annotation定义的映射）。orm映射默认将结果转会成领域对象，用户也可以通过配置result-class自定义转换成的java对象。result-class可以是javabean类或Map类，如...result-class="org.guzz.SomeBeanForm"，或result-class="java.util.HashMap"。
+
+ 注意：[TutorialCustomTable 自定义属性表]不支持设置result-class。
 
 *orm：*定义sql查询结果字段与对象的对应关系，类似ibatis。可以通过指定dbgroup覆盖sqlMap中设定的数据库。 orm可以放在sqlMap内，表示此ORM在本sqlmap内有效，也可以放在sqlMap外，表示所有sqlMap中的select/update都可以使用。放在sqlMap内的orm优先级高于放在sqlMap的，同时orm名称不能是business name，所有business name会按照自己的名字自动声明自己为一个全局的orm。因此，在配置的sql语句选择orm时，可以填写为business name使用hbm.xml的映射关系（hbm.xml中所有的特殊功能，包括表分切自定义属性延迟加载等将依然有效），但此时将查询结果转换成java对象时采用hibernate的规则，查询多少字段映射多少字段，没有select的属性设为默认值。
 
