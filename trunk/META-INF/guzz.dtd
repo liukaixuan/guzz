@@ -4,17 +4,13 @@
 
 	<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//MAIN CONFIG DTD//EN" "http://www.guzz.org/dtd/guzz.dtd">
 -->
-
 <!--
 	The document root.
---> 
-<!ELEMENT guzz-configs (
-properties?, (config-server? | tran? | dialect| service | import | business | a-business | sqlMap | orm)*
-)>
+-->
+<!ELEMENT guzz-configs (config-server? | tran? | dialect| service | import | business | a-business | sqlMap | orm)*>
 
 <!ELEMENT properties EMPTY>
 <!ATTLIST properties file CDATA #REQUIRED>
-
 
 <!ELEMENT config-server (server+)>
 <!ELEMENT server (param*)>
@@ -65,12 +61,16 @@ properties?, (config-server? | tran? | dialect| service | import | business | a-
 <!ELEMENT sqlMap ((select | update | orm)*)>
 <!ATTLIST sqlMap dbgroup CDATA "default">
 
-<!ELEMENT select (#PCDATA)>
+<!ELEMENT select (#PCDATA|paramsMapping)*>
+<!ELEMENT paramsMapping (map*)>
+<!ELEMENT map EMPTY>
+<!ATTLIST map paramName CDATA #REQUIRED>
+<!ATTLIST map propName CDATA #REQUIRED>
 <!ATTLIST select id ID #REQUIRED>
 <!ATTLIST select orm CDATA #REQUIRED>
 <!ATTLIST select dbgroup CDATA "default">
 
-<!ELEMENT update (#PCDATA)>
+<!ELEMENT update (#PCDATA|paramsMapping)*>
 <!ATTLIST update id ID #REQUIRED>
 <!ATTLIST update orm CDATA #REQUIRED>
 <!ATTLIST update dbgroup CDATA "default">

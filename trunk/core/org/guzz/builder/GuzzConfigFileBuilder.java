@@ -527,27 +527,50 @@ public class GuzzConfigFileBuilder {
 			Element s_node = (Element) select_nodes.get(i) ;
 			String m_id = s_node.attributeValue("id") ;
 			String m_orm = s_node.attributeValue("orm") ;
+			String resultClass = s_node.attributeValue("result-class") ;
 			String value = s_node.getTextTrim() ;
 			value = StringUtil.replaceString(value, "\r\n", " ") ;
 			value = StringUtil.replaceString(value, "\n", " ") ;
+			Map paramPropMapping = loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
+			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
 			ObjectMapping map = null ;
 			CompiledSQL cs = null ;
 			
-			if(m_orm.startsWith("@")){
-				Class beanCls = ClassUtil.getClass(m_orm.substring(1)) ;
+			ObjectMapping localORM = (ObjectMapping) local_orms.get(m_orm) ;
+			
+			if(StringUtil.isEmpty(m_orm)){
 				map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup) ;
 			}else{
-				map = (ObjectMapping) local_orms.get(m_orm) ;
-				if(map == null){
-					if(gf.getBusiness(m_orm) != null){
-						//build cs with the business name which supports custom table.
+				if(beanCls == null){
+					if(localORM == null){
 						cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
 					}else{
-						map = omm.getStaticObjectMapping(m_orm) ;
+						cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
+					}
+				}else{
+					if(localORM != null){
+						map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup, localORM) ;
+					}else{
+						map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup, m_orm) ;
 					}
 				}
 			}
+			
+//			if(m_orm.startsWith("@")){
+//				Class beanCls = ClassUtil.getClass(m_orm.substring(1)) ;
+//				map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup) ;
+//			}else{
+//				map = (ObjectMapping) local_orms.get(m_orm) ;
+//				if(map == null){
+//					if(gf.getBusiness(m_orm) != null){
+//						//build cs with the business name which supports custom table.
+//						cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+//					}else{
+//						map = omm.getStaticObjectMapping(m_orm) ;
+//					}
+//				}
+//			}
 			
 			if(cs == null){
 				if(map == null){
@@ -557,8 +580,8 @@ public class GuzzConfigFileBuilder {
 				cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
 			}
 			
-			//TODO: find some way to link the markedSQL's param names with the orm's propertyNames to satisify SQLDataType's better user-defined data binding. 
-			//
+			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
+			cs.addParamPropMappings(paramPropMapping) ;
 			
 			css.put(m_id, cs) ;
 		}
@@ -571,17 +594,13 @@ public class GuzzConfigFileBuilder {
 			String value = s_node.getTextTrim() ;
 			value = StringUtil.replaceString(value, "\r\n", " ") ;
 			value = StringUtil.replaceString(value, "\n", " ") ;
+			Map paramPropMapping = loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			ObjectMapping map = (ObjectMapping) local_orms.get(m_orm) ;
 			CompiledSQL cs = null ;
 			
 			if(map == null){
-				if(gf.getBusiness(m_orm) != null){
-					//build cs with the business name which supports custom table.
-					cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
-				}else{
-					map = omm.getStaticObjectMapping(m_orm) ;
-				}
+				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
 			}
 			
 			if(cs == null){
@@ -592,13 +611,44 @@ public class GuzzConfigFileBuilder {
 				cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
 			}
 			
-			//TODO: find some way to link the markedSQL's param names with the orm's propertyNames to satisify SQLDataType's better user-defined data binding. 
-			//
+			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
+			cs.addParamPropMappings(paramPropMapping) ;
 			
 			css.put(m_id, cs) ;
 		}
 		
 		return css ;
+	}
+	
+	/**
+	 * Load params for the sql segment.
+	 * The XML segment format should be:
+	 * <pre>
+	 * &lt;paramsMapping&gt;
+	 *		&lt;map paramName="city" propName="cityName" /&gt;
+	 *		&lt;map paramName="timeStart" propName="createdTime" /&gt;
+	 *		&lt;map paramName="voteId" propName="voteId" /&gt;
+	 * &lt;/paramsMapping&gt;
+	 * </pre>
+	 * 
+	 * @return return null if paramsMappingNode is null.
+	 */
+	public static Map loadParamPropsMapping(Element paramsMappingNode) throws IOException, ClassNotFoundException{
+		if(paramsMappingNode == null){
+			return null ;
+		}
+		
+		List ps = paramsMappingNode.selectNodes("map") ;
+		HashMap params = new HashMap() ;
+		
+		for(int i = 0 ; i < ps.size() ; i++){
+			Element xml_p = (Element) ps.get(i) ;
+			
+			params.put(xml_p.attributeValue("paramName"), xml_p.attributeValue("propName")) ;
+			
+		}
+		
+		return params ;
 	}
 	
 	public ConfigServer loadConfigServer() throws IOException, ClassNotFoundException{

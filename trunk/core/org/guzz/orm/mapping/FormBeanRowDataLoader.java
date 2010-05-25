@@ -25,7 +25,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.guzz.Guzz;
+import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ObjectMapping;
+import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
@@ -38,7 +41,7 @@ import org.guzz.util.javabean.JavaBeanWrapper;
  * 
  * <p>
  * If the class is a java.util.Map(for example:java.util.HashMap), the returned value will be put to the Map.
- * The map's key is the columnName, and the value is {@link ResultSet#getObject(columnName)}.
+ * The map's key is the columnName, and the value is {@link ResultSet#getObject(columnName)} if no @param colsMapping could be found.
  * </p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
@@ -54,18 +57,54 @@ public final class FormBeanRowDataLoader implements RowDataLoader {
 
 	private final Map cachedDataTypes ;
 	
+	private final ObjectMapping colsMapping ;
+	
+	private final CustomTableView customTableView ;
+	
 	/**
 	 * The column name in the database meta-data is case-insensitive, and the property name is case-sensitive.
 	 * We map it with this. The key is low-cased property name, and the value is the original one.
 	 */
 	private final Map writableProps ;
 	
+	/**
+	 * 
+	 * Create a new instance of FormBeanRowDataLoader for class @param beanCls.
+	 * <p>The beanCls's filed name should be the same as the column name in the {@link ResultSet}. 
+	 * Or, it won't be possible for guzz to understand how to map.</p>
+	 * 
+	 * @param beanCls java object to store the queried {@link ResultSet}
+	 */
 	public static FormBeanRowDataLoader newInstanceForClass(Class beanCls){
-		return new FormBeanRowDataLoader(beanCls) ;
+		return new FormBeanRowDataLoader(null, null, beanCls) ;
 	}
 	
-	protected FormBeanRowDataLoader(Class beanCls){
+	/**
+	 * 
+	 * Create a new instance of FormBeanRowDataLoader for class @param beanCls.
+	 * 
+	 * @param colsMapping Specify how to map a {@link ResultSet} to the bean class.
+	 * @param beanCls java object to store the queried {@link ResultSet}
+	 */
+	public static FormBeanRowDataLoader newInstanceForClass(ObjectMapping colsMapping, Class beanCls){
+		return new FormBeanRowDataLoader(null, colsMapping, beanCls) ;
+	}
+	
+	/**
+	 * 
+	 * Create a new instance of FormBeanRowDataLoader for class @param beanCls.
+	 * 
+	 * @param customTableView Specify how to map a {@link ResultSet} to the bean class.
+	 * @param beanCls java object to store the queried {@link ResultSet}
+	 */
+	public static FormBeanRowDataLoader newInstanceForClass(CustomTableView customTableView, Class beanCls){
+		return new FormBeanRowDataLoader(customTableView, null, beanCls) ;
+	}
+	
+	protected FormBeanRowDataLoader(CustomTableView customTableView,ObjectMapping colsMapping, Class beanCls){
 		this.beanCls = beanCls ;
+		this.customTableView = customTableView ;
+		this.colsMapping = colsMapping ;
 		this.isMap = java.util.Map.class.isAssignableFrom(beanCls) ;
 		
 		if(!this.isMap){
@@ -91,34 +130,60 @@ public final class FormBeanRowDataLoader implements RowDataLoader {
 		
 		Object obj = BeanCreator.newBeanInstance(this.beanCls) ;
 		
+		if(this.customTableView != null){
+			mapping = this.customTableView.getRuntimeObjectMapping(Guzz.getTableCondition()) ;
+		}else if(this.colsMapping != null){
+			mapping = this.colsMapping ;
+		}
+		
 		if(isMap){
 			for(int i = 1 ; i <= count ; i++){
 				String colName = meta.getColumnLabel(i) ;
-				((Map) obj).put(colName, rs.getObject(i)) ;
+				TableColumn tc = mapping.getTable().getColumnByColNameInRS(colName) ;
+				Object value = null ;
+				
+				if(tc != null){
+					value = tc.getOrm().loadResult(rs, obj, i) ;
+				}else{
+					value = rs.getObject(i) ;
+				}
+				
+				((Map) obj).put(tc == null ? colName : tc.getPropName(), value) ;
 			}
 		}else{
 			for(int i = 1 ; i <= count ; i++){
 				String colName = meta.getColumnLabel(i) ;
-				String propName = (String) this.writableProps.get(colName.toLowerCase()) ;
+				TableColumn tc = mapping.getTable().getColumnByColNameInRS(colName) ;
+				
+				String propName = null ;
+				Object value = null ;
+				
+				if(tc != null){
+					propName = tc.getPropName() ;
+					value = tc.getOrm().loadResult(rs, obj, i) ;
+				}else{
+					propName = (String) this.writableProps.get(colName.toLowerCase()) ;
+					
+					SQLDataType type = (SQLDataType) cachedDataTypes.get(propName) ;
+					
+					if(type != null){
+						value = type.getSQLValue(rs, i) ;
+					}else{
+						String propType = this.beanWrapper.getPropertyTypeName(propName) ;
+						type = mapping.getDbGroup().getDialect().getDataType(propType) ;
+						value = type.getSQLValue(rs, i) ;
+						cachedDataTypes.put(propName, type) ;
+					}
+				}
 				
 				if(propName == null){
 					if(log.isWarnEnabled()){
-						log.warn("rs column:[" + colName + "] cann't be mapped to java class:[" + this.beanCls.getName() + "]. The column name should be the same of a field name in javabean.") ;
+						log.warn("rs column:[" + colName + "] cann't be mapped to java class:[" + this.beanCls.getName() + "]. The column is not writable.") ;
 					}
 					continue ;
 				}
 				
-				SQLDataType type = (SQLDataType) cachedDataTypes.get(propName) ;
-					
-				if(type != null){
-					this.beanWrapper.setValue(obj, propName, type.getSQLValue(rs, i)) ;
-				}else{
-					String propType = this.beanWrapper.getPropertyTypeName(propName) ;
-					type = mapping.getDbGroup().getDialect().getDataType(propType) ;
-							
-					this.beanWrapper.setValue(obj, propName, type.getSQLValue(rs, i)) ;
-					cachedDataTypes.put(propName, type) ;
-				}
+				this.beanWrapper.setValue(obj, propName, value) ;
 			}
 		}
 		

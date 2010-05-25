@@ -96,7 +96,7 @@ public class TestBeanMap extends DBBasedTestCase{
 		u.setCreatedTime(now) ;
 		tm.openRWTran(true).insert(u) ;
 		
-		String sql = "select a.@id as id, a.@cargoName as cargoName, c.MyPSW as MyPSW, c.createdTime as createdTime from @@sp as a left join @@user as c on a.@id = pk where a.@id > 0 order by a.@id asc" ;
+		String sql = "select a.@id as id, a.@cargoName, c.MyPSW, c.createdTime as createdTime from @@sp as a left join @@user as c on a.@id = pk where a.@id > 0 order by a.@id asc" ;
 		
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(SpecialProperty.class, sql) ;
 		
@@ -110,16 +110,16 @@ public class TestBeanMap extends DBBasedTestCase{
 	}
 	
 	public static class ArticleModel{
-		private String id ;
+		private int id ;
 		
 		/**which cargo this property belongs.*/
 		private String cargoName ;
 		
-		public String getId() {
+		public int getId() {
 			return id;
 		}
 
-		public void setId(String id) {
+		public void setId(int id) {
 			this.id = id;
 		}
 

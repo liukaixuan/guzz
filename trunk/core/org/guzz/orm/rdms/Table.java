@@ -16,6 +16,9 @@
  */
 package org.guzz.orm.rdms;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+
 import org.guzz.dao.PersistListener;
 import org.guzz.dialect.Dialect;
 import org.guzz.id.IdentifierGenerator;
@@ -80,6 +83,13 @@ public interface Table {
 	
 	public TableColumn getColumnByColNameInSQL(String colName) ;
 	
+	/**
+	 * Get the {@link TableColumn} by the meta name({@link ResultSetMetaData#getColumnLabel(int)}) in the {@link ResultSet}.
+	 * <br>
+	 * 
+	 * @param colName column meta name
+	 * @return return null if not found.
+	 */
 	public TableColumn getColumnByColNameInRS(String colName) ;
 
 	public PersistListener[] getPersistListeners() ;

@@ -2,9 +2,6 @@
 <!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
 
 <guzz-configs>
-
-	<!-- 从Properties 文件中读取配置项，替换guzz.xml文档中的$xxx参数 -->
-	<properties file="guzz.properties" />
 	
 	<config-server>
 		<server class="org.guzz.config.LocalFileConfigServer">
@@ -38,12 +35,16 @@
 	<sqlMap dbgroup="default">
 		<select id="selectUser" orm="user" dbgroup="default">
 			select * from @@user
-			 where 
-			 	@id = :id 
+				 where 
+				 	@id = :id
 		</select>
 		
 		<select id="selectUserByName" orm="user">
 			select @id, @userName, @vip, @password from @@user where @userName = :userName
+			
+			<paramsMapping>
+				<map paramName="userName" propName="userName" />
+			</paramsMapping>
 		</select>
 	
 		<update id="updateUserFavCount" orm="userObjectMap">
@@ -56,6 +57,10 @@
 		
 		<select id="listCommentsByName" orm="commentMap">
 			select * from @@commentMap where @userName = :userName
+			
+			<paramsMapping>
+				<map paramName="userName" propName="userName" />
+			</paramsMapping>
 		</select>
 				
 		<orm id="userObjectMap" class="org.guzz.test.UserModel">
