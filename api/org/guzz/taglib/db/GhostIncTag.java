@@ -60,6 +60,10 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 			ghostName = business.getClass().getName() ;
 		}
 		
+		if(this.slowUpdateService == null){
+			throw new JspException("slowUpdateService is not available.") ;
+		}
+		
 //		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) guzzContext.getObjectMappingManager().getObjectMappingByName(ghostName) ;
 //		
 //		if(mapping == null){
