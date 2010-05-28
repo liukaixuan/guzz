@@ -101,6 +101,7 @@ public class FutureResult<ReturnType> {
 	public ReturnType getNoWait(boolean suppressException){
 		if(!f.isDone()){
 			f.cancel(true) ;
+			return fecther.getDefaultData() ;
 		}
 
 		try {
@@ -122,6 +123,7 @@ public class FutureResult<ReturnType> {
 	public ReturnType getNoQueue(boolean suppressException){
 		if(!f.isDone()){
 			f.cancel(false) ;
+			return fecther.getDefaultData() ;
 		}
 
 		try {
