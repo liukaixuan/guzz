@@ -10,6 +10,8 @@
 <business name="blogVote" interpret="guzz.test.business.BlogVoteInterpreter" file="classpath:guzz/test/business/BlogVote.hbm.xml" />
 }}}
 
+*Interpreter的作用就是将用户自定义的条件，转换成查询表达式SearchTerm；允许业务系统提供动态的查询条件，或使用更加具有语义性的查询。*
+
  guzz.test.business.!BlogVoteInterpreter 通过继承SEBusinessInterpreter实现BusinessInterpreter接口，实现代码如下：
 
 {{{
