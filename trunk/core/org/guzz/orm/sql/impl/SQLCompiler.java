@@ -57,21 +57,21 @@ public class SQLCompiler {
 		StringBuffer sb = new StringBuffer(sql) ;
 		StringBuffer newsb = new StringBuffer(sb.length() + 16) ;
 		int length = sb.length() ;
-		int alpha_count = 0 ;
+		int colon_count = 0 ;
 		int startPos = 0 ;
 		for(int i = 0 ; i < length; i++){
 			char c = sb.charAt(i) ;
 			
 			if(c == ':'){
-				alpha_count++ ;
+				colon_count++ ;
 				startPos = i ;
 				continue ;
-			}else if(alpha_count == 0){ //没有需要处理的替换内容
+			}else if(colon_count == 0){ //没有需要处理的替换内容
 				newsb.append(c) ;
 				continue ;
 			}
 			
-			if(alpha_count > 1){//连续2个:及以上，报错。
+			if(colon_count > 1){//连续2个:及以上，报错。
 				throw new ORMException("too many : marks for named parameter. sql is:" + sql) ;
 			}
 			
@@ -90,7 +90,7 @@ public class SQLCompiler {
 				}
 				
 				//完成一次翻译后，计数器归0
-				alpha_count = 0 ;
+				colon_count = 0 ;
 				startPos = 0 ;
 			}
 		}
@@ -136,61 +136,7 @@ public class SQLCompiler {
 			
 			return ccs ;
 		}
-	}
-	
-//	/**对sql继续编译。*/
-//	public CompiledSQL compile(MarkedSQL ms){
-//		CompiledSQL cs = new CompiledSQL() ;
-//		cs.setMapping(ms.getMapping()) ;
-//		
-//		String sql = translateMark(cs, ms) ;
-//		
-//		StringBuffer sb = new StringBuffer(sql) ;
-//		StringBuffer newsb = new StringBuffer(sb.length() + 16) ;
-//		int length = sb.length() ;
-//		int alpha_count = 0 ;
-//		int startPos = 0 ;
-//		for(int i = 0 ; i < length; i++){
-//			char c = sb.charAt(i) ;
-//			
-//			if(c == ':'){
-//				alpha_count++ ;
-//				startPos = i ;
-//				continue ;
-//			}else if(alpha_count == 0){ //没有需要处理的替换内容
-//				newsb.append(c) ;
-//				continue ;
-//			}
-//			
-//			if(alpha_count > 1){//连续2个@及以上，报错。
-//				throw new ORMException("too many : marks for named parameter. sql is:" + sql) ;
-//			}
-//			
-//			if(c == ' ' || c == ',' ||c == ')' ||c == '\'' ||c == '"' || i == length - 1){
-//				if(!(c == ' ' || c == ',' ||c == ')' ||c == '\'' ||c == '"' )){//到达字符串最后了。不能使用if(i == length -1)判断，因为符合")"可能也是最后一个字符。
-//					i++ ;//向前多走一个字符
-//				}
-//				
-//				String m_mark = sb.substring(startPos + 1, i) ;
-//					
-//				newsb.append('?') ;
-//				cs.addParamToLast(m_mark) ;
-//				
-//				if(i != length){
-//					newsb.append(c) ;
-//				}
-//				
-//				//完成一次翻译后，计数器归0
-//				alpha_count = 0 ;
-//				startPos = 0 ;
-//			}
-//		}
-//		
-//		cs.setSql(newsb.toString()) ;
-//		
-//		return cs ;
-//	}
-	
+	}	
 	
 	/**将java属性转换为sql字段，sql表等。通过此方法后，返回的string为携带named param的sql语句。*/
 	protected String translateMark(NormalCompiledSQL cs, ObjectMapping mapping, String markedSQL){
@@ -217,9 +163,9 @@ public class SQLCompiler {
 				throw new ORMException("too many @@@ marks.") ;
 			}
 			
-			if(c == ' ' || c == '	' || c == '=' || c == ',' ||c == '('  ||c == ')' ||c == '\'' ||c == '"' ||i == length - 1){//变量替换结束。
+			if(c == ' ' || c == '	' || c == '=' || c == '>' || c == '<' || c == ',' ||c == '('  ||c == ')' ||c == '\'' ||c == '"' ||i == length - 1){//变量替换结束。
 				String m_mark ;
-				if(!(c == ' '  || c == '	' || c == '=' || c == ',' ||c == '(' ||c == ')' ||c == '\'' ||c == '"' )){//到达字符串最后了。不能使用if(i == length -1)判断，因为符合")"可能也是最后一个字符。
+				if(!(c == ' '  || c == '	' || c == '=' || c == '>' || c == '<' || c == ',' ||c == '(' ||c == ')' ||c == '\'' ||c == '"' )){//到达字符串最后了。不能使用if(i == length -1)判断，因为符合")"可能也是最后一个字符。
 					i++ ;//向前多走一个字符
 				}
 				

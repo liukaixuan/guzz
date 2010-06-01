@@ -64,6 +64,11 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 
 	public POJOBasedObjectMapping getRuntimeObjectMapping(Object tableCondition) {
 		String cargoName = (String) tableCondition ;
+		
+		if("all".equals(cargoName)){
+			return this.getConfiguredMapping() ;
+		}
+		
 		Assert.assertNotEmpty(cargoName, "tableCondition can't be null, we don't have any default table to store un-categoried cargoes.") ;
 		
 		POJOBasedObjectMapping map = (POJOBasedObjectMapping) this.orms_cache.get(cargoName) ;

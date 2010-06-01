@@ -358,6 +358,37 @@ public class TestCustomTableView extends DBBasedTestCase {
 		session.close() ;
 	}
 	
+	public void testQueryThroughTables() throws Exception{
+		testInsert() ;
+		
+		WriteTranSession write = tm.openRWTran(true) ;
+		
+		int pk = 10 ;
+		Guzz.setTableCondition("book") ;
+		Cargo book = (Cargo) write.findObjectByPK(Cargo.class, pk) ;
+		book.setPrice(100.00) ;
+		write.update(book) ;
+		
+		Guzz.setTableCondition("crossStitch") ;
+		Cargo crossStitch = (Cargo) write.findObjectByPK(Cargo.class, pk) ;
+		crossStitch.setPrice(100.00) ;
+		write.update(crossStitch) ;
+		
+		write.close() ;
+		
+		ReadonlyTranSession session = tm.openDelayReadTran() ; 
+		
+		Guzz.setTableCondition("all") ;
+		
+		//list all cargoes priced above 100.00
+		String sql="select c.* from (select @id, @name, @storeCount from tb_cargo_book where @price>=:param_price union all select @id, @name, @storeCount from tb_cargo_crossstitch where @price>=:param_price) as c ";
+		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(Cargo.class, sql) ; 
+		cs.addParamPropMapping("param_price", "price") ;
+		assertEquals(session.list(cs.bind("param_price", 100.00), 1, 1000).size(), 2) ;
+		
+		session.close() ;
+	}
+	
 	public void testObjectBatcher() throws Exception{
 		WriteTranSession session = tm.openRWTran(false) ;
 		ObjectBatcher batcher = session.createObjectBatcher() ;
