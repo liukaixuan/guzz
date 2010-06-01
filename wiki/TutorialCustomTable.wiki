@@ -340,7 +340,51 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 <g:list var="m_css" business="cargo" tableCondition="crossStitch" limit="brand=湘湘绣铺" />
 }}}
 
-== 接口方法调用顺序 ==
+== 案例说明：多表查询 ==
+
+ 我们的数据被分切成了很多小表，但某些情况下我们需要对多个表进行联合查询，如获取所有价格高于100.00元的商品。
+ 
+ 在guzz中进行sql查询时，必须首先确定对象的ORM关系，而对于自定义属性表，ORM是通过上面介绍的public POJOBasedObjectMapping getRuntimeObjectMapping(Object tableCondition) 方法动态获取的。tableCondition在我们上面的实现中，用于判定每一张小表的映射；对于多张小表，tableCondition需要设置一个特殊的值做标记做区分，例如"all"。
+ 
+ 修改getRuntimeObjectMapping以支持"all"条件。
+  
+{{{
+        .....
+
+	public POJOBasedObjectMapping getRuntimeObjectMapping(Object tableCondition) {
+		String cargoName = (String) tableCondition ;
+		
+		if("all".equals(cargoName)){
+			return this.getConfiguredMapping() ;
+		}
+		
+		Assert.assertNotEmpty(cargoName, "tableCondition can't be null, we don't have any default table to store un-categoried cargoes.") ;
+		
+		.....
+}}}
+
+ 这里，我们定义如果tableCondition为"all"，使用默认配置的OM（hbm.xml或annotation定义的原始OM，不包含每种商品自定义的属性）。
+
+ 实现所有高于100.00元商品查询：
+
+{{{
+		ReadonlyTranSession session = tm.openDelayReadTran() ; 
+		
+		Guzz.setTableCondition("all") ;
+		
+		//list all cargoes priced over 100.00 bucks
+		String sql="select c.* from (select @id, @name, @storeCount from tb_cargo_book where @price>=:param_price union all select @id, @name, @storeCount from tb_cargo_crossstitch where @price>=:param_price) as c ";
+
+		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(Cargo.class, sql) ; 
+		cs.addParamPropMapping("param_price", "price") ;
+		List cargoes = session.list(cs.bind("param_price", 100.00), 1, 1000).size() ;
+
+                session.close();
+}}}
+
+ 对于表名称，只能使用数据库中的真实表名称，而对于公共(默认)属性，可以继续使用@属性名来代替字段名，当然也可以直接使用数据库字段名。
+
+== CustomTableView接口中方法调用顺序 ==
 
  * 1. 解析配置文件，生成类实例
 
