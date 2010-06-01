@@ -56,35 +56,16 @@ try{
 
  上面的示例是更新操作，如果是查询操作，查询到的结果记录集，guzz还会按照参数1传入的类名进行ORM映射，返回的查询结果将会是List`<`SystemLog`>`。
 
- CompiledSQL的使用比较灵活，对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的。幸运的是，CompiledSQL在编译时以及编译后都允许自定义OR映射方式。如：
+ CompiledSQL的使用比较灵活，对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的。
 
-{{{
-TransactionManager tm = super.getTransactionManager() ;
-CompiledSQLBuilder builder =  tm.getCompiledSQLBuilder() ;
-
-String sql = "select count(*) as count, company from mycompany join xxx... where group by company having @salary = :salary " ;
-
-//create a new ORM, map the ResultSet to HashMap
-ObjectMapping mapping = new FormBeanBasedObjectMapping(HashMap.class, builder.getDBGroup(Company.class))
-
-CompiledSQL cs = builder.buildCompiledSQL(mapping, sql) ;
-
-WriteTranSession session = tm.openRWTran(true) ;
-
-try{
-	List<Map> result = session.list(cs.bind("salary", 3000)) ;
-}finally{
-	session.close() ;
-}
-}}}
-
- 这段代码生成自己的OR映射FormBeanBasedObjectMapping，并根据新的映射生成CompiledSQL；这样执行查询时，guzz将按照新FormBeanBasedObjectMapping进行OR映射。
 
  CompiledSQL在执行前通过bind()方法绑定命名参数，生成了一个临时对象BindedCompiledSQL，而我们实际上是使用BindedCompiledSQL进行查询。
 
- BindedCompiledSQL不是线程安全的，只能使用一次，开发时，应用可以在BindedCompiledSQL中设置仅限本次查询有效的参数。例如如果需要临时调整某1次查询的ORM，可以通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换对象映射关系。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
+ BindedCompiledSQL不是线程安全的，只能使用一次，开发时，应用可以在BindedCompiledSQL中设置仅限本次查询有效的参数。
 
- RowDataLoader为轻量级对象，建议尽量通过RowDataLoader来自定义结果集映射。示例：
+ 对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的，这时，BindedCompiledSQL就可以用来临时调整某1次查询的ORM--通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换对象映射关系。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
+
+ RowDataLoader为轻量级对象，对于结果集映射个性处理建议全部通过RowDataLoader。示例：
 
 {{{
 TransactionManager tm = super.getTransactionManager() ;
@@ -105,12 +86,11 @@ try{
 
  对于特殊的OR映射，开发者可以实现自己的RowDataLoader。
 
-
  CompiledSQL为线程安全的对象，对于重复执行的sql，建议将编译好的CompiledSQL缓存以来，避免重复解析。在guzz.xml中定义的sql，在guzz内部就是以CompiledSQL进行存储和管理的。
 
 === 通过guzz.xml中定义的id查询： ===
 
- 类似ibatis。
+ 类似ibatis。[TutorialGuzzXml 查看编写格式]。
 
 == !WriteTranSession写API ==
 
