@@ -17,7 +17,6 @@
 package org.guzz.test;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -82,15 +81,23 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 	}
 
 	protected void setUp() throws Exception {
-		setUpForOracle10G() ;
-		setUpForH2() ;
+		super.setUp() ;
+		super.buildGF() ;
 		
-		super.setUp();
+		setUpForOracle10G() ;
+		setUpForH2() ;		
+		
+		prepareEnv() ;
 	}
 	
 	protected void setUpForH2() throws Exception {
-		Class.forName("org.h2.Driver");
-		this.H2Conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+//		Class.forName("org.h2.Driver");
+//		this.H2Conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+		
+		this.H2Conn = this.gf.getDBGroup("default").getMasterDB().getDataSource().getConnection() ;
+		
+//		Class.forName("com.mysql.jdbc.Driver");
+//		this.H2Conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true", "root", "root");
 		
 		//创建一个表，插入一些测试数据。
 		executeUpdate(H2Conn, "drop table if exists tb_id") ;
@@ -108,12 +115,12 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 		executeUpdate(H2Conn, "create table TB_USER(pk int not null auto_increment primary key , userName varchar(128), MyPSW varchar(255), VIP_USER bit, FAV_COUNT int, createdTime TIMESTAMP)") ;
 		
 		executeUpdate(H2Conn, "drop table if exists TB_BOOK") ;
-		executeUpdate(H2Conn, "create table TB_BOOK(id int not null AUTO_INCREMENT primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP, ISDN varchar(64), checksum binary)") ;
+		executeUpdate(H2Conn, "create table TB_BOOK(id int not null AUTO_INCREMENT primary key , NAME varchar(128), DESCRIPTION varchar(255), createdTime TIMESTAMP, ISDN varchar(64), checksum varbinary(512))") ;
 		executeUpdate(H2Conn, "insert into TB_BOOK values(1, 'book title 1', 'book content 1', now(), 'isdn-b1', null)") ;
 		
 		//prepare for clob/blob
 		executeUpdate(H2Conn, "drop table if exists TB_USER_INFO2") ;
-		executeUpdate(H2Conn, "create table TB_USER_INFO2(pk int not null AUTO_INCREMENT primary key , userId varchar(64), aboutMe CLOB, portraitImg BLOB)") ;
+		executeUpdate(H2Conn, "create table TB_USER_INFO2(pk int not null AUTO_INCREMENT primary key , userId varchar(64), aboutMe LONGTEXT, portraitImg MEDIUMBLOB)") ;
 		
 		//comment shadow table
 		executeUpdate(H2Conn, "drop table if exists TB_COMMENT1") ;
@@ -127,8 +134,10 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 	}
 	
 	protected void setUpForOracle10G() throws Exception {
-		Class.forName("oracle.jdbc.driver.OracleDriver");
-		this.oracleConn = DriverManager.getConnection("jdbc:oracle:thin:@10.64.4.31:1521:orcl", "vote", "vote");
+//		Class.forName("oracle.jdbc.driver.OracleDriver");
+//		this.oracleConn = DriverManager.getConnection("jdbc:oracle:thin:@10.64.4.31:1521:orcl", "vote", "vote");
+		
+		this.oracleConn = this.gf.getDBGroup("oracle").getMasterDB().getDataSource().getConnection() ;
 		
 		//创建seq
 		executeUpdateNoException(oracleConn, "drop SEQUENCE guzz_sequence") ;

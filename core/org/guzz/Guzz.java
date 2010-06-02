@@ -51,7 +51,7 @@ public class Guzz {
 	 * @return the Blob
 	 */
 	public static TranBlob createBlob(byte[] bytes) {
-		return new TranBlob(new BlobImpl(bytes)) ;
+		return new TranBlob(new BlobImpl(bytes), false) ;
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class Guzz {
 	 * @return the Blob
 	 */
 	public static TranBlob createBlob(InputStream stream, int length) {
-		return new TranBlob(new BlobImpl(stream, length)) ;
+		return new TranBlob(new BlobImpl(stream, length), false) ;
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class Guzz {
 	 * @throws IOException
 	 */
 	public static TranBlob createBlob(InputStream stream) throws IOException {
-		return new TranBlob(new BlobImpl(stream, stream.available())) ;
+		return new TranBlob(new BlobImpl(stream, stream.available()), false) ;
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class Guzz {
 	 * @param string a <tt>String</tt>
 	 */
 	public static TranClob createClob(String string) {
-		return new TranClob(new ClobImpl(string)) ;
+		return new TranClob(new ClobImpl(string), false) ;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Guzz {
 	 * @param length the number of characters in the stream
 	 */
 	public static TranClob createClob(Reader reader, int length) {
-		return new TranClob(new ClobImpl(reader, length)) ;
+		return new TranClob(new ClobImpl(reader, length), false) ;
 	}
 
 }

@@ -23,6 +23,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.Writer;
 import java.sql.Clob;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.guzz.transaction.ReadonlyTranSession;
@@ -38,17 +39,30 @@ public class TranClob implements Clob, Serializable {
 	protected transient ReadonlyTranSession tran ;
 	protected Clob clob ;
 	private int blobBufferSize ;
-
+	
+	/**
+	 * Marker for non-contextually created {@link java.sql.Blob} instances..
+	 */
+	private final boolean loadedFromDB ;
+	
 	/**
 	 * construct a TranClob that won't need to release db connections.
+	 * 
+	 * @param blob Blob loaded from the {@link ResultSet}. If the blob is just created in the application, use {@link #TranBlob(Blob, false)}
 	 */
 	public TranClob(Clob clob){
+		this(clob, true) ;
+	}
+	
+	public TranClob(Clob clob, boolean loadedFromDB){
 		this.clob = clob ;
+		this.loadedFromDB = loadedFromDB ;
 	}
 	
 	public TranClob(ReadonlyTranSession tran, Clob clob){
 		this.tran = tran ;
 		this.clob = clob ;
+		this.loadedFromDB = true ;
 	}
 	
 	/**
@@ -201,6 +215,10 @@ public class TranClob implements Clob, Serializable {
 	 */
 	public Reader getCharacterStream(long pos, long length) throws SQLException {
 		throw new SQLException("In jdk 1.6, try getWrappedClob().getCharacterStream(long pos, long length).") ;
+	}
+
+	public boolean isLoadedFromDB() {
+		return loadedFromDB;
 	}
 
 }

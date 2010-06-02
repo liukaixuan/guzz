@@ -213,7 +213,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(g1.getDialect().getClass(), H2Dialect.class) ;
 		
 		DBGroup g2 = (DBGroup) gs.get(1) ;
-		assertEquals(g2.getGroupName(), "log") ;
+		assertEquals(g2.getGroupName(), "mysql") ;
 		assertEquals(g2.getDialect().getClass(), Mysql5Dialect.class) ;
 		
 		CloseUtil.close(fs) ;

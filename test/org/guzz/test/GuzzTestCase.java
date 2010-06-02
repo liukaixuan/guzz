@@ -38,6 +38,34 @@ public abstract class GuzzTestCase extends TestCase {
 	
 	public static String configFile = null ;
 	
+	protected void buildGF() throws Exception {
+//		String configFile = "classpath:guzzmain_test1.xml" ;
+//		String configFile = "classpath:guzzmain_test1_annotation.xml" ;
+		
+		FileResource fs = new FileResource(configFile) ;
+		
+		gf = (GuzzContextImpl) new Configuration(configFile).newGuzzContext() ;
+		b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;
+		tm = gf.getTransactionManager() ;
+	}
+			
+	/**准备环境。如插入一些测试数据等。每次启动时数据库自动重新创建，不会保存历史数据。*/
+	protected void prepareEnv() throws Exception{
+		
+	}
+	
+	/**恢复测试前环境，避免对其他测试用例干扰。*/
+	protected void rollbackEnv() throws Exception{
+	}
+
+	protected void tearDown() throws Exception {
+		rollbackEnv() ;
+		
+		gf.shutdown() ;
+		
+		super.tearDown();
+	}
+	
 	public void assertEqualsIDWS(String left, String right){
 		left = StringUtil.squeezeWhiteSpace(left) ;
 		right = StringUtil.squeezeWhiteSpace(right) ;
@@ -50,39 +78,6 @@ public abstract class GuzzTestCase extends TestCase {
 		for(int i = 0 ; i < a.length ; i++){
 			assertEquals(a[i], b[i]) ;
 		}
-	}
-			
-	/**准备环境。如插入一些测试数据等。每次启动时数据库自动重新创建，不会保存历史数据。*/
-	protected void prepareEnv() throws Exception{
-		
-	}
-	
-	/**恢复测试前环境，避免对其他测试用例干扰。*/
-	protected void rollbackEnv() throws Exception{
-		
-	}
-
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-//		String configFile = "classpath:guzzmain_test1.xml" ;
-//		String configFile = "classpath:guzzmain_test1_annotation.xml" ;
-		
-		FileResource fs = new FileResource(configFile) ;
-		
-		gf = (GuzzContextImpl) new Configuration(configFile).newGuzzContext() ;
-		b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;
-		tm = gf.getTransactionManager() ;
-		
-		prepareEnv() ;
-	}
-
-	protected void tearDown() throws Exception {
-		rollbackEnv() ;
-		
-		gf.shutdown() ;
-		
-		super.tearDown();
 	}
 	
 }

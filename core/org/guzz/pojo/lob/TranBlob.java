@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.sql.Blob;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.guzz.transaction.ReadonlyTranSession;
@@ -37,17 +38,30 @@ public class TranBlob implements Blob, Serializable {
 	protected Blob blob ;
 	
 	private int blobBufferSize = 4096 ;
+	
+	/**
+	 * Marker for non-contextually created {@link java.sql.Blob} instances..
+	 */
+	private final boolean loadedFromDB ;
 
 	/**
 	 * construct a TranBlob that won't need to release db connections.
+	 * 
+	 * @param blob Blob loaded from the {@link ResultSet}. If the blob is just created in the application, use {@link #TranBlob(Blob, false)}
 	 */
 	public TranBlob(Blob blob){
+		this(blob, true) ;
+	}
+	
+	public TranBlob(Blob blob, boolean loadedFromDB){
 		this.blob = blob ;
+		this.loadedFromDB = loadedFromDB ;
 	}
 	
 	public TranBlob(ReadonlyTranSession tran, Blob blob){
 		this.tran = tran ;
 		this.blob = blob ;
+		this.loadedFromDB = true ;
 	}
 	
 	/**
@@ -169,6 +183,10 @@ public class TranBlob implements Blob, Serializable {
 	 */
 	public InputStream getBinaryStream(long pos, long length) throws SQLException {
 		throw new SQLException("In jdk 1.6, try getWrappedBlob().getBinaryStream(long pos, long length).") ;
+	}
+
+	public boolean isLoadedFromDB() {
+		return loadedFromDB;
 	}
 
 }

@@ -32,7 +32,7 @@ import org.guzz.test.GuzzTestCase;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class TestInnerSQLBuilder extends GuzzTestCase {
-
+	
 	public void testTranslateSQLMark() throws Exception{
 		POJOBasedObjectMapping map = (POJOBasedObjectMapping) gf.getObjectMappingManager().getStaticObjectMapping("user") ;
 		CompiledSQLManagerImpl csm = new CompiledSQLManagerImpl(((GuzzContextImpl) gf).getCompiledSQLBuilder()) ;
@@ -103,6 +103,10 @@ public class TestInnerSQLBuilder extends GuzzTestCase {
 		assertEquals(cs.bindNoParams().getSQLToRun(), "select ARTICLE_ID, readCount, supportCount, opposeCount, createdTime from TB_ARTICLE_COUNT where ARTICLE_ID=?") ;
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
 		assertEquals(Arrays.asList(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams()).toString(), "[articleId]") ;
+	}
+
+	protected void setUp() throws Exception {
+		super.buildGF() ;
 	}
 
 }
