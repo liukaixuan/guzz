@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import org.guzz.Guzz;
 import org.guzz.pojo.lob.TranBlob;
 import org.guzz.test.DBBasedTestCase;
-import org.guzz.test.GuzzTestCase;
 import org.guzz.test.UserInfo;
 import org.guzz.test.UserInfoH2;
 import org.guzz.transaction.LockMode;
@@ -38,7 +37,7 @@ import org.guzz.util.FileUtil;
 public class TestBlobType extends DBBasedTestCase {
 
 	static{
-		GuzzTestCase.configFile = "classpath:guzzmain_test1.xml" ;
+//		org.guzz.test.GuzzTestCase.configFile = "classpath:guzzmain_test1.xml" ;
 	}
 	protected void prepareEnv() throws Exception{
 	}

@@ -35,6 +35,7 @@ import org.guzz.orm.type.CalendarSQLDataType;
 import org.guzz.orm.type.ClobSQLDataType;
 import org.guzz.orm.type.DateSQLDataType;
 import org.guzz.orm.type.DateTimeSQLDataType;
+import org.guzz.orm.type.DialectAware;
 import org.guzz.orm.type.DoubleSQLDataType;
 import org.guzz.orm.type.EnumOrdinalSQLDataType;
 import org.guzz.orm.type.EnumStringSQLDataType;
@@ -125,6 +126,7 @@ public abstract class AbstractDialect implements Dialect {
 		sqlTypes.put("[B", BytesSQLDataType.class) ;//byte[]
 		sqlTypes.put("[Ljava.lang.Byte;", BytesSQLDataType.class) ;//Byte[]
 		sqlTypes.put("binary", BytesSQLDataType.class) ;
+		sqlTypes.put("varbinary", BytesSQLDataType.class) ;
 		
 		//clob
 		sqlTypes.put("clob", ClobSQLDataType.class) ;
@@ -185,6 +187,10 @@ public abstract class AbstractDialect implements Dialect {
 				throw new DataTypeException("unable to instance type class[" + type.getName() + "] for type:[" + colType + "].") ;
 			}
 			
+			if(typeInstance instanceof DialectAware){
+				((DialectAware) typeInstance).setDialect(this) ;
+			}
+			
 			if(typeInstance instanceof ParameteredType){
 				((ParameteredType) typeInstance).setParameter(param) ;
 			}else if(param != null){
@@ -203,6 +209,10 @@ public abstract class AbstractDialect implements Dialect {
 
 	public String getForUpdateString(String sql) {
 		return sql + " for update" ;
+	}
+	
+	public boolean useStreamToInsertLob(){
+		return true ;
 	}
 	
 }

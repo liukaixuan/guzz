@@ -9,9 +9,13 @@
 		</server>
 	</config-server>
 	
+	<dialect class="org.guzz.dialect.H2Dialect"></dialect>
+	<dialect name="mysql5dialect" class="org.guzz.dialect.Mysql5Dialect" />
+	<dialect name="oracle10gdialect" class="org.guzz.dialect.Oracle10gDialect" />
+	
 	<tran>
 		<dbgroup name="default" masterDBConfigName="masterDB" />
-		<dbgroup name="log" masterDBConfigName="masterDB" dialectName="mysql5dialect" />
+		<dbgroup name="mysql" masterDBConfigName="mysqlDB" dialectName="mysql5dialect" />
 		<dbgroup name="oracle" masterDBConfigName="oracleDB" dialectName="oracle10gdialect" />
 	</tran>
 	
@@ -27,10 +31,6 @@
 	<a-business name="comment" dbgroup="default" class="org.guzz.test.Comment"/>
 	<a-business name="cargo" class="org.guzz.test.shop.Cargo" />
 	<a-business name="sp" class="org.guzz.test.shop.SpecialProperty" />
-	
-	<dialect class="org.guzz.dialect.H2Dialect"></dialect>
-	<dialect name="mysql5dialect" class="org.guzz.dialect.Mysql5Dialect" />
-	<dialect name="oracle10gdialect" class="org.guzz.dialect.Oracle10gDialect" />
 	
 	<sqlMap dbgroup="default">
 		<select id="selectUser" orm="user" dbgroup="default">

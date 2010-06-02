@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="lib/jstl.jar"/>
 	<classpathentry kind="con" path="com.genuitec.eclipse.j2eedt.core.J2EE14_CONTAINER"/>
 	<classpathentry kind="lib" path="dev-lib/hessian-3.2.1.jar" sourcepath="dev-lib/hessian-3.2.1-src.jar"/>
+	<classpathentry kind="lib" path="dev-lib/mysql-connector-java-5.1.12-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

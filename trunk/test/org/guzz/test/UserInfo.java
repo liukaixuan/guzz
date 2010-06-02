@@ -34,7 +34,7 @@ import org.guzz.pojo.lob.TranClob;
 public class UserInfo {	
 
 	@javax.persistence.Id
-	@javax.persistence.Column(name="pk")
+	@javax.persistence.Column(name="`ID`")
 	private int id ;
 	
 	private String userId ;

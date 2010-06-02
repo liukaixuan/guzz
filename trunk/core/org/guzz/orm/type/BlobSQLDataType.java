@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.guzz.Guzz;
+import org.guzz.dialect.Dialect;
 import org.guzz.exception.DataTypeException;
 import org.guzz.pojo.lob.TranBlob;
 
@@ -34,7 +35,9 @@ import org.guzz.pojo.lob.TranBlob;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class BlobSQLDataType implements SQLDataType {
+public class BlobSQLDataType implements SQLDataType, DialectAware {
+	
+	private Dialect dialect ;
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
 		Blob c = rs.getBlob(colName) ;
@@ -59,7 +62,18 @@ public class BlobSQLDataType implements SQLDataType {
 			value = getFromString((String) value) ;
 		}
 		
-		pstm.setBlob(parameterIndex, (Blob) value) ;
+		boolean useStream = false ;
+		Blob blob = (Blob) value ;
+		
+		if(blob instanceof TranBlob && !((TranBlob) blob).isLoadedFromDB() && this.dialect.useStreamToInsertLob()){
+			useStream = true ;
+		}
+		
+		if(useStream){
+			pstm.setBinaryStream(parameterIndex, blob.getBinaryStream(), (int) blob.length() );
+		}else{
+			pstm.setBlob(parameterIndex, (Blob) value) ;
+		}
 	}
 	
 	public Class getDataType(){
@@ -68,6 +82,10 @@ public class BlobSQLDataType implements SQLDataType {
 
 	public Object getFromString(String value) {
 		return Guzz.createBlob(value.getBytes()) ;
+	}
+
+	public void setDialect(Dialect dialect) {
+		this.dialect = dialect ;
 	}
 
 }

@@ -70,6 +70,13 @@ public interface Dialect {
 	/**当主键按照native配置时，实际使用哪种generator*/
 	public String getNativeIDGenerator() ;
 	
+	/**
+	 * Should LOBs (both BLOB and CLOB) be bound using stream operations (i.e.
+	 * {@link java.sql.PreparedStatement#setBinaryStream}).
+	 *
+	 * @return True if BLOBs and CLOBs should be bound using stream operations.
+	 */
+	public boolean useStreamToInsertLob() ;
 	
 	
 }

@@ -395,9 +395,9 @@ public class JPA2AnnotationsBuilder {
 			}
 			
 			if(etype == EnumType.ORDINAL){
-				type = "enum.ordinal|" + dataType.getClass().getName() ;
+				type = "enum.ordinal|" + dataType.getName() ;
 			}else{
-				type = "enum.string|" + dataType.getClass().getName() ;
+				type = "enum.string|" + dataType.getName() ;
 			}
 		}
 		
