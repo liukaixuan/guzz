@@ -132,8 +132,8 @@
 || 所有 || char || string || java.lang.String || 字符型 ||
 || 所有 || nchar || string || java.lang.String || 字符型 ||
 || 所有 || text || string || java.lang.String || 字符型 ||
-|| 所有 || datetime || datetime || java.util.Date  || 时间戳，包含日期和时间 ||
-|| 所有 || timestamp || datetime || java.util.Date  || 时间戳，包含日期和时间 ||
+|| 所有 || datetime || datetime || java.util.Date或java.sql.Timestamp || 时间戳，包含日期和时间 ||
+|| 所有 || timestamp || datetime || java.util.Date或java.sql.Timestamp  || 时间戳，包含日期和时间 ||
 || 所有 || date || date || java.util.Date或java.sql.Date || 日期 ||
 || 所有 || time || time || java.util.Date或java.sql.Time || 时间 ||
 || 所有 || bool || boolean || boolean  || 布尔型 ||
@@ -144,21 +144,21 @@
 || 所有 || money || decimal || java.math.BigDecimal || 货币类型 ||
 || 所有 || decimal || decimal || java.math.BigDecimal || 货币类型 ||
 || 所有 || float || float || float || 浮点型 ||
-|| 所有 || short || short || 短整型 ||
+|| 所有 || short || short || short || 短整型 ||
 || 所有 || smallint || short || short || 短整型 ||
 || 所有 || tinyint || short || short || 短整型 ||
 || 所有 || byte || byte || byte || 字节 ||
 || 所有 || bit || byte || byte || 字节 ||
-|| 所有 || bytes || bytes || byte[] || 字节数组 ||
-|| 所有 || binary || bytes || byte[] || 字节数组 ||
-|| 所有 || varbinary || bytes || byte[] || 字节数组 ||
+|| 所有 || bytes || bytes || byte`[]` || 字节数组 ||
+|| 所有 || binary || bytes || byte`[]` || 字节数组 ||
+|| 所有 || varbinary || bytes || byte`[]` || 字节数组 ||
 || 所有 || clob || clob || org.guzz.pojo.lob.TranClob || 大字符 ||
 || 所有 || blob || blob || org.guzz.pojo.lob.TranBlob || 大二进制 ||
 || 所有 || int || enum.ordinal|enum.class.fullname || enum类 || java枚举类型。数据库中为整数定义，enum.class.fullname为枚举类的完整类名。 ||
 || 所有 || varchar || enum.string|enum.class.fullname || enum类 || java枚举类型。数据库中为字符定义，enum.class.fullname为枚举类的完整类名。 ||
-|| Microsoft SQL Server || image || bytes || byte[] || 字节数组 ||
-|| Microsoft SQL Server || varbinary || bytes || byte[] || 字节数组 ||
+|| Microsoft SQL Server || image || bytes || byte`[]` || 字节数组 ||
+|| Microsoft SQL Server || varbinary || bytes || byte`[]` || 字节数组 ||
 || Oracle8i+ || oracle long类型 || Oracle.Long || java.lang.String || string字符型 ||
 || Oracle8i+ || varchar2 || string || java.lang.String || 字符型 ||
 || Oracle8i+ || nclob || clob || org.guzz.pojo.lob.TranClob || 大字符 ||
-|| Oracle8i+ || raw || bytes || byte[] || 字节数组 ||
+|| Oracle8i+ || raw || bytes || byte`[]` || 字节数组 ||
