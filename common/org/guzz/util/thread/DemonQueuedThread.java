@@ -42,8 +42,8 @@ public class DemonQueuedThread  extends Thread{
 	
 	private boolean isSleepNow = false ;
 	
-//	private int currentReadPos = 0 ;
-	
+	private int millSecondsToSleep = 500 ;
+
 	public boolean isSleeping(){
 		return isSleepNow ;
 	}
@@ -57,28 +57,6 @@ public class DemonQueuedThread  extends Thread{
 		
 		queues[pos] = obj ;	
 	}
-	
-	/* *
-	 * 从队列中获取下一个元素，如果当前没有元素，返回null，不会进行等待。
-	 * <p />元素返回后，立即从队列中删除。
-	 */
-//	public Object getFromQueue(){
-//		int pos = currentReadPos++ ;
-//		
-//		if(pos >= queues.length){
-//			currentReadPos = 0 ;
-//			pos = 0 ;
-//		}
-//		
-//		Object obj = queues[pos] ;
-//		
-//		if(obj != null){
-//			queues[pos] = null ;
-//			return obj ;
-//		}else{ //没有元素。
-//			
-//		}
-//	}
 	
 	public DemonQueuedThread(String threadName, int queueSize){
 		this.setDaemon(true) ;
@@ -136,7 +114,11 @@ public class DemonQueuedThread  extends Thread{
 	}
 	
 	protected int getMillSecondsToSleep(){
-		return 500 ;
+		return this.millSecondsToSleep ;
+	}
+
+	public void setMillSecondsToSleep(int millSecondsToSleep) {
+		this.millSecondsToSleep = millSecondsToSleep;
 	}
 
 }

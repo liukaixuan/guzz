@@ -39,11 +39,19 @@ import org.guzz.orm.sql.CompiledSQL;
  */
 public interface WriteTranSession {
 		
+	/**
+	 * create JDBCTemplate for a domain class's database group.
+	 */
 	public JDBCTemplate createJDBCTemplate(Class domainClass) ;
 	
-	/**按照领域对象的名称或者类名称，获取JDBCTemplate*/
+	/**
+	 * create JDBCTemplate for a business's database group.
+	 */
 	public JDBCTemplate createJDBCTemplate(String businessName) ;
 	
+	/**
+	 * create JDBCTemplate for a database group.
+	 */
 	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup) ;
 	
 	/**
