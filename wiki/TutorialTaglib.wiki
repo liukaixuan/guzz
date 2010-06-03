@@ -165,7 +165,8 @@
 					<span style="color:red;font-weight:bold;"><c:out value="${index }" /></span> 
 				</c:if>
 				<c:if test="${index != PAGE_FLIP.pageNo}"> 
-					<a href='<c:out value="${PAGE_FLIP.flipURL}" />&<c:out value="${PAGE_FLIP.webPageNoParam}" />=<c:out value="${index}"/>'><span style="text-decoration: none;color:gray;"><c:out value="${index}" /></span></a>  
+					<a href='<c:out value="${PAGE_FLIP.flipURL}" />&<c:out value="${PAGE_FLIP.webPageNoParam}" />=<c:out value="${index}"/>'>
+                                        <span style="text-decoration: none;color:gray;"><c:out value="${index}" /></span></a>  
 				</c:if>&nbsp;
 			</c:forEach>
 		</td>
@@ -174,6 +175,27 @@
  PageFlip不仅包含从数据库获取的数据，还包含计算分页展示的算法，以及通过get方法传递的参数（会自动删除页面中传递pageNo的参数）。PageFlip的具体实现类，可以在进行SearchExpression查询时指定，不过目前的标签不支持自定义。PageFlip默认的分页展示算法为类似google查询的分页算法。
 
  如果您也完成了此步骤，你的分页查询和分页展示将可以非常简单的进行编写和维护。
+
+=== g:inc计数器标签： ===
+
+ 计数器标签将根据主键进行的自增类更新操作（如典型的阅读次数）记录到临时表中，在通过后台算法，将临时表数据写回到主表中。一方面通过合并算法，减少更新SQL语句执行次数；另一方面，避免更新操作影响主业务响应速度。
+
+ g:inc标签属性：
+
+|| *属性名称*  || *作用*  || *注意事项*  ||
+|| business  || 要更新的域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  || - ||
+|| updatePropName || 要更新的对象属性  || page,request,session,application  ||
+|| pkValue  || 要更新域对象的主键值。|| 只支持按照主键进行更新。 ||
+|| count  || 要增加的计数值。  || 整数代表增加，负数表示减少 ||
+|| tableCondition  || 分表条件。具体请参看shadow table 和custom table介绍。 ||- ||
+
+ 举例：
+
+{{{
+<g:inc business="blogArticle" pkValue="${article.id}" updatePropName="readCount" count="1" />
+
+<g:inc business="comment" pkValue="${comment.id}" updatePropName="readCount" count="1" tableCondition="${article.channel}" />
+}}}
 
 == Taglib Documentation ==
 
