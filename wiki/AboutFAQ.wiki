@@ -81,3 +81,14 @@ java.sql.SQLException: No suitable driver
 *8. Guzz JSP Taglib中说可以只写jsp，不用写java代码，直接部署jsp不用重启应用服务器？jsp改动或者增加新的jsp，可以不用重启应用服务器？*
 
  改动JSP是不需要重启应用服务器的，所有java应用服务器都支持。
+
+*9. 怎么调用存储过程？
+ 
+ 通过ReadonlyTranSession或WriteTranSession的createJDBCTemplate获取JDBCTemplate。通过JDBCTemplate.getConnection()获取数据库连接，然后通过JDBC的调用方法进行调用。
+
+ JDBCTemplate.getConnection()上进行的操作，将处在WriteTranSession的统一事务下管理。
+
+ 完成调用后，通过TranSession.close()方法关闭连接。
+  
+
+
