@@ -19,6 +19,7 @@
 || g:list  || 读取一个列表。  || 不可以。  ||
 || g:page  || 读取一页对象。返回的对象默认为org.guzz.dao.PageFlip 对象。  || 不可以。  ||
 || g:out  || 输出标签，类似c:out，但增加了javascript过滤处理，xslt，js串输出，native2ascii等功能。<br> g:out默认对xml进行转义，并对javascript转义，如果需要2这都打开，需要将2个属性都设置为false。|| 不可以||
+|| g:inc  || 按照主键对域对象的1个字段进行自增操作。g:inc需要配置 [AppendCoreService 计数器更新队列服务] 方可生效。  || 不可以。  ||
 || 其他  || 执行数据库写操作，不计划支持。  || 请勿使用 ||
 
 == 标签中属性介绍： ==
