@@ -115,7 +115,7 @@ guzz实现了2个版本的计数器更新，一个用于处理要更新对象很
 #max size of cached queue
 queueSize=20480
 
-#batch size for updating main database.
+#batch size for updating to the temporary database.
 batchSize=2048
 }}}
 
@@ -137,11 +137,11 @@ batchSize=2048
 
 {{{
 [guzzSuperSlowUpdate]
-#batch size for updating to the main database.
+#batch size for updating to the temporary database.
 batchSize=2048
 
-#how many milseconds to wait if there is no new updates available.
-updateInterval=1000
+#how many milseconds to wait when there is no new updates available.
+updateInterval=500
 }}}
 
  内部工作原理：创建1个Map，每次对1个新行的更新都都记录到Map中，如果是对同一行记录的更新，将Map中计数更新（合并更新操作）。后台有1个线程，轮询Map，将Map中记录到的更新操作按照batchSize创建批操作写入临时表，并将计数设置为0（已经完成数据库更新）；如果元素计数为0，表示从上次入库到现在没有新的更新，判定此元素不再活跃，从Map中删除。如果1次轮询，没有任何需要更新的记录，线程等待updateInterval毫秒后执行。
