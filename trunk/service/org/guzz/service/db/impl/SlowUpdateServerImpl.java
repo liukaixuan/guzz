@@ -72,6 +72,9 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 	/**一次性最多读取页数据进行数据合并*/
 	public static final String CONFIG_COMBINE_PAGE_COUNT = "combinePageCount" ;
 	
+	/**Millseconds to wait for the next round of updates checking.*/
+	public static final String CONFIG_UPDATE_INTERVAL = "updateInterval" ;
+	
 	private int batchSize = 100 ;
 	
 	private int pageSize = 100 ;
@@ -97,12 +100,13 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 		String m_batchSize = (String) sc.getProps().remove(CONFIG_BATCH_SIZE) ;
 		String m_pageSize = (String) sc.getProps().remove(CONFIG_PAGE_SIZE) ;
 		String m_combinePageCount = (String) sc.getProps().remove(CONFIG_COMBINE_PAGE_COUNT) ;
+		String m_updateInterval = (String) sc.getProps().remove(CONFIG_UPDATE_INTERVAL) ;
 		
 		this.batchSize = StringUtil.toInt(m_batchSize, this.batchSize) ;
 		this.pageSize = StringUtil.toInt(m_pageSize, this.pageSize) ;
 		this.combinePageCount = StringUtil.toInt(m_combinePageCount, this.combinePageCount) ;
-					
-//		this.configureExtraDataSource(sc) ;
+		
+		int updateInterval = StringUtil.toInt(m_updateInterval, -1) ;
 		
 		//启动更新线程
 		if(updateThread == null){
@@ -110,12 +114,14 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 			updateThread.start() ;
 		}
 		
+		if(updateInterval > 10){
+			updateThread.setMillSecondsToSleep(updateInterval) ;
+		}
+		
 		return true ;
 	}
 
 	public void shutdown() {
-//		super.shutdown() ;
-		
 		if(updateThread != null){
 			updateThread.shutdown() ;
 			updateThread = null ;

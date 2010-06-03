@@ -47,6 +47,7 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 	
 	private int commitSize = 2048 ;
 	private int queueSize = 20480 ;
+	private int updateInterval ;
 
 	public boolean configure(ServiceConfig[] scs) {			
 		if(scs == null || scs.length == 0){
@@ -59,9 +60,15 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 		
 		String m_commitSize = (String) sc.getProps().get("commitSize") ;
 		String m_queueSize = (String) sc.getProps().get("queueSize") ;
+		String m_checkInterval = (String) sc.getProps().get("checkInterval") ;
 		
 		this.commitSize = StringUtil.toInt(m_commitSize, this.commitSize) ;
 		this.queueSize = StringUtil.toInt(m_queueSize, this.queueSize) ;
+		this.updateInterval = StringUtil.toInt(m_checkInterval, -1) ;
+		
+		if(this.updateThread != null && this.updateInterval > 10){
+			this.updateThread.setMillSecondsToSleep(updateInterval) ;
+		}
 		
 		return true ;
 	}
@@ -71,7 +78,11 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 		if(updateThread == null){
 			updateThread = new DBLogThread(queueSize) ;
 			updateThread.start() ;
-		}			
+		}
+		
+		if(updateInterval > 10){
+			updateThread.setMillSecondsToSleep(updateInterval) ;
+		}
 	}
 
 	public void log(Object logObject) {

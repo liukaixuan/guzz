@@ -137,11 +137,11 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 			ut.setColumnToUpdate(columnToUpdate) ;
 			ut.setPkValue(pkValue.toString()) ;
 			
-			//use this thread safe method. other thread maybe has already changed the count value.
+			//use thread safe method to inc count. Other threads may have already changed the count.
 			ut.incCount(countToInc) ;
 		}
 		
-		//just let him sleep, the delay is fine. we would like more batch performance.
+		//just let it sleep. The delay is fine, a big batch is preferred.
 //		if(this.updateThread.isSleeping()){
 //			synchronized (updateThread) {
 //				try{
@@ -303,13 +303,3 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 		this.omm = guzzContext.getObjectMappingManager() ;
 	}
 }
-
-
-
-
-
-
-
-
-
-

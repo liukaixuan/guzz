@@ -33,7 +33,20 @@ import org.guzz.orm.sql.BindedCompiledSQL;
  */
 public interface ReadonlyTranSession {
 	
+	/**
+	 * create JDBCTemplate for a domain class's database group.
+	 */
 	public JDBCTemplate createJDBCTemplate(Class domainClass) ;
+	
+	/**
+	 * create JDBCTemplate for a business's database group.
+	 */
+	public JDBCTemplate createJDBCTemplate(String businessName) ;
+	
+	/**
+	 * create JDBCTemplate for a database group.
+	 */
+	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup) ;
 	
 	/**
 	 * 
