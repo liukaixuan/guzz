@@ -107,8 +107,6 @@
 
  select|update的orm属性值可以是本文件中定义的orm元素的值，也可以是领域对象的businessName（直接使用hbm.xml或者annotation定义的映射）。orm映射默认将结果转会成领域对象，用户也可以通过配置result-class自定义转换成的java对象。result-class可以是javabean类或Map类，如...result-class="org.guzz.SomeBeanForm"，或result-class="java.util.HashMap"。
 
- 注意：[TutorialCustomTable 自定义属性表]不支持设置result-class。
-
 *orm：*定义sql查询结果字段与对象的对应关系，类似ibatis。可以通过指定dbgroup覆盖sqlMap中设定的数据库。 orm可以放在sqlMap内，表示此ORM在本sqlmap内有效，也可以放在sqlMap外，表示所有sqlMap中的select/update都可以使用。放在sqlMap内的orm优先级高于放在sqlMap的，同时orm名称不能是business name，所有business name会按照自己的名字自动声明自己为一个全局的orm。因此，在配置的sql语句选择orm时，可以填写为business name使用hbm.xml的映射关系（hbm.xml中所有的特殊功能，包括表分切自定义属性延迟加载等将依然有效），但此时将查询结果转换成java对象时采用hibernate的规则，查询多少字段映射多少字段，没有select的属性设为默认值。
 
 *orm/result：*每1个Result代表一列的对应关系，property为java属性名，column为数据库属性，type为数据类型（与hbm.xml中的type含义和取值相同）；如果type没有指定，则通过orm/class按照property属性反射获取类型。
