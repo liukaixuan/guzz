@@ -12,10 +12,10 @@
 org.guzz.service.AbstractService
 }}}
 
- 来实现。对于需要进行远程调用的服务（指RMI/hessian类似的远程调用），可以通过继承：
+ 来实现。对于需要进行远程调用/异步执行的服务，可以通过继承：
 
 {{{
-org.guzz.service.AbstractRemoteService
+org.guzz.service.AbstractRemoteService<ServiceReturnType>
 }}}
 
  来实现。
