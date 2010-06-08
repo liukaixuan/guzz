@@ -133,7 +133,7 @@ public class MemcachedCountServiceClientImpl extends AbstractService implements 
 appName=bbs
 }}}
 
- 与Mysql配置文件不同的时，配置组可以重复，以实现对一个服务配置多组，如：
+ 与Mysql配置文件不同的时，配置组可以重复，以实现对一个服务配置多组。*假如*我们的这个服务需要传入3个appName，则可以配置成：
 
 {{{
 [fundFixedLifeCountServiceClient]
