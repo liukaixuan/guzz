@@ -1,6 +1,7 @@
 1.2.8 final
 	1. fix a bug in annotated Enumeration.
 	2. fix a bug: cann't insert blob into Mysql
+	3. improvement: support result-class attribute for custom tables to perform joining queries.
 
 1.2.8 beta2
 	1. new feature: support 2 new rpc protocols: hessian, burlap.
