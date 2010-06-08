@@ -197,7 +197,7 @@ public class AbstractTranSessionImpl {
 			
 			while(rs.next()){
 				if(loader == null){
-					results.addLast(m.rs2Object(rs)) ;
+					results.addLast(m.rs2Object(rs, bsql.getResultClass())) ;
 				}else{
 					results.addLast(loader.rs2Object(m, rs)) ;
 				}
@@ -466,7 +466,7 @@ public class AbstractTranSessionImpl {
 			//do ORM		
 			if(rs.next()){
 				if(loader == null){
-					return m.rs2Object(rs) ;
+					return m.rs2Object(rs, bsql.getResultClass()) ;
 				}else{
 					return loader.rs2Object(m, rs) ;
 				}

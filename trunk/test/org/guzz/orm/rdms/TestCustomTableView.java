@@ -386,6 +386,13 @@ public class TestCustomTableView extends DBBasedTestCase {
 		cs.addParamPropMapping("param_price", "price") ;
 		assertEquals(session.list(cs.bind("param_price", 100.00), 1, 1000).size(), 2) ;
 		
+		//result as HashMap -- set bsql
+		assertEquals(session.list(cs.bind("param_price", 100.00).setResultClass(java.util.HashMap.class), 1, 1000).size(), 2) ;
+		
+		//result as HashMap -- set cs
+		cs.setResultClass(java.util.HashMap.class) ;
+		assertEquals(session.list(cs.bind("param_price", 100.00), 1, 1000).size(), 2) ;
+		
 		session.close() ;
 	}
 	

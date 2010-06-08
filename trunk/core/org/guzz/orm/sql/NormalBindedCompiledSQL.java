@@ -32,8 +32,9 @@ public class NormalBindedCompiledSQL extends BindedCompiledSQL{
 	private String cachedSql ;
 	
 	public NormalBindedCompiledSQL(NormalCompiledSQL cs){
+		super(cs.getResultClass()) ;
 		this.compiledSQL = cs ;
-	}	
+	}
 
 	protected void notifyTableConditionChanged() {
 		this.cachedSql = null ;

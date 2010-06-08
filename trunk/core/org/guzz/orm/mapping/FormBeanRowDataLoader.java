@@ -71,7 +71,7 @@ public final class FormBeanRowDataLoader implements RowDataLoader {
 	 * 
 	 * Create a new instance of FormBeanRowDataLoader for class @param beanCls.
 	 * <p>The beanCls's filed name should be the same as the column name in the {@link ResultSet}. 
-	 * Or, it won't be possible for guzz to understand how to map.</p>
+	 * Or, it won't be possible for guzz to understand how to do the map.</p>
 	 * 
 	 * @param beanCls java object to store the queried {@link ResultSet}
 	 */

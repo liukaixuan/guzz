@@ -19,7 +19,10 @@ package org.guzz.orm.mapping;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContextImpl;
 import org.guzz.bytecode.BusinessDescriptor;
 import org.guzz.bytecode.ProxyFactory;
@@ -40,6 +43,7 @@ import org.guzz.util.javabean.BeanWrapper;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public final class POJOBasedObjectMapping extends AbstractObjectMapping{
+	private static final Log log = LogFactory.getLog(POJOBasedObjectMapping.class) ;
 
 	private Business business ;
 		
@@ -89,49 +93,64 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping{
 	
 	/**将当前@rs行的记录转换成Object对象并返回
 	 * @throws SQLException */
-	public Object rs2Object(ResultSet rs) throws SQLException{
-		//rs记录是按照table中的select columns顺序获取到的，我们可以直接根据这个顺序进行绑定。省略metadata查询。
-		//按照select columns顺序查找失败：某些指定的查询语句(SearchTerm)，可能按照不同的顺序和字段个数进行查询并通过此处ORM。
-//		String[] columnsForSelect = table.getColumnsForSelect() ;
-//		Object obj = BeanCreator.newBeanInstance(this.business.getDomainClass()) ;
-//		
-//		for(int i = 1 ; i <= columnsForSelect.length ; i++){
-//			ColumnORM orm = (ColumnORM) col2PropsMapping.get(columnsForSelect[i]) ;
-//			
-//			//没有对应的映射，不进行映射。TODO: 在debug模式下，发出警告。
-//			if(orm != null){
-//				Object value = orm.sqlDataType.getSQLValue(rs, i) ;
-//				this.beanWrapper.setValue(obj, orm.propName, value) ;
-//			}
-//		}
+	public Object rs2Object(ResultSet rs, Class resultClass) throws SQLException{
+		boolean isMap = false ;
+		BeanWrapper bw = this.beanWrapper ;
 		
-		ResultSetMetaData  meta = rs.getMetaData() ;
-		int count = meta.getColumnCount() ;
-		Object obj = proxyDomainObject() ;
+		Object instance = resultClass == null ? proxyDomainObject() : BeanCreator.newBeanInstance(resultClass) ;
 		
-		if(obj instanceof GuzzProxy){
-			((GuzzProxy) obj).markReading() ;
+		if(instance instanceof Map){
+			isMap = true ;
+		}else{
+			bw = resultClass == null ? this.beanWrapper : BeanWrapper.createPOJOWrapper(resultClass) ;
+		}
+		
+		if(instance instanceof GuzzProxy){
+			((GuzzProxy) instance).markReading() ;
 		}
 		
 		Table t = getTable() ;
+		ResultSetMetaData  meta = rs.getMetaData() ;
+		int count = meta.getColumnCount() ;
 		
 		for(int i = 1 ; i <= count ; i++){
 			String colName = meta.getColumnLabel(i) ;
 			TableColumn col = t.getColumnByColNameInRS(colName) ;
 			ColumnORM orm = col != null ? col.getOrm() : null ;
 			
-			//没有对应的映射，不进行映射。TODO: 在debug模式下，发出警告。
 			if(orm != null){
-				Object value = orm.loadResult(rs, obj, i) ;
-				this.beanWrapper.setValue(obj, col.getPropName(), value) ;
+				//进行映射。
+				Object value = orm.loadResult(rs, instance, i) ;
+				
+				if(isMap){
+					((Map) instance).put(col.getPropName(), value) ;
+				}else{
+					bw.setValue(instance, col.getPropName(), value) ;
+				}
+			}else if(resultClass != null){
+				//如果设置了resultClass，尽可能多的赋值给resultClass；如果某个属性resultClass不接受，直接报错！
+				//原则：指定resultClass后，resultClass不允许忽略任何结果集。
+				
+				Object value = rs.getObject(i) ;
+				
+				if(isMap){
+					((Map) instance).put(colName, value) ;
+				}else{
+					bw.setValue(instance, colName, value) ;
+				}
+			}else{
+				//TODO: business忽略某些结果集。在debug模式下，DebugService发出警告！
+				if(log.isDebugEnabled()){
+					log.debug("warning:ignore ResultSet column:[" + colName + "] in POJOBasedObjectMapping for business:[" + this.business.getName() + "].") ;
+				}
 			}
 		}
 		
-		if(obj instanceof GuzzProxy){
-			((GuzzProxy) obj).unmarkReading() ;
+		if(instance instanceof GuzzProxy){
+			((GuzzProxy) instance).unmarkReading() ;
 		}
 		
-		return obj ;
+		return instance ;
 	}
 	
 	protected String getColDataType(String propName, String colName, String dataType){

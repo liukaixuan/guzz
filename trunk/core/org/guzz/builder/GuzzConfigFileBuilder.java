@@ -534,50 +534,17 @@ public class GuzzConfigFileBuilder {
 			Map paramPropMapping = loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
-			ObjectMapping map = null ;
 			CompiledSQL cs = null ;
 			
 			ObjectMapping localORM = (ObjectMapping) local_orms.get(m_orm) ;
-			
-			if(StringUtil.isEmpty(m_orm)){
-				map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup) ;
+			if(localORM != null){
+				cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
 			}else{
-				if(beanCls == null){
-					if(localORM == null){
-						cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
-					}else{
-						cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
-					}
-				}else{
-					if(localORM != null){
-						map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup, localORM) ;
-					}else{
-						map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup, m_orm) ;
-					}
-				}
+				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
 			}
 			
-//			if(m_orm.startsWith("@")){
-//				Class beanCls = ClassUtil.getClass(m_orm.substring(1)) ;
-//				map = ObjectMappingUtil.createFormBeanMapping(gf, beanCls, m_dbgroup) ;
-//			}else{
-//				map = (ObjectMapping) local_orms.get(m_orm) ;
-//				if(map == null){
-//					if(gf.getBusiness(m_orm) != null){
-//						//build cs with the business name which supports custom table.
-//						cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
-//					}else{
-//						map = omm.getStaticObjectMapping(m_orm) ;
-//					}
-//				}
-//			}
-			
-			if(cs == null){
-				if(map == null){
-					throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
-				}
-				
-				cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
+			if(beanCls != null){
+				cs.setResultClass(beanCls) ;
 			}
 			
 			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
@@ -596,19 +563,13 @@ public class GuzzConfigFileBuilder {
 			value = StringUtil.replaceString(value, "\n", " ") ;
 			Map paramPropMapping = loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
-			ObjectMapping map = (ObjectMapping) local_orms.get(m_orm) ;
+			ObjectMapping localORM = (ObjectMapping) local_orms.get(m_orm) ;
 			CompiledSQL cs = null ;
 			
-			if(map == null){
+			if(localORM != null){
+				cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
+			}else{
 				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
-			}
-			
-			if(cs == null){
-				if(map == null){
-					throw new GuzzException("unknown object mapping:[" + m_orm + "] in:" + s_node.asXML()) ;
-				}
-				
-				cs = compiledSQLBuilder.buildCompiledSQL(map, value) ;
 			}
 			
 			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 

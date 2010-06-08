@@ -17,6 +17,7 @@
 package org.guzz.orm.sql;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +25,13 @@ import org.guzz.orm.type.SQLDataType;
 
 /**
  * 
- * Compiled (detached) Sql, including separated sql statement that can be executed directly in the database,
+ * Compiled (detached) Sql, including parsed sql statement that can be executed directly in the database,
  *  the ordered parameters in the sql, and the default ORM settings.
  * <p>
  * In Guzz, almost every sql should be converted to a CompiledSQL, then bind its parameters, and then execute.
  * </p>
  * 
- * The CompiledSQL is thread-safe, and is recommended to be cached in all cases for higher performance and cleaner code.
+ * The CompiledSQL is thread-safe, and is recommended to be cached in all cases for higher performance and cleaner codes.
  * 
  * @see BindedCompiledSQL
  * @author liukaixuan(liukaixuan@gmail.com)
@@ -38,6 +39,8 @@ import org.guzz.orm.type.SQLDataType;
 public abstract class CompiledSQL {
 		
 	protected Map paramPropMapping = null ;
+	
+	private Class resultClass ;
 	
 	/**
 	 * Add mapping between the parameter Name and the corresponding pojo's property name.
@@ -98,5 +101,25 @@ public abstract class CompiledSQL {
 	public abstract BindedCompiledSQL bind(Map params) ;
 	
 	public abstract BindedCompiledSQL bindNoParams() ;
+
+	public Class getResultClass() {
+		return resultClass;
+	}
+
+	/**
+	 * 
+	 * Set the mapped javabean for the {@link ResultSet} to any given class with set-xxx methods to override the ORM's default business class.
+	 * 
+	 * <p>
+	 * If the resultClass is a subclass of java.util.Map(for example:java.util.HashMap), the queried value will be put to the Map.<br>
+	 * </p>
+	 *
+	 * @param resultClass
+	 */
+	public CompiledSQL setResultClass(Class resultClass) {
+		this.resultClass = resultClass;
+		
+		return this ;
+	}
 
 }
