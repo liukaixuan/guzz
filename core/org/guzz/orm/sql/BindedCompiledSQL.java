@@ -36,12 +36,13 @@ import org.guzz.transaction.LockMode;
 
 /**
  * 
- * A {@link CompiledSQL} with binded parameters.
+ * A executive version of {@link CompiledSQL} with binded parameters.
  * <p>
- * BindedCompiledSQL should be used as a temporary object, never cache it.
+ * BindedCompiledSQL should be used as a temporary object, never try to cache it.
  * All methods in this class are not thread-safe.
  * </p>
  *
+ * @see CompiledSQL
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public abstract class BindedCompiledSQL {
@@ -64,9 +65,15 @@ public abstract class BindedCompiledSQL {
 		
 	private Object tableCondition ;	
 	
+	protected Class resultClass ;
+	
 	public abstract NormalCompiledSQL getCompiledSQLToRun() ;
 	
 	public abstract String getSQLToRun() ;
+	
+	protected BindedCompiledSQL(Class resultClass){
+		this.resultClass = resultClass ;
+	}
 	
 	
 	/**
@@ -85,7 +92,7 @@ public abstract class BindedCompiledSQL {
 			Object value = bindedParams.get(orderParam) ;
 			
 			if(value == null){
-				throw new DaoException("missing paramter:[" + orderParam + "] in sql:" + getSQLToRun()) ;
+				throw new DaoException("missing parameter:[" + orderParam + "] in sql:" + getSQLToRun()) ;
 			}
 			
 			//NEW Implemention to fix
@@ -236,5 +243,24 @@ public abstract class BindedCompiledSQL {
 	}
 	
 	protected abstract void notifyTableConditionChanged() ;
+
+	public Class getResultClass() {
+		return resultClass;
+	}
+
+	/**
+	 * 
+	 * Set the mapped javabean for the {@link ResultSet} to any given class with set-xxx methods to override the ORM's default business class.
+	 * 
+	 * <p>
+	 * If the resultClass is a subclass of java.util.Map(for example:java.util.HashMap), the queried value will be put to the Map.<br>
+	 * </p>
+	 *
+	 * @param resultClass
+	 */
+	public BindedCompiledSQL setResultClass(Class resultClass) {
+		this.resultClass = resultClass;
+		return this ;
+	}
 
 }

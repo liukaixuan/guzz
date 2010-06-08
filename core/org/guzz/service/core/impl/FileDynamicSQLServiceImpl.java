@@ -48,7 +48,7 @@ import org.guzz.util.StringUtil;
  * Provide sqls from the file system. The file name is the "id", and xml content contains the sql statement.
  * <br>One File, One Sql. The file format is similar to the definition in guzz.xml. For example(query the user by id and map the result to org.guzz.test.UserModel):
  * <pre>
- * &lt;sqlMap dbgroup="default"&gt;
+ * &lt;sqlMap&gt;
  *	&lt;select orm="userMap" &gt;
  *		select * from @@user
  *		 where 
@@ -59,7 +59,7 @@ import org.guzz.util.StringUtil;
  * 		&lt;/paramsMapping&gt;
  *	&lt;/select&gt;
  *	
- *	&lt;orm id="userMap" class="org.guzz.test.UserModel" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView"&gt;
+ *	&lt;orm id="userMap" dbgroup="default" class="org.guzz.test.UserModel" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView"&gt;
  *		&lt;result property="id" column="id" type="int"/&gt;
  *	    &lt;result property="userId" column="userId" type="int"/&gt;
  *	    &lt;result property="userName" column="userName" type="string" /&gt;
@@ -72,7 +72,7 @@ import org.guzz.util.StringUtil;
  * 
  * <b>OR, you want to map the result into a Map:</b>
  * <pre>
- * &lt;sqlMap dbgroup="default"&gt;
+ * &lt;sqlMap&gt;
  *	&lt;select orm="user" result-class="java.util.HashMap" &gt;
  *		select * from @@user
  *		 where 
@@ -221,30 +221,24 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 			sql = StringUtil.replaceString(sql, "\n", " ") ;
 			Map paramPropMapping = GuzzConfigFileBuilder.loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
-			ObjectMapping map = null ;
 			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
+			CompiledSQL cs = null ;
 			
-			if(StringUtil.isEmpty(ormName)){
-				map = ObjectMappingUtil.createFormBeanMapping(this.guzzContext, beanCls, m_dbgroup) ;
+			ObjectMapping localORM = this.loadORM(root, ormName, m_dbgroup) ;
+			if(localORM != null){
+				cs = compiledSQLBuilder.buildCompiledSQL(localORM, sql) ;
 			}else{
-				ObjectMapping localColMapping = this.loadORM(root, ormName, m_dbgroup) ;
-				
-				if(resultClass == null){
-					if(localColMapping == null){
-						return compiledSQLBuilder.buildCompiledSQL(ormName, sql).addParamPropMappings(paramPropMapping) ;
-					}else{
-						return compiledSQLBuilder.buildCompiledSQL(localColMapping, sql).addParamPropMappings(paramPropMapping) ;
-					}
-				}else{
-					if(localColMapping != null){
-						map = ObjectMappingUtil.createFormBeanMapping(this.guzzContext, beanCls, m_dbgroup, localColMapping) ;
-					}else{
-						map = ObjectMappingUtil.createFormBeanMapping(this.guzzContext, beanCls, m_dbgroup, ormName) ;
-					}
-				}
+				cs = compiledSQLBuilder.buildCompiledSQL(ormName, sql) ;
 			}
 			
-			return compiledSQLBuilder.buildCompiledSQL(map, sql).addParamPropMappings(paramPropMapping) ;
+			if(beanCls != null){
+				cs.setResultClass(beanCls) ;
+			}
+			
+			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
+			cs.addParamPropMappings(paramPropMapping) ;
+			
+			return cs ;
 		}
 		
 		Element u_node = (Element) root.selectSingleNode("//sqlMap/update") ;
@@ -256,12 +250,12 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 			Map paramPropMapping = GuzzConfigFileBuilder.loadParamPropsMapping((Element) u_node.selectSingleNode("paramsMapping")) ;
 			
 			//首先提取本sqlmap内的orm信息，这些orm优先于global orm定义。
-			ObjectMapping map = this.loadORM(root, m_orm, m_dbgroup) ;
+			ObjectMapping localORM = this.loadORM(root, m_orm, m_dbgroup) ;
 			
-			if(map == null){
-				return compiledSQLBuilder.buildCompiledSQL(m_orm, sql).addParamPropMappings(paramPropMapping) ;
+			if(localORM != null){
+				return compiledSQLBuilder.buildCompiledSQL(localORM, sql).addParamPropMappings(paramPropMapping) ;
 			}else{
-				return compiledSQLBuilder.buildCompiledSQL(map, sql).addParamPropMappings(paramPropMapping) ;
+				return compiledSQLBuilder.buildCompiledSQL(m_orm, sql).addParamPropMappings(paramPropMapping) ;
 			}
 		}
 		

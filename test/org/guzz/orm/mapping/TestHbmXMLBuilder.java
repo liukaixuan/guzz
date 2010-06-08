@@ -54,7 +54,7 @@ public class TestHbmXMLBuilder extends DBBasedTestCase {
 		ResultSet rs = executeQuery(getDefaultConn(), "select * from TB_ARTICLE order by id asc limit 10 " ) ;
 		LinkedList obs = new LinkedList() ;
 		while(rs.next()){
-			obs.add(map.rs2Object(rs)) ;
+			obs.add(map.rs2Object(rs, null)) ;
 		}
 		
 		CloseUtil.close(rs) ;

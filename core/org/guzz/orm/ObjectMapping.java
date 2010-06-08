@@ -40,7 +40,13 @@ public interface ObjectMapping {
 	
 //	public String getPropNameByColName(String colName) ;
 	
-	public Object rs2Object(ResultSet rs) throws SQLException ;
+	/**
+	 * Map one row of the {@link ResultSet} to a instance of the resultClass.
+	 * 
+	 * @param rs The queried {@link ResultSet}.
+	 * @param resultClass The resultClass to be mapped. Use the configured domain-class if this parameter is null.
+	 */
+	public Object rs2Object(ResultSet rs, Class resultClass) throws SQLException ;
 	
 	/** 返回此ObjectMapping唯一的标识，可以有多个标识。
 	 * 

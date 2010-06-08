@@ -18,6 +18,7 @@ package org.guzz.orm.mapping;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
@@ -59,10 +60,19 @@ public final class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 		return new String[]{id} ;
 	}
 
-	public Object rs2Object(ResultSet rs) throws SQLException {
+	public Object rs2Object(ResultSet rs, Class resultClass) throws SQLException {
 		//result map 采用ibatis模式，以ORM为准，如果不存在select的字段报错。
 		
-		Object obj = BeanCreator.newBeanInstance(this.domainClass) ;
+		boolean isMap = false ;
+		BeanWrapper bw = this.beanWrapper ;
+		
+		Object instance = BeanCreator.newBeanInstance(resultClass == null ? this.domainClass : resultClass) ;
+		
+		if(instance instanceof Map){
+			isMap = true ;
+		}else{
+			bw = resultClass == null ? this.beanWrapper : BeanWrapper.createPOJOWrapper(resultClass) ;
+		}
 		
 		TableColumn[] cols = getTable().getColumnsForSelect() ;
 		
@@ -70,12 +80,16 @@ public final class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 			TableColumn col = cols[i] ;
 			
 			int index = rs.findColumn(col.getColNameForRS()) ;
-			Object value = col.getOrm().loadResult(rs, obj, index) ;
+			Object value = col.getOrm().loadResult(rs, instance, index) ;
 			
-			this.beanWrapper.setValue(obj, col.getPropName(), value) ;
+			if(isMap){
+				((Map) instance).put(col.getPropName(), value) ;
+			}else{
+				bw.setValue(instance, col.getPropName(), value) ;
+			}
 		}
 		
-		return obj ;
+		return instance ;
 	}
 
 	public BeanWrapper getBeanWrapper() {

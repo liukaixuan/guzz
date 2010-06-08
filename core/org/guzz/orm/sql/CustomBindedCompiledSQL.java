@@ -37,6 +37,7 @@ public class CustomBindedCompiledSQL extends BindedCompiledSQL {
 	private NormalCompiledSQL runtimeCS ;
 	
 	public CustomBindedCompiledSQL(CustomCompiledSQL cs){
+		super(cs.getResultClass()) ;
 		this.customCS = cs ;
 	}
 	

@@ -16,12 +16,9 @@
  */
 package org.guzz.orm.mapping;
 
-import java.util.Map;
-
 import org.guzz.GuzzContext;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.ColumnDataLoader;
-import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.rdms.SimpleTable;
@@ -41,66 +38,66 @@ import org.guzz.util.javabean.BeanCreator;
  */
 public abstract class ObjectMappingUtil {
 	
-	/**
-	 * 
-	 * Helper method to create {@link ObjectMapping} for java bean mapping.
-	 * 
-	 * @param guzzContext guzzContext
-	 * @param beanClass the bean class. The beanClass can be a subclass of {@link Map}(eg:java.util.HashMap), or a POJO style javabean.
-	 * @param dbGroup the database group name.
-	 */
-	public static ObjectMapping createFormBeanMapping(GuzzContext guzzContext, Class beanClass, String dbGroup){
-		if(StringUtil.isEmpty(dbGroup)){
-			dbGroup = "default" ;
-		}
-		
-		DBGroup db = guzzContext.getDBGroup(dbGroup) ;
-		
-		return new FormBeanBasedObjectMapping(beanClass, db) ;
-	}
-	
-	/**
-	 * 
-	 * Helper method to create {@link ObjectMapping} for java bean mapping.
-	 * 
-	 * @param guzzContext guzzContext
-	 * @param beanClass the bean class. The beanClass can be a subclass of {@link Map}(eg:java.util.HashMap), or a POJO style javabean.
-	 * @param dbGroup the database group name.
-	 * @param colsMapping colsMapping
-	 */
-	public static ObjectMapping createFormBeanMapping(GuzzContext guzzContext, Class beanClass, String dbGroup, ObjectMapping colsMapping){
-		if(StringUtil.isEmpty(dbGroup)){
-			dbGroup = "default" ;
-		}
-		
-		DBGroup db = guzzContext.getDBGroup(dbGroup) ;
-		
-		return new FormBeanBasedObjectMapping(beanClass, db, colsMapping) ;
-	}
-	
-	/**
-	 * 
-	 * Helper method to create {@link ObjectMapping} for java bean mapping.
-	 * 
-	 * @param guzzContext guzzContext
-	 * @param beanClass the bean class. The beanClass can be a subclass of {@link Map}(eg:java.util.HashMap), or a POJO style javabean.
-	 * @param dbGroup the database group name.
-	 * @param colsOrmName business name OR global orm name
-	 */
-	public static ObjectMapping createFormBeanMapping(GuzzContext guzzContext, Class beanClass, String dbGroup, String colsOrmName){
-		if(StringUtil.isEmpty(dbGroup)){
-			dbGroup = "default" ;
-		}
-		
-		DBGroup db = guzzContext.getDBGroup(dbGroup) ;
-		CustomTableView view = guzzContext.getObjectMappingManager().getCustomTableView(colsOrmName) ;
-		
-		if(view == null){
-			return new FormBeanBasedObjectMapping(beanClass, db, guzzContext.getObjectMappingManager().getStaticObjectMapping(colsOrmName)) ;
-		}else{
-			return new FormBeanBasedObjectMapping(beanClass, db, view) ;
-		}
-	}
+//	/**
+//	 * 
+//	 * Helper method to create {@link ObjectMapping} for java bean mapping.
+//	 * 
+//	 * @param guzzContext guzzContext
+//	 * @param beanClass the bean class. The beanClass can be a subclass of {@link Map}(eg:java.util.HashMap), or a POJO style javabean.
+//	 * @param dbGroup the database group name.
+//	 */
+//	public static ObjectMapping createFormBeanMapping1(GuzzContext guzzContext, Class beanClass, String dbGroup){
+//		if(StringUtil.isEmpty(dbGroup)){
+//			dbGroup = "default" ;
+//		}
+//		
+//		DBGroup db = guzzContext.getDBGroup(dbGroup) ;
+//		
+//		return new FormBeanBasedObjectMapping(beanClass, db) ;
+//	}
+//	
+//	/**
+//	 * 
+//	 * Helper method to create {@link ObjectMapping} for java bean mapping.
+//	 * 
+//	 * @param guzzContext guzzContext
+//	 * @param beanClass the bean class. The beanClass can be a subclass of {@link Map}(eg:java.util.HashMap), or a POJO style javabean.
+//	 * @param dbGroup the database group name.
+//	 * @param colsMapping colsMapping
+//	 */
+//	public static ObjectMapping createFormBeanMapping1(GuzzContext guzzContext, Class beanClass, String dbGroup, ObjectMapping colsMapping){
+//		if(StringUtil.isEmpty(dbGroup)){
+//			dbGroup = "default" ;
+//		}
+//		
+//		DBGroup db = guzzContext.getDBGroup(dbGroup) ;
+//		
+//		return new FormBeanBasedObjectMapping(beanClass, db, colsMapping) ;
+//	}
+//	
+//	/**
+//	 * 
+//	 * Helper method to create {@link ObjectMapping} for java bean mapping.
+//	 * 
+//	 * @param guzzContext guzzContext
+//	 * @param beanClass the bean class. The beanClass can be a subclass of {@link Map}(eg:java.util.HashMap), or a POJO style javabean.
+//	 * @param dbGroup the database group name.
+//	 * @param colsOrmName business name OR global orm name
+//	 */
+//	public static ObjectMapping createFormBeanMapping1(GuzzContext guzzContext, Class beanClass, String dbGroup, String colsOrmName){
+//		if(StringUtil.isEmpty(dbGroup)){
+//			dbGroup = "default" ;
+//		}
+//		
+//		DBGroup db = guzzContext.getDBGroup(dbGroup) ;
+//		CustomTableView view = guzzContext.getObjectMappingManager().getCustomTableView(colsOrmName) ;
+//		
+//		if(view == null){
+//			return new FormBeanBasedObjectMapping(beanClass, db, guzzContext.getObjectMappingManager().getStaticObjectMapping(colsOrmName)) ;
+//		}else{
+//			return new FormBeanBasedObjectMapping(beanClass, db, view) ;
+//		}
+//	}
 	
 	/**
 	 * 
