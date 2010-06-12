@@ -65,6 +65,9 @@ remote.queueSize=2048
 
  上面属性给的值为不配置时的默认值。
 
+
+*TIPS*：AbstractRemoteService虽然名字上有Remote，但和“远程”调用无关；AbstractRemoteService本身并不依赖网络，可以用于本地需要异步执行的操作。
+
 === RPC远程方法调用 ===
 
  RPC(Remote Procedure Call)，人如其名，是指使用RMI、hessian、phprpc之类的框架，实现通过调用本地接口(stub)来完成远程实际方法的调用。在调用时，使用者仿佛就是在调用普通的方法，但实际上，这些方法只是一些代理的空方法，他们会把参数序列化然后通过某种网络协议（如http）传给远程的机器，在远程的机器上真正的执行运算后，在将结果以同样的方式返回给代理，代理在返给调用者。
@@ -95,4 +98,3 @@ public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
 || hessian  || hessian        || rpc.url 接口实现服务地址<br>com.caucho.hessian.client.HessianProxyFactory中能够通过setXXX方法注入的属性（属性名前加rpc.）。<br>eg: rpc.user, rpc.password, rpc.connectionFactoryName, rpc.debug, rpc.overloadEnabled, rpc.chunkedPost, rpc.readTimeout, rpc.hessian2Request. || http://hessian.caucho.com/ ||
 || burlap  || burlap  || rpc.url 接口实现服务地址<br>com.caucho.burlap.client.BurlapProxyFactory中能够通过setXXX方法注入的属性（属性名前加rpc.）。<br>eg: rpc.user, rpc.password, rpc.overloadEnabled. || http://hessian.caucho.com/doc/burlap.xtp ||
 || PHPRPC   || phprpc         || rpc.serviceURL 接口实现服务地址<br>org.phprpc.PHPRPC_Client中能够通过setXXX方法注入的属性（属性名前加rpc.）。 || http://www.phprpc.org/ ||
-
