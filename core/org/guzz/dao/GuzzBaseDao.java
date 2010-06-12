@@ -23,6 +23,7 @@ import java.util.Map;
 import org.guzz.GuzzContext;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.sql.BindedCompiledSQL;
+import org.guzz.service.core.DynamicSQLService;
 import org.guzz.transaction.ReadonlyTranSession;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
@@ -121,6 +122,14 @@ public class GuzzBaseDao {
 	}
 
 	
+	/**
+	 * Return the value of first column in the first row.
+	 * 
+	 * @param id Sql id defined in guzz.xml or {@link DynamicSQLService}
+	 * @param params Named parameters
+	 * @param returnType The data type of the result to return. eg: int, long, float...
+	 * @see ReadonlyTranSession#findCell00(String, Map, String)
+	 */
 	public Object findCell00(String id, Map params, String returnType){
 		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
 		
@@ -131,6 +140,13 @@ public class GuzzBaseDao {
 		}	
 	}
 	
+	/**
+	 * Return the value of first column in the first row.
+	 * 
+	 * @param bsql BindedCompiledSQL to execute.
+	 * @param returnType The data type of the result to return. eg: int, long, float...
+	 * @see ReadonlyTranSession#findCell00(BindedCompiledSQL, String)
+	 */
 	public Object findCell00(BindedCompiledSQL bsql, String returnType) {
 		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
 		

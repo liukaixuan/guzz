@@ -16,7 +16,6 @@
  */
 package org.guzz.builder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -71,7 +70,7 @@ public class GuzzConfigFileBuilder {
 	
 	protected GuzzContextImpl gf  ;
 	
-	protected File mainConfigFile ;
+	protected Resource mainConfigResource ;
 	
 	private GuzzConfigFileBuilder(){
 	}
@@ -106,13 +105,9 @@ public class GuzzConfigFileBuilder {
         	Element  n = (Element ) list.get(i) ;
         	
         	String file = n.attribute("resource").getValue() ;
-        	File relatedFile = null ;
-        	//load included xml file.
-        	if(resource instanceof FileResource){
-        		relatedFile = ((FileResource) resource).getFile() ;
-        	}
         	
-        	FileResource fr = new FileResource(relatedFile, file) ;
+        	//load included xml file.
+        	FileResource fr = new FileResource(resource, file) ;
         	Document includedDoc = null ;
         	
         	try{
@@ -141,9 +136,7 @@ public class GuzzConfigFileBuilder {
 	protected void setupMainConfigDocument(GuzzContext gf, Resource r, String encoding) throws DocumentException, IOException, SAXException{
 		rootDoc = loadFullConfigFile(r, encoding) ;
 		
-		if(r instanceof FileResource){
-    		this.mainConfigFile = ((FileResource) r).getFile() ;
-    	}
+    	this.mainConfigResource = r ;
 	}
 	
 	public List listDBGroups(){
@@ -646,7 +639,7 @@ public class GuzzConfigFileBuilder {
 			String value = xml_param.attributeValue("value") ;
 			
 			if(Resource.class.isAssignableFrom(bw.getPropertyType(propName))){				
-				FileResource fr = new FileResource(this.mainConfigFile.getParentFile(), value) ;
+				FileResource fr = new FileResource(mainConfigResource, value) ;
 				try{
 					bw.setValue(server, propName, fr) ;
 				}finally{
@@ -714,7 +707,7 @@ public class GuzzConfigFileBuilder {
 		}
 		
 		String fileName = ((Attribute) ls.get(0)).getValue() ;
-		FileResource r = new FileResource(this.mainConfigFile, fileName) ;
+		FileResource r = new FileResource(mainConfigResource, fileName) ;
 		try{
 			Properties p = new Properties() ;
 			p.load(r.getInputStream()) ;

@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.guzz.util.CloseUtil;
 
 /**
@@ -30,14 +33,21 @@ import org.guzz.util.CloseUtil;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class FileResource implements Resource {
+	private static final Log log = LogFactory.getLog(FileResource.class) ;
+	
 	public static final String CLASS_PATH_PREFIX = "classpath:" ;
 	
-	File file ;
+	protected File file ;
+	
+	protected String classPath ;
 	
 	InputStream fis = null ;
 	
+	protected final boolean streamResource ;
+	
 	public FileResource(File f){
 		this.file = f ;
+		this.streamResource = false ;
 	}
 	
 	/**支持以classpath:开头的路径和文件的绝对路径2种方式**/
@@ -45,26 +55,30 @@ public class FileResource implements Resource {
 		this(null, fileName) ;
 	}	
 	
-	public FileResource(File relatedFile, String fileName){
+	public FileResource(Resource relativedResource, String fileName){
 		if (fileName.startsWith(CLASS_PATH_PREFIX)){
-			initClassPathFile(fileName) ;			
+			initClassPathFile(fileName) ;
+			this.streamResource = true ;
 		}else{
-			if(relatedFile == null){
+			if(relativedResource == null){
 				this.file = new File(fileName) ;
+			}else if(relativedResource instanceof FileResource){
+				File relativedFile = ((FileResource) relativedResource).getFile() ;
+				this.file = new File(relativedFile.getParentFile(), fileName) ;
 			}else{
-				if(relatedFile.isDirectory()){
-					this.file = new File(relatedFile, fileName) ;
-				}else{
-					this.file = new File(relatedFile.getParentFile(), fileName) ;
-				}
+				log.warn("unknown relatived Resource:" + relativedResource) ;
 			}
+			
+			this.streamResource = false ;
 		}
 	}
 	
 	protected void initClassPathFile(String classpathFile){
-		String classPath = FileResource.class.getResource("/").getFile() ;
-		String m_fileName = classpathFile.substring(CLASS_PATH_PREFIX.length()) ;	
-		this.file = new File(classPath, m_fileName) ;
+		this.classPath = classpathFile.substring(CLASS_PATH_PREFIX.length()) ;
+		
+		String classRootPath = FileResource.class.getResource("/").getFile() ;
+		String m_fileName = classpathFile.substring(CLASS_PATH_PREFIX.length()) ;
+		this.file = new File(URLDecoder.decode(classRootPath), m_fileName) ;
 	}
 
 	public void close() {
@@ -73,18 +87,23 @@ public class FileResource implements Resource {
 
 	public InputStream getInputStream() throws IOException {
 		if(fis == null){
-			fis = new FileInputStream(file) ;
+			if(isStreamResource()){
+				fis = FileResource.class.getClassLoader().getResourceAsStream(this.classPath) ;
+			}else{
+				fis = new FileInputStream(file) ;
+			}
 		}
 		
 		if(fis == null){
-			throw new IOException("resource is available. file is:" + (this.file == null ? null : this.file.getAbsolutePath())) ;
+			//must be failed stream resource, OR FileInputStream will raise the exception above.
+			throw new IOException("resource is not available. file is:" + this.classPath) ;
 		}
 		
 		return fis;
 	}
 	
 	public String toString(){
-		return "file resource. file is:" + (this.file == null ? null : this.file.getAbsolutePath()) ;
+		return "file resource. file is:" + (this.file == null ? this.classPath : this.file.getAbsolutePath()) ;
 	}
 
 	public File getFile() {
@@ -93,6 +112,10 @@ public class FileResource implements Resource {
 
 	public void setFile(File file) {
 		this.file = file;
+	}
+
+	public boolean isStreamResource() {
+		return streamResource;
 	}
 
 }
