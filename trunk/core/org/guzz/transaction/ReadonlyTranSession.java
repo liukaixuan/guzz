@@ -24,6 +24,7 @@ import org.guzz.dao.PageFlip;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.sql.BindedCompiledSQL;
+import org.guzz.service.core.DynamicSQLService;
 
 /**
  * 
@@ -100,9 +101,21 @@ public interface ReadonlyTranSession {
 	
 	public Object findObjectByPK(Class domainClass, int pk) ;
 
-	
+	/**
+	 * Return the value of first column in the first row.
+	 * 
+	 * @param id Sql id defined in guzz.xml or {@link DynamicSQLService}
+	 * @param params Named parameters
+	 * @param returnType The data type of the result to return. eg: int, long, float...
+	 */
 	public Object findCell00(String id, Map params, String returnType) ;
 	
+	/**
+	 * Return the value of first column in the first row.
+	 * 
+	 * @param bsql BindedCompiledSQL to execute.
+	 * @param returnType The data type of the result to return. eg: int, long, float...
+	 */
 	public Object findCell00(BindedCompiledSQL bsql, String returnType) ;
 	
 	/**执行se中的count操作，返回long类型的数据。*/

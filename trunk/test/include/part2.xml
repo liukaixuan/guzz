@@ -3,7 +3,7 @@
 
 <guzz-configs>
 
-	<business name="article" class="org.guzz.test.Article" interpret="" file="classpath://org/guzz/test/Article.hbm.xml" />
+	<business name="article" class="org.guzz.test.Article" interpret="" file="classpath:org/guzz/test/Article.hbm.xml" />
 		
 
 </guzz-configs>
