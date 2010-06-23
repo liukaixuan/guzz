@@ -18,16 +18,16 @@ package org.guzz.pojo;
 
 /**
  * 
- * the POJO Object can tell what properties has been changed inside?
+ * The POJO Object that can tell which properties have been changed inside it?
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public interface DynamicUpdatable {
 	
 	/**
-	 * list the attributes that had been changed compared with the db. including lazied attribute.
+	 * List changed attributes comparing with the database. Including lazied ones.
 	 * 
-	 * <p>only props hold mappings to database should be returned. TODO:check for this.<p>
+	 * <p>Only props holding mappings to database should be returned. TODO:check for this.<p>
 	 * 
 	 * @return attributea to update. return null to save all props, return String[0] to ignore update operation.
 	 */

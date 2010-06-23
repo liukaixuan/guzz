@@ -127,10 +127,6 @@ public class HbmXMLBuilder {
 					if(cls == null){ //动态添加的business，没有按照流程设置domainClassName
 						cls = ClassUtil.getClass(className) ;
 					}
-					
-//					if(StringUtil.isEmpty(className)){ //如果className为空，采用ghost中携带的class
-//						className = business.getDomainClass().getName() ;
-//					}
 										
 					Assert.assertNotNull(cls, "invalid class name") ;
 					Assert.assertNotEmpty(tableName, "invalid table name") ;
@@ -205,13 +201,7 @@ public class HbmXMLBuilder {
 		};
 		
 		root.accept(visitor);
-		
-		//初始化Interpreter
-//		BusinessInterpreter bi = business.getInterpret() ;
-//		if(bi instanceof AbstractBusinessInterpreter){
-//			((AbstractBusinessInterpreter) bi).initUsingDomainClass(business.getDomainClass(), props) ;
-//		}
-		
+				
 		//初始化主键generator
 		//读取generator信息
 		List generator = root.selectNodes("//class/id/generator") ;

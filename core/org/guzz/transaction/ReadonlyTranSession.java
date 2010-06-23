@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.guzz.dao.PageFlip;
-import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.service.core.DynamicSQLService;
@@ -30,24 +29,10 @@ import org.guzz.service.core.DynamicSQLService;
  * 
  * TranSession for read-only database queries.
  *
+ * @see WriteTranSession
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface ReadonlyTranSession {
-	
-	/**
-	 * create JDBCTemplate for a domain class's database group.
-	 */
-	public JDBCTemplate createJDBCTemplate(Class domainClass) ;
-	
-	/**
-	 * create JDBCTemplate for a business's database group.
-	 */
-	public JDBCTemplate createJDBCTemplate(String businessName) ;
-	
-	/**
-	 * create JDBCTemplate for a database group.
-	 */
-	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup) ;
+public interface ReadonlyTranSession extends TranSession{
 	
 	/**
 	 * 
@@ -94,7 +79,13 @@ public interface ReadonlyTranSession {
 	
 	public Object findObject(SearchExpression se) ;	
 	
-	
+	/**
+	 * Find object by the primary key.
+	 * 
+	 * @param businessName businessName
+	 * @param pk primary key
+	 * @return The found object. Return null if record not found.
+	 */
 	public Object findObjectByPK(String businessName, Serializable pk) ;
 	
 	public Object findObjectByPK(Class domainClass, Serializable pk) ;
@@ -120,9 +111,7 @@ public interface ReadonlyTranSession {
 	
 	/**执行se中的count操作，返回long类型的数据。*/
 	public long count(SearchExpression se) ;	
-	
-	public void close() ;
-	
+		
 	public boolean allowDelayRead() ;
 	
 }

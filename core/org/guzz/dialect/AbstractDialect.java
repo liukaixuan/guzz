@@ -194,7 +194,7 @@ public abstract class AbstractDialect implements Dialect {
 			if(typeInstance instanceof ParameteredType){
 				((ParameteredType) typeInstance).setParameter(param) ;
 			}else if(param != null){
-				log.warn("data type class[" + type.getName() + "] for type:[" + colType + "] doesn't support parameter. parameter:[" + param + "] is ignored.") ;
+				log.warn("data type class[" + type.getName() + "] for type:[" + colType + "] doesn't support parameterization. parameter:[" + param + "] is ignored.") ;
 			}
 			
 			return typeInstance ;

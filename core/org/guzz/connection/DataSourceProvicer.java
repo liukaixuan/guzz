@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 
 /**
  * 
- * 
+ * Implementation to provide {@link DataSource} for guzz TranSession.
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

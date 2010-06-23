@@ -52,60 +52,10 @@ public class DataSourceTransactionManager implements TransactionManager {
 	public ReadonlyTranSession openDelayReadTran() {
 		return new ReadonlyTranSessionImpl(omm, compiledSQLManager, debugService, dbGroupManager, true) ;
 	}
-	
-//	public ReadonlyTranSession openDelayReadTran(DataSourceProvicer dsp){
-//		Connection conn;
-//		try {
-//			conn = dsp.getDataSource().getConnection();
-//		} catch (SQLException e) {
-//			//TODO: add a check job to diagnose the datasource. refetch the connection from another slave datasource.
-//			throw new DaoException(e) ;
-//		}
-//
-//		try {
-//			//不设置标记
-////			conn.setReadOnly(true) ;
-//			return new ReadonlyTranSessionImpl(dialect, omm, compiledSQLManager, serviceManager, conn, true);
-//		} catch (SQLException e) {
-//			//be careful of conn leak.
-//			CloseUtil.close(conn) ;
-//			
-//			throw new DaoException("fail to open readonly tran.", e) ;
-//		}		
-//	}
 
 	public WriteTranSession openRWTran(boolean autoCommit)  {
 		return new WriteTranSessionImpl(omm, compiledSQLManager, debugService, dbGroupManager, autoCommit) ;
 	}
-	
-//	public WriteTranSession openRWTran(Connection conn, boolean autoCommit){
-//		try {
-//			conn.setAutoCommit(autoCommit) ;
-//			return new WriteTranSessionImpl(dialect, omm, compiledSQLManager, serviceManager, conn);
-//		} catch (SQLException e) {
-//			//谁申请谁释放
-////			CloseUtil.close(conn) ;
-//			
-//			throw new DaoException("fail to open rw tran.", e) ;
-//		}
-//	}
-//	
-//	public WriteTranSession openRWTran(DataSourceProvicer dsp, boolean autoCommit){
-//		Connection conn;
-//		try {
-//			conn = dsp.getDataSource().getConnection();
-//		} catch (SQLException e) {
-//			throw new DaoException("fail to get rw connection.", e) ;
-//		}
-//		
-//		try {
-//			conn.setAutoCommit(autoCommit) ;
-//			return new WriteTranSessionImpl(dialect, omm, compiledSQLManager, serviceManager, conn);
-//		} catch (SQLException e) {
-//			CloseUtil.close(conn) ;
-//			throw new DaoException("fail to open rw tran.", e) ;
-//		}
-//	}
 
 	public ReadonlyTranSession openNoDelayReadonlyTran() {
 		return new ReadonlyTranSessionImpl(omm, compiledSQLManager, debugService, dbGroupManager, false) ;
