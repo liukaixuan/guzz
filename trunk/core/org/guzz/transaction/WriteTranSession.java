@@ -23,7 +23,6 @@ import javax.transaction.Transaction;
 
 import org.guzz.Guzz;
 import org.guzz.exception.DaoException;
-import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.jdbc.SQLBatcher;
 import org.guzz.orm.ColumnDataLoader;
@@ -32,27 +31,12 @@ import org.guzz.orm.sql.CompiledSQL;
 
 /**
  * 
- * 用于数据库写的事务对象，可以进行最简单的数据库读取操作。
- * 
+ * TranSession for updating operations.
  *
+ * @see ReadonlyTranSession
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface WriteTranSession {
-		
-	/**
-	 * create JDBCTemplate for a domain class's database group.
-	 */
-	public JDBCTemplate createJDBCTemplate(Class domainClass) ;
-	
-	/**
-	 * create JDBCTemplate for a business's database group.
-	 */
-	public JDBCTemplate createJDBCTemplate(String businessName) ;
-	
-	/**
-	 * create JDBCTemplate for a database group.
-	 */
-	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup) ;
+public interface WriteTranSession extends TranSession{
 	
 	/**
 	 * 
@@ -145,9 +129,6 @@ public interface WriteTranSession {
 	 * @throws DaoException throw DaoException if SQLException throwed in the rollback.
 	 */
 	public void rollback() throws DaoException ;
-	
-	/**关闭事务，忽略一切错误。*/
-	public void close() ;
 	
 	public void commitAndClose() ;
 	

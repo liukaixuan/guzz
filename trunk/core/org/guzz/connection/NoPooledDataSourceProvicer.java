@@ -28,7 +28,7 @@ import org.guzz.exception.InvalidConfigurationException;
 
 /**
  * 
- * Datasource without database connections pool. Fetch connection on demand, and release it on close.
+ * Datasource without database connections pool. Fetch connection on demand, and release it on closing.
  * <p/>
  * This Provider accepts 4 parameters: driverClass, jdbcUrl, user and password.
  *

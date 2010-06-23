@@ -114,17 +114,6 @@ public class RequestUtil {
         
         return ints ;
     }
-    
-//    public static String getAttributeAsTrimStr(HttpServletRequest req, String attrName) {
-//        return getAttributeAsTrimStr(req, attrName, "");
-//    }
-//
-//    public static String getAttributeAsTrimStr(HttpServletRequest req, String attrName, String defValue) {
-//        Object obj = req.getAttribute(attrName);
-//        if(obj == null) return defValue ;
-//        
-//        return (obj instanceof String) ? ((String) obj).trim() : defValue;
-//    }
 
     public static int getAttributeAsInt(HttpServletRequest req, String attrName, int defValue) {
         Object obj = req.getAttribute(attrName);
@@ -169,108 +158,6 @@ public class RequestUtil {
     	
     	return params ;
     }
-    
-//
-//    public static String getCurrentPage(HttpServletRequest req) {
-//        final String requestURI = req.getRequestURI();
-//        return requestURI.substring(requestURI.lastIndexOf('/') + 1);
-//    }
-//
-//    public static String getCurPageWithQryStr(HttpServletRequest req) {
-//        return getCurPageWithQryStr(req, null);
-//    }
-//
-//    public static String getCurPageWithQryStr(HttpServletRequest req, String param) {
-//        String qryStr = removeQryParam(req.getQueryString(), param);
-//        if (qryStr == null) {
-//            return getCurrentPage(req);
-//        }
-//        return new StringBuffer(getCurrentPage(req)).append('?').append(qryStr).toString();
-//    }
-//
-//    public static String removeQryParam(String qryStr, String param) {
-//        if (qryStr == null || param == null) {
-//            return qryStr;
-//        }
-//        String[] params = qryStr.split("&");
-//        StringBuffer sb = new StringBuffer(qryStr.length());
-//        for (int i = 0; i < params.length; i++) {
-//            if (params[i].startsWith(param + "=")) {
-//                continue;
-//            }
-//            sb.append(params[i]).append('&');
-//        }
-//        return (sb.length() > 0) ? sb.deleteCharAt(sb.length() - 1).toString() : null;
-//    }
-//    public static String getRequestInfo(HttpServletRequest req) {
-//        StringBuffer sb = new StringBuffer(320);
-//        sb.append("[Req]");
-//        sb.append(req.getClass().getName());
-//        sb.append(": (").append(req.getScheme()).append(')').append(req.getServerName()).append(':').append(req.getServerPort());
-//        sb.append(", ").append(req.getMethod()).append(' ').append(req.getProtocol());
-//        sb.append(", uri=").append(req.getRequestURI());
-//        sb.append(", ctx=").append(req.getContextPath());
-//        sb.append(", servlet=").append(req.getServletPath());
-//        sb.append(", qryStr=").append(req.getQueryString());
-//        sb.append(", refer=").append(req.getHeader(HEADER_REFER));
-//        sb.append(", useragt=").append(req.getHeader(HEADER_USER_AGENT));
-//        sb.append(", ip=").append(req.getRemoteAddr());
-//        return sb.toString();
-//    }
-//
-//    public static String getRequestBrief(HttpServletRequest req) {
-//        StringBuffer sb = new StringBuffer(320);
-//        sb.append("[Req]");
-//        sb.append(req.getMethod()).append(' ');
-//        sb.append(req.getRequestURI());
-//        return sb.toString();
-//    }
-//
-//    /**
-//     * 获取指定request的完整URL请求, 包括全部参数项和值(GET方式和POST方式都适用).
-//     * 该方法会影响request中的编码.
-//     * @param rq 指定的request
-//     * @return 表示URL请求的字符串, 包括完整URL和提交的全部参数项和值
-//     * @see #getParamString(HttpServletRequest)
-//     */
-//    public static String getFullRequestStr(HttpServletRequest rq) {
-//        return new StringBuffer(256).append(rq.getRequestURL()).append(
-//                getParamString(rq)).toString();
-//    }
-//
-//    /**
-//     * 获取指定request的全部参数项和值. 该方法会影响request中的编码.
-//     * @param rq 指定的request
-//     * @return 全部参数项和值构成的字符串
-//     */
-//    public static String getParamString(HttpServletRequest rq) {
-//        StringBuffer sb = new StringBuffer(256);
-//        int i = 0;
-//        for (Enumeration params = rq.getParameterNames(); params.hasMoreElements();) {
-//            String param = (String) params.nextElement();
-//            sb.append((++i) == 1 ? "?" : "&").append(param).append("=").append(
-//                    rq.getParameter(param));
-//        }
-//        return sb.toString();
-//    }
-//
-//    /**
-//     * 获取给定的request中全部的Header信息.
-//     * @param req 给定的request
-//     * @return 全部Header信息构成的字符串.
-//     */
-//    public static String getAllHeadersStr(HttpServletRequest req) {
-//        StringBuffer sb = new StringBuffer(256);
-//        String header = null;
-//        for (Enumeration headers = req.getHeaderNames(); headers.hasMoreElements();) {
-//            header = (String) headers.nextElement();
-//            sb.append(header);
-//            sb.append("=");
-//            sb.append(req.getHeader(header));
-//            sb.append("\r\n");
-//        }
-//        return sb.toString();
-//    }
 
     /**
      * 获取给定的Http请求的Referer URL, 即上一个页面.
@@ -280,88 +167,6 @@ public class RequestUtil {
     public static String getReferUrl(HttpServletRequest req) {
         return req.getHeader(HEADER_REFER);
     }
-//
-//    /**
-//     * 获取指定request的指定参数的指定编码字符串值. <BR><BR>
-//     * 提供给子类使用的工具方法.
-//     * @param req 给定Http请求对象
-//     * @param param 指定参数
-//     * @param originEncoding 参数值的原始编码
-//     * @param toEncoding 解析参数值的指定编码
-//     * @return 给定参数的取值, 如果为null则返回"".
-//     */
-//    public static String getParamByEncoding(HttpServletRequest req,
-//            String param, String originEncoding, String toEncoding) {
-//        if (param == null) {
-//            return "";
-//        }
-//        String result = req.getParameter(param);
-//        try {
-//            return (result == null) ? "" : new String(result
-//                    .getBytes(originEncoding), toEncoding);
-//        } catch (UnsupportedEncodingException e) {
-//            logger.error("unspport encoding! origin=" + originEncoding + ", to=" + toEncoding, e);
-//        }
-//        return "";
-//    }
-//
-//    /**
-//     * 获取给定字符串在给定请求的URL(相对于该应用)中的位置. <BR>
-//     * 对动态页面,等价于<code>req.getServletPath().indexOf(someUri)</code>
-//     * 例子: requestURI: /app/login.htm; ctx: /app; uri: /login.htm; return: 0
-//     * @param req 给定请求
-//     * @param someUri 给定字符串
-//     * @return 给定字符串在请求URL中的位置. 如果给定字符串(someUri)为null或"", 返回-2.
-//     */
-//    public static int getPageUriPosInRequest(HttpServletRequest req, String someUri) {
-//        if (someUri == null || someUri.trim().length() == 0) {
-//            return -2;
-//        }
-//        return getRelativePath(req).indexOf(someUri);
-////        return req.getServletPath().indexOf(someUri);
-//    }
-//
-//    /**
-//     * Return the webapp root path.<br>
-//     * Example:<br>
-//     * if request "http://localhost:8080/app1/dir1/page1.jsp", the method return
-//     * "http://localhost:8080/app1".
-//     */
-//    public static String getContextRoot(HttpServletRequest request) {
-//        final String sysUrl = request.getRequestURL().toString();
-//        final String servletPath = request.getServletPath();
-//		final int servletPathIndex = sysUrl.indexOf(servletPath);
-//		if (servletPathIndex == -1) {
-//			logger.error("servletPath=" + servletPath + ", sysUrl=" + sysUrl + ", so index=" + servletPathIndex);
-//			return sysUrl;
-//		}
-//		return sysUrl.substring(0, servletPathIndex);
-//    }
-//
-//    /**
-//     * for Dynamic Pages, this method as same as <code>req.getServletPath()</code>,
-//     * but the method also valid for Static Content, such as html, gif, css etc.<br>
-//     * Example:<br>
-//     * if request "http://localhost:8080/app1/dir1/page1.jsp", the method return
-//     * "/dir1/page1.jsp".
-//     * @param req the spec request
-//     * @return the relative url
-//     */
-//    public static String getRelativePath(HttpServletRequest req) {
-//        // ls@2005-11-02 req.getRequestURI().substring(req.getContextPath().length()) == req.getServletPath() ? NO! i.e.WebLogic!
-//        return req.getRequestURI().substring(req.getContextPath().length());
-//    }
-//
-//    public static String getRelativePathWithQryStr(HttpServletRequest req) {
-//        final String qryStr = req.getQueryString();
-//        final String relativePath = getRelativePath(req);
-//        if (qryStr == null) {
-//            return relativePath;
-//        } else {
-//            return new StringBuffer(relativePath.length() + qryStr.length() + 1)
-//                    .append(relativePath).append('?').append(qryStr).toString();
-//        }
-//    }
     
     /**检测请求是否来自搜索引擎*/
     public static boolean isRobotRequest(HttpServletRequest request){
@@ -421,41 +226,4 @@ public class RequestUtil {
     	return ip ;
     }
 
-//    /**
-//     * @param application
-//     * @return ServletContainerInfo
-//     */
-//    public static String getServletContainerInfo(final ServletContext application) {
-//        StringBuffer sb = new StringBuffer(64);
-//        sb.append(application.getServerInfo());
-//        sb.append(" (Servlet ").append(application.getMajorVersion()).append('.').append(application.getMinorVersion());
-//        return sb.toString();
-//    }
-//
-//    /**
-//     * simple log method for jsp page.
-//     * @param obj
-//     * @param req
-//     */
-//    public static void log(Object obj, HttpServletRequest req) {
-//        StringBuffer sb = new StringBuffer(256);
-//        sb.append(new java.sql.Timestamp(System.currentTimeMillis()));
-//        if (req != null) {
-//            sb.append('\t').append(req.getRequestURI());
-//        }
-//        sb.append('\t').append(obj);
-//        logger.info(sb.toString()) ;
-//    }
-//
-//    /**
-//     * simple log method for jsp page.
-//     * @param req
-//     */
-//    public static void log(HttpServletRequest req) {
-//        log(getRequestInfo(req), null);
-//    }
-//
-//	public static String getParameter(HttpServletRequest request, String paramName) {		
-//		return request.getParameter(paramName) ;
-//	}
 }

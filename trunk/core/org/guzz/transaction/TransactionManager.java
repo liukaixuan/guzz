@@ -35,18 +35,12 @@ public interface TransactionManager {
 	 * 打开一个只读并允许数据延迟的事务。此时，事务内的连接将选取负载较低的数据库提供服务，选择的数据库数据可能会有少量的同步延迟（如主从同步中从库的延迟）
 	 * */
 	public ReadonlyTranSession openDelayReadTran() ;
-
-//	public ReadonlyTranSession openDelayReadTran(DataSourceProvicer dsp) ;
 	
 	/**
 	 * 打开一个可读写的数据连接。
 	 * @param autoCommit 事务提交是否设定为自动提交。true，自动提交; false手动提交。
 	 * */
 	public WriteTranSession openRWTran(boolean autoCommit) ;
-	
-//	public WriteTranSession openRWTran(Connection conn, boolean autoCommit) ;
-//	
-//	public WriteTranSession openRWTran(DataSourceProvicer dsp, boolean autoCommit) ;	
 	
 	public CompiledSQLBuilder getCompiledSQLBuilder() ;
 	

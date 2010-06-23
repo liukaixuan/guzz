@@ -55,8 +55,6 @@ public interface Service {
 		public final String DYNAMIC_SQL = "guzzDynamicSQL" ;
 	}
 	
-//	public void configure(ConfigServer configServer) ;
-	
 	/**
 	 * 如果没有配置此项，@param scs 传入 new ServiceConfig[0]
 	 * 
@@ -70,10 +68,6 @@ public interface Service {
 	public ServiceInfo getServiceInfo() ;
 	
 	public void setServiceInfo(ServiceInfo serviceInfo) ;
-	
-//	public String getServiceName() ;
-//	
-//	public void setServiceName(String serviceName) ;
 	
 	public boolean isAvailable() ;
 	

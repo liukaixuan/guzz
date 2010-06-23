@@ -153,25 +153,6 @@ public class GhostOutTag extends BodyTagSupport {
 		
 		if(escapeXml){
 			content = TagSupportUtil.escapeXml(sb.toString()) ;
-			
-//			StringBuffer sb2 = new StringBuffer((int) (sb.length() * 1.2)) ;
-//			
-//			for (int i = 0; i < sb.length(); i++) {
-//				char c = sb.charAt(i) ;
-//				if (c <= TagSupportUtil.HIGHEST_SPECIAL) {
-//					char[] escaped = TagSupportUtil.specialCharactersRepresentation[c];
-//					if (escaped != null) {
-//						sb2.append(escaped) ;
-//					}else{
-//						sb2.append(c) ;
-//					}
-//				}else{
-//					sb2.append(c) ;
-//				}
-//			}
-//
-//			content = sb2.toString() ;
-			
 		}else if(escapeScriptCode){
 			content = sb.toString() ;
 			content = StringUtil.replaceStringIgnoreCase(content, "<script", "< script") ;

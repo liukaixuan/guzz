@@ -18,14 +18,19 @@ package org.guzz.jdbc;
 
 import java.sql.Connection;
 
+import javax.transaction.Transaction;
+
 import org.guzz.orm.sql.SQLQueryCallBack;
 import org.guzz.orm.type.SQLDataType;
+import org.guzz.transaction.TranSession;
 
 
 /**
  * 
+ * A template to execute raw sql statements, or fetch the database {@link Connection}.
+ * <p/>
+ * The executed sql statements is under the {@link Transaction} of the outer TranSession that created this {@link JDBCTemplate}.
  * 
- *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface JDBCTemplate {
@@ -62,6 +67,13 @@ public interface JDBCTemplate {
 	
 	public Object executeQueryWithoutPrepare(String sql, SQLQueryCallBack callback) ;
 
+	/**
+	 * Fetch the {@link Connection} used for this {@link JDBCTemplate}.
+	 * <p>
+	 * Don't close the returned Connection. 
+	 * Use the outer {@link TranSession#close()} to do the cleaning job.
+	 * <p/>
+	 */
 	public Connection getConnection() ;
 	
 }
