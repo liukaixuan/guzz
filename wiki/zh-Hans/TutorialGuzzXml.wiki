@@ -85,7 +85,7 @@
 
 *config-server：*指定应用配置信息管理服务。guzz通过配置服务器读取应用的各项配置参数。默认实现为本地文件配置，本例中通过读取guzz_app.properties加载配置信息。
 
-*guzz_test2.properties：* 为应用配置文件，按照组进行设置。类似于Mysql数据库的配置文件，在下一节进行详细介绍。本例中为向org.guzz.config.LocalFileConfigServer配置管理服务器传入的参数。
+*guzz_app.properties：* 为应用配置文件，按照组进行设置。类似于Mysql数据库的配置文件，在下一节进行详细介绍。本例中为向org.guzz.config.LocalFileConfigServer配置管理服务器传入的参数。
 
 *dialect：*指定数据库的实现方言。目前dialect主要用来创建主键，以及进行物理分页查询。dialect可以指定1个名称，默认为default。guzz允许一次管理多组不同类型的数据库，dialect可以配置多个。
 

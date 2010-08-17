@@ -1,10 +1,10 @@
-== 配置与启动guzz ==
+== How to configure and start guzz? ==
 
- guzz程序的核心为GuzzContext对象，完成GuzzContext的初始化并获取其引用，即可使用guzz的全部功能。
+ The startup of guzz is to initialize the GuzzContext, and hold its reference. The GuzzContext is the API gate to guzz's full functions.
 
-===  Standalone程序：===
+=== Standalone Application:===
 
- 创建guzz的核心配置文件guzz.xml，并存在classpath目录下。
+Create guzz's core configuration file--guzz.xml, and save it under the directory of the classpath.
 
 {{{
 import org.guzz.Configuration;
@@ -17,11 +17,11 @@ GuzzContext gc = new Configuration("classpath:guzz.xml").newGuzzContext() ;
 gc.shutdown() ;
 }}}
 
-=== 普通的Web应用： ===
+=== Web Application: ===
 
- 创建guzz的核心配置文件guzz.xml，并存在在/WEB-INF/目录下。
+Create guzz's core configuration file--guzz.xml, and save it under the directory of the "/WEB-INF/".
 
- 修改web.xml文件，增加如下项：
+Add the following code to web.xml:
 
 {{{
 <context-param>
@@ -36,9 +36,9 @@ gc.shutdown() ;
 </listener>
 }}}
 
- 此时在jsp页面中就可以使用guzz的taglib进行数据库操作。
+then, guzz is ready for you.
 
- java程序可以通过如下代码获取到GuzzContext，进行更多操作：
+You can use guzz's database taglib in jsp pages or fetch GuzzContext to do more.
 
 {{{
 
@@ -48,13 +48,15 @@ import org.guzz.GuzzContext;
 GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServletContext()) ;
 }}}
 
- GuzzContext 将会在web app退出时，由容器通知关闭。
+ GuzzContext will be shutdown when the web-app quits.
 
-=== 使用Spring IOC的web应用程序： ===
+=== Web Application with Spring IOC support: ===
 
- * 1. 创建guzz的核心配置文件guzz.xml，并存在在/WEB-INF/目录下。
+ * 1. Create guzz's core configuration file--guzz.xml, and save it under the directory of the "/WEB-INF/".
 
- * 2. 修改web.xml的配置项，将spring的ContextLoader的Loader定义删掉，如：
+ * 2. Replace spring's ContextLoader with guzz's in the web.xml. For example:
+
+Replace
 
 {{{
 <listener>
@@ -62,7 +64,7 @@ GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServlet
 </listener>
 }}}
 
- 换成Guzz针对spring的Listener：
+with guzz's ContextLoader for springframework:
 
 {{{
 <listener>
@@ -70,14 +72,15 @@ GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServlet
 </listener>
 }}}
 
- * 3. 修改spring的applicationContext.xml，增加GuzzContext的配置：
+ * 3. Add GuzzContext as a spring bean(the bean name must be "guzzContext") into spring's applicationContext.xml file：
 
 {{{
 <bean id="guzzContext" class="org.guzz.web.context.spring.GuzzContextBeanFactory" factory-method="createGuzzContext">
     <constructor-arg><value>/WEB-INF/guzz.xml</value></constructor-arg>
 </bean>
 }}}
- 一般情况下，我们还需要增加一个BaseDao的bean，类似hibernate中的sessionFactory.getHibernateTemplate()，基于此创建应用自己的Dao或Manager。
+
+Most of the time, you should add another "BaseDao" bean for making up your own Dao or Managers. (Take it as hibernate's sessionFactory.getHibernateTemplate())
 
 {{{
 <bean id="abstractGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
@@ -85,4 +88,5 @@ GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServlet
 </bean>
 }}}
 
- * 4. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
+ * 4. Now, guzz will work with spring IOC. You can fetch guzzContext through the spring bean or GuzzWebApplicationContextUtil as above。
+ 
