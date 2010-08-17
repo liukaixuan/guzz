@@ -1,0 +1,114 @@
+== 使用范围 ==
+
+ Lob用于数据库大字段的映射，如blob/smallblob/raw/clob等字段。在guzz hbm.xml映射时，大文本类型名称为clob，大二进制类型名称为blob。
+
+ 注意：lob字段如果通过lazy方式读取，使用后调用者需要关闭连接（调用：lob.close()）。
+
+== Blob/Clob应用示例说明 ==
+
+ 假设有一个用户信息扩展表，里面存放用户头像图片数据和无限制大小的自我介绍。分别设计为blob和clob字段存储。下面的例子重点介绍blob使用，clob类似。
+
+*领域对象定义：*
+
+{{{
+public class UserInfo {
+	
+	private int id ;
+	
+	private String userId ;
+	
+	private TranClob aboutMe ;
+	
+	private TranBlob portraitImg ;
+        //get&set methods
+}
+}}}
+
+ 其中TranClob和TranBlob为guzz对Lob的一层封装。可用于在lazy load时释放lazy load获取的数据库资源。Guzz的lazy处理没有hibernate的OpenSessionInView尾巴，因此对于因lazy而临时获取的资源需要自己关闭。
+
+*配置对象映射（以头像图片为例）：*
+
+{{{
+<property name="portraitImg" type="blob" column="portraitImg" lazy="true"></property>    
+}}}
+
+*应用实现blob的插入：*
+
+{{{
+                FileInputStream fis = new FileInputStream(“a big file.png”) ;
+		
+		WriteTranSession tran = tm.openRWTran(false) ;		
+		
+		try{
+			UserInfo info = new UserInfo() ;
+			info.setUserId("lucy") ;
+			info.setPortraitImg(Guzz.createBlob(fis)) ;
+			tran.insert(info) ;
+
+			tran.commit() ;
+		}catch(Exception e){
+			tran.rollback() ;			
+		}finally{
+			tran.close() ;
+                        fis.close() ;
+                }
+}}}
+
+*更新lob字段：*
+
+ 对于Oracle数据，插入Blob需要先插入空，在更新，下面代码说明如何将图片存入Oracle库：
+
+{{{
+                FileInputStream fis = new FileInputStream(“a big file.png”) ;
+		
+		WriteTranSession tran = tm.openRWTran(false) ;		
+		byte[] tb = new byte[1] ;
+		tb[0] = 1 ;
+		try{
+			//先插入一个空的
+			UserInfo info = new UserInfo() ;
+			info.setUserId("lucy") ;
+			info.setPortraitImg(Guzz.createBlob(tb)) ;
+			tran.insert(info) ;
+                        tran.commit() ;
+
+			//再读取进行更新，读取时自动获取行锁
+			TranBlob blob = (TranBlob) tran.loadPropForUpdate(info, "portraitImg") ;
+		        blob.truncate(0) ;
+		        blob.writeIntoBlob(fis, 1) ;
+		        tran.commit() ;
+		}catch(Exception e){
+			tran.rollback() ;			
+		}finally{
+			tran.close() ;
+                        fis.close() ;
+                }
+}}}
+
+*读取与显示lob字段：*
+
+ 存入数据库以后，设计了一个jsp页面，用来读取并显示用户头像（大致步骤）。
+
+{{{
+<%@page language="java" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://www.guzz.org/tags" prefix="g" %> 
+
+<!-- 根据参数uid读取用户信息 -->
+<g:get business="userInfo" limit="userId=${param.uid}" var="m_userInfo" />
+
+<%
+UserInfo info = (UserInfo) pageContext.getAttribute("m_userInfo") ;
+
+//获取Blob字段。此处为lazy读取，会打开一个从数据库连接，读取blob字段。
+TranBlob img = info.getPortraitImg() ;
+
+//将blob数据写入到JSP页面输出中
+img.writeOut(out) ;
+
+//关闭lazy读取时申请的数据库连接
+img.close() ;
+
+%>
+}}}
+
+ 大功告成。在整个过程中，写入和更新类似于hibernate，但读取与展示这类最可能遇到需求变来变去的东西，与其他框架相比能节省大量的编码和部署工作（JSP不需要重启）。

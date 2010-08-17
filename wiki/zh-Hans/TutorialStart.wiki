@@ -1,0 +1,48 @@
+#labels Featured
+== 基础设置： ==
+
+ * 1. [TutorialRuntime Guzz运行环境]
+
+ * 2. [TutorialConfig 配置与启动guzz]
+
+ * 3. [TutorialGuzzXml 配置guzz.xml]
+
+ * 4. [TutorialAppProperties 配置guzz_app.properties]
+
+ * 5. [TutorialHbmXml 配置数据库映射文件hbm.xml]
+
+ * 6. [TutorialHbmAnnotation 或通过annotation声明ORM]
+
+ * 7. [TutorialTranSession 编写数据库操作]
+
+ * 8. [SearchExpression 查询表达式]
+
+ * 9. [TutorialTaglib guzz taglib]
+
+ * 10. [TutorialDatasourceProvider 配置数据库连接池]
+
+== 高级设置： ==
+
+ * 11. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
+
+ * 12. [TutorialLob Blob与Clob使用]
+
+ * 13. [TutorialService Service1:服务的使用和编写]
+
+ * 14. [TutorialFutureService Service2:编写支持异步调用的服务]
+
+ * 15. [TutorialShadowTable 表分切（Shadow Table）]
+
+ * 16. [TutorialCustomTable 自定义属性表（Custom Table）]
+
+ * 17. [TutorialDynamicSQLService 动态（加载）SQL]
+
+== 附录： ==
+
+ * 1. [AppendCoreService guzz自带的基础服务介绍]
+
+ * 2. [AppendSpringBean 在guzz中获取spring定义的bean] 
+
+ * 3. [AppendJPAAnnotation Guzz JPA Annotation参考]
+
+ * 4. [AppendTestCoverage 单元测试覆盖情况]

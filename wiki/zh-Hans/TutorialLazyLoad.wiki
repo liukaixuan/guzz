@@ -1,0 +1,154 @@
+== 延迟加载 ==
+
+ 延迟加载，又叫懒加载，或者Lazy Loading。guzz的延迟加载实现与hibernate相似，需要cglib库支持。
+
+ 将某个属性配置为延迟加载后，在进行数据库读取时（select操作），忽略此字段，当调用pojo中的getxxx方法时，guzz打开一个新的数据库连接，根据主键进行读取，将结果转换会java对象后返回。
+
+ * 与hibernate不同的是：* 使用lazy load时，不需要保持数据库连接打开，在任何地方需要load时，guzz会打开一个新的从数据库(slave db)的连接进行加载。
+
+*配置示例：*
+
+{{{
+<property name="content" type="string" lazy="true" column="NAME" />
+}}}
+
+*内部调用流程：*
+
+[http://guzz.org/attachment/wiki/LazyLoad/guzz_load_load_lct.png]
+
+== 自定义加载属性(loader) ==
+
+*功能介绍：*
+
+ 在一些真实的系统中：
+ 
+ * 1. 大型的字段往往选择存储在文件系统中，而不是数据库中，以提高性能；
+
+ * 2. 在另外一些系统中，某些字段实际上是一些远程服务，在读取时需要通过特殊的协议读取到再显示；
+
+ * 3. 而还有一些系统，某些属性是不断变换且性能相关的值，需要先从cache中读取，如果不存在再从数据库读取。
+
+ * 4. 还有一些系统，情况更加诡异。。。
+
+ 总的来说，对于现实世界中的系统，全部靠纯粹的数据库读取是不可行的。为了统一使用方式并简化设计，需要ORM框架提供一种接口，让应用可以选择自己的读取途径，而对开发人员展现的还是统一的对象化编程。这就是“自定义加载属性（后面称为loader）”的设计目标：隐藏复杂的数据来源。无论数据来自多少地方，对普通开发人员都是javabean属性。
+
+*注意：* loader只处理数据读操作，不处理写操作，原因有2个：
+ 
+ * 1. 很多时候返回的都是接口，而不是实际数据（例如Clob/Blob字段），接口中可以自己设计读写，使用更方便。[[BR]]
+
+ * 2. 自定义加载的属性在写入时，可能由于编程不慎，造成长事务；所以guzz强制要求这类属性在事务外独立操作；如果必须在事务中干点什么，可以使用org.guzz.dao.PersistListener。
+
+ loader可以和延迟加载混合使用。
+
+*配置方法：*
+
+ 自定义加载属性，顾名思义，按照属性进行配置。一个域对象的可以将多个属性配置成“自定义加载属性”，配置方法为在hbm.xml中增加属性：loader="full class name"。如：
+
+{{{
+<property name="favCount" type="int" column="FAV_COUNT" loader="com.mycompany.guzz.FavCountLoader" lazy="false" />
+}}}
+
+*内部调用流程：*
+
+[http://guzz.org/attachment/wiki/LazyLoad/loader_design.png]
+
+*代码实现一个loader：*
+ loader通过实现接口
+
+{{{
+org.guzz.orm.ColumnDataLoader
+}}}
+
+ 来实现。
+
+ ColumnDataLoader定义如下：
+
+{{{
+package org.guzz.pojo;
+
+
+/**
+ * 
+ * user-defined loader to load specified property of a domain object. eg: load a property value from the file system.
+ * <p/>
+ * per column mapping per instance.
+ * <p/>
+ * startup sequences:
+ * <ol>
+ * <li>loader = XXXClass.newInstance()</li>
+ * <li>loader.configure(Table table, String propName, String columnName)</li>
+ * <li>.....</li>
+ * <li>injected {@link GuzzContext} based on implmenting {@link GuzzContextAware} or not</li>
+ * <li>loader.startup()</li>
+ * <li>....</li>
+ * <li>loader.shutdown()</li>
+ * </ol>
+ */
+public interface ColumnDataLoader {
+	
+	/**
+	 * config the property info.
+	 * 
+	 * @param table fetch Object stored table.
+	 * @param propName property name
+	 * @param columnName the corrsponding columnName of the property.
+	 */
+	public void configure(ObjectMapping mapping, Table table, String propName, String columnName) ;
+	
+	/**
+	 * load the data instancely during other properties reading from the dabase.
+	 * 
+	 * @param rs The current resultset. the resultset(and connection) will be closed after all properties are loaded. Your returning value cann't rely on this for future usage.
+	 * @param objectFetching The object being orm. the property before this property in the hbm.xml config file is already setted, so you can use it here. this param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
+	 * @param indexToLoad the propName index in the resultset.
+	 * @return the returned object will be set to the pojo property.
+	 */
+	public Object loadData(ResultSet rs, Object objectFetching, int indexToLoad) throws SQLException ;
+	
+	/**
+	 * eagerly load the lazied property for read. invoked by pojo.getXXX()
+	 * <p/>
+	 * guzz would never know what you have done to fetch the property, so it could <b>NOT</b> help you release any related resources acquired. 
+	 * 
+	 * @param fetchedObject the already loaded pojo.
+	 * 
+	 * @return the loaded object. the object will be setted to the fetchedObject automatically.
+	 */
+	public Object loadLazyData(Object fetchedObject) ;
+
+	/**
+	 * eagerly load the lazied property for write inside a read-write transaction.
+	 * <p/>
+	 * guzz would never know what you have done to fetch the property, so it could <b>NOT</b> help you release any related resources acquired. 
+	 * 
+	 * @param tran the current opened read-write database transactional environment.
+	 * @param fetchedObject the already loaded pojo.
+	 * 
+	 * @return the loaded object. the object will <b>NOT</b> be setted to the fetchedObject automatically.
+	 * @exception DaoException throw exception on @param fetchedObject doesn't exsit in the database.
+	 */
+	public Object loadLazyDataForWrite(WriteTranSession tran, Object fetchedObject) throws DaoException ;
+	
+	public void startup() ;
+	
+	public void shutdown() throws Exception ;		
+}
+}}}
+
+ 每一个域对象的每一个自定义加载属性，在整个生命周期中，只会生成一个loader实例。
+
+== 接口方法调用顺序 ==
+
+ * 1. 解析配置文件，生成类实例
+
+ * 2. 调用configure(ObjectMapping mapping, Table table, String propName, String columnName)
+
+ * 3. 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
+
+ * 4. 调用startup()
+
+ * 5. 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
+
+ * 6. 对外服务……
+
+ * 7. guzz关闭时调用shutdown()

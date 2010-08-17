@@ -1,0 +1,156 @@
+!TranSession用于进行数据库的持久化操作。
+
+== !GuzzBaseDao基类： ==
+
+ guzz建议所有的Dao继承!GuzzBaseDao，以使用base dao中提供的常用持久化方法。
+
+== !ReadonlyTranSession读API： ==
+
+ !ReadonlyTranSession为guzz对外提供的查询操作入口，获取方法：
+
+{{{
+TransactionManager tm = guzzContext.getTransactionManager() ;
+
+ReadonlyTranSession session = getTransactionManager().openDelayReadTran() ;
+
+try{
+	SearchExpression se = SearchExpression.forClass(SystemLog.class) ;
+	se.and(Terms.eq("categoryId", 18)) ;
+	se.setOrderBy("importance desc, id asc") ;
+	return session.list(se) ;
+}finally{
+	session.close() ;
+}
+}}}
+
+ !ReadonlyTranSession提供按照检索表达式[SearchExpression SearchExpression]，SQL语句CompiledSQL，以及guzz.xml中配置的sql语句id进行查询的接口。
+
+=== !SearchExpression： ===
+
+ [SearchExpression SearchExpression]类似于hibernate中的criteria查询，不过功能没有criteria强大，不过名字容易拼写多了。
+
+ [SearchExpression SearchExpression] 通过 [SearchExpression#SearchTerm SearchTerm] 组织查询条件。
+
+=== CompiledSQL： ===
+
+ 由于SearchExpression不可能无限强大，有时候我们需要直接编写SQL语句进行查询。对于SQL语句查询，guzz将sql语句进行预编译生成CompiledSQL以提高性能，并要求SQL必须先编译成CompiledSQL才能执行。
+
+ 在编写sql语句时guzz额外支持参数命名和businessName属性名替换，规则和guzz.xml中定义的sql规则相同（@@对象名用来替换表名，@属性名用来替换字段名）。示例如下：
+
+{{{
+TransactionManager tm = super.getTransactionManager() ;
+
+String sql = "update @@" + SystemLog.class.getName() +  " set @importance = :level where @id = :id" ;
+CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(SystemLog.class, sql) ;
+
+WriteTranSession session = tm.openRWTran(true) ;
+
+try{
+	session.executeUpdate(cs.bind("level", 3).bind("id", 5)) ;
+}finally{
+	session.close() ;
+}
+}}}
+
+ 这段代码通过调用CompiledSQLBuilder的buildCompiledSQL方法编译SQL，其中第一个参数为对象类名，guzz根本此参数判定SQL语句应该在哪个数据库组执行。
+
+ 上面的示例是更新操作，如果是查询操作，查询到的结果记录集，guzz还会按照参数1传入的类名进行ORM映射，返回的查询结果将会是List`<`SystemLog`>`。
+
+ CompiledSQL的使用比较灵活，对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的。
+
+
+ CompiledSQL在执行前通过bind()方法绑定命名参数，生成了一个临时对象BindedCompiledSQL，而我们实际上是使用BindedCompiledSQL进行查询。
+
+ BindedCompiledSQL不是线程安全的，只能使用一次，开发时，应用可以在BindedCompiledSQL中设置仅限本次查询有效的参数。
+
+ 对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的，这时，BindedCompiledSQL就可以用来临时调整某1次查询的ORM--通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换对象映射关系。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
+
+ RowDataLoader为轻量级对象，对于结果集映射个性处理建议全部通过RowDataLoader。示例：
+
+{{{
+TransactionManager tm = super.getTransactionManager() ;
+
+String sql = "select count(*) as count, company from mycompany join xxx... where group by company having @salary = :salary " ;
+
+CompiledSQL cs = builder.buildCompiledSQL(Company.class, sql) ;
+
+WriteTranSession session = tm.openRWTran(true) ;
+
+try{
+        //Map the ResultSet to HashMap, bind parameters, and execute the query.
+	List<Map> result = session.list(cs.setRowDataLoader(FormBeanRowDataLoader.newInstanceForClass(HashMap.class)).bind("salary", 3000)) ;
+}finally{
+	session.close() ;
+}
+}}}
+
+ 对于特殊的OR映射，开发者可以实现自己的RowDataLoader。
+
+ CompiledSQL为线程安全的对象，对于重复执行的sql，建议将编译好的CompiledSQL缓存以来，避免重复解析。在guzz.xml中定义的sql，在guzz内部就是以CompiledSQL进行存储和管理的。
+
+=== 通过guzz.xml中定义的id查询： ===
+
+ 类似ibatis。[TutorialGuzzXml 查看编写格式]。
+
+== !WriteTranSession写API ==
+
+ WriteTranSession为写api接口。
+
+{{{
+TransactionManager tm = super.getTransactionManager() ;
+WriteTranSession session = tm.openRWTran(true) ;
+}}}
+
+ 在获取时，传入参数是否自动提交事务。true：自动提交；false：手动提交。
+
+ 如果设置为false，在这执行完操作后，需要调用session.commit()或者session.rollback()结束事务。
+
+ WriteTranSession只允许通过主键进行查询操作，查询时从主数据库操作。其他方法与ReadonlyTranSession用法类似。
+
+== 批量操作 ==
+ 
+ guzz提供两种批量操作接口，一种基于对象，一种基于SQL语句。执行批量操作，需要首先获取WriteTranSession。
+
+*基于对象： *
+{{{
+		WriteTranSession session = tm.openRWTran(false) ;
+		ObjectBatcher batcher = session.createObjectBatcher() ;
+				
+		for(int loop = 0 ; loop < 1000 ; loop++){
+			User user = new User() ;
+			user.setUserName("hello un " + i) ;
+				
+			batcher.insert(user) ;
+		}
+
+                batcher.executeUpdate() ;
+		session.commit() ;
+
+		session.close() ;
+}}}
+
+*基于SQL语句： *
+{{{
+CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(User.class, "delete from @@" + User.class.getName() + " where @id = :id") ;
+
+WriteTranSession session = tm.openRWTran(false) ;
+SQLBatcher batcher = session.createCompiledSQLBatcher(cs) ;
+
+for(int loop = 0 ; loop < 100 ; loop++){
+	batcher.addNewBatchParams("id", user.getId()) ;
+}
+	
+batcher.executeUpdate() ;
+session.commit() ;
+
+}}}
+
+ 两种方式都需要首先打开写事务连接，创建Batcher，随后按照各自的API添加每次执行的参数，最后执行executeUpdate并提交事务。
+
+*注意：* 一个Batcher只能用于处理同一领域对象在同一张表的操作，如果需要批量操作多个表的数据，需要创建多个Batcher。
+
+== 事务一致性： ==
+
+ 如果需要执行事务处理，在获取WriteTranSession时需要关闭自动提交事务： tm.openRWTran(false) ;
+
+ 随后针对此WriteTranSession进行任意操作即可，包括从此WriteTranSession创建JDBCTemplate执行raw sql，或者创建Batcher执行批量操作，在所有操作完成后commit()或者rollback()，guzz将完成多组机器多项操作的分布式事务。

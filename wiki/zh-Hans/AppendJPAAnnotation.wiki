@@ -1,0 +1,611 @@
+= Guzz JPA Annotation Reference =
+
+The Java Persistence API (JPA), part of the Java Enterprise Edition 5 (Java EE 5) Enterprise JavaBeans (EJB) 3.0 specification, greatly simplifies Java persistence and provides an object-relational mapping approach that allows you to declaratively define how to map Java objects to relational database tables in a standard, portable way that works both inside a Java EE 5 application server and outside an EJB container in a Java Standard Edition (Java SE) 5 application.
+
+When using Guzz JPA, you can configure the JPA behavior of your entities using annotations. An annotation is a simple, expressive means of decorating Java source code with metadata that is compiled into the corresponding Java class files for interpretation at runtime by Guzz JPA to manage JPA behavior.
+
+For example, to designate a Java class as a JPA entity, use the @Entity annotation as follows:
+
+{{{
+@javax.persistence.Entity
+public class Employee implements Serializable { 
+   ...
+}
+}}}
+
+You can selectively decorate your entity classes with annotations to override  defaults. This is known as configuration by  exception.
+
+This reference quotes extensively from the [http://jcp.org/aboutJava/communityprocess/pfd/jsr220/index.html JSR-220  Enterprise JavaBeans v.3.0] Java Persistence API specification to summarize annotation information by category (see Table 1-1) and explains when and how you use these annotations to customize JPA behavior to meet your application requirements.
+
+For more information, see:
+ * [#IndexOfAnnotations Index of Annotations]
+ * [http://java.sun.com/javaee/5/docs/api/index.html?javax/persistence/package-summary.html Complete JPA annotation Javadoc ]
+
+== Table 1-1 JPA Annotations by Category ==
+
+|| *Category* || *Description* || *Annotations* ||
+|| Entity || By default, Guzz JPA assumes that a Java class is non-persistent and not eligible for JPA services unless it is decorated with this annotation. <br><br>Use this annotation to designate a plain old Java object (POJO) class as an  entity so that you can use it with JPA services.<br><br>You must designate a class as a JPA entity (either using this annotation or  the orm.xml file) before you can use the class. || [#@Entity @Entity]<br><br>[#@org.guzz.annotations.Entity @org.guzz.annotations.Entity] ||
+|| Database Schema Attributes||By default, Guzz JPA assumes that an entity's name corresponds to a database  table of the same name and that an entity's data member names correspond to  database columns with the same names. <br><br>Use these annotations to override this default behavior and fine-tune the  relationship between your object model and data model.||[#@Table @Table]<br><br>[#@Column @Column]<br><br>[#@org.guzz.annotations.Table @org.guzz.annotations.Table]<br><br>[#@org.guzz.annotations.Column @org.guzz.annotations.Column] ||
+|| Identity||By default, Guzz JPA assumes that each entity must have one field or property  that serves as a primary key specifed by @Id.<br><br>You can also use these annotations to fine-tune how your database maintains  the identity of your entities.||[#@Id @Id]<br><br>[#@org.guzz.annotations.GenericGenerator @org.guzz.annotations.GenericGenerator]<br><br>[#@org.guzz.annotations.GenericGenerators @org.guzz.annotations.GenericGenerators]<br><br>[#@org.guzz.annotations.Parameter @org.guzz.annotations.Parameter]<br><br>[#@GeneratedValue @GeneratedValue]<br><br>[#@SequenceGenerator @SequenceGenerator]<br><br>[#@TableGenerator @TableGenerator]||
+|| Direct Mappings||By default, Guzz JPA automatically configures a Basic mapping  for most Java primitive types, wrappers of the primitive types, and enums. <br><br>Use these annotations to fine-tune how your database implements these  mappings.||[#@Basic @Basic]<br><br>[#@Enumerated @Enumerated]<br><br>[#@Temporal @Temporal] (not supported)<br><br>[#@Lob @Lob] (not  supported)<br><br>[#@Transient @Transient]||
+|| Composition || Some objects cannot exist on their own, but can only be embedded within owning entities.<br><br>Use these annotations to specify objects that are embedded and to override how they are mapped in the owning entity's table. || [#@AttributeOverride @AttributeOverride]<br><br>[#@AttributeOverrides @AttributeOverrides] ||
+|| Inheritance||By default, Guzz JPA assumes that all persistent fields are defined by a  single entity class. <br><br>Use these annotations if your entity class inherits some or all persistent  fields from one or more superclasses.||[#@MappedSuperclass @MappedSuperclass] ||
+
+=== @AttributeOverride ===
+
+By default, Guzz JPA automatically assumes that a subclass inherits both  persistent properties and their basic mappings as defined in a mapped  superclass.
+
+Use the @AttributeOverride annotation to customize a basic  mapping inherited from a [#@MappedSuperclass] to change the [#@Column] associated with the field or property.
+
+If you have more than one @AttributeOverride change to make, you  must use [#@AttributeOverrides].
+
+Table 1-4 lists the attributes of this annotation. For  more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/AttributeOverride.html API].
+
+*Table 1-4 @AttributeOverride Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Required|| The name of the field or property defined in the embedded object or mapped  superclass. ||
+|| column||Required || The [#@Column] that is being mapped to the persistent attribute. <br><br>The mapping type will remain  the same as is defined in the embeddable class or mapped  superclass. ||
+
+Example 1-5 shows how to use @AttributeOverride in the entity subclass  to override the [#@Column] defined (by default) in the [#@MappedSuperclass] Employee for the basic mapping to id.
+
+With the @AttributeOverride annotation, the PartTimeEmployee table would have the id attribute  mapped to the PTEMP_ID column. Other entity subclasses of Employee would inherit the default mapping to the ID column.
+
+*Example 1-4 @MappedSuperclass*
+
+{{{
+ @MappedSuperclass
+ public class Employee {
+	 @Id protected Integer id;
+	 ... 
+ }
+}}}
+
+*Example 1-5 @AttributeOverride*
+
+{{{
+@Entity
+@AttributeOverride(name="id", column=@Column(name="PTEMP_ID"))
+public class PartTimeEmployee extends Employee {
+...
+}
+}}}
+
+=== @AttributeOverrides ===
+
+If you need to specify more than one [#@AttributeOverride], you must specify all your attribute overrides using a single @AttributeOverrides annotation.
+
+Table 1-5 lists the attributes of this annotation. For  more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/AttributeOverrides.html API].
+
+*Table 1-5 @AttributeOverrides Attributes*
+|| *Attribute* || *Required* || *Description* ||
+|| value || Required|| To specify two or more attribute overrides, set value to an  array of @AttributeOverride instances (see [#@AttributeOverride]). ||
+
+Example 1-6 shows how to use this annotation to specify two attribute overrides.
+
+*Example 1-6 @AttributeOverrides*
+
+{{{
+@Entity
+@AttributeOverrides({
+@AttributeOverride(name="id", column=@Column(name="PTEMP_ID")),
+@AttributeOverride(name="salary", column=@Column(name="SAL"))
+}
+public class PartTimeEmployee extends Employee {
+	...
+}
+}}}
+
+=== @Basic ===
+
+By default, Guzz JPA automatically configures a @Basic mapping  for most Java primitive types, wrappers of the primitive types, and enums.
+
+Use the @Basic annotation to configure the fetch type to LAZY.
+
+Table  1-6 lists the attributes of this annotation. For  more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/Basic.html API].
+
+*Table 1-6 @Basic Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| fetch || Optional|| Default: FetchType.EAGER. By default, Guzz JPA uses a fetch type of EAGER: this is a requirement on Guzz JPA runtime that data must be eagerly fetched.<br><br>If this is inappropriate for your application or a particular persistent field, set fetch to FetchType.LAZY: this is a hint that data should be fetched lazily when it is first accessed (if possible). For  more information, see "Lazy Loading" in the _Guide_. ||
+
+Example 1-7 shows how to use this annotation to specify a fetch type of LAZY for a basic mapping.
+
+*Example 1-7 @Basic*
+
+{{{
+@Entity
+public class Book implements Serializable {
+...
+@Basic(fetch=LAZY)
+protected String toc;
+...
+}
+}}}
+
+=== @Column ===
+
+By default, Guzz JPA assumes that each of an entity's persistent attributes  is stored in a database table column whose name matches that of the persistent  field or property.
+
+Use the @Column annotation:
+ * to associate a persistent attribute with a different name if the default  column name is awkward, incompatible with a pre-existing data model, or invalid  as a column name in your database
+ * to fine-tune the characteristics of a column in your database
+
+Table 1-7 lists the attributes of this annotation. For  more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/Column.html API].
+
+*Table 1-7 @Column Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Optional|| Default: Guzz JPA assumes that each of an entity's  persistent attributes is stored in a database table column whose name matches  that of the persistent field or property.<br><br>To specify an alternative column name, set name to the String column name you want. ||
+|| unique||Optional || Not supported. ||
+|| nullable||Optional || Not supported. ||
+|| insertable||Optional || Default: true. <br><br>By default, Guzz JPA assumes that all columns are always included in SQL INSERT statements. <br><br>If this column should not be included in these statements, set insertable to false. ||
+||updatable||Optional || Default: true. <br><br>By default, Guzz JPA assumes that a column is always included in SQL  UPDATE statements. <br><br>If this column should not be included in these statements, set updatable to false. ||
+|| columnDefinition||Optional || Not supported. You have to create your table on your  own. ||
+|| table||Optional || not supported. ||
+|| length||Optional || not supported. ||
+|| precision||Optional || not  supported. ||
+|| scale||Optional || not  supported. ||
+
+Example 1-8 shows how to use this annotation to make Guzz JPA persist salary to column SAL in secondary table EMP_SAL. By default, Guzz JPA persists salary to column salary in primary table EMPLOYEE.
+
+*Example 1-8 @Column*
+
+{{{
+@Entity
+@SecondaryTable(name="EMP_SAL")
+public class Employee implements Serializable {
+...
+@Column(name="SAL", table="EMP_SAL")
+private Long salary;
+...
+}
+}}}
+
+=== @Entity ===
+
+Use the @Entity annotation to designate a plain old Java object  (POJO) class as an entity and make it eligible for JPA services. You must designate a POJO class as an entity before you can use any other JPA  annotations.
+
+Table 1-11 lists the attributes of this annotation. For more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/Entity.html API].
+
+*Table 1-11 @Entity Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Optional|| not supported. Use org.guzz.annotations.Entity to specify the business name instead. ||
+
+Example 1-18 shows how to use this annotation.
+
+*Example 1-18 @Entity*
+
+{{{
+@Entity
+public class Employee implements Serializable {
+	...
+}
+}}}
+
+===  @Enumerated ===
+
+By default, Guzz JPA persists the ordinal values of enumerated constants.
+
+Use the @Enumerated annotation to specify whether Guzz JPA should persist ordinal or String values of enumerated constants if the String value suits your application requirements or to match an existing  database schema.
+
+This annotation can be used with [#@Basic@Basic].
+
+Table 1-14 lists the attributes of this annotation.  For more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/Enumerated.html API].
+
+*Table 1-14 @Enumerated Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| value || Optional|| Default: EnumType.ORDINAL.<br><br>By default, Guzz JPA assumes that for a property or field mapped to an enumerated constant, the ordinal value should be persisted. <br><br>In Example 1-26, the ordinal value of EmployeeStatus is written to the database when Employee is persisted.<br><br>If you want the String value of the enumerated constant persisted, set value to EnumType.STRING. ||
+
+Given the enumerated constants in Example 1-25, Example 1-26 shows how to use this annotation to specify that the String value of SalaryRate should be written to the database when Employee is persisted. By default, the ordinal value of EmployeeStatus is written to the database.
+
+*Example 1-25 Enumerated Constants*
+
+{{{
+public enum EmployeeStatus {FULL_TIME, PART_TIME, CONTRACT}
+public enum SalaryRate {JUNIOR, SENIOR, MANAGER, EXECUTIVE}
+}}}
+
+*Example 1-26 @Enumerated*
+
+{{{
+@Entity
+public class Employee {
+	...
+
+	public EmployeeStatus getStatus() {
+    ...
+    }
+
+	@Enumerated(STRING)
+	public SalaryRate getPayScale() {
+	...   
+	}
+
+	...
+}
+}}}
+
+===  @GeneratedValue ===
+
+By default, the application is responsible for supplying and setting entity  identifiers (see [#@Id@Id]).
+
+Use the @GeneratedValue annotation if you want Guzz JPA to  provide and manage entity identifiers.
+
+Table 1-16 lists the attributes of this annotation. For more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/GeneratedValue.html API].
+
+*Table 1-16 @GeneratedValue Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| strategy || Optional|| Default: GenerationType.AUTO.By default, Guzz JPA chooses the type of primary key generator that is most  appropriate for the underlying database.If you feel that another generator type is more appropriate for your database  or application, set strategy to the GeneratorType you  want:<br><br> IDENTITY - specify that Guzz JPA use a database identity  column<br><br> AUTO - specify that Guzz JPA should choose a primary key  generator that is most appropriate for the underlying database.<br><br> SEQUENCE - specify that Guzz JPA use a database sequence (see [#@SequenceGenerator)<br><br> TABLE - specify that Guzz JPA assign primary keys for the entity  using an underlying database table to ensure uniqueness (see [#@TableGenerator])<br><br> ||
+|| generator||Optional || Default:Guzz JPA assigns a name to the primary key  generator it selects.  <br><br>If this name is awkward, a reserved word, incompatible with a pre-existing  data model, or invalid as a primary key generator name in your database, set generator to the String generator name you want to  use. <br><br>If you want to use a expanded Generator in guzz, set the generator name you  want to use, and defined a @org.guzz.annotations.GenericGenerator with that  name. ||
+
+Example 1-33 shows how to use this annotation to tell Guzz JPA to use a primary key generator of type GeneratorType.SEQUENCE named CUST_SEQ.
+
+*Example 1-33 @GeneratedValue*
+
+{{{
+@Entity
+public class Employee implements Serializable {
+	...
+	@Id
+	@GeneratedValue(strategy=SEQUENCE, generator="CUST_SEQ")
+	@Column(name="CUST_ID")
+	public Long getId() {
+			return id;
+	}
+
+	...
+}
+}}}
+
+===  @Id ===
+
+Use the @Id annotation to designate one or more persistent  fields or properties as the entity's primary key.
+
+This annotation has no attributes. For more  details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/Id.html API].
+
+Example 1-34 shows how to use this annotation to designate persistent field empID as the primary key of the Employee table.
+
+*Example 1-34 @Id*
+
+{{{
+@Entity
+public class Employee implements Serializable {
+	@Id
+	private int empID;
+	...
+}
+}}}
+
+===  @Lob ===
+
+@Lob is *not* supported in guzz.
+
+For a Clob, use @org.guzz.annotations.Column, and set type to "clob".
+
+For a Blob, use @org.guzz.annotations.Column, and set type to "blob".
+
+===  @MappedSuperclass ===
+
+By default, Guzz JPA assumes that all the persistent fields of an entity are  defined in that entity.
+
+Use the @MappedSuperclass annotation to designate a superclass  from which your entity class inherits persistent fields. This is a convenient  pattern when multiple entity classes share common persistent fields or  properties.
+
+You can use the [#@AttributeOverride] annotation in the subclass to override the superclass's mapping  configuration.
+
+This annotation has no attributes. For more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/EmbeddableSuperclass.html API].
+
+Example 1-51 shows how to use this annotation to specify Employee as a mapped superclass. Example 1-52 shows how to extend this superclass in an entity and how to use [#@AttributeOverride] in the entity class to override configuration made in the superclass.
+
+*Example 1-51 @MappedSuperclass*
+
+{{{
+@MappedSuperclass
+public class Employee {
+	@Id
+	protected Integer empId;
+
+	protected Integer version;
+	...
+}
+}}}
+
+*Example 1-52 Extending a @MappedSuperclass*
+
+{{{
+@Entity
+@AttributeOverride(name="address", column=@Column(name="ADDR_ID"))
+public class PartTimeEmployee extends Employee {
+
+	@Column(name="WAGE")
+	protected Float hourlyWage;
+	...
+}
+}}}
+
+===  @SequenceGenerator ===
+
+If you use the [#@GeneratedValue] annotation to specify a primary key generator of type SEQUENCE(create the sequence in the database yourself.), then you can use the @SequenceGenerator annotation to fine tune this primary key  generator to:
+ * change the allocation size to match your application requirements or database performance parameters
+ * the initial value is not supported.
+ * use a pre-defined sequence in an existing data model
+
+Table 1-42 lists the attributes of this annotation. For more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/SequenceGenerator.html API].
+
+*Table 1-42 @SequenceGenerator Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Required|| The name of the SequenceGenerator must match the generator name  in a GeneratedValue with its strategy set to SEQUENCE. ||
+|| sequenceName||Optional || Default: guzz_sequence. <br><br>If you prefer to use an existing or pre-defined sequence or have a specific  requirement for the name of the sequence, set sequenceName to the String name you want. ||
+|| initialValue||Optional || not supported. Create the sequence yourself. ||
+|| allocationSize||Optional || not supported. Create the sequence yourself. ||
+
+Example 1-78 shows how to use this annotation to specify the allocation size for the SEQUENCE primary key generator named CUST_SEQ.
+
+*Example 1-78 @SequenceGenerator*
+
+{{{
+@Entity
+public class Employee implements Serializable {
+	...
+	@Id
+	@SequenceGenerator(name="CUST_SEQ", allocationSize=25)
+	@GeneratedValue(strategy=SEQUENCE, generator="CUST_SEQ")
+	@Column(name="CUST_ID")
+	public Long getId() {
+		return id;    
+	}
+	...
+}
+}}}
+
+===  @Table ===
+
+By default, Guzz JPA assumes that all the persistent fields of an entity are stored in a single database table whose name is unqualified name of the entity class.
+
+Use the @Table annotation to specify the primary table  associated with an entity if:
+ * the entity name is awkward, a reserved word, incompatible with a pre-existing  data model, or invalid as a table name in your database
+ * you need to control what catalog or schema the table belongs to
+
+Table 1-45 lists the attributes of this annotation. For more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/Table.html API].
+
+*Table 1-45 @Table Attributes*
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Optional|| Default: Guzz JPA assumes that an entity's database table has the same name as the entity class. In Example 1-84, the default name is Employee. <br><br>If the entity class name is awkward, a reserved word, or incompatible with a pre-existing data model, set name to the appropriate database table name. In Example 1-84, Guzz persists the entity class Employee in the database table named EMP. ||
+|| catalog || Optional || Default: Guzz JPA uses whatever the default catalog is for your database. <br><br>If the default catalog is inappropriate for your application, set the catalog to the String catalog name to  use. ||
+|| schema || Optional || Default: Guzz JPA uses whatever the default schema is for your database. <br><br>If the default schema is inappropriate for your application, set the schema to the String schema name to use. ||
+|| uniqueConstraints || Optional || Not supported. ||
+
+Example 1-84 shows how to use this annotation to specify the primary table name.
+
+*Example 1-84 @Table*
+
+{{{
+@Entity
+@Table(name="EMP")
+public class Employee implements Serializable {
+	...
+}
+}}}
+
+===  @Temporal ===
+
+Not supported.
+
+For to java.sql.Timestamp, use  @org.guzz.annotations.Column, and set type to "datetime" .
+
+For to java.sql.Date, use @org.guzz.annotations.Column, and set type to  "date" .
+
+For to java.sql.Time, use  @org.guzz.annotations.Column, and set type to "time" .
+
+===  @Transient ===
+
+By default, Guzz JPA assumes that all the fields of an entity that are neither transient nor static are persistent if the data type is one of: Java primitive types, java.lang.String, wrappers of the primitive types, java.math.BigInteger, java.math.BigDecimal, java.util.Date, java.sql.Blob, java.sql.Clob, java.util.Calendar, java.sql.Date, java.sql.Time, java.sql.Timestamp, user-defined guzz types, byte[], Byte[], byte, enum, org.guzz.pojo.lob.TranClob and org.guzz.pojo.lob.TranBlob.
+
+Use the @Transient annotation to specify a field or property of an entity that is not persistent, for example, a field or property that is used at run time but that is not part of the entity's state.
+
+Guzz JPA will not persist for a property or field annotated as @Transient.
+
+This annotation can be used within classes denoted by [#@Entity], [#@MappedSuperclass].
+
+This annotation has no attributes. For more details, see the [http://java.sun.com/javaee/5/docs/api/javax/persistence/Transient.html API].
+
+Example 1-87 shows how to use this annotation to specify Employee field currentSession as not persistent. Guzz JPA will not persist this field.
+
+*Example 1-87 @Transient*
+
+{{{
+@Entity public class Employee {
+	@Id int id;    
+	@Transient Session currentSession;   
+	
+	...
+
+}
+}}}
+
+== Table 2-1 Guzz extended annotations ==
+
+=== @org.guzz.annotations.Entity ===
+
+Use guzz Entity to enchance a domain class to a business domain class.
+
+*Table 2-2 GuzzEntity*
+
+|| *Attribute* || *Required* || *Description* ||
+|| businessName || required|| A unique name referenced to the domain class. ||
+|| interpreter || Optional || the interpretor for the domain class.||
+
+Example 2-3 shows how to use this annotation to specify the business's name.
+
+*Example 2-3 @GuzzEntity*
+
+{{{
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="comment")
+public class Comment {
+	....
+}
+}}}
+
+=== @org.guzz.annotations.Table ===
+
+*Table 2-4 GuzzTable*
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Optional|| The name of the table. Defaults to the [#@Table @Table]'s name.<br><br>For simpifying annotation when you don't want to write [#@Table @Table]. ||
+|| dbGroup || Optional || Default: the 'default' database group. <br><br>The database group to store the table.||
+|| shadow || Optional || Default: no shadow.<br><br>The policy to split the table. ||
+|| dynamicUpdate || Optional || Default: false. <br><br>If you only want to update the changed properties in update() operation, set this to true. ||
+
+Example 2-5 shows how to use this annotation to specify the primary table name.
+
+*Example 2-5 @GuzzTable*
+
+{{{
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName = "comment")
+@Table(name="TB_COMMENT", shadow=CommentShadowView.class, dynamicUpdate=false, dbGroup="commentDB")
+public class Comment {
+	....
+}
+}}}
+
+=== @org.guzz.annotations.Column ===
+
+Use Guzz Column to enchance the [#@Column @Column] annotation.
+
+*Table 2-6 GuzzColumn*
+
+|| *Attribute* || *Required* || *Description* ||
+|| nullValue || Optional|| The value returned when the stored value in the database is null. ||
+|| loader || Optional || The user-defined loader to fetch the property's value. ||
+|| type || Optional || The data type of the column. <br/>eg:string, int, varchar, TranBlob ||
+
+Example 2-7 shows how to use this annotation to specify the primary table name.
+
+*Example 2-7 @GuzzColumn*
+
+{{{
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="userInfo")
+@org.guzz.annotations.Table(name="TB_USER_INFO")
+public class UserInfo {	
+
+	@javax.persistence.Id
+	@javax.persistence.Column(name="pk")
+	private int id ;	
+
+	@javax.persistence.Basic(fetch=FetchType.LAZY)
+	@org.guzz.annotations.Column(loader = org.guzz.pojo.loader.TwoPhaseClobDataLoader.class, type="clob")
+	private TranClob aboutMe ;
+
+	....
+}
+}}}
+
+=== @org.guzz.annotations.GenericGenerator ===
+
+GenericGenerator is used to expand the JPA's four id generators.
+
+Use this if JPA's standard Id Generator doesn't meet your needs.
+
+Since the definition of primary key generation strategy by @GenericGenerator achieve, guzz in JPA based on the expansion can be used like the way guzz introduced to generate unique primary key strategy is to add @GenericGenerator through. 
+
+For example, JPA standard usage:
+{{{
+@Id
+@GeneratedValue(GenerationType.AUTO)
+}}}
+
+Guzz can be used on the specific use to achieve the following:
+{{{
+@GeneratedValue(generator = "paymentableGenerator")  
+@GenericGenerator(name = "paymentableGenerator", strategy = "assigned")
+}}}
+
+*Table 2-8 GuzzGenericGenerator*
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Required|| unique generator name ||
+|| strategy || Required || Generator strategy either a predefined Hibernate strategy or a fully qualified class name. ||
+|| parameters || Optional || Optional generator parameters ||
+
+Example 2-9 shows how to use this annotation to specify the primary table name.
+
+*Example 2-9 @GuzzGenericGenerator*
+
+{{{
+@Entity
+@org.guzz.annotations.Entity(businessName="mailUid")
+@Table(name="tb_mailUid")
+@GenericGenerator(name = "assignedGen", strategy = "assigned")
+public class MailUid {
+	
+	@Id
+	@GeneratedValue(generator="assignedGen")
+	@Column(name="m_mailUid")
+	private String mailUid ;
+	....
+}
+}}}
+
+=== @org.guzz.annotations.GenericGenerators ===
+
+A collection of @org.guzz.annotations.GenericGenerator.
+
+|| *Attribute* || *Required* || *Description* ||
+|| value || Required|| Generators ||
+
+=== @org.guzz.annotations.Parameter ===
+
+Parameter for GenericGenerator (basically key/value pattern).
+
+|| *Attribute* || *Required* || *Description* ||
+|| name || Required|| key ||
+|| value || Required|| value ||
+
+for example:
+{{{
+@GeneratedValue(generator = "paymentableGenerator")
+@GenericGenerator(name = "paymentableGenerator", strategy = "seqhilo", 
+         parameters = { @Parameter(name = "max_lo", value = "5"), @Parameter(name = "sequence", value = "seq_pmg") })
+
+}}}
+
+== IndexOfAnnotations ==
+
+ * A
+  # [#@AttributeOverride @AttributeOverride]
+  # [#@AttributeOverrides @AttributeOverrides]
+ * B
+  # [#@Basic @Basic]
+ * C
+  # [#@Column @Column]
+  # [#@org.guzz.annotations.Column @org.guzz.annotations.Column]
+ * E
+  # [#@Entity @Entity]
+  # [#@org.guzz.annotations.Entity @org.guzz.annotations.Entity]
+  # [#@Enumerated @Enumerated]
+ * G
+  # [#@GeneratedValue @GeneratedValue]
+  # [#@org.guzz.annotations.GenericGenerator @org.guzz.annotations.GenericGenerator]
+  # [#@org.guzz.annotations.GenericGenerators @org.guzz.annotations.GenericGenerators]
+  # [#@org.guzz.annotations.Parameter @org.guzz.annotations.Parameter]
+ * I
+  # [#@Id @Id]
+ * L
+  # [#@Lob @Lob]
+ * M
+  # [#@MappedSuperclass @MappedSuperclass]
+ * S
+  # [#@SequenceGenerator @SequenceGenerator]
+ * T
+  # [#@Table @Table]
+  # [#@TableGenerator @TableGenerator]
+  # [#@Temporal @Temporal]
+  # [#@Transient @Transient]

@@ -1,0 +1,94 @@
+== 选型问题： ==
+
+*1. guzz是为大型项目设计的，可以用于中小型项目吗？*
+
+ 可以。guzz拥有大型项目的数据层架构，这种架构是透明的，与其他框架相比，并不会增加中小型项目的开发成本，因此可以选择。对于中小型项目，选择guzz后，如果以后项目发展成大型项目或者大数据量项目，代码重构风险可以降低很多。
+
+*2. 我在项目中引入guzz，怎么最快让大家看到效果？*
+
+ 引入guzz jsp taglib。将guzz配置起来，其他代码不用变，将主要的领域对象提取和显示交由guzz taglib完成，不写一行java代码快速完成大部分的前后台页面开发（修改）工作，效果会非常明显。同样的工作，能够快2-3倍。
+
+== 使用疑问： ==
+
+*1. Sample工程代码运行时数据池出错，错误如下：*
+
+{{{
+06:38:33,156 WARN  [BasicResourcePool] com.mchange.v2.resourcepool.BasicResourcePool$AcquireTask@1e146ca -- Acquisition Attempt Failed!!! Clearing pending acquires. While trying to acquire a needed new resource, we failed to succeed more than the maximum number of allowed acquisition attempts (30). Last acquisition attempt exception: 
+java.sql.SQLException: No suitable driver
+ at java.sql.DriverManager.getDriver(DriverManager.java:243)
+ at com.mchange.v2.c3p0.DriverManagerDataSource.driver(DriverManagerDataSource.java:224)
+ at com.mchange.v2.c3p0.DriverManagerDataSource.getConnection(DriverManagerDataSource.java:120)
+}}}
+
+ 解答：这个问题是properties文件被IDE篡改引起的。重新从压缩包中取出bigVote.properties文件放入工程，用普通的Properties File Editor打开编辑。千万不要使用MyEclipse默认的高级Properties编辑器。出现这个错误的原因就是MyEclipse的高级编辑器自动合并了“名称相同的配置项”。由于我们的properties存在分组，名称相同的配置项是不能合并的。 
+
+*2. 默认使用的c3p0以及dbcp这两个链接池，从目前大家的反馈看，应该各有各的问题，而guzz的设计目的是大数据量的数据处理方案框架，这两者之间有没有设计上的冲突？*
+
+ 连接池这2个比较常见，所以支持了下这两个。以后也可能增加更多连接池的支持，也支持用户自己定义自己的池，详情请参看：[TutorialDatasourceProvider 自定义连接池实现]
+
+*3. 支持jndi吗？如果在设计上不支持jndi,是不是考虑到数据库是分布式的群组，jndi无法管理这个因素来考虑的？*
+
+ 不支持JDNI。jndi我用的不多，没什么经验，所以没有做，以后可能会支持。
+
+*4. guzz中提到的“支持应用使用大量的数据库和主从读写分离”，主从数据库分离，到底指什么意思，能详细说明一下吗? 另外，“主从读写分离”是否只对mysql数据库而言？其它数据库支持吗？如果针对mysql数据库应用要达到读写分离，还需要配置什么东西？*
+
+ 主从分离是指数据库在部署时按照master-slave模式部署，所有写操作写入master库，所以读操作从slave库操作，以降低主库的负载，实现多台数据库并行工作。
+
+ 如果只有1台数据库，可以忽略这个概念。使用api参看：[TutorialTranSession]
+
+ 主从大部分数据库都支持，可能名字不一样。比如在oracle中叫“镜像”之类的。Mysql配置主从的方法请参看：http://guzz.javaeye.com/blog/366508
+
+ 主从的概念就是1个库负责写入，然后把写入操作复制给其他库，维护1组数据库的数据是相同的。使用者可以从任意1台中读取数据，以达到数据库的水平扩展。
+
+*5. 当搭建好主从或者镜像数据库集群后，“所有写操作写入master库，所以读操作从slave库操作”，guzz如何设置ReadonlyTranSession是对从数据库操作的，而WriteTranSession是对主数据库操作的，这个步骤或者机制在哪设置的？还有，主库对应的可不可以是一个集群，然后从库对应的也是一个集群？*
+
+ 在guzz.xml中通过
+{{{
+<dbgroup name="log" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" dialectName="mysql5dialect" />
+}}}
+
+ 指定masterDBConfigName和slaveDBConfigName对应的主从库，其他的都是内部自动处理的了。
+
+ 对于主从库能否为集群，主要看数据库支不支持。masterDB和slaveDB对应的都是配置文件里面的配置项。如果库支持集群，可以将配置项配置成集群的驱动以及IP列表等；如果是多台库轮循使用，可以配置多个数据库组（例如配置两个[slaveDB]就表示在这2台从库简轮询请求，轮询的策略是按照参数guzz.maxLoad的负载值均衡）。
+
+ 简单来说：1个配置项对应一个数据源（!DataSource），至于这个数据源是集群还是单库，对guzz来说是透明的。
+
+ 如果配置成多台机器轮询（如slave数据库轮询），guzz.xml是不要改动的（guzz.xml可以永远保持开发环境和正式环境只有1份），只要改动properties文件，大概配置的样子：
+
+{{{
+[slaveDB]
+.....db1 
+
+[slaveDB]
+....db2
+
+...
+
+}}}
+
+*6. “支持数据表在多组机器中水平分布（Shard），并自动维护多组机器之间的分布式事务”，是不是指多个数据库中存在同样结构的一张表，然后guzz在数据处理过程中根据某种策略自动维护往哪个数据库中处理？该功能有没有实现，有没有例子，能否告诉我详细一点。*
+
+ shard是指把1个库里的多张表分散到多台数据库上，如用户资料放在数据库1，短消息放到数据库2，其他放到数据库3。当1个短消息到达时，需要更新库1的短消息统计，往库2写入短消息，往库3写入日志等等，分布式事务是指对这3台数据库的操作，guzz可以自动保证原子执行。
+
+ shard做的是将不同的表分到不同的物理数据库中，不涉及同1张表的分切。对于同一张的分切，我们现在使用的有自定义调查，每次调查1张表。具体可以看下：[http://guzz.javaeye.com/blog/638931]
+
+*7. 表的分切（shadow）是否也可以和shard技术融合，切分后的多张小表分布在不同的数据库组中？*
+
+ 切分后的小表不支持分散在多组数据库中。
+
+ 这种功能可能会造成数据库表分散的非常复杂，最后连DBA都晕，所以想先收集下shard和shadow的使用案例和技巧，在进行设计。这个功能计划在1.2.9或者1.3.0版本实现。
+
+*8. Guzz JSP Taglib中说可以只写jsp，不用写java代码，直接部署jsp不用重启应用服务器？jsp改动或者增加新的jsp，可以不用重启应用服务器？*
+
+ 改动JSP是不需要重启应用服务器的，所有java应用服务器都支持。
+
+*9. 怎么调用存储过程？
+ 
+ 通过ReadonlyTranSession或WriteTranSession的createJDBCTemplate获取JDBCTemplate。通过JDBCTemplate.getConnection()获取数据库连接，然后通过JDBC的调用方法进行调用。
+
+ JDBCTemplate.getConnection()上进行的操作，将处在WriteTranSession的统一事务下管理。
+
+ 完成调用后，通过TranSession.close()方法关闭连接。
+  
+
+

@@ -1,0 +1,23 @@
+guzz taglib使用jsp自定义taglib技术，可以通过guzz taglib在jsp页面上直接完成大量的数据库操作，减少java代码的编写。
+
+== 预备知识 ==
+
+ 在使用taglib前，需要具备使用jsp和jsp taglib的知识。同时，guzz taglib在使用时，一般要和“标准标签库(jstl)”协同使用，开发者应掌握标签库的使用方法。
+
+ 标准标签库一般经常用的有 c: 和 fmt: 标签。
+
+ jsp和标签标准库的资料可以参考：
+
+ [http://java.sun.com/j2ee/1.4/docs/tutorial/doc/JSPIntro.html#wp100465 官方使用帮助教程(英文版)]
+
+ [http://www.drupaling.cn/a/JAVA/JSP/2009/0924/1206.html JSTL简要教程（中文文章）]
+
+ [http://java.sun.com/products/jsp/jstl/1.1/docs/tlddocs/index.html 标准标签库标签api]
+
+== 快速了解guzz tablib ==
+
+ [TutorialTaglib guzz tablig的安装与概述]
+
+== guzz taglib详细介绍 ==
+
+ [http://www.guzz.org/docs/tlddocs/index.html Guzz Taglib API]

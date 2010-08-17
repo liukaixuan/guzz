@@ -1,0 +1,227 @@
+== 概述 ==
+
+ guzz自身携带了一些常用的服务，供项目方便使用。主要有：调试信息服务，动态SQL服务，计数器更新队列服务以及日志队列服务。
+
+== 1. 调试信息服务： ==
+
+*用途：*用于打开或者关闭数据库输出日志，设置系统运行级别。
+
+*接口：*org.guzz.service.core.DebugService
+
+*服务注册名称：*guzzDebug
+
+*guzz内部使用范围：*
+
+ * 1. guzz在执行数据库操作时，将所有使用的sql语句以及参数传递给debugService进行输出记录。
+ * 2. guzz.xml中进行数据库定义时（dbgroup），在debug模式下允许填写的masterDBConfigName或slaveDBConfigName在properties文件中不存在；而在production模式下不允许。
+
+*配置加载方法：*不需要配置，guzz启动时自动加载。应用可以通过配置名称为guzzDebug的服务覆盖默认实现。
+
+*服务参数（properties文件定义）：* 
+
+{{{
+[guzzDebug]
+#runMode=debug/production
+runMode=debug
+
+#how to handle unexpected exceptions?
+#onError=halt/log/ignore
+onError=halt
+
+#print sql statements to the commons log?
+printSQL=true
+
+#print sql parameters to the commons log?
+printSQLParams=true
+
+#ignore sqls executed in guzz demon thread(thread is demon and thread name is started with gz_demon_t_).
+#org.guzz.service.core.DebugService.DEMON_NAME_PREFIX = "gz_demon_t_" ;
+ignoreDemonThreadSQL=true
+
+}}}
+
+配置参数名称必须为guzzDebug
+
+== 2. 动态SQL服务： ==
+
+*用途：*根据id，动态的加载并执行配置的sql语句。guzz允许在guzz.xml中配置sql和sql映射，按照id执行，类似于ibatis；但这种方式不支持sql的变化，一旦需要修改sql或者添加新的sql，必须重启应用方可生效。动态SQL服务即用来解决此问题，他允许应用自己定义sql和sql映射的来源（如存储在数据库中），并可以按照应用自身的需要动态调整sql，无法重启。动态SQL服务主要有两种应用场景：
+ * 1. 动态的调试SQL。当发现某些SQL存在性能隐患时，用新优化的SQL在线替换旧的SQL语句，无需重启系统完成升级。
+ * 2. 提供动态数据源。当系统添加新功能时，动态配置增加1条新的sql语句和映射，通过一个统一的servelt按照页面传入的id，参数，分页信息等完成查询并将结果转为json/xml返给调用者处理（如AJAX前端页面），避免后台开发和部署。
+ 
+*接口：*org.guzz.service.core.DynamicSQLService
+
+*服务注册名称：*guzzDynamicSQL
+
+*guzz内部使用范围：*
+
+ * 1. guzz按id执行sql时，通过DynamicSQLService服务查询需要执行的sql语句。
+
+*配置加载方法：* 配置1个名称为“guzzDynamicSQL”并且实现了org.guzz.service.core.DynamicSQLService接口的服务到guzz中。
+
+*guzz默认实现：* guzz默认实现了1个基于文件系统的动态sql服务，每个xml文件包含1个sql及其映射，文件名除去.xml后为其id。
+ 
+ 配置方法：
+  在guzz.xml中声明：
+ {{{
+ <service name="guzzDynamicSQL" configName="guzzDynamicSQL" class="org.guzz.service.core.impl.FileDynamicSQLServiceImpl" />
+ }}}
+
+ 在properties文件中配置参数：
+
+ {{{
+ [guzzDynamicSQL]
+ #where to find the sql .xml files
+ folder=/nas/conf/sqls/
+
+ #file encoding
+ encoding=UTF-8
+
+ #When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority? true: use sql from this service. false: use sql in the guzz.xml.
+ overrideSqlInGuzzXML=false
+
+ #cache the parsed sql in memory util the file changed?
+ useCache=true
+ }}}
+
+注意，服务的名称必须为：guzzDynamicSQL
+
+== 3. 计数器更新队列服务（客户端）： ==
+
+*用途：* 将按照主键进行字段增加或减少的计数sql操作，通过队列写入临时表。同时另外一个后台线程读取临时表数据，合并对同一条记录的操作，再写回主库进行更新操作。一般用于处理大型网站计数操作的数据库性能瓶颈。本服务为客户端，完成写入到临时表部分的操作。
+
+*接口：*org.guzz.service.core.SlowUpdateService
+
+*注册服务名称：*guzzSlowUpdate
+
+*guzz内部使用范围：*
+ * 1. guzz taglib的 g:inc 标签进行计数器更新时，实际上都转入此服务执行。如果此服务没有配置，g:inc标签无法使用。
+
+guzz实现了2个版本的计数器更新，一个用于处理要更新对象很多的场景（如twitter消息阅读次数），一个用于处理要更新对象很少但更新非常频繁的场景（如twitter上超级明星消息阅读次数），默认是前者。
+
+*前者配置方法：*
+
+ guzz.xml：service不需要配置，默认启动。对临时表映射需要增加一行配置：
+
+{{{
+<business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:xxx/IncUpdateBusiness.hbm.xml" />
+}}}
+
+ IncUpdateBusiness.hbm.xml存储在org.guzz.service.core.impl中，需要复制到应用可以找到的目录下。临时表的sql创建语句在IncUpdateBusiness.hbm.xml注释中可以找到。
+
+ properties文件：
+
+{{{
+[guzzSlowUpdate]
+#max size of cached queue
+queueSize=20480
+
+#batch size for updating to the temporary database.
+batchSize=2048
+}}}
+
+ 内部工作原理：根据参数queueSize创建一个数组，所有更新操作，记录到数组的1个位置。后台1个线程重复轮询数组，将操作按照所影响数据库的行进行合并，创建批操作，根据batchSize大小将合并后的更新操作写入临时表。执行成功后，将涉及到的数组元素清空，供下次使用。所有操作，没有锁处理。因此，如果queueSize比较小，而计数非常频繁，会出现数组元素被覆盖，计数器漏记。
+
+*后者配置方法：*
+
+ guzz.xml：
+
+{{{
+<service name="guzzSlowUpdate" configName="guzzSuperSlowUpdate" class="org.guzz.service.core.impl.SuperSlowUpdateServiceImpl" />
+
+<business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:xxx/IncUpdateBusiness.hbm.xml" />
+}}}
+
+ 用同名的服务，覆盖默认实现。（应用也可以自己实现此服务接口，覆盖guzz提供的实现）
+
+ properties文件：
+
+{{{
+[guzzSuperSlowUpdate]
+#batch size for updating to the temporary database.
+batchSize=2048
+
+#how many milseconds to wait when there is no new updates available.
+updateInterval=500
+}}}
+
+ 内部工作原理：创建1个Map，每次对1个新行的更新都都记录到Map中，如果是对同一行记录的更新，将Map中计数更新（合并更新操作）。后台有1个线程，轮询Map，将Map中记录到的更新操作按照batchSize创建批操作写入临时表，并将计数设置为0（已经完成数据库更新）；如果元素计数为0，表示从上次入库到现在没有新的更新，判定此元素不再活跃，从Map中删除。如果1次轮询，没有任何需要更新的记录，线程等待updateInterval毫秒后执行。
+
+== 4. 计数器更新队列服务（服务器端）： ==
+
+*用途：* 完成从临时表到主库的更新操作。此服务1个临时表只允许1个实例运行，不支持集群，但可以和客户端服务同时运行。
+
+*接口：*org.guzz.service.db.SlowUpdateServer
+
+*注册服务名称：* 自定义，推荐slowUpdateServer
+
+*guzz内部使用范围：* 内部不使用
+
+*配置方法：*
+
+ guzz.xml：
+
+{{{
+<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
+}}}
+
+ properties文件：
+
+{{{
+[guzzSlowUpdateServer]
+#batch size for updating the main database
+batchSize=50
+
+#page size for reading from the temp table
+pageSize=40
+
+#how many pages to read from the temp table for one loop updating
+combinePageCount=10
+
+#millseconds to wait for the next round of updates checking
+updateInterval=500
+}}}
+
+*内部工作原理：* slowUpdateServer一次从临时表读取pageSize*combinePageCount条记录，进行一次sql更新合并，然后按照batchSize创建批处理写入到主库中。
+
+*提示：* slowUpdateServer需要在guzz.xml中和properties文件中都配置时才会启动。一般我们将slowUpdate和slowUpdateServer一起配置到guzz.xml中，但只在其中1台机器上配置slowUpdateServer的properties参数，以保证只有1台机器启动后台同步服务（将临时表更新到主库中）。这样开发与生产系统中的guzz.xml都可以保持一份，每台机器唯一需要额外处理的就是properties参数文件。
+
+*提示2：* 计数sql合并的效果可以通过在log4j.properties中增加一行：
+
+{{{
+log4j.logger.org.guzz.service.db.impl=debug
+}}}
+
+ 来观察输出。
+
+== 5. 日志队列服务： ==
+
+*用途：* 将1个对象写入队列，另外1个后台线程将队列中的元素写入到数据库中。用于应用处理不太重要但又可能影响性能的数据库写操作。
+
+*接口：*org.guzz.service.log.LogService
+
+*注册服务名称：* 自定义，推荐logService
+
+*guzz内部使用范围：* 内部不使用
+
+*配置方法：*
+
+ guzz.xml：
+
+{{{
+<service name="logService" configName="guzzDBLogServiceClient" class="org.guzz.service.log.impl.DBLogServiceImpl" />
+
+}}}
+
+ properties文件：
+
+{{{
+[guzzDBLogServiceClient]
+#commit size
+commitSize=2048
+
+#max size of log queue
+queueSize=20480
+}}}
+
+*内部工作原理：* 与默认的slowUpdate服务相同。唯一不同的是logService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。logService处理的对象一般是应用系统自己定义的对象。
+ 

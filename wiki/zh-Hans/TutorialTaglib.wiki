@@ -1,0 +1,202 @@
+== 安装标签： ==
+
+两步：
+ *  配置好guzz环境，让guzz跑起来。
+ *  在需要的jsp页面上引入标签库：<%@ taglib uri="http://www.guzz.org/tags" prefix="g" %>
+
+ 标签tld的定义在guzz的jar包META-INF下。
+
+== 提供的标签： ==
+
+*标签种类：*
+
+|| *标签*  || *用途*  || *标签体内可否写其他代码*  ||
+|| g:boundary  || 定义条件范围。在此标签内的所有标签，都将自动获取其设定的查询条件。  || 可以  ||
+|| g:addLimit  || 对当前的g:boundary中增加一个查询条件。 || 不可以  ||
+|| g:addInLimit  || 对当前的g:boundary中增加一个in操作查询条件。 || 不可以  ||
+|| g:count  || 执行统计操作  || 不可以  ||
+|| g:get  || 执行list操作，并读取list的第一个对象。  || 不可以  ||
+|| g:list  || 读取一个列表。  || 不可以。  ||
+|| g:page  || 读取一页对象。返回的对象默认为org.guzz.dao.PageFlip 对象。  || 不可以。  ||
+|| g:out  || 输出标签，类似c:out，但增加了javascript过滤处理，xslt，js串输出，native2ascii等功能。<br> g:out默认对xml进行转义，并对javascript转义，如果需要2这都打开，需要将2个属性都设置为false。|| 不可以||
+|| g:inc  || 按照主键对域对象的1个字段进行自增操作。g:inc需要配置 [AppendCoreService 计数器更新队列服务] 方可生效。  || 不可以。  ||
+|| 其他  || 执行数据库写操作，不计划支持。  || 请勿使用 ||
+
+== 标签中属性介绍： ==
+
+ 所有标签中，如果属性名称相同，一般含义也相同。所有标签中使用的对象属性均为java领域对象pojo的属性，不是数据库字段名称。
+
+*主要的属性有：*
+
+|| *属性名称*  || *作用*  || *注意事项*  ||
+|| limit  || 查询条件。 如：userName=${param.name}；status=1；checked=true。 <br>也可以为应用自己定义的条件，如"checkedPost"；如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。<br><br>*注意：*1个limit只能是一个条件，不能进行条件组合。<br>如果需要多个条件进行and查询，使用g:boundary标签包含查询标签，并通过g:addLimit或g:addInLimit添加更多条件。|| 1个limit只允许写1个条件。<br>不支持多个条件的and or运算。 ||
+|| var  || 将结果保存到jsp对象中的名称。类似c:set中var的定义。  || - ||
+|| scope  || 结果保存的范围。类似c:set中scope的定义。  || page,request,session,application  ||
+|| business  || 域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  ||- ||
+|| tableCondition  || 分表条件。具体请参看shadow table 和custom table介绍。 ||- ||
+|| skipCount  || 跳过记录数。默认为0，不跳过。  ||- ||
+|| pageNo  || 页号。从1开始。  ||- ||
+|| pageSize  || 每页读取记录数。  ||- ||
+|| orderBy  || 排序方式，多个排序用英文的逗号分隔，如：name asc, id desc, friendCount asc  ||- ||
+|| test  || addLimit和addInLimit标签使用，类似于c:if中的test。<br><br>如果条件为true，添加条件；如果为false，忽略条件。默认为true。  ||- ||
+
+其中limit查询条件支持的运算符包括：
+
+|| *operator* || *function* || *memo* ||
+|| =  || EQUAL || 等于 ||
+|| == || EQUAL || 等于 ||
+|| =~= || EQUAL_IGNORE_CASE || 字符相同（不区分大小写） ||
+|| >  || BIGGER || 大于 ||
+|| <  || SMALLER  || 小于 ||
+|| >= || BIGGER_OR_EQUAL || 大于等于 ||
+|| <= || SMALLER_OR_EQUAL || 小于等于 ||
+|| != || NOT_EQUAL || 不相等 ||
+|| <> || NOT_EQUAL || 不相等 ||
+|| `~~` || LIKE_IGNORE_CASE || 字符相似（不区分大小写）。<br><br>需要自己添加模糊查询的模糊匹配，与数据库匹配规则相同。%用于表示任意多个字符，?代表1个字符。<br>如：limit="name`~~`%${param.name}%" ||
+|| ~= || LIKE_CASE_SENSTIVE || 字符相似（大小写按照数据库字段定义决定是否区分）。注意事项同上。 ||
+
+== 标签的使用示例 ==
+
+ guzz的标签主要用来处理数据库操作，一般情况下和jsp core标签协同使用。
+
+=== 单条件： ===
+
+ 如果查询只有1个条件，或者没有查询条件，直接使用get/list/page等即可。下面的例子演示通过cid参数传入国家编号，进行国家内城市受欢迎数据的统计：
+
+{{{
+<g:get var="m_coutry" business="userCoutry" limit="id=${param.cid}" />
+
+<c:if test="${empty param.order}">
+	<g:list var="m_cities" business="userCity" limit="coutryId=${m_coutry.id}" orderBy="id asc" pageSize="200" />
+</c:if>
+<c:if test="${not empty param.order}">
+	<g:list var="m_cities" business="userCity" limit="coutryId=${m_coutry.id}" orderBy="${param.order}" pageSize="200" />
+</c:if>
+
+<g:count var="m_cityAddedFavNum" selectPhrase="sum(addedFavNum)" business="userCity" limit="coutryId=${m_coutry.id}" />
+
+<g:count var="m_maxCityFavNum" business="userCity" selectPhrase="max(favNum)" limit="coutryId=${m_coutry.id}" />
+<g:count var="m_maxCityAddedFavNum" business="userCity" selectPhrase="max(addedFavNum)" limit="coutryId=${m_coutry.id}" />
+
+<g:count var="m_cityFavPeopleBase" business="userCity" selectPhrase="max(favPeople)" limit="coutryId=${m_coutry.id}" />
+<c:set var="m_cityFavNumBase" value="${m_maxCityFavNum + m_maxCityAddedFavNum }" />
+
+}}}
+
+=== 组合条件： ===
+
+ 如果查询条件多于1个，则需要增加boudary和limit标签，如：
+
+{{{
+<g:boundary>
+	<c:if test="${!consoleUser.systemAdmin}">
+		<g:addInLimit name="authGroup" value="${consoleUser.authGroups}" />
+	</c:if>
+
+	<g:addLimit limit="channelStatus=checked" />
+
+	<g:list var="m_channels" business="channel" orderBy="id desc" pageSize="20" />
+</g:boundary>
+}}}
+
+ 列出用户有权限管理，并且通过审核的前20个频道；如果用户为系统管理员，则列出所有通过审核的前20个频道。
+
+ 组合条件之间按照 and 进行关联，不支持 or 操作。
+
+=== 翻页查询： ===
+
+ 翻页查询按照条件同时执行"select 字段名称" 和 select count({{{*}}}) 操作，并且按照pageNo和pageSize读取数据，并保存到var参数中。如：
+
+{{{
+<g:boundary>
+	<c:if test="${param.cid > 0}">
+		<g:addLimit limit="channelId=${param.cid}" />
+	</c:if>
+	<g:addLimit limit="${consoleUser}" />
+	
+	<g:page var="m_votes" business="blogVote" orderBy="id desc" pageNo="${param.pageNo}" pageSize="20" />
+</g:boundary>
+}}}
+
+ 此处根据参数频道号cid翻页读取频道内的所有有权限的投票，如果没有传入cid，则读取所有。
+
+{{{
+<g:addLimit limit="${consoleUser}" />
+}}}
+
+ 此处limit传入的查询条件为应用程序自定义的条件“当前登录用户”，这是一种高级用法，[BlogVoteInterpreter 阅读更多。]
+
+ page标签返回的对象为org.guzz.dao.PageFlip对象，通过.elements()方法获取列表数据，其他方法获取分页信息。page标签在将PageFlip对象结果设置到指定var属性的同时，还会将数据设置到名为PAGE_FLIP的属性中。如果您的系统所有分页展示方式一样，可以通过共用的分页jsp页面来完成，不用每次都写一遍分页代码。举例：
+
+{{{
+<%@ taglib uri="http://www.guzz.org/tags" prefix="g" %> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+
+<g:page var="m_channels" business="channel" orderBy="id desc" pageNo="${param.pageNo}" pageSize="20" />
+....
+<c:forEach items="${m_channels.elements}" var="m_channel">
+     		<tr>
+     			<td>${m_channel.id}</td>
+     			<td>${m_channel.name}</td>
+                        .....
+     		</tr>
+</c:forEach>
+....
+<table border="0" width="96%" align="center" class="data">
+     		<tr align="left">
+     			<c:import url="/WEB-INF/jsp/include/console_flip.jsp" />
+     		</tr>
+</table>
+....
+}}}
+
+ 在上面的列子中，我们通过m_channels参数进行数据展示，而分页代码直接引用“/WEB-INF/jsp/include/console_flip.jsp” 进行后台样式的分页。console_flip.jsp的定义如下：
+
+{{{
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ taglib uri="http://www.guzz.org/tags" prefix="g" %> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+
+<!-- we need propery PAGE_FLIP -->
+		<td class="page_bar">
+			第<c:out value="${PAGE_FLIP.pageNo}"/>页&nbsp;共<c:out value="${PAGE_FLIP.pageCount}"/>页&nbsp;(记录总数：<c:out value="${PAGE_FLIP.totalCount}"/>)&nbsp;	
+			<c:forEach begin="${PAGE_FLIP.pageStart}" end="${PAGE_FLIP.pageEnd}" step="1" var="index">
+				<c:if test="${index == PAGE_FLIP.pageNo}"> 
+					<span style="color:red;font-weight:bold;"><c:out value="${index }" /></span> 
+				</c:if>
+				<c:if test="${index != PAGE_FLIP.pageNo}"> 
+					<a href='<c:out value="${PAGE_FLIP.flipURL}" />&<c:out value="${PAGE_FLIP.webPageNoParam}" />=<c:out value="${index}"/>'>
+                                        <span style="text-decoration: none;color:gray;"><c:out value="${index}" /></span></a>  
+				</c:if>&nbsp;
+			</c:forEach>
+		</td>
+}}}
+
+ PageFlip不仅包含从数据库获取的数据，还包含计算分页展示的算法，以及通过get方法传递的参数（会自动删除页面中传递pageNo的参数）。PageFlip的具体实现类，可以在进行SearchExpression查询时指定，不过目前的标签不支持自定义。PageFlip默认的分页展示算法为类似google查询的分页算法。
+
+ 如果您也完成了此步骤，你的分页查询和分页展示将可以非常简单的进行编写和维护。
+
+=== g:inc计数器标签： ===
+
+ 计数器标签将根据主键进行的自增类更新操作（如典型的阅读次数）记录到临时表中，在通过后台算法，将临时表数据写回到主表中。一方面通过合并算法，减少更新SQL语句执行次数；另一方面，避免更新操作影响主业务响应速度。
+
+ g:inc标签属性：
+
+|| *属性名称*  || *作用*  || *注意事项*  ||
+|| business  || 要更新的域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  || - ||
+|| updatePropName || 要更新的对象属性  || page,request,session,application  ||
+|| pkValue  || 要更新域对象的主键值。|| 只支持按照主键进行更新。 ||
+|| count  || 要增加的计数值。  || 整数代表增加，负数表示减少 ||
+|| tableCondition  || 分表条件。具体请参看shadow table 和custom table介绍。 ||- ||
+
+ 举例：
+
+{{{
+<g:inc business="blogArticle" pkValue="${article.id}" updatePropName="readCount" count="1" />
+
+<g:inc business="comment" pkValue="${comment.id}" updatePropName="readCount" count="1" tableCondition="${article.channel}" />
+}}}
+
+== Taglib Documentation ==
+
+ [http://www.guzz.org/docs/tlddocs/index.html]

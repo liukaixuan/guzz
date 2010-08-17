@@ -1,0 +1,7 @@
+= 如何反馈？ =
+
+ bug请填写本工程的bug报告（Issues）。
+
+ 其他请在此页面添加评论。
+
+ 或直接给我发邮件：liukaixuan圈圈gmail.com。

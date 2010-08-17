@@ -1,0 +1,41 @@
+== 先决条件 ==
+
+ 必须按照先前文档的介绍在spring中配置。
+
+== 获取方法 ==
+
+*自动注入：*
+
+ 对于guzz中项目可能需要自定义的组件，包括域对象interpreter，自定义加载属性接口，自动分切表和自定义属性表接口，在实现时通过声明
+
+{{{
+org.guzz.web.context.ExtendedBeanFactoryAware
+}}}
+
+ 获取guzz的自动注入。
+
+ 注入的 org.guzz.web.context.ExtendedBeanFactory 有2个方法：
+
+ public Object getFactoryImpl() ; 返回容器环境，对于spring容器返回的是org.springframework.context.ApplicationContext对象
+
+ public Object getBean(String beanName) ; 通过spring bean的名称获取bean
+
+*GuzzContext获取：*
+
+ 也可以通过GuzzContext提供的2个方法直接获取。
+
+ public ExtendedBeanFactory getExtendedBeanFactory() ; 返回的为上面注入的ExtendedBeanFactory
+
+ public Object getExtendedBean(String beanName) ; 通过bean的名称获取bean。
+
+ 不过这两个方法不能在guzz初始化时调用，只能在系统运行期间调用。因为在guzz初始化时，ExtendedBeanFactory并没有初始化，初始化阶段调用会报错。
+
+== 初始化与调用顺序 ==
+
+ 与spring协同时，guzz作为spring的一个bean启动。在guzz完成启动前并不能获取到完全启动后的spring环境（ApplicationContext），这时强制引用bean很容易出现spring bean的循环引用，引发错误；因此ExtendedBeanFactory的构建和注入是在guzz和spring都全部启动完成后调用的。接口：
+
+{{{
+org.guzz.web.context.ExtendedBeanFactoryAware
+}}}
+
+ 是所有guzz可能执行的主动回调中最后的一个，甚至在startup()之后才能调用（如果有类似的启动方法）。使用时需要特别注意。
