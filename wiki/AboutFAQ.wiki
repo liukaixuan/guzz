@@ -4,11 +4,11 @@
 
  Yes, you can. 
  
- *Costs:* Indeed, many features are designed for large system in guzz, but it is transparent. Against other frameworks, guzz won't increase your developing costs for small-and-medium scaled projects.
+ -*Costs*: Indeed, many features are designed for large system in guzz, but it is transparent. Against other frameworks, guzz won't increase your developing costs for small-and-medium scaled projects.
 
- *Time:* If you have fundmantual services(you will have some after serval guzz projects), guzz will reduce your time and cost by reusing the services  accumulated. If you have many "read" features, guzz taglib can fast your speed horribly!
+ -*Time*: If you have fundmantual services(you will have some after serval guzz projects), guzz will reduce your time and cost by reusing the services  accumulated. If you have many "read" features, guzz taglib can fast your speed horribly!
 
- *Scalability:* Small projects can grow big sometimes. In this suitation, guzz will reduce the risk of code refactoring in the future. 
+ -*Scalability*: Small projects can grow big sometimes. In this suitation, guzz will reduce the risk of code refactoring in the future. 
 
 *2. After introducing Guzz into my project, how can I make others witness the effects as quickly as possible?*
 
@@ -60,7 +60,7 @@ java.sql.SQLException: No suitable driver
  For example, in a sns system, you can put the user information in database 1, short messages in database 2 and others in database 3. When a short message arrived, we have to update message count in database 1, write the messages in database 2,  and write a log in database 3. With guzz, you dont's have to care about the three databases, you just "insert"/"update" three "objects" like what you have done before(eg: in hibernate?). Guzz will judge how to do the job well in different databases, and guarantee the distributed transaction automatically.
 
 *7. How to call the storage procedure?
- 
+
  First, you have to get a JDBCTemplate by invoke the createJDBCTemplate() in ReadonlyTranSession or WriteTranSession, then get the jdbc connection through JDBCTemplate.getConnection(), and then, call your storage procedure with the jdbc method. 
 
  The transaction of "JDBCTemplate.getConnection()" would under the scope of "WriteTranSession" it created from.
