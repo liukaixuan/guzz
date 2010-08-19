@@ -1,10 +1,10 @@
-== 一般使用： ==
+== Standalone usage: ==
 
- guzz_app.properties用来存储系统各部分的配置信息，最常见的为数据库配置和service配置。
+ guzz_app.properties is used to store configuration details of a system. Most of the time, it contains configurations for databases and services.
+ 
+ The content of guzz_app.properties is organized just as what mysql does. A line represents a configuration item; and a line starts with # means comments.
 
- guzz_app.properties文件组织类似于mysql的配置文件，每一行为1个配置项，以#开头的视为注释。
-
- {{{[groupName]}}} 用来标记一个配置组的开始，这个标记以下以及下一个{{{[xxx]}}}以上的每一行，为groupName的1条配置项，如：
+ {{{[groupName]}}} marks a start of a group. From the mark, to the next {{{[xxx]}}}, all items belongs to this group "groupName". For example:
 
  {{{
 [masterDB]
@@ -15,9 +15,10 @@ xxx=xxx
 ....
 }}}
 
- groupName组名称，也叫配置(信息)组，组名称可以重复出现，用于为一个配置组定义多组配置，最常见的情况是配置多个{{{[slaveDB]}}}定于多个从数据库源。
-
- 下面是一个典型的配置实例：
+ The groupName is also called "configuration group". Configuration group name can be repeated, as to define a configuration with many detailed groups. 
+ For example, we can configure three {{{[slaveDB]}}} to tell guzz that our system has three slave databases, so guzz can balance reads between them. 
+ 
+ The following is a typical configuration example:
 
  {{{
 #guzz app config file.
@@ -82,40 +83,53 @@ printSQL=false
 printSQLParams=false
 ignoreDemonThreadSQL=true
 
-
 ############################### fundamental services #####################
 #other services' configurations go here...
 }}}
 
+ "guzz.identifer" and "guzz.IP" are used for management, they should work with your configuration server later.
 
+ "guzz.maxLoad" defines the max capacity of a service. It depends on the service itself.
+ 
+ The other items without the start of "guzz." means it's defined by the service itself.
 
-== 与配置管理服务器集成 ==
+== Working with Configuration Server ==
 
- 配置管理服务器可以完成对所有系统配置文件的统一管理，以及在配置发生改变时，对应用的推送通知。目前guzz还没有开发默认的独立配置管理服务器，只提供从本地properties文件读取配置的支持（就是上面介绍的）。
+ The configuration server should be a central management system to manage application configurations for all systems, and notify them to reload when related configurations changed.
 
- 实现自己的配置管理，需要实现如下接口：
+ Currently, guzz hasn't finished a default central configuration system yet, but only a local properties file reader(see the above).
+
+ If you have a central configuration system, what you need to do to adapter guzz is to implement interface
 
 {{{
  org.guzz.config.ConfigServer
 }}}
 
- 并且在guzz.xml中配置为自己的实现类：
+and configure it in guzz.xml:
 
 {{{
 <config-server>
 	<server class="your config server's client implementation">
 		<param name="param1" value="somevalue" />
 		<param name="param2" value="somevalue2" />
-        </server>
+    </server>
 </config-server>
 }}}
 
- guzz在初始化时将会初始化此处定义的实现类，并将param参数以javabean方式注入到实现类中。name为实现类属性，value为值。在ConfigServer实现类中，setXXX()方法的传入参数类型允许为java.lang.String或者org.guzz.io.Resource。使用org.guzz.io.Resource时，guzz会根据当前目录情况，根据配置的somevalue（如一个相对路径的文件名）生成Resource资源（如文件IO流）。Resource使用完毕后不需要关闭。
+ In the startup, guzz will load your implementation, and set parameters in a javabean style--the "name" is the property name, and the "value" is the property value.
+ 
+ In your implementation's setXXX() method, the accepted parameter type can be java.lang.String or org.guzz.io.Resource. If you use the later one, guzz will pass a Resource object(eg:File IO Stream) based on directory for convenience.
 
- 默认LocalFileConfigServer中resouce参数的注入方法即为：
+ For example, in the default "org.guzz.config.LocalFileConfigServer", we have to pass a parameter "resource", and the java code is:
 
 {{{
-public void setResource(org.guzz.io.Resource r) ;
+public void setResource(org.guzz.io.Resource r){
+...
+}
 }}}
 
- 在所有配置注入完成后，guzz调用 ConfigServer 的startup() 启动。在guzz退出时，调用shutdown() 方法关闭。
+ After injecting all parameters, guzz will call the ConfigServer's startup() method to perform the last notification.
+ 
+ While shutting down, guzz will call the ConfigServer's shutdown() method before exits.
+  
+ 

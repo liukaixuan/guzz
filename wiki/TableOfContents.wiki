@@ -1,7 +1,7 @@
 <wiki:toc max_depth="2" /> 
  * About Guzz
   * [AboutGuzz About Guzz]
-  * [AboutFAQ User FAQ]
+  * [AboutFAQ FAQ]
   * [AboutFeedback Feedback & Suggestions]
   * [AboutJoinUs Join Us]
  * [TutorialStart Developer Manual]

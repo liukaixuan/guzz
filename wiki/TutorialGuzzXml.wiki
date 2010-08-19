@@ -1,6 +1,6 @@
 == core configuration ==
 
- The guzz.xml is the core configuration file of the Guzz framework.
+ The guzz.xml is the core configuration file of guzz framework.
  
  It defines everything for guzz, including application configurations, database usages, ORM, fundamental services and so on.
  
@@ -118,8 +118,8 @@ Notes:
 
 == Dialect and Database Providers Supported ==
 
-|| Database Provider || Dialect || Notes ||
-|| Mysql 5.0+ || org.guzz.dialect.Mysql5Dialect || olders versions may work too, but untested. ||
+|| *Database Provider* || *Dialect* || *Notes* ||
+|| Mysql 5.0+ || org.guzz.dialect.Mysql5Dialect || older versions may work too, but not tested. ||
 || Oracle 8i || org.guzz.dialect.Oracle8iDialect || - ||
 || Oracle 9i || org.guzz.dialect.Oracle9iDialect || - ||
 || Oracle 10g || org.guzz.dialect.Oracle10gDialect || - ||
