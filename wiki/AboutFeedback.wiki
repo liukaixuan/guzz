@@ -1,7 +1,7 @@
-= 如何反馈？ =
+= How to contact me？ =
 
- bug请填写本工程的bug报告（Issues）。
+If you encounter bugs, please fill the bug reports (Issues). 
 
- 其他请在此页面添加评论。
+For others, you can add comments on this page, or feel free to send me a email: liukaixuan at gmail.com
 
- 或直接给我发邮件：liukaixuan圈圈gmail.com。
+I'm not a native, so sorry for the English skills.

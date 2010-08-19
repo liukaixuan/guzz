@@ -1,7 +1,7 @@
-= 加入 =
+= How to join us? =
 
- 我们需要各方面的人才，从logo设计，文档化，issue，翻译，策划，宣传，测试到开发等等，欢迎任何人的加入。
+ We need every type of talents to join, from logo design, planning, publishing, promotion, testing to documentation, issue, translation, developing, and so on.
+ 
+ Everyone is welcome.
 
- 加入请发邮件至：liukaixuan@gmail.com
-
- 注：加入核心开发，前几次提交代码需要先评审，通过后才能够自由提交。
+ Send a mail to liukaixuan@gmail.com if you are interested.
