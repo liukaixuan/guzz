@@ -50,7 +50,7 @@ guzz.identifer=logUpdateDB1
 guzz.IP=localhost
 guzz.maxLoad=20
 driverClass=com.mysql.jdbc.Driver
-jdbcUrl=jdbc:mysql://localhost:3306/guzzLogDB?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true&amp;cachePrepStmts=truee&amp;prepStmtCacheSize=4096&amp;prepStmtCacheSqlLimit=4096&amp;rewriteBatchedStatements=true
+jdbcUrl=jdbc:mysql://localhost:3306/guzzLogDB?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
 user=loguser
 password=loguser
 acquireIncrement=10
