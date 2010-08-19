@@ -1,45 +1,51 @@
 #labels Featured
 = what is guzz? =
 
-guzz是一套用来进行快速开发和高性能网站设计的框架，通过ORM、多数据源数据管理、以及通用数据处理，为系统在数据层的设计提供一站式解决方案。用于替代或者补充hibernate或ibatis，并提供更多的大型系统架构设计支持。
+guzz is a framework for large-scaled system and rapid development. 
 
-guzz的目标是使得大型化网站设计更加简单，团队分工更加明确，框架在使用时更少出问题。主要功能：
- * 现代大规模系统设计，技术上吸收了ibatis/hibernate的优点
+According to orm, multi-datasources, shard, general data processing, object-oriented database taglib, guzz provides a full-stack solution for data-layer architecture. It can be a good complement or another choice for hibernate and ibatis.
 
- * 支持像hibernate一样的对象持久，映射和方便的增删改查
+guzz's aim is to simplify the design of large-scaled system, clearing the division of team jobs, lessen mistakes in using frameworks.
 
- * 支持像ibatis一样，让dba参与sql设计的复杂数据库操作和优化
+Guzz's features:
 
- * 支持在线加载与调试SQL。按照应用策略，从文件/数据库/Web Service等途径，动态提取与使用SQL语句（Dynamic SQL）。
- * 支持应用使用大量的数据库和主从读写分离
-
- * 支持数据表在多组机器中水平分布（Shard），并自动维护多组机器之间的分布式事务
-
- * 支持1张表按照业务规则分切成多张小表（Shadow），并支持每张小表拥有自己特殊的属性字段（Custom）。
-
- * 支持超越范式的特殊关联、非结构化数据等异构资源POJO模式的统一管理
-
- * 支持组件化服务（SOA），构建企业/项目实施基础平台
-
- * 提供面向对象的数据库读取标签(JSP Taglib)，加快页面展示层的快速变更、开发与部署
-
- * 支持配置管理服务器，可以使用一套软件系统对所有应用系统的配置项进行统一管理
-
-== 文档与帮助 ==
-
- * [TutorialStart Guzz使用手册]
-
- * [TaglibBook JSP页面开发帮助]
-
- * [AboutFAQ 常见问题FAQ]
-
-== 示例代码 ==
-
- * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip 基于spring IOC + springMVC的空工程（新项目可以以此为基础搭建）]
-
- * [DemoExamplesVote 示例工程1]
+ * Modern design, experienced on ibatis and hibernate's great favors.
  
+ * As hibernate, you can persist, mapping and query data in a object-oriented way.
 
-== 反馈与建议 ==
+ * As ibatis, you can store complicated sqls in a xml file, and let dbas involved in.
 
- * [AboutFeedback 反馈与建议]
+ * Over ibatis, you can also store and load sqls from anywhere, and use it on fly. Add/delete/test/tune sqls online without a restart. (We call this "Dynamic SQL")
+ 
+ * Support your system to use many database machines without extra codes, and set up master-slave between those machines.
+
+ * Support your system to store different tables among different machines, and maintain a distributed transaction automatically(Shard).
+
+ * Support your system to split a big table into many small ones on your rules(Shadow), and even allow each table owns its special fields(Custom).
+
+ * Support unified POJO styled usage for data with very special conjunction( over "Normal Form"), or between unstructured data(from other system maybe).
+
+ * Support Service-oriented architecture, help you accumulate a fundamental service system. (yes, not build a fundamental system from scratch, but accumulate one with more and more projects.)
+
+ * Object-oriented database JSP Taglib, fast view-layer's development, maintaining and deployment. (Building pages without writing java codes, very very fast!)
+
+ * Support for Configuration Server. Help you manage all configurations among different systems in a central system.
+
+== Doc & Help ==
+
+ * [TutorialStart Developer Manual]
+
+ * [TaglibBook Manual for Guzz JSP Taglib]
+
+ * [AboutFAQ User FAQ]
+
+== Samples ==
+
+ * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip A Empty Project based on spring IOC and springMVC. (New Projects are nice to start from here)]
+
+ * [DemoExamplesVote Example 1: Vote System]
+
+== Feedback ==
+
+ * [AboutFeedback Feedback & Suggestions]
+ 
