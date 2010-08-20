@@ -1,12 +1,12 @@
-== 基本使用 ==
+== Set up a connection pool ==
 
- guzz支持apache commons dbcp和C3P0连接池，并支持其他用户自定义的连接池。
+ guzz supports apache commons DBCP and C3P0 connection pool providers in default, and allow you to define your own one on yourself.
 
- 在进行数据参数配置时，通过指定参数 pool 选定连接池实现方式，使用 guzz.maxLoad 指定连接池最大连接数。
+ In the db configuration, item "guzz.maxLoad" indicates the max connections allowed in the pool, while item "pool" indicates which connection pool provider should be used.
 
- guzz内置有dbcp和c3p0两种连接池实现，如果不指定pool参数，则默认使用C3P0连接池。
+ Configuration item "pool" is optional, the default provider is "C3P0".
 
- 例如，下面例子使用c3p0连接池：
+ Example 1: Use C3P0 connection pool:
 
 {{{
 [masterDB]
@@ -24,7 +24,7 @@ acquireIncrement=10
 idleConnectionTestPeriod=60
 }}}
 
- 下面的例子使用dbcp连接池：
+ Example 2: Use Apache DBCP connection pool:
 
 {{{
 [logSlaveDB]
@@ -35,7 +35,7 @@ guzz.maxLoad=30
 pool=dbcp
 
 driverClassName=com.mysql.jdbc.Driver
-url=jdbc:mysql://localhost:3306/log?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true&amp;cachePrepStmts=truee&amp;prepStmtCacheSize=4096&amp;prepStmtCacheSqlLimit=4096&amp;rewriteBatchedStatements=true
+url=jdbc:mysql://localhost:3306/log?useUnicode=true&amp;rewriteBatchedStatements=true
 username=log
 password=log
 initialSize=10
@@ -46,7 +46,7 @@ removeAbandoned=true
 removeAbandonedTimeout=180
 }}}
 
- 在配置项参数中：
+ In the above example:
 
 {{{
 guzz.identifer=logSlaveDB1
@@ -54,22 +54,24 @@ guzz.IP=localhost
 guzz.maxLoad=xxx
 }}}
 
- 为必填项目，其中guzz.identifer必须唯一，用于配置管理服务器对连接池动态调整时进行通知；guzz.IP为数据库IP，用于管理使用。guzz.maxLoad指定服务的负载能力，在数据库连接池中一般用于指定最大连接数。
+ are must (configuration). "guzz.identifer" must be unique to identify the pool, "guzz.IP" should be the database's IP address, and "guzz.maxLoad" is the max connections allowed.
 
- 连接池配置的其他参数，除pool参数之外，所有参数都是连接池实现类自身的参数。guzz将把这些参数当做连接池实现类的属性，通过javabean setXXX方式进行注入，注入时自动判断数据类型。
+ Except for the three items starts with "guzz.", and the "pool" item to identify the provider, other items are properties of the provider implementation itself which will be injected in the javabean setXXX() style on startup. Guzz will do the type conversation.
 
-== guzz内置连接池实现 ==
+== connection pool provider supported ==
 
-|| *连接池名称* || *pool参数取值* || *调节参数* ||
-|| C3P0（guzz默认连接池） || c3p0 || http://www.mchange.com/projects/c3p0/index.html#configuration_properties ||
+|| *Provider name* || *pool value* || *parameters* ||
+|| C3P0(default) || c3p0 || http://www.mchange.com/projects/c3p0/index.html#configuration_properties ||
 || Apache DBCP || dbcp || http://commons.apache.org/dbcp/configuration.html ||
-|| 无连接池（每次直接连接，关闭即释放） || nopool || *driverClass*: driver class<br>*jdbcUrl*:jdbc url<br>*user*:user name<br>*password*:password ||
+|| No pool(connect on demand, and release on close.) || nopool || *driverClass*: driver class<br>*jdbcUrl*:jdbc url<br>*user*:user name<br>*password*:password ||
 
-== 自定义连接池实现 ==
+== How to write a new provider? ==
 
-=== 代码实现 ===
+=== step 1, write the code: ===
 
- guzz在使用连接池时，通过DataSourceProvicer进行初始化和引用。自定义连接池需要实现此接口。DataSourceProvicer定义如下：
+ In guzz, connection pool is managed by the DataSourceProvicer. To write a new provider, you just have to implement the DataSourceProvicer interface.
+
+ DataSourceProvicer:
 
 {{{
 package org.guzz.connection;
@@ -102,7 +104,7 @@ public interface DataSourceProvicer {
 }
 }}}
 
- 例如guzz DBCP连接池的实现：
+ For example, the Apache DBCP connection pool provider is simply:
 
 {{{
 public class DBCPDataSourceProvicer implements DataSourceProvicer{
@@ -127,12 +129,12 @@ public class DBCPDataSourceProvicer implements DataSourceProvicer{
 			}
 		}
 		
-		//数据库最大连接500
+		//default max connections:500
 		if(maxLoad > 1000 || maxLoad < 1){
 			maxLoad = 500 ;
 		}
 		
-                //设置最大连接数
+                //set the max connection number to the underly Connection Pool.
 		dataSource.setMaxActive(maxLoad) ;
 		
 		//fetch a connection to force the datasource to build the pool
@@ -164,13 +166,13 @@ public class DBCPDataSourceProvicer implements DataSourceProvicer{
 }
 }}}
 
- 其中方法 public void configure(Properties props, int maxLoad) ; 传入的props参数，将自动删除Properties中所有以guzz.开头的属性以及pool属性。
+ The argument "props" in "public void configure(Properties props, int maxLoad) ;" would be the properties configured in the "guzz_app.properties" without item "pool" and items starts with "guzz.".
 
- 自定义连接池在实现时，必须提供一个没有任何参数的默认构造函数，用于guzz生成类实例。
+ The implementation class must also provide a public construct method with no arguments.
+ 
+=== step 2, choose it in the configuration: ===
 
-=== 配置自定义连接池 ===
-
- 将配置参数pool设置为自定义连接池实现的完整类名即可。如：
+ This is simple. You just have to set the item "pool" to the full qualified class name of your implementation. For example:
 
 {{{
 pool=org.guzz.connection.DBCPDataSourceProvicer

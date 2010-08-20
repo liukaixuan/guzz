@@ -14,7 +14,7 @@
    * [TutorialTranSession Persist API]
    * [SearchExpression Query Expression]
    * [TutorialTaglib Guzz Taglib]
-   * [TutorialDatasourceProvider Configure Datasource]
+   * [TutorialDatasourceProvider Connection Pools]
    * [TutorialLazyLoad  Lazy Load & Custom Load]
    * [TutorialLob Use Lob]
    * [TutorialService Service1:Write and Use Service]
