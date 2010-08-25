@@ -1,53 +1,53 @@
-在数据库映射方面，guzz支持类似hibernate的领域对象class-table映射。也支持ibatis类似的在guzz.xml中映射。
+On mapping the ResultSet to java Object, guzz supports both hibernate and ibatis's models. You can define mappings in hbm.xml for each domain class, or in guzz.xml for each sql statement.
 
-== hibernate的hbm.xml映射 ==
+== hbm.xml mapping as hibernate ==
 
- guzz兼容hibernate的配置文件(xxx.hbm.xml)，你可以使用hibernate映射工具生成或维护这些映射，guzz将可以直接解析。
+ Hibernate's xxx.hbm.xml configuration file is compatible to guzz. You can import or manage the hbm.xml file by hibernate's tools as your favorite.
 
- 使用hibernate映射文件时，某些guzz的特性在hibernate mapping dtd中没有定义，文本编辑时不能自动提示，甚至会报错，但不影响使用。
+ If you prefer hibernate's hbm.xml file, some features of guzz may tip you errors as they are not defined in hibernate's dtd definition. Don't worry, this won't affect guzz to interpret it.
 
-== guzz自己的映射定义 ==
-
- 将hibernate hbm.xml的dtd定义头，改成
+== Definition of guzz's own mapping ==
+ 
+ Guzz's class-table mapping is similar to hibernate's, change the dtd header to  
 
 {{{
 <!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
 }}}
 
- 既可。余下内容与hibernate类似。
-
- mapping xml的root可以是{{{<guzz-mapping>}}}，也可以是{{{<hibernate-mapping>}}}(便于使用成熟的hibernate工具)。guzz在解析时只从{{{<class>}}}处开始读取，root元素如何定义无关紧要。
-
-guzz mapping相对hibernate mapping也有一些变化。
-
-*class定义增加了1属性：*
-
- shadow：用于设置表分切和自定义表，使用方法在后面有详细的介绍。
-
-*property定义增加了2个属性：*
-
- null： 指定当数据库值为空时，字段取何值。默认为java定义此类型的默认值。这个属性一般在数据库升级字段时使用，避免hibernate恼人的cglib....get..set错误。
-
- loader： 指定字段的特殊读取类。通过loader可以定义某些字段的特殊读取策略，如从文件加载，或先读缓存再读数据库，或从第三方系统读取等。详细介绍请参看：LazyLoad
-
-*type属性支持定义日期格式：*
-
- type用于指定数据类型，如：int, string等。对于日期类型数据，一般有三种：datetime表示时间戳（日期+时间），date表示日期，time表示时间。对于这三种类型，在定义时可以在类型后加"|"线，并跟上日期格式(参看DateFormat定义)完成格式定义。
-
- 例如：type="datetime|YYYY-MM-dd HH:mm:SS"，type="date|MM-dd"。
-
- 传入日期格式后，进行sql查询时，对于日期字段，可以传入按照格式生成的日期字符串直接查询，guzz将会自动按照格式转成需要的数据类型。这种特性，在按照用户输入日期进行查询或向guzz taglib传入日期参数时，会比较方便。
-
-*枚举类型支持：*
+ if you prefer it( to get tips of guzz's features from IDE).
  
- guzz支持按照ordinal和value两种方式映射枚举类型。对于ordinal方式，数据库字段需要定义为int整数类型；对于value方式，数据库字段需要定义为可以保存字符串的varchar等类型。
+ The root element of the mapping xml can be {{{<guzz-mapping>}}} or {{{<hibernate-mapping>}}}(hibernate has more mature tools in IDE), as guzz parse the mapping xml from {{{<class>}}} element and ignore the root one.
 
- 按照ordinal映射枚举定义方式：type="enum.ordinal|枚举类完整类名"，如：type="enum.ordinal|com.company.EmployeeStatus"。
+ Unlike hibernate's mapping file, a hbm.xml file can only contain one class-table mapping in guzz.
 
- 按照value映射枚举定义方式：type="enum.string|枚举类完整类名"，如：type="enum.string|com.company.EmployeeStatus"。
+ To active guzz's features, some new attributes can be used in guzz's hbm.xml.
 
+ -*a new attribute is added to element class:*
 
-*主键生成(id generator)支持变化：*
+ shadow：used to split tables and active Custom Table. We'll talk more in the later chapters.
+
+ -* 2 new attributes are added to element property:*
+
+ null：decide what value to return if the value is null in database.
+
+ loader：specify the special loading strategy for this property. Through loader, you can load a property from file system, or from cache, or even from a third-part system. Read more: LazyLoad
+
+ -*Support defining date format for attribute 'type':*
+
+ The attribute "type" is used to define the data type for a property, eg:int, string, etc. For date and time, you can add a "|" and the date/time format(See also in java.util.DateFormat) after the type value. 
+
+ For example: type="datetime|YYYY-MM-dd HH:mm:SS", type="date|MM-dd".
+
+ After telling guzz the date format, you can pass date parameter in String format in query. Guzz will do the type conversation for you. This feature is very useful if you need the end user to input the date, or pass a date parameter in guzz taglib.
+
+ -*enum support:*
+ 
+  Guzz supports storing enum in database both in ordinal and value style. For ordinal, the column type of the table should be int; for value, the column type should be something of varchar.
+
+  Define a enum worked in ordinal style: type="enum.ordinal|enum class's full qualified class name". eg: type="enum.ordinal|com.company.EmployeeStatus".
+  Define a enum worked in value style: type="enum.string|enum class's full qualified class name". eg: type="enum.string|com.company.EmployeeStatus".
+
+ -*Id generators in guzz compared with hibernate:*
 
 || *Generator* || *hibernate* || *guzz* || *Description for guzz* ||
 || increment||√||×||It generates identifiers of type long, short or int that are unique only when no other process is inserting data into the same table. It should not the used in the clustered environment.||
@@ -64,31 +64,35 @@ guzz mapping相对hibernate mapping也有一些变化。
 || slient || × || √ || The slient generator does nothing. Usually used when you need to manage the id in the database, for example with a trigger. ||
 || hilo.multi || × || √ || Works as hilo, but allows many Ids stored in a single table disguised by the primary key of each row. Mapping parameters supported: table, column, db_group, max_lo, pk_column_name, pk_column_value(requried, and must be a positive integer)||
 
- 主键生成器的参数名称和含义与hibernate相同，只有一个例外：guzz中hilo的默认表名称为guzz_unique_key，而不是hibernate_unique_key。
+ The parameters and their meanings in guzz is similar to hibernate, on one exception: the table name of hilo is "guzz_unique_key" in guzz, not "hibernate_unique_key".
 
- 此外，在hilo,sequence,seqhilo生成器中，guzz还允许传入db_group参数，用于指定从那个数据库组获取主键。如果应用需要保持所有数据库组的id相互之间都不重复，可以通过此参数指定所有表从1组数据库生成主键。db_group参数默认为null，表示从当前表所在的数据库读取主键。
+ Besides, for generator hilo, sequence and seqhilo, a new parameter "db_group" is introduced in guzz, to identify which database group should be used when creating a primary key. If you want to make sure that id won't duplicate even between db groups, you can specify all tables to create primary key from a same db_group. This parameter is optional, guzz will create primary key for a table in its db group in default.
 
-*id generator注意事项：*
+ -*Notes for id generator：*
 
- * 1. oracle数据库的native默认使用seqence generator（序列），对于序列需要通过参数sequence传入数据库sequence的名称，如：
-
+ * 1. Oracle's native id generator is sequence generator, so for oracle, you have pass the sequence name, for example:
 {{{
-                <generator class="native">
+            <generator class="native">
         		<param name="sequence">seq_sometable_id</param>
         	</generator>
 }}}
 
-否则，guzz默认使用名称为guzz_sequence的序列，请提前创建此序列，guzz并不会自动创建。创建语句：
+ Or, guzz will the default sequence "guzz_sequence". 
+ 
+ All sequences should be created by yourself, guzz won't create anything. In oralce, you can execute:
 
 {{{
 CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 }}}
 
- * 2. Mysql和H2数据库，native表示默认使用identify（数据库中的自增ID）。param name="sequence"参数会自动忽略掉。
+ to create it.
 
-== 类似ibatis的映射 ==
+ * 2. In Mysql and H2 database, native means "identify". param name="sequence" will be ignored.
 
- 在guzz.xml中进行定义，示例：
+== mapping as ibatis ==
+
+ This is defined in guzz.xml. Sample:
+
 {{{
 	<sqlMap dbgroup="default">
 		<select id="selectUser" orm="user" dbgroup="default">

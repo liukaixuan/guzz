@@ -1,18 +1,20 @@
 == Guzz JPA Annotation ==
 
-Guzz支持JPA定义的注解，并参照hibernate进行了注解扩展，以满足guzz特性功能的声明需要。
+ The Annotation of guzz is a combination of JPA specifications and some extended definitions to support guzz's special features like hibernate did.
 
-对于JPA自身的注解，使用方式与JPA规范规定的相同；对于扩展的注解，命名和使用方式与hibernate相同（除了包名不一样，其他几乎无差别）。
+ Guzz's annotation is only designed and should be used to replace the "hbm.xml", so it is a limited sub-collection of the JPA specifications without supports between classes(one-one, one-many, many-to, many-many) and JPA persist api.
 
-Guzz仅支持单对象ORM映射，不支持对象之间的关联映射（one-one, one-many, many-to, many-many），也不支持JPA的持久化方法。guzz annotation仅用来替代hbm.xml配置文件。
+ The extended annotations are similar to hibernate's, including the names and usages, except for the package name.
+ 
+ The JPA specifications part is a sub-collection of JPA 1.0, without support between classes(one-one, one-many, many-to, many-many) and JPA persist api.  
 
-== 声明annotation ==
+== How to annotate a domain class? ==
 
-在guzz中一般需要在POJO中声明最少2个annotation：@javax.persistence.Entity和@org.guzz.annotations.Entity。
+ Most of the time, to annotate a domain class in guzz, you have to add two annotations for that class: @javax.persistence.Entity and @org.guzz.annotations.Entity.
 
-前者为JPA规范要求，后者用于声明对象的businessName，用于编程时按名称引用。
+ The first one is a force demand of JPA specifications, while the later one is used to define the "business name" of the class for later using in your code.
 
-*一个典型域对象ORM定义如下：*
+ -*A typical annotated domain class would be something like:*
 
 {{{
 package org.guzz.test;
@@ -104,31 +106,29 @@ public class Comment {
 }
 }}}
 
-*注意：* 每个域对象都必须包含一个主键，通过@javax.persistence.Id声明。同时guzz将按照主键声明在变量上还是getXxx方法上决定按照field还是property构造映射属性。
+ -*Note that:* Every annotated class must declare a primary key through @javax.persistence.Id. Guzz use that to decide the mapped properties should be on field or property by where the primary key annotation is.
 
-Guzz支持的JPA Annotation，以及Guzz自身扩展的Annotation的详细使用说明，请参看[AppendJPAAnnotation Guzz JPA Annotation完全参考手册]。
+ Read more of JPA Annotations Guzz supported, and guzz's extended annotations in [AppendJPAAnnotation Guzz JPA Annotation Reference].
 
-== 配置annotated的领域对象到系统中 ==
+== How to add annotated domain classes to a system? ==
 
-对于hbm.xml的配置文件，通过guzz.xml中配置：
+ We already know that, to add a hbm.xml to a system, you should add declarations in guzz.xml as 
 
 {{{
 <business name="user" dbgroup="default" class="org.guzz.test.User" interpret="" file="classpath:org/guzz/test/User.hbm.xml" />
 <business name="book" class="org.guzz.test.Book" file="classpath:org/guzz/test/Book.hbm.xml" />
 }}}
 
-来声明。
+ In the same principle, to add a annotated class, you should add declarations in guzz.xml with a new tag: a-business
 
-同样的道理，对于annotated的领域对象，也需要在guzz.xml主配置文件中进行声明。声明的标签为：a-business。
+ "a-business" has three attributes, and each tag declares one domain class. The three attributes are:
 
-每个a-business标签对应1个领域对象。a-business拥有3个属性：
+|| *Attribute Name* || *Required* || *Notes* ||
+|| class || Required || the full qualified class name of the annotated domain class ||
+|| name || Optional  || business name. Override the businessName annotated in the domain class. ||
+|| dbgroup || Optional || database group to store this object. Override the dbGroup annotated in the domain class. ||
 
-|| *属性名* || *Required* || *作用* ||
-|| class || Required || annotated领域对象的类全名称（fully qualified class name） ||
-|| name || Optional  || business name。如果填写，则覆盖注解中的businessName ||
-|| dbgroup || Optional || 对象存储到的数据库组。如果填写，则覆盖注解中的dbGroup ||
-
-*一个典型的配置如下：*
+*A typical sample:*
 {{{
         <a-business name="user" dbgroup="default" class="org.guzz.test.User"/>
 	<a-business name="book" class="org.guzz.test.Book" />
@@ -139,4 +139,4 @@ Guzz支持的JPA Annotation，以及Guzz自身扩展的Annotation的详细使用
 	<a-business name="sp" class="org.guzz.test.shop.SpecialProperty" />
 }}}
 
-其中，每个领域对象的定义可以在guzz测试源代码中找到。
+ The source code of the annotated classes can be found in guzz's test source code.
