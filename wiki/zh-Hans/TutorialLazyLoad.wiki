@@ -14,7 +14,7 @@
 
 *内部调用流程：*
 
-[http://guzz.org/attachment/wiki/LazyLoad/guzz_load_load_lct.png]
+[http://guzz.org/raw-attachment/wiki/LazyLoad/guzz_load_load_lct.png]
 
 == 自定义加载属性(loader) ==
 
@@ -50,7 +50,7 @@
 
 *内部调用流程：*
 
-[http://guzz.org/attachment/wiki/LazyLoad/loader_design.png]
+[http://guzz.org/raw-attachment/wiki/LazyLoad/loader_design.png]
 
 *代码实现一个loader：*
  loader通过实现接口

@@ -14,7 +14,7 @@
 
 *Execute flow in guzz:*
 
-[http://guzz.org/attachment/wiki/LazyLoad/guzz_load_load_lct_en.png]
+[http://guzz.org/raw-attachment/wiki/LazyLoad/guzz_load_load_lct_en.png]
 
 == Custom (Column) Loader ==
 
@@ -52,7 +52,7 @@
 
  -*Execute flow in guzz:*
 
-[http://guzz.org/attachment/wiki/LazyLoad/loader_design_en.png]
+[http://guzz.org/raw-attachment/wiki/LazyLoad/loader_design_en.png]
 
  -*How to write a Custom Column Loader?*
 
