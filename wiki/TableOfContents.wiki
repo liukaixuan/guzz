@@ -18,7 +18,7 @@
    * [TutorialLazyLoad  Lazy Load & Custom Load]
    * [TutorialLob Use Lob]
    * [TutorialService Service1:Write and Use Service]
-   * [TutorialFutureService Service2:Remote Service]
+   * [TutorialFutureService Service2:Asynchronous Service]
    * [TutorialShadowTable Split Table（Shadow Table）]
    * [TutorialCustomTable Special fields for small table（Custom Table）]
    * [TutorialDynamicSQLService Dynamic SQL]

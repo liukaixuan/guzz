@@ -167,7 +167,8 @@
 
 <!-- we need propery PAGE_FLIP -->
 		<td class="page_bar">
-			Current page: <c:out value="${PAGE_FLIP.pageNo}"/>&nbsp;total:<c:out value="${PAGE_FLIP.pageCount}"/> pages&nbsp;(total records:<c:out value="${PAGE_FLIP.totalCount}"/>)&nbsp;	
+			Current page: <c:out value="${PAGE_FLIP.pageNo}"/>&nbsp;total:<c:out value="${PAGE_FLIP.pageCount}"/> pages&nbsp;
+			(total records:<c:out value="${PAGE_FLIP.totalCount}"/>)&nbsp;	
 			<c:forEach begin="${PAGE_FLIP.pageStart}" end="${PAGE_FLIP.pageEnd}" step="1" var="index">
 				<c:if test="${index == PAGE_FLIP.pageNo}"> 
 					<span style="color:red;font-weight:bold;"><c:out value="${index }" /></span> 

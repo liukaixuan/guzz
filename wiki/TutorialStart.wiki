@@ -27,9 +27,9 @@
 
  * 12. [TutorialLob Blob & Clob]
 
- * 13. [TutorialService Service1:Write a Service]
+ * 13. [TutorialService Service1:Write and Use Service]
 
- * 14. [TutorialFutureService Service2:Write a asynchronous Service]
+ * 14. [TutorialFutureService Service2:Asynchronous Service]
 
  * 15. [TutorialShadowTable Shadow Table]
 

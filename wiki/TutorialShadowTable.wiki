@@ -150,7 +150,8 @@ public class CommentShadowView extends AbstractShadowTableView {
                 //通过Guzz.setTableCondition设置的分表参数分表查询
                 List comments = session.list(se) ;
 
-                //设置本次查询的tableCondition，设置的条件优先级高于Guzz.setTableCondition。设置的条件不能为null，否则继续使用Guzz.setTableCondition的条件（目前这种策略还在考虑其合理性）。
+                //设置本次查询的tableCondition，设置的条件优先级高于Guzz.setTableCondition。
+                //设置的条件不能为null，否则继续使用Guzz.setTableCondition的条件（目前这种策略还在考虑其合理性）。
                 se.setTableCondition(new User(2)) ; 
                 comments = session.list(se) ; //此时查询的分表参数将为new User(2)
 }}}
