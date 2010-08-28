@@ -1,48 +1,49 @@
 #labels Featured
-== 基础设置： ==
+== Developer Guide: ==
 
- * 1. [TutorialRuntime Guzz运行环境]
+ * 1. [TutorialRuntime Guzz Requirements]
 
- * 2. [TutorialConfig 配置与启动guzz]
+ * 2. [TutorialConfig Configure and Startup]
 
- * 3. [TutorialGuzzXml 配置guzz.xml]
+ * 3. [TutorialGuzzXml Core guzz.xml]
 
- * 4. [TutorialAppProperties 配置guzz_app.properties]
+ * 4. [TutorialAppProperties Configure guzz_app.properties]
 
- * 5. [TutorialHbmXml 配置数据库映射文件hbm.xml]
+ * 5. [TutorialHbmXml ORM by hbm.xml]
 
- * 6. [TutorialHbmAnnotation 或通过annotation声明ORM]
+ * 6. [TutorialHbmAnnotation ORM by annotation]
 
- * 7. [TutorialTranSession 编写数据库操作]
+ * 7. [TutorialTranSession Persist API]
 
- * 8. [SearchExpression 查询表达式]
+ * 8. [SearchExpression Database Query Expression]
 
- * 9. [TutorialTaglib guzz taglib]
+ * 9. [TutorialTaglib Guzz JSP Taglib]
 
- * 10. [TutorialDatasourceProvider 配置数据库连接池]
+ * 10. [TutorialDatasourceProvider Setup connection pools]
 
-== 高级设置： ==
+== Advanced: ==
 
- * 11. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
+ * 11. [TutorialLazyLoad Lazy Load and Custom Load(eg: load a property value from file system or web service)]
 
- * 12. [TutorialLob Blob与Clob使用]
+ * 12. [TutorialLob Blob & Clob]
 
- * 13. [TutorialService Service1:服务的使用和编写]
+ * 13. [TutorialService Service1:Write a Service]
 
- * 14. [TutorialFutureService Service2:编写支持异步调用的服务]
+ * 14. [TutorialFutureService Service2:Write a asynchronous Service]
 
- * 15. [TutorialShadowTable 表分切（Shadow Table）]
+ * 15. [TutorialShadowTable Shadow Table]
 
- * 16. [TutorialCustomTable 自定义属性表（Custom Table）]
+ * 16. [TutorialCustomTable Custom Table]
 
- * 17. [TutorialDynamicSQLService 动态（加载）SQL]
+ * 17. [TutorialDynamicSQLService Dynamic (Load) SQL]
 
-== 附录： ==
+== Appendix: ==
 
- * 1. [AppendCoreService guzz自带的基础服务介绍]
+ * 1. [AppendCoreService Services in guzz]
 
- * 2. [AppendSpringBean 在guzz中获取spring定义的bean] 
+ * 2. [AppendSpringBean How to fetch a spring bean?] 
 
- * 3. [AppendJPAAnnotation Guzz JPA Annotation参考]
+ * 3. [AppendJPAAnnotation Guzz JPA Annotation Reference]
 
- * 4. [AppendTestCoverage 单元测试覆盖情况]
+ * 4. [AppendTestCoverage Test & Coverage]
+ 

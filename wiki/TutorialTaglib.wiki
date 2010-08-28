@@ -1,68 +1,69 @@
-== 安装标签： ==
+== Setup guzz taglib ==
 
-两步：
- *  配置好guzz环境，让guzz跑起来。
- *  在需要的jsp页面上引入标签库：<%@ taglib uri="http://www.guzz.org/tags" prefix="g" %>
+ Two steps:
+ * Introduce guzz to your system, make it run.
+ * Add a taglib declaration: <%@ taglib uri="http://www.guzz.org/tags" prefix="g" %> in your JSP file.
 
- 标签tld的定义在guzz的jar包META-INF下。
+ The tld definition is stored under META-INF in guzz.jar.
 
-== 提供的标签： ==
+== Available tags: ==
 
-*标签种类：*
+ -*Tags:*
 
-|| *标签*  || *用途*  || *标签体内可否写其他代码*  ||
-|| g:boundary  || 定义条件范围。在此标签内的所有标签，都将自动获取其设定的查询条件。  || 可以  ||
-|| g:addLimit  || 对当前的g:boundary中增加一个查询条件。 || 不可以  ||
-|| g:addInLimit  || 对当前的g:boundary中增加一个in操作查询条件。 || 不可以  ||
-|| g:count  || 执行统计操作  || 不可以  ||
-|| g:get  || 执行list操作，并读取list的第一个对象。  || 不可以  ||
-|| g:list  || 读取一个列表。  || 不可以。  ||
-|| g:page  || 读取一页对象。返回的对象默认为org.guzz.dao.PageFlip 对象。  || 不可以。  ||
-|| g:out  || 输出标签，类似c:out，但增加了javascript过滤处理，xslt，js串输出，native2ascii等功能。<br> g:out默认对xml进行转义，并对javascript转义，如果需要2这都打开，需要将2个属性都设置为false。|| 不可以||
-|| g:inc  || 按照主键对域对象的1个字段进行自增操作。g:inc需要配置 [AppendCoreService 计数器更新队列服务] 方可生效。  || 不可以。  ||
-|| 其他  || 执行数据库写操作，不计划支持。  || 请勿使用 ||
+|| *Tag*  || *Function*  || *Support content?*  ||
+|| g:boundary  || Add a "limit" search term to all tags inside this tag. || Yes  ||
+|| g:addLimit  || Add a search term to all tags below this tag within a g:boundary. || No  ||
+|| g:addInLimit  || Add a "in" search term to all tags below this tag within a g:boundary. || No  ||
+|| g:count  || Execute a number count query. The default count is "select count(*) ..." from db. || No  ||
+|| g:get  || Query a list from database, and return the first one. || No  ||
+|| g:list  || Query a list. || No  ||
+|| g:page  || Query a page. The default pagination is stored and returned as org.guzz.dao.PageFlip.  || No  ||
+|| g:out  || Output a string. The tag is similar to c:out, but with more features. <br>It supports: escaping javascript, escaping special characters in xslt, outputing to be a javascript string, native2ascii.<br><br> g:out escapes xml and javascript in default, turn this two attributes to "false" if you need to output xml and javascript string. || No ||
+|| g:inc  || Increase the database value of a property by the primary key. Service [AppendCoreService Increment Queue Service] is required to active this tag. || No  ||
 
-== 标签中属性介绍： ==
+== Attributes in tags: ==
+ 
+ In all tags, if the attribute name is the same, the function is the same too. In all tags, the property name should be the property name of java pojo class, not column name in database if there is no explicit declarations.
+ 
+ -*Primary attributes:*
 
- 所有标签中，如果属性名称相同，一般含义也相同。所有标签中使用的对象属性均为java领域对象pojo的属性，不是数据库字段名称。
+|| *Attribute*  || *Function*  || *Notes*  ||
+|| limit  || Search term. eg: userName=${param.name}; status=1; checked=true. <br>Guzz also supports user-defined limit, such as "checkedPost". To support this feature, you have to write a interpreter, read more in pagination section below.<br><br>*Warnings: one "limit", one search term. Combing two or more search terms by "and"/"or" inside a "limit" is not allowed. <br>To enable combing terms querying, you have to declare a g:boundary, and add as many terms as you like by g:addLimit or g:addInLimit inside it.|| One "limit", one search term.<br>No combing operators in "limit". ||
+|| var  || Store result to this variable in JSP. Similar to "var" in c:set.  || - ||
+|| scope  || Store scope. Similar to "scope" in c:set. || page,request,session,application ||
+|| business  || The business domain object to query. This should be the attribute value of "name" of "business" tag in guzz.xml, or the full qualified class name of the domain object. ||- ||
+|| tableCondition  || How to split tables? Read more in chapters Shadow Table and Custom Table. ||- ||
+|| skipCount  || Skip the first giving records. The default value is zero, means no skipping. ||- ||
+|| pageNo  || which page of the records to read. The first page is 1, the second is 2...  ||- ||
+|| pageSize  || page size ||- ||
+|| orderBy  || The order by in query. Separate orderBys by comma. eg: name asc, id desc, friendCount asc ||- ||
+|| test  || Used by g:addLimit and g:addInLimit，and is similar to "test" in c:if. <br><br>If the test is true, add the condition; Or, ignore it. The default value is true. ||- ||
 
-*主要的属性有：*
+ -*Operators supported in "limit" attribute:*
 
-|| *属性名称*  || *作用*  || *注意事项*  ||
-|| limit  || 查询条件。 如：userName=${param.name}；status=1；checked=true。 <br>也可以为应用自己定义的条件，如"checkedPost"；如果为这类特殊条件，需要程序实现interpretor，本节下面的翻页查询有详细介绍。<br><br>*注意：*1个limit只能是一个条件，不能进行条件组合。<br>如果需要多个条件进行and查询，使用g:boundary标签包含查询标签，并通过g:addLimit或g:addInLimit添加更多条件。|| 1个limit只允许写1个条件。<br>不支持多个条件的and or运算。 ||
-|| var  || 将结果保存到jsp对象中的名称。类似c:set中var的定义。  || - ||
-|| scope  || 结果保存的范围。类似c:set中scope的定义。  || page,request,session,application  ||
-|| business  || 域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  ||- ||
-|| tableCondition  || 分表条件。具体请参看shadow table 和custom table介绍。 ||- ||
-|| skipCount  || 跳过记录数。默认为0，不跳过。  ||- ||
-|| pageNo  || 页号。从1开始。  ||- ||
-|| pageSize  || 每页读取记录数。  ||- ||
-|| orderBy  || 排序方式，多个排序用英文的逗号分隔，如：name asc, id desc, friendCount asc  ||- ||
-|| test  || addLimit和addInLimit标签使用，类似于c:if中的test。<br><br>如果条件为true，添加条件；如果为false，忽略条件。默认为true。  ||- ||
+|| *operator* || *function* || *notes* ||
+|| =  || EQUAL || equals ||
+|| == || EQUAL || equals ||
+|| =~= || EQUAL_IGNORE_CASE || string equals(case insensitive) ||
+|| >  || BIGGER || bigger than ||
+|| <  || SMALLER  || smaller than ||
+|| >= || BIGGER_OR_EQUAL || bigger or equals ||
+|| <= || SMALLER_OR_EQUAL || smaller or equals ||
+|| != || NOT_EQUAL || not equals ||
+|| <> || NOT_EQUAL || not equals ||
+|| `~~` || LIKE_IGNORE_CASE || string like(case insensitive).<br><br>Add the "like" matching rules yourself as in sqls. % matches any characters, ? matches one. <br>eg: limit="name`~~`%${param.name}%" ||
+|| ~= || LIKE_CASE_SENSTIVE || string like(case sensitive or not is decided by the column definition by the database). Notes as above. ||
 
-其中limit查询条件支持的运算符包括：
+== How to use? ==
 
-|| *operator* || *function* || *memo* ||
-|| =  || EQUAL || 等于 ||
-|| == || EQUAL || 等于 ||
-|| =~= || EQUAL_IGNORE_CASE || 字符相同（不区分大小写） ||
-|| >  || BIGGER || 大于 ||
-|| <  || SMALLER  || 小于 ||
-|| >= || BIGGER_OR_EQUAL || 大于等于 ||
-|| <= || SMALLER_OR_EQUAL || 小于等于 ||
-|| != || NOT_EQUAL || 不相等 ||
-|| <> || NOT_EQUAL || 不相等 ||
-|| `~~` || LIKE_IGNORE_CASE || 字符相似（不区分大小写）。<br><br>需要自己添加模糊查询的模糊匹配，与数据库匹配规则相同。%用于表示任意多个字符，?代表1个字符。<br>如：limit="name`~~`%${param.name}%" ||
-|| ~= || LIKE_CASE_SENSTIVE || 字符相似（大小写按照数据库字段定义决定是否区分）。注意事项同上。 ||
+ Guzz's taglib is designed to handle database operations, to simplify your works on reading data. Most of the time, it would be used with JSP core taglib.
+ 
+=== Single Search Term ===
 
-== 标签的使用示例 ==
-
- guzz的标签主要用来处理数据库操作，一般情况下和jsp core标签协同使用。
-
-=== 单条件： ===
-
- 如果查询只有1个条件，或者没有查询条件，直接使用get/list/page等即可。下面的例子演示通过cid参数传入国家编号，进行国家内城市受欢迎数据的统计：
-
+ If your query has no condition or based only on one condition, you can query data by get/list/page tag directly.
+ 
+ For example, we have to analyze the popularity of cities in a country, and pass a parameter "cid" to identify the country.
+ 
 {{{
 <g:get var="m_coutry" business="userCoutry" limit="id=${param.cid}" />
 
@@ -83,30 +84,29 @@
 
 }}}
 
-=== 组合条件： ===
+=== Combing Search Terms: ===
 
- 如果查询条件多于1个，则需要增加boudary和limit标签，如：
+ Use g:boundary and g:limit tags if you have one more conditions in a query. For example: 
 
 {{{
 <g:boundary>
-	<c:if test="${!consoleUser.systemAdmin}">
-		<g:addInLimit name="authGroup" value="${consoleUser.authGroups}" />
-	</c:if>
-
+	<g:addInLimit test="${!consoleUser.systemAdmin}" name="authGroup" value="${consoleUser.authGroups}" />
 	<g:addLimit limit="channelStatus=checked" />
 
 	<g:list var="m_channels" business="channel" orderBy="id desc" pageSize="20" />
 </g:boundary>
 }}}
 
- 列出用户有权限管理，并且通过审核的前20个频道；如果用户为系统管理员，则列出所有通过审核的前20个频道。
+ We list the first 20 checked channels the user is authorized, or the first 20 checked channels if the user is a system administrator.
 
- 组合条件之间按照 and 进行关联，不支持 or 操作。
+ The combined conditions are jointed by "and" operator. Taglib doesn't support "or" operator.
 
-=== 翻页查询： ===
+=== Page Query & Pagination ===
 
- 翻页查询按照条件同时执行"select 字段名称" 和 select count({{{*}}}) 操作，并且按照pageNo和pageSize读取数据，并保存到var参数中。如：
-
+ The g:page is used to query data of a page, and compute its paginations. The g:page can be thought as a combination of g:list and g:count.
+ 
+ For example:
+ 
 {{{
 <g:boundary>
 	<c:if test="${param.cid > 0}">
@@ -118,16 +118,22 @@
 </g:boundary>
 }}}
 
- 此处根据参数频道号cid翻页读取频道内的所有有权限的投票，如果没有传入cid，则读取所有。
+ In this example, we read all authorized votes in a channel or all channels if no "cid" is passed in one page. The pageNo is retrieved from parameter "pageNo", and every page contains at most 20 records.
 
+ Note that:
+ 
 {{{
 <g:addLimit limit="${consoleUser}" />
 }}}
 
- 此处limit传入的查询条件为应用程序自定义的条件“当前登录用户”，这是一种高级用法，[BlogVoteInterpreter 阅读更多。]
+ The "limit" is a user-defined one, indicates the condition of "current login console user". This is a advanced usage, [BlogVoteInterpreter Read More].
 
- page标签返回的对象为org.guzz.dao.PageFlip对象，通过.elements()方法获取列表数据，其他方法获取分页信息。page标签在将PageFlip对象结果设置到指定var属性的同时，还会将数据设置到名为PAGE_FLIP的属性中。如果您的系统所有分页展示方式一样，可以通过共用的分页jsp页面来完成，不用每次都写一遍分页代码。举例：
-
+ The page data stored in "var" by g:page is a instance of org.guzz.dao.PageFlip. You can fetch its records by elements().
+ 
+ Besides variable of attribute "var", g:page also store the data to another inner variable "PAGE_FLIP". If all your pagination displays are similar, this can be very useful for you to write a public pagination jsp.
+ 
+ Example:
+ 
 {{{
 <%@ taglib uri="http://www.guzz.org/tags" prefix="g" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
@@ -150,7 +156,9 @@
 ....
 }}}
 
- 在上面的列子中，我们通过m_channels参数进行数据展示，而分页代码直接引用“/WEB-INF/jsp/include/console_flip.jsp” 进行后台样式的分页。console_flip.jsp的定义如下：
+ In the example, we display data by variable "m_channels", and also do pagination by including a public jsp: /WEB-INF/jsp/include/console_flip.jsp.
+  
+ The content of console_flip.jsp is :
 
 {{{
 <%@ page contentType="text/html;charset=UTF-8"%>
@@ -159,7 +167,7 @@
 
 <!-- we need propery PAGE_FLIP -->
 		<td class="page_bar">
-			第<c:out value="${PAGE_FLIP.pageNo}"/>页&nbsp;共<c:out value="${PAGE_FLIP.pageCount}"/>页&nbsp;(记录总数：<c:out value="${PAGE_FLIP.totalCount}"/>)&nbsp;	
+			Current page: <c:out value="${PAGE_FLIP.pageNo}"/>&nbsp;total:<c:out value="${PAGE_FLIP.pageCount}"/> pages&nbsp;(total records:<c:out value="${PAGE_FLIP.totalCount}"/>)&nbsp;	
 			<c:forEach begin="${PAGE_FLIP.pageStart}" end="${PAGE_FLIP.pageEnd}" step="1" var="index">
 				<c:if test="${index == PAGE_FLIP.pageNo}"> 
 					<span style="color:red;font-weight:bold;"><c:out value="${index }" /></span> 
@@ -172,24 +180,26 @@
 		</td>
 }}}
 
- PageFlip不仅包含从数据库获取的数据，还包含计算分页展示的算法，以及通过get方法传递的参数（会自动删除页面中传递pageNo的参数）。PageFlip的具体实现类，可以在进行SearchExpression查询时指定，不过目前的标签不支持自定义。PageFlip默认的分页展示算法为类似google查询的分页算法。
+ PageFlip can not only provide the records, the pagination algorithm, but also all parameters in HTTP "GET" methods without "pageNo". With PageFlip, you can write a public pagination jsp, and use it for all "list data" features.
 
- 如果您也完成了此步骤，你的分页查询和分页展示将可以非常简单的进行编写和维护。
+ The implementation class of PageFlip can be designated in SearchExpression. The taglib doesn't support designate it for now.
 
-=== g:inc计数器标签： ===
+ It's highly recommended that every pagination is designed this way.
 
- 计数器标签将根据主键进行的自增类更新操作（如典型的阅读次数）记录到临时表中，在通过后台算法，将临时表数据写回到主表中。一方面通过合并算法，减少更新SQL语句执行次数；另一方面，避免更新操作影响主业务响应速度。
+=== g:inc taglib: ===
 
- g:inc标签属性：
+ -*Principle:* When a g:inc is executed, it inserts a record into a temporary table and returns. The record contains the table, row (by primary key), updated column and the increment value. In another thread, the records in the temporary table are read and combined (operation for the same row) to reduce sql count needed, and execute them in the formal database.
+ 
+ -*Attributes in g:inc:*
 
-|| *属性名称*  || *作用*  || *注意事项*  ||
-|| business  || 要更新的域对象名称，在guzz.xml中定义的business/name，也可以是域对象类的完整类名。  || - ||
-|| updatePropName || 要更新的对象属性  || page,request,session,application  ||
-|| pkValue  || 要更新域对象的主键值。|| 只支持按照主键进行更新。 ||
-|| count  || 要增加的计数值。  || 整数代表增加，负数表示减少 ||
-|| tableCondition  || 分表条件。具体请参看shadow table 和custom table介绍。 ||- ||
+|| *Attribute*  || *Function*  || *Notes*  ||
+|| business  || the domain business to update. the business/name in guzz.xml, or the full qualified class name of the domain class. || - ||
+|| updatePropName || the property to increase.  || - ||
+|| pkValue  || primary key value || Can only be updated by primary key. ||
+|| count  || Increment  || A positive value means add, a negative value means minus. ||
+|| tableCondition || How to split table of the business object. Read more on Shadow Table and Custom Table. ||- ||
 
- 举例：
+ -*Example:*
 
 {{{
 <g:inc business="blogArticle" pkValue="${article.id}" updatePropName="readCount" count="1" />
@@ -200,3 +210,4 @@
 == Taglib Documentation ==
 
  [http://www.guzz.org/docs/tlddocs/index.html]
+ 
