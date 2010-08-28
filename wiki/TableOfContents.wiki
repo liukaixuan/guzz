@@ -4,7 +4,7 @@
   * [AboutFAQ FAQ]
   * [AboutFeedback Feedback & Suggestions]
   * [AboutJoinUs Join Us]
- * [TutorialStart Developer Manual]
+ * [TutorialStart Developer Guide]
    * [TutorialRuntime Requirements]
    * [TutorialConfig Configure and run guzz]
    * [TutorialGuzzXml Configure guzz.xml]
