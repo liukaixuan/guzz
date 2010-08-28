@@ -35,7 +35,8 @@
  #file encoding
  encoding=UTF-8
 
- #When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority? true: use sql from this service. false: use sql in the guzz.xml.
+ #When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority? 
+ #true: use sql from this service. false: use sql in the guzz.xml.
  overrideSqlInGuzzXML=false
 
  #cache the parsed sql in memory util the file changed?

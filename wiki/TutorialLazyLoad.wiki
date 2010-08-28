@@ -62,10 +62,9 @@
 org.guzz.orm.ColumnDataLoader
 }}}
  
- You are done.
- 
+ You are done!
 
- The api of ColumnDataLoader is：
+ -*The API of ColumnDataLoader is:*
 
 {{{
 package org.guzz.pojo;
@@ -103,8 +102,11 @@ public interface ColumnDataLoader {
 	/**
 	 * load the data instancely during other properties reading from the dabase.
 	 * 
-	 * @param rs The current resultset. the resultset(and connection) will be closed after all properties are loaded. Your returning value cann't rely on this for future usage.
-	 * @param objectFetching The object being orm. the property before this property in the hbm.xml config file is already setted, so you can use it here. this param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
+	 * @param rs The current resultset. the resultset(and connection) will be closed after all properties are loaded. 
+	             Your returning value cann't rely on this for future usage.
+	 * @param objectFetching The object being orm. 
+	             The property before this property in the hbm.xml config file is already setted, so you can use it here. 
+	             This param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
 	 * @param indexToLoad the propName index in the resultset.
 	 * @return the returned object will be set to the pojo property.
 	 */
