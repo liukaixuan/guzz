@@ -87,21 +87,21 @@ package org.guzz.pojo;
 public interface ColumnDataLoader {
 	
 	/**
-	 * config the property info.
+	 * configure the property info.
 	 * 
 	 * @param table fetch Object stored table.
 	 * @param propName property name
-	 * @param columnName the corrsponding columnName of the property.
+	 * @param columnName the corresponding columnName of the property.
 	 */
 	public void configure(ObjectMapping mapping, Table table, String propName, String columnName) ;
 	
 	/**
-	 * load the data instancely during other properties reading from the dabase.
+	 * load the data instancely during other properties reading from the database.
 	 * 
 	 * @param rs The current resultset. the resultset(and connection) will be closed after all properties are loaded. 
 	             Your returning value cann't rely on this for future usage.
 	 * @param objectFetching The object being orm. 
-	                         The property before this property in the hbm.xml config file is already setted, so you can use it here. 
+	                         The property before this property in the hbm.xml config file is already set, so you can use it here. 
 	                         This param could be null on loading with something like org.guzz.orm.mapping.FirstColumnDataLoader.
 	 * @param indexToLoad the propName index in the resultset.
 	 * @return the returned object will be set to the pojo property.
@@ -115,7 +115,7 @@ public interface ColumnDataLoader {
 	 * 
 	 * @param fetchedObject the already loaded pojo.
 	 * 
-	 * @return the loaded object. the object will be setted to the fetchedObject automatically.
+	 * @return the loaded object. the object will be set to the fetchedObject automatically.
 	 */
 	public Object loadLazyData(Object fetchedObject) ;
 
@@ -127,8 +127,8 @@ public interface ColumnDataLoader {
 	 * @param tran the current opened read-write database transactional environment.
 	 * @param fetchedObject the already loaded pojo.
 	 * 
-	 * @return the loaded object. the object will <b>NOT</b> be setted to the fetchedObject automatically.
-	 * @exception DaoException throw exception on @param fetchedObject doesn't exsit in the database.
+	 * @return the loaded object. the object will <b>NOT</b> be set to the fetchedObject automatically.
+	 * @exception DaoException throw exception on @param fetchedObject doesn't exist in the database.
 	 */
 	public Object loadLazyDataForWrite(WriteTranSession tran, Object fetchedObject) throws DaoException ;
 	
