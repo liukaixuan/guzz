@@ -1,4 +1,7 @@
 #labels Featured
+
+=== [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English Version]   ||   [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans 简体中文版] ===
+
 = what is guzz? =
 
  Guzz is a framework for large-scaled system and rapid development. 
