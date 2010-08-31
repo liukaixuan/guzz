@@ -1,6 +1,10 @@
 #labels Featured
 = what is guzz? =
 
+
+== [AboutGuzz?wl=en English]                [AboutGuzz?wl=zh-Hans 简体中文] ==
+
+
 guzz是一套用来进行快速开发和高性能网站设计的框架，通过ORM、多数据源数据管理、以及通用数据处理，为系统在数据层的设计提供一站式解决方案。用于替代或者补充hibernate或ibatis，并提供更多的大型系统架构设计支持。
 
 guzz的目标是使得大型化网站设计更加简单，团队分工更加明确，框架在使用时更少出问题。主要功能：
