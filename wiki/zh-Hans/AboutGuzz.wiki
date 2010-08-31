@@ -2,7 +2,7 @@
 = what is guzz? =
 
 
-== [AboutGuzz?wl=en English]                [AboutGuzz?wl=zh-Hans 简体中文] ==
+== [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English Version]                [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans 简体中文版] ==
 
 
 guzz是一套用来进行快速开发和高性能网站设计的框架，通过ORM、多数据源数据管理、以及通用数据处理，为系统在数据层的设计提供一站式解决方案。用于替代或者补充hibernate或ibatis，并提供更多的大型系统架构设计支持。
