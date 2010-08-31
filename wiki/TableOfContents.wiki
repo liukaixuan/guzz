@@ -1,4 +1,3 @@
-<wiki:toc max_depth="2" /> 
  * About Guzz
   * [AboutGuzz About Guzz]
   * [AboutFAQ FAQ]
@@ -20,7 +19,7 @@
    * [TutorialService Service1:Write and Use Service]
    * [TutorialFutureService Service2:Asynchronous Service]
    * [TutorialShadowTable Split Table(Shadow Table)]
-   * [TutorialCustomTable Special fields for splitted tables(Custom Table)]
+   * [TutorialCustomTable Special fields for split tables(Custom Table)]
    * [TutorialDynamicSQLService Dynamic SQL]
  * [TaglibBook JSP Taglib]
  * [http://www.guzz.org/docs/javadoc/index.html java doc]
