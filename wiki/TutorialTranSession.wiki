@@ -1,12 +1,17 @@
-!TranSession用于进行数据库的持久化操作。
 
-== !GuzzBaseDao基类： ==
+ !TranSession is guzz's persist API. It is divided into two sub interfaces, !ReadonlyTranSession for query and !WriteTranSession for write.
 
- guzz建议所有的Dao继承!GuzzBaseDao，以使用base dao中提供的常用持久化方法。
+ A !TranSession manages a transaction, all operations in one un-auto-commit !TranSession acts in a transaction cycle until you commit or rollback it.
 
-== !ReadonlyTranSession读API： ==
+== !GuzzBaseDao: ==
 
- !ReadonlyTranSession为guzz对外提供的查询操作入口，获取方法：
+ !GuzzBaseDao is a handy base class for implementing DAOs of your system. It provides common useful methods, and is suggested to be used for all DAOs.
+ 
+ -*WARNING: Every persist method in !GuzzBaseDao acts in its single alone transaction! They are not prepared to work together for one transaction.*
+
+== !ReadonlyTranSession, API for read ==
+
+ !ReadonlyTranSession is and can be used only for querying data. Example:
 
 {{{
 TransactionManager tm = guzzContext.getTransactionManager() ;
@@ -23,19 +28,26 @@ try{
 }
 }}}
 
- !ReadonlyTranSession提供按照检索表达式[SearchExpression SearchExpression]，SQL语句CompiledSQL，以及guzz.xml中配置的sql语句id进行查询的接口。
+ The example shows you how to fetch a !ReadonlyTranSession.
 
-=== !SearchExpression： ===
+ !ReadonlyTranSession supports three query API: [SearchExpression SearchExpression] the object-oriented query language, CompiledSQL for writing sqls in your code, and Id configured in guzz.xml.
 
- [SearchExpression SearchExpression]类似于hibernate中的criteria查询，不过功能没有criteria强大，不过名字容易拼写多了。
-
- [SearchExpression SearchExpression] 通过 [SearchExpression#SearchTerm SearchTerm] 组织查询条件。
+=== !SearchExpression: ===
+ [SearchExpression SearchExpression] is similar to criteria in hibernate, but less powerful.
+ 
+ Query Expression is organized and combined by [SearchExpression#SearchTerm SearchTerm]. [SearchExpression#SearchTerm Read More].
 
 === CompiledSQL： ===
 
- 由于SearchExpression不可能无限强大，有时候我们需要直接编写SQL语句进行查询。对于SQL语句查询，guzz将sql语句进行预编译生成CompiledSQL以提高性能，并要求SQL必须先编译成CompiledSQL才能执行。
-
- 在编写sql语句时guzz额外支持参数命名和businessName属性名替换，规则和guzz.xml中定义的sql规则相同（@@对象名用来替换表名，@属性名用来替换字段名）。示例如下：
+ CompiledSQL is a complement to SearchExpression, as the later one cann't be so powerful enough.
+ 
+ CompiledSQL is a compiled version of sql, including raw sql, parameters, orm, and so on. 
+ 
+ CompiledSQL is thread-safe, and better than normal sql for performance. 
+ 
+ Guzz asks every sql compiled to be a CompiledSQL to execute, and suggests you to cache it.
+ 
+ The sql to be compiled should be a sql that can be executed directly in your database, except that it can own named parameters and property-column transformation. The rule of the transformation is the same of the sqls configured in guzz.xml(@@businessName used for table name, and @propertyName used for column name). For example:
 
 {{{
 TransactionManager tm = super.getTransactionManager() ;
@@ -52,20 +64,19 @@ try{
 }
 }}}
 
- 这段代码通过调用CompiledSQLBuilder的buildCompiledSQL方法编译SQL，其中第一个参数为对象类名，guzz根本此参数判定SQL语句应该在哪个数据库组执行。
+ This example calls CompiledSQLBuilder's buildCompiledSQL() to build a CompiledSQL. The first parameter is used to tell guzz which database group the sql should be executed in, the second is the sql statement.
 
- 上面的示例是更新操作，如果是查询操作，查询到的结果记录集，guzz还会按照参数1传入的类名进行ORM映射，返回的查询结果将会是List`<`SystemLog`>`。
+ The !WriteTranSession executes a update execution. If this is a (list) query sql, guzz will used the first parameter before to do ORM, the result returned would be List`<`SystemLog`>`.
 
- CompiledSQL的使用比较灵活，对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的。
+ CompiledSQL must be binded with parameters or Loaders, and turned into a temporary object BindedCompiledSQL, before it can be handed to !TranSession. The actual sql for one execution is represented as !BindedCompiledSQL in fact.
 
+ BindedCompiledSQL is *NOT* thread-safe, and designed to used for only one time. The parameters and other tips set in a BindedCompiledSQL only affects its own execution.
+ 
+ For example, sometimes we need to temporary alter a sql's returned value(changing the orm), then we can use BindedCompiledSQL's setRowDataLoader(RowDataLoader) to achieve this.
 
- CompiledSQL在执行前通过bind()方法绑定命名参数，生成了一个临时对象BindedCompiledSQL，而我们实际上是使用BindedCompiledSQL进行查询。
+ guzz carries two RowDataLoaders in default, FirstColumnDataLoader for retrieving the first column of a ResultSet, and FormBeanRowDataLoader for mapping the ResultSet to any pojo class or a Map.
 
- BindedCompiledSQL不是线程安全的，只能使用一次，开发时，应用可以在BindedCompiledSQL中设置仅限本次查询有效的参数。
-
- 对于个性化的查询SQL有时候需要个性化的映射关系，guzz默认提供的按照领域对象映射是无法满足全部需求的，这时，BindedCompiledSQL就可以用来临时调整某1次查询的ORM--通过BindedCompiledSQL的setRowDataLoader(RowDataLoader)方法替换对象映射关系。guzz默认提供了2个RowDataLoader的实现：FirstColumnDataLoader（只提取第一列数据），FormBeanRowDataLoader（映射结果集到任意一个pojo或Map中）。
-
- RowDataLoader为轻量级对象，对于结果集映射个性处理建议全部通过RowDataLoader。示例：
+ Example:
 
 {{{
 TransactionManager tm = super.getTransactionManager() ;
@@ -84,34 +95,34 @@ try{
 }
 }}}
 
- 对于特殊的OR映射，开发者可以实现自己的RowDataLoader。
+ In the example, we use FormBeanRowDataLoader to map the result to a java.util.HashMap, not the default Company.class.
+ 
+ RowDataLoader is the interface to handle how to map a row of the java.sql.ResultSet in query to a java object instance. It is light-weight, and is recommended to use for any special OR mappings in your system.
 
- CompiledSQL为线程安全的对象，对于重复执行的sql，建议将编译好的CompiledSQL缓存以来，避免重复解析。在guzz.xml中定义的sql，在guzz内部就是以CompiledSQL进行存储和管理的。
+=== Query by Id configured in guzz.xml: ===
 
-=== 通过guzz.xml中定义的id查询： ===
+ Similar to ibatis. [TutorialGuzzXml Read more about how to write the xml].
 
- 类似ibatis。[TutorialGuzzXml 查看编写格式]。
+== !WriteTranSession, API for write ==
 
-== !WriteTranSession写API ==
-
- WriteTranSession为写api接口。
-
+ WriteTranSession is the API interface for performing updating operations the databases. In a master-slave database architecture, WriteTranSession operates the master database only.
+ 
 {{{
 TransactionManager tm = super.getTransactionManager() ;
 WriteTranSession session = tm.openRWTran(true) ;
 }}}
 
- 在获取时，传入参数是否自动提交事务。true：自动提交；false：手动提交。
+ To create a WriteTranSession, we need to pass a boolean parameter to indicate how to control the transaction. true: auto-commit; false:commit manually.
 
- 如果设置为false，在这执行完操作后，需要调用session.commit()或者session.rollback()结束事务。
+ If you pass false to create a un-auto-commit transaction, remember to call session.commit() to commit the transaction, or call session.rollback() to roll back it.
 
- WriteTranSession只允许通过主键进行查询操作，查询时从主数据库操作。其他方法与ReadonlyTranSession用法类似。
+ WriteTranSession only allows querying a record by primary key. If you need to query data from the master database with more options, open a !ReadonlyTranSession with no delay to do it.
 
-== 批量操作 ==
+== Batch: ==
  
- guzz提供两种批量操作接口，一种基于对象，一种基于SQL语句。执行批量操作，需要首先获取WriteTranSession。
+ There are two ways to do batch updating in guzz, by object or by sql statement. In both ways, you need to open a WriteTranSession first.
 
-*基于对象： *
+ -*By object:*
 {{{
 		WriteTranSession session = tm.openRWTran(false) ;
 		ObjectBatcher batcher = session.createObjectBatcher() ;
@@ -129,7 +140,7 @@ WriteTranSession session = tm.openRWTran(true) ;
 		session.close() ;
 }}}
 
-*基于SQL语句： *
+ -*By sql statement:*
 {{{
 CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(User.class, "delete from @@" + User.class.getName() + " where @id = :id") ;
 
@@ -145,12 +156,20 @@ session.commit() ;
 
 }}}
 
- 两种方式都需要首先打开写事务连接，创建Batcher，随后按照各自的API添加每次执行的参数，最后执行executeUpdate并提交事务。
+ After opening a WriteTranSession, create a Batcher, add objects or parameters to the batcher as its API required, then executeUpdate.
+ 
+ -*NOTE:* A batcher can be used only for a single business domain's single operation in a single table. If you need to operate multiple tables at once, create multiple batcher for each table.
+ 
+== Atom of Transaction: ==
 
-*注意：* 一个Batcher只能用于处理同一领域对象在同一张表的操作，如果需要批量操作多个表的数据，需要创建多个Batcher。
+ A WriteTranSession holds a transaction. If you need to handle a long transaction, call tm.openRWTran(false) to open a manual controlled (un-auto-commit) one.
 
-== 事务一致性： ==
+ In a un-auto-commit WriteTranSession, any methods executed would be under only one transaction, no matter which database it actually operated. Even if you create a JDBCTemplate or a Batcher from it, the methods in the JDBCTemplate and Batcher would under the same transaction.
 
- 如果需要执行事务处理，在获取WriteTranSession时需要关闭自动提交事务： tm.openRWTran(false) ;
-
- 随后针对此WriteTranSession进行任意操作即可，包括从此WriteTranSession创建JDBCTemplate执行raw sql，或者创建Batcher执行批量操作，在所有操作完成后commit()或者rollback()，guzz将完成多组机器多项操作的分布式事务。
+ When you call commit() or rollback(), the transaction would be committed or rolled-back fully.
+ 
+ Guzz will take care of the distributed transaction among your configured multiple databases.
+ 
+ 
+ 
+ 

@@ -165,7 +165,7 @@
 <%@ taglib uri="http://www.guzz.org/tags" prefix="g" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
 
-<!-- we need propery PAGE_FLIP -->
+<!-- we need property PAGE_FLIP -->
 		<td class="page_bar">
 			Current page: <c:out value="${PAGE_FLIP.pageNo}"/>&nbsp;total:<c:out value="${PAGE_FLIP.pageCount}"/> pages&nbsp;
 			(total records:<c:out value="${PAGE_FLIP.totalCount}"/>)&nbsp;	
