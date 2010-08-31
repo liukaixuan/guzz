@@ -1,13 +1,13 @@
 
  !TranSession is guzz's persist API. It is divided into two sub interfaces, !ReadonlyTranSession for query and !WriteTranSession for write.
 
- A !TranSession manages a transaction, all operations in one un-auto-commit !TranSession acts in a transaction cycle until you commit or rollback it.
+ A !TranSession manages a transaction, all operations in a un-auto-commit !TranSession acts in a single transaction cycle until you commit or rollback it.
 
 == !GuzzBaseDao: ==
 
  !GuzzBaseDao is a handy base class for implementing DAOs of your system. It provides common useful methods, and is suggested to be used for all DAOs.
  
- -*WARNING: Every persist method in !GuzzBaseDao acts in its single alone transaction! They are not prepared to work together for one transaction.*
+ -*WARNING: Every persist method in !GuzzBaseDao acts in its single alone transaction! They are not prepared to work together in one transaction.*
 
 == !ReadonlyTranSession, API for read ==
 
@@ -30,12 +30,12 @@ try{
 
  The example shows you how to fetch a !ReadonlyTranSession.
 
- !ReadonlyTranSession supports three query API: [SearchExpression SearchExpression] the object-oriented query language, CompiledSQL for writing sqls in your code, and Id configured in guzz.xml.
+ !ReadonlyTranSession supports three query API: [SearchExpression SearchExpression] the object-oriented query language, CompiledSQL for writing arbitrary sqls in code, and configured sqls looked up by ID in guzz.xml.
 
 === !SearchExpression: ===
  [SearchExpression SearchExpression] is similar to criteria in hibernate, but less powerful.
  
- Query Expression is organized and combined by [SearchExpression#SearchTerm SearchTerm]. [SearchExpression#SearchTerm Read More].
+ Query Expression is organized and combined by !SearchTerm. [SearchExpression#SearchTerm Read More].
 
 === CompiledSQL： ===
 
@@ -66,11 +66,11 @@ try{
 
  This example calls CompiledSQLBuilder's buildCompiledSQL() to build a CompiledSQL. The first parameter is used to tell guzz which database group the sql should be executed in, the second is the sql statement.
 
- The !WriteTranSession executes a update execution. If this is a (list) query sql, guzz will used the first parameter before to do ORM, the result returned would be List`<`SystemLog`>`.
+ The !WriteTranSession executes a update execution. If this is a (list) query sql, guzz will use the first parameter before to do ORM, the result returned would be List`<`SystemLog`>`.
 
- CompiledSQL must be binded with parameters or Loaders, and turned into a temporary object BindedCompiledSQL, before it can be handed to !TranSession. The actual sql for one execution is represented as !BindedCompiledSQL in fact.
+ CompiledSQL must be binded with parameters or Loaders, and turned into a temporary object BindedCompiledSQL, before it can be handed to !TranSession. The actual sql for one execution is represented as BindedCompiledSQL in fact.
 
- BindedCompiledSQL is *NOT* thread-safe, and designed to used for only one time. The parameters and other tips set in a BindedCompiledSQL only affects its own execution.
+ BindedCompiledSQL is *NOT* thread-safe, and designed to be used for only one time. The parameters and other tips set in a BindedCompiledSQL only affects its current execution.
  
  For example, sometimes we need to temporary alter a sql's returned value(changing the orm), then we can use BindedCompiledSQL's setRowDataLoader(RowDataLoader) to achieve this.
 
@@ -158,18 +158,15 @@ session.commit() ;
 
  After opening a WriteTranSession, create a Batcher, add objects or parameters to the batcher as its API required, then executeUpdate.
  
- -*NOTE:* A batcher can be used only for a single business domain's single operation in a single table. If you need to operate multiple tables at once, create multiple batcher for each table.
+ -*NOTE:* A batcher can be used only for a single business domain's single operation in a single physical table. If you need to operate multiple tables at once, create multiple batcher for each table.
  
 == Atom of Transaction: ==
 
- A WriteTranSession holds a transaction. If you need to handle a long transaction, call tm.openRWTran(false) to open a manual controlled (un-auto-commit) one.
+ A WriteTranSession holds a transaction. If you need to handle a long transaction, call tm.openRWTran(false) to open a manual controlled (un-auto-commit) WriteTranSession.
 
  In a un-auto-commit WriteTranSession, any methods executed would be under only one transaction, no matter which database it actually operated. Even if you create a JDBCTemplate or a Batcher from it, the methods in the JDBCTemplate and Batcher would under the same transaction.
 
  When you call commit() or rollback(), the transaction would be committed or rolled-back fully.
  
  Guzz will take care of the distributed transaction among your configured multiple databases.
- 
- 
- 
  
