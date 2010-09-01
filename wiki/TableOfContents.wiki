@@ -11,7 +11,7 @@
     * [TutorialHbmXml Configure orm: hbm.xml]
     * [TutorialHbmAnnotation Or through annotation]
     * [TutorialTranSession Persist API]
-    * [SearchExpression Query Expression]
+    * [SearchExpression Search Expression]
     * [TutorialTaglib Guzz Taglib]
     * [TutorialDatasourceProvider Connection Pools]
     * [TutorialLazyLoad Lazy Load & Custom Load]

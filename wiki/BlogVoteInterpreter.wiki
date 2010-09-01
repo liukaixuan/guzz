@@ -53,7 +53,8 @@ public class BlogVoteInterpreter extends SEBusinessInterpreter implements GuzzCo
 				try{
 					//TODO: add support for many user groups
 					BindedCompiledSQL bsql = cs.bind("authGroup", a.getAuthGroups()[0]) ;
-					bsql.setRowDataLoader(FirstColumnDataLoader.newInstanceForReturnType("int")) ; //Only read the first column, and treat it as integer.
+					//Only read the first column, and treat it as integer.
+					bsql.setRowDataLoader(FirstColumnDataLoader.newInstanceForReturnType("int")) ;
 					
 					List<Integer> cids = session.list(bsql, 1, 50) ;
 					

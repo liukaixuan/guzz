@@ -80,6 +80,6 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
  For complicated queries, guzz suggests that you store them in guzz.xml, and perform queries by id as ibatis did. We believe that complicated sqls are better to be separated for dbas later.
  
- For weird but stable sqls, you can build them to CompiledSQLs, and use its API.
+ For weird but stable sqls, you can build them to CompiledSQLs, and use CompiledSQL's API.
  
  
