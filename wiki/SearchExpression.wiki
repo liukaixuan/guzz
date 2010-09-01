@@ -23,9 +23,7 @@ SearchExpression se = SearchExpression.forLoadAll(Article.class) ;
 
 === Create !SearchExpression by businessName: ===
 
- This is similar to the above. You can pass a domain class's business name or its full qualified class name instead of the class.
-
- eg:
+ This is similar to the above. You can pass a domain class's business name or its full qualified class name instead of the class. 
 
 {{{
 SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSize) ;
@@ -35,8 +33,8 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
 === SearchExpression API： ===
 
- -*setCountSelectPhrase：*
- Set count function for executing count operations in TranSession API. The default function is "count(*)", and can be set to be any database function returning a number, such as count(id), sum(score), and so on.
+ -*setCountSelectPhrase:*
+ Set count function for executing count operations in TranSession API. The default function is "count(`*`)", and can be set to be any database function returning a number, such as count(id), sum(score), and so on.
 
  -*setSkipCount：*
  Set the first count of records to skip when performing a list or page query. For example, you set skip count to 5, and query 20 records of page 1, the records actually returned would be from position 6 to 25 in database. The default value is zero, never skip.
@@ -63,7 +61,7 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
  !SearchTerm is stored under org.guzz.orm.se package.
 
-* Primary SearchTerms：*
+ -*Primary SearchTerms：*
 
 || *!SearchTerm*  || *Function*  || *Construct Method* || *Construct Parameters* ||
 || !AndTerm || Concatenate two and conditions. || public !AndTerm(!SearchTerm leftTerm, !SearchTerm rightTerm) || two conditions to do and. ||
