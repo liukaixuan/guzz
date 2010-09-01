@@ -13,7 +13,7 @@ SearchExpression se = SearchExpression.forClass(Article.class, pageNo, pageSize)
 
  This example builds a !SearchExpression to query "pageSize" Articles in page "pageNo". The first line doesn't pass any parameters, indicating to read the first 20 records in default.
 
- *Warning:* The default pageNo(1) and pageSize(20) is stored in !SearchExpression's static variables. This is a temporary solution. Don't modify the value, as in the future, we would move it to the configuration file, and drop the two variables.
+ -*Warning:* The default pageNo(1) and pageSize(20) is stored in !SearchExpression's static variables. This is a temporary solution. Don't modify the value, as in the future, we would move it to the configuration file, and drop the two variables.
 
  If you need to read all data, not just the first 20 records, build the !SearchExpression this way:
 
@@ -35,22 +35,22 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
 === SearchExpression API： ===
 
-* setCountSelectPhrase：*
+ -*setCountSelectPhrase：*
  Set count function for executing count operations in TranSession API. The default function is "count(*)", and can be set to be any database function returning a number, such as count(id), sum(score), and so on.
 
-* setSkipCount：*
+ -*setSkipCount：*
  Set the first count of records to skip when performing a list or page query. For example, you set skip count to 5, and query 20 records of page 1, the records actually returned would be from position 6 to 25 in database. The default value is zero, never skip.
 
-* setPageFlipClass：*
+ -*setPageFlipClass：*
  Set your PageFlip class to store the result in a page query. This method only affects the current !SearchExpression. The flip class set must derived from org.guzz.dao.PageFlip.
  
-* setCondition：*
+ -*setCondition：*
  Set the query conditions. This should be the sql fragment after "where"(exclude the "where" keyword). You can set the condition if handy methods cann't help.
  
-* setLoadRecords:*
+ -*setLoadRecords:*
  Set whether or not to load records in a page query. Set this to false, if you would load records from somewhere else, such as cache.
  
-* setComputeRecordNumber：*
+ -*setComputeRecordNumber：*
  Set whether or not to count records number in a page query. Set this to false, if you would read total count from somewhere else, such as cache.
 
 === Build Query Conditions from SearchTerm: ===
@@ -65,7 +65,7 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
 * Primary SearchTerms：*
 
-|| *SearchTerm*  || *Function*  || *Construct Method* || *Construct Parameters* ||
+|| *!SearchTerm*  || *Function*  || *Construct Method* || *Construct Parameters* ||
 || !AndTerm || Concatenate two and conditions. || public !AndTerm(!SearchTerm leftTerm, !SearchTerm rightTerm) || two conditions to do and. ||
 || !CompareTerm || Compare a property to a value. || public !CompareTerm(String propName, String operator ,Object propValue) || construct to: propName + operator + propValue. The available operators are defined as static variables in CompareTerm. ||
 || !ConcatTerm || Concatenate || public !ConcatTerm(!SearchTerm leftTerm, !SearchTerm rightTerm) || concatenate the two conditions together, add a whitespace between them. ||
