@@ -1,18 +1,22 @@
-== 继续描述 ==
+== Continue introduction: == 
 
 {{{
 <g:addLimit limit="${consoleUser}" />
 }}}
 
- 此处limit传入的查询条件为应用程序自定义的条件“当前登录用户”，这是一种高级用法，需要blogVote在定义时指定interpret，如：
+ The passed "limit" for business "blogVote" is the application's "current login admin user". This is a advanced usage, and must declare a interpret to tell guzz what the "current login admin user" means, as guzz won't be able to understand application's specified phases.
+ 
+ This special "limit" is used to add condition(s) for business "blogVote", so we have to add a interpret for that business:
 
 {{{
 <business name="blogVote" interpret="guzz.test.business.BlogVoteInterpreter" file="classpath:guzz/test/business/BlogVote.hbm.xml" />
 }}}
 
-*Interpreter的作用就是将用户自定义的条件，转换成查询表达式SearchTerm；允许业务系统提供动态的查询条件，或使用更加具有语义性的查询。*
+ The interpreter is used to transform user-defined more meaningful phases to SearchTerms. To write a interpreter, you just have to implemement interface BusinessInterpreter, and translating your application's phases to SearchTerms.
 
- guzz.test.business.!BlogVoteInterpreter 通过继承SEBusinessInterpreter实现BusinessInterpreter接口，实现代码如下：
+ To write a BusinessInterpreter, you can create a class derived from SEBusinessInterpreter. 
+ 
+ For example, the content of guzz.test.business.!BlogVoteInterpreter is:
 
 {{{
 package guzz.test.business;
@@ -32,15 +36,15 @@ public class BlogVoteInterpreter extends SEBusinessInterpreter implements GuzzCo
 
 	TransactionManager tm = null ;
 	
+	//cached sql
 	CompiledSQL cs ;
 	
-	
-	//覆盖基类方法，基类方法就是直接抛出异常。
+	//Override the base method. The logic in base method is raising a exception.
 	protected Object explainOtherTypeConditon(Object limitTo) {
-		//根据传入的后台用户对象，返回查询此用户有权限投票的查询条件。
+		//Find authorized votes based on the login AdminUser passed in.
 		if(limitTo instanceof AdminUser){
 			AdminUser a = (AdminUser) limitTo ;
-			if(a.isSystemAdmin()){ //超级管理员，允许所有。不需要添加条件。
+			if(a.isSystemAdmin()){ //system admin. No limit condition is required.
 				return null ;
 			}else{
 				
@@ -49,12 +53,12 @@ public class BlogVoteInterpreter extends SEBusinessInterpreter implements GuzzCo
 				try{
 					//TODO: add support for many user groups
 					BindedCompiledSQL bsql = cs.bind("authGroup", a.getAuthGroups()[0]) ;
-					bsql.setRowDataLoader(FirstColumnDataLoader.newInstanceForReturnType("int")) ; //设置只读取第1列，并且类型为int
+					bsql.setRowDataLoader(FirstColumnDataLoader.newInstanceForReturnType("int")) ; //Only read the first column, and treat it as integer.
 					
 					List<Integer> cids = session.list(bsql, 1, 50) ;
 					
 					if(cids.isEmpty()){
-						throw new VoteException("您没有被授权管理任何频道") ;
+						throw new VoteException("No authorized channels.") ;
 					}
 					
 					return new InTerm("channelId", cids) ;
@@ -70,19 +74,25 @@ public class BlogVoteInterpreter extends SEBusinessInterpreter implements GuzzCo
 		String sql = "select @id from @@" + Channel.class.getName() + " where @authGroup = :authGroup" ;
 		
 		cs =  tm.getCompiledSQLBuilder().buildCompiledSQL(Channel.class, sql) ;
-                cs.addParamPropMapping("authGroup", "authGroup") ;//关联参数:authGroup和属性authGroup
+		
+		//Tell guzz that the parameter "authGroup"'s type derived from property "authGroup".
+        cs.addParamPropMapping("authGroup", "authGroup") ;
 	}
 
 }
 }}}
 
- 其中实现接口
+ In the example, interface
+ 
 {{{
 org.guzz.web.context.GuzzContextAware
 }}}
- 用于在初始化时注入!GuzzContext实例。BusinessInterpreter在系统启动时初始化，仅初始化1次，每一个域对象对应1个实例，因此需要支持多线程操作。
+ 
+ is declared to tell guzz to inject the !GuzzContext to this Interpreter.
+ 
+ A BusinessInterpreter is instanced only once on the startup for one domain class, so, it must be thread-safe!
 
-== BusinessInterpreter定义：  ==
+== BusinessInterpreter Interface:  ==
 
 {{{
 package org.guzz.orm;
@@ -90,24 +100,27 @@ package org.guzz.orm;
 public interface BusinessInterpreter {
 
 	/**
-	 * 解释限制性查询条件。对应于标签中的limit条件。
-	 * 返回null表示此条件可以忽略。
-	 * 如果遇到当前用户没有权限的查询字段，抛出异常(TODO: 增加权限接口支持)。
+	 * Translating the giving limit condition to a Search Condition guzz supported.
 	 * 
-	 * @param limitTo 查询条件
+	 * @param limitTo the condition user passed.
+	 * @return supported search condition. return null if this condition can be ignored.
+	 * @throw Exception Throw exception if the limit is not authorized.
 	 */
 	public Object explainCondition(Object limitTo) throws Exception  ;
 	
 }
 }}}
 
- 参数limitTo为guzz标签传入的条件，如"checked=true", "blogId=18",以及此处的${consoleUser}对象。目前支持的返回对象只能是SearchTerm。
+ The limitTo in the interface can be "checked=true", "blogId=18", or a user-defined one like ${consoleUser}. Currently, the returned search condition can only be SearchTerm.
 
-== BusinessInterpreter接口方法调用顺序 ==
+== Startup sequence of BusinessInterpreter: ==
 
- # 解析配置文件，生成类实例
- # 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
- # 调用startup()
- # 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
- # 对外服务……
- # guzz关闭时调用shutdown()
+ # Parse configuration file and instance the BusinessInterpreter class;
+ # call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
+ # call startup();
+ # call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
+ # running....;
+ # call shutdown() when guzz exits.
+ 
+ 
+ 

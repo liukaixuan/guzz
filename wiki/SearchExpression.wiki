@@ -1,8 +1,8 @@
 == !SearchExpression： ==
 
- !SearchExpression 用于构造和组合查询条件，设置查询参数等。一般通过!SearchExpression中内置的静态方法构造。
-
-=== 按照域对象类构造： ===
+ !SearchExpress is used to combine query conditions, and set parameters/tips to build a complicated query. !SearchExpression can be instanced by its own static methods.
+ 
+=== Create !SearchExpression by domain class: ===
 
 {{{
 SearchExpression se = SearchExpression.forClass(Article.class) ;
@@ -11,82 +11,77 @@ SearchExpression se = SearchExpression.forClass(Article.class, pageNo, pageSize)
 
 }}}
 
- 读取某一页记录，如果不传入pageNo/pageSize参数，默认读取第1页的20条记录。
+ This example builds a !SearchExpression to query "pageSize" Articles in page "pageNo". The first line doesn't pass any parameters, indicating to read the first 20 records in default.
 
-*注意：* 默认值目前是存储在静态变量中的，并且允许程序修改，但是请不要修改！这类数据以后会存放到配置文件中，目前实现方式将作废。
+ *Warning:* The default pageNo(1) and pageSize(20) is stored in !SearchExpression's static variables. This is a temporary solution. Don't modify the value, as in the future, we would move it to the configuration file, and drop the two variables.
 
- 如果需要读取某条件下的所有记录，则需要按照如下方式构造：
+ If you need to read all data, not just the first 20 records, build the !SearchExpression this way:
 
 {{{
 SearchExpression se = SearchExpression.forLoadAll(Article.class) ;
 }}}
 
-=== 按照businessName构造： ===
+=== Create !SearchExpression by businessName: ===
 
- 类似于按照域对象类进行构造，传入的参数为guzz.xml中定义的business/name。也可以使用类的完整类名。
+ This is similar to the above. You can pass a domain class's business name or its full qualified class name instead of the class.
 
- 例如：
+ eg:
 
 {{{
 SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSize) ;
 }}}
 
- SearchExpression的查询条件，通过SearchTerm进行拼装。
+ After building a !SearchExpression, we need to set tips/parameters and add conditions for query. The conditions are built from SearchTerm.
 
 === SearchExpression API： ===
 
 * setCountSelectPhrase：*
- SearchExpression通过此方法设置count操作的查询对象，默认为count(*)。例如可以为：count(id), sum(score) 等。
+ Set count function for executing count operations in TranSession API. The default function is "count(*)", and can be set to be any database function returning a number, such as count(id), sum(score), and so on.
 
 * setSkipCount：*
- 设置跳过的记录数，对list和page查询有效。例如设置为5，查询第1页20条记录，实际记录将从结果集的第6条记录开始读取，并且读取20条。默认值为0不跳过任何记录。
+ Set the first count of records to skip when performing a list or page query. For example, you set skip count to 5, and query 20 records of page 1, the records actually returned would be from position 6 to 25 in database. The default value is zero, never skip.
 
 * setPageFlipClass：*
- 设置处理翻页用的PageFlip类，设置的类仅对page操作有效，并且仅对本SearchExpression查询有效。新的设置的类必须拥有默认的构造函数，并且继承自PageFlip类。
-
+ Set your PageFlip class to store the result in a page query. This method only affects the current !SearchExpression. The flip class set must derived from org.guzz.dao.PageFlip.
+ 
 * setCondition：*
- 设置查询条件。用于sql语句 where 后面的句子，不包括关键词“where”。在SearchExpression无法精确控制查询条件时，可以使用自己构造的查询条件。
-
+ Set the query conditions. This should be the sql fragment after "where"(exclude the "where" keyword). You can set the condition if handy methods cann't help.
+ 
 * setLoadRecords:*
- 设置在进行page操作时，是否加载数据。或许您已经通过cache等其他途径获得了数据。
-
+ Set whether or not to load records in a page query. Set this to false, if you would load records from somewhere else, such as cache.
+ 
 * setComputeRecordNumber：*
- 设置在page操作时，是否执行count查询获得记录总数。或许您已经通过cache等其他途径获得了数据。
+ Set whether or not to count records number in a page query. Set this to false, if you would read total count from somewhere else, such as cache.
 
-=== 用SearchTerm构造查询条件： ===
+=== Build Query Conditions from SearchTerm: ===
 
- SearchTerm可以直接通过实现类构造，也可以通过 org.guzz.orm.se.Terms 的静态方法生成（推荐尽量使用此方法）。
+ SearchTerm can be instanced directly, or by static methods in org.guzz.orm.se.Terms. The later one is recommended.
 
- SearchTerm可以理解为对sql语句的拼接，没有任何面向对象的理念，仅仅是将需要的sql语句起来。类似!StringBuffer将很多元素append到一起来。
+ SearchTerm can be considered as a concatenation of sql fragments, without any object oriented stuffs. Treat it as append() method of !StringBuffer.
 
- SearchTerm在构造时，传入的属性名都必须是pojo对象的java属性，没有任何地方需要写数据库中的字段名称。
+ Some SearchTerm accept property name as parameter(s). Remember that the property name passed to SearchTerm must be the java domain class's field name; it would never be the column name in the database.
 
- !SearchTerm存放于org.guzz.orm.se package下。
+ !SearchTerm is stored under org.guzz.orm.se package.
 
-* 目前主要的SearchTerm有：*
+* Primary SearchTerms：*
 
- * !AndTerm 查询and操作。public !AndTerm(!SearchTerm leftTerm, !SearchTerm rightTerm)，传入两个需要执行and查询条件。
+|| *SearchTerm*  || *Function*  || *Construct Method* || *Construct Parameters* ||
+|| !AndTerm || Concatenate two and conditions. || public !AndTerm(!SearchTerm leftTerm, !SearchTerm rightTerm) || two conditions to do and. ||
+|| !CompareTerm || Compare a property to a value. || public !CompareTerm(String propName, String operator ,Object propValue) || construct to: propName + operator + propValue. The available operators are defined as static variables in CompareTerm. ||
+|| !ConcatTerm || Concatenate || public !ConcatTerm(!SearchTerm leftTerm, !SearchTerm rightTerm) || concatenate the two conditions together, add a whitespace between them. ||
+|| !InTerm || "in" keyword of sql ||public !InTerm(String propName, List/int[] values) || propName in values ||
+|| !OrderByTerm || order by statement || public !OrderByTerm(String orderBy) || Separate multiple orderBys by comma.eg:id asc, title desc  ||
+|| !OrTerm || "or" keyword ||public !OrTerm (!SearchTerm leftTerm, !SearchTerm rightTerm) || leftTerm or rightTerm ||
+|| !PropsSelectTerm || Specify the properties to load, rather than load all. || Use !SearchExpression.setSelectedProps(String selectedProps) ||eg: "id, name" ||
+|| !StringCompareTerm || compare two strings. || public !StringCompareTerm(String propName, String operator, String propValue, boolean ignoreCase) || support "like" keyword, and ignore case(add low(xxx) function in query). ||
+|| !WhereTerm || add where statement. || public !WhereTerm(!SearchTerm condition) || set where statement. private API. ||
 
- * !CompareTerm 比较条件。public !CompareTerm(String propName, String operator ,Object propValue)；属性+操作符+属性值，操作符定义在CompareTerm的静态变量中。
+ SearchTerm is not recommended to construct directly. Use the static methods in Terms and SearchExpression is the first choice.
 
- * !ConcatTerm 连接操作。public !ConcatTerm(!SearchTerm leftTerm, !SearchTerm rightTerm)，将左右2个条件的sql表达式连接在一起。内部使用。
+== How to write very complicated queries? ==
 
- * !InTerm in查询条件。public !InTerm(String propName, List/int[] values) 执行数据库in查询。
-
- * !OrderByTerm 数据库order by语句。 public !OrderByTerm(String orderBy)，排序条件，多个之间用英文逗号分隔。
-
- * !OrTerm or查询条件。public !OrTerm (!SearchTerm leftTerm, !SearchTerm rightTerm)。guzz标签不支持or操作，如果要进行或查询只能通过OrTerm进行。
-
- * !PropsSelectTerm 指定查询字段语句。一般不需要直接使用，可以通过!SearchExpression.setSelectedProps(String selectedProps)隐含调用，如："id, name" 则进行数据库查询时，只读取与id,name属性对应的字段。一般内部使用。
-
- * !StringCompareTerm 字符串匹配条件。public !StringCompareTerm(String propName, String operator, String propValue, boolean ignoreCase)，支持like查询和忽略大小写（通过追加low(xxx)函数实现）查询。
-
- * !WhereTerm 拼接where语句。public !WhereTerm(!SearchTerm condition)。内部使用。
-
- 对于大部分的SearchTerm不建议直接使用，推荐通过Terms静态方法和SearchExpression提供的方法进行操作。
-
-== 更加复杂的查询： ==
-
- 对于复杂的查询语句，guzz推荐将查询语句配置到guzz.xml中，通过id查询，类似ibatis。这部分内容一般是以后dba可能会关注的。
-
- 对于比较奇特但不会有改动的查询，建议构造CompiledSQL进行。
+ For complicated queries, guzz suggests that you store them in guzz.xml, and perform queries by id as ibatis did. We believe that complicated sqls are better to be separated for dbas later.
+ 
+ For weird but stable sqls, you can build them to CompiledSQLs, and use its API.
+ 
+ 
