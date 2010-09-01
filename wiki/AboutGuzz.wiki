@@ -4,13 +4,13 @@
 
 = what is guzz? =
 
- Guzz is a framework for large-scaled system and rapid development. 
+Guzz is a framework for large-scaled system and rapid development. 
 
- According to orm, multi-datasources, shard, general data processing, object-oriented database taglib, guzz provides a full-stack solution for data-layer architecture. It can be a good complement or another choice for hibernate and ibatis.
+According to orm, multi-datasources, shard, general data processing, object-oriented database taglib, guzz provides a full-stack solution for data-layer architecture. It can be a good complement or another choice for hibernate and ibatis.
 
- Guzz's aim is to simplify the design of large-scaled system, clearing the division of team jobs, lessen mistakes in using frameworks.
+Guzz's aim is to simplify the design of large-scaled system, clearing the division of team jobs, lessen mistakes in using frameworks.
 
- Guzz's features:
+Guzz's features:
 
  * Modern design, experienced on ibatis and hibernate's great favors.
  
