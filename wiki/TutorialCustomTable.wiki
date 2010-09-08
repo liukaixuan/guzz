@@ -378,7 +378,8 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 		Guzz.setTableCondition("all") ;
 		
 		//list all cargoes priced over 100.00 bucks
-		String sql="select c.* from (select @id, @name, @storeCount from tb_cargo_book where @price >= :param_price union all select @id, @name, @storeCount from tb_cargo_crossstitch where @price >= :param_price) as c ";
+		String sql="select c.* from (select @id, @name, @storeCount from tb_cargo_book where @price >= :param_price"
+		       + " union all select @id, @name, @storeCount from tb_cargo_crossstitch where @price >= :param_price) as c ";
 
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(Cargo.class, sql) ; 
 		cs.addParamPropMapping("param_price", "price") ;

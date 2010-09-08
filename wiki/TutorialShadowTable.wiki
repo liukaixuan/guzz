@@ -6,15 +6,21 @@
 
  With Shadow Table, you are able to manage split tables with minor efforts. To active Shadow Table, you just have to declare a interface org.guzz.orm.ShadowTableView, and pass a parameter indicating the condition used by the route/split rules before calling guzz's persist API.
  
- All guzz's persist API supports Shadow Table, including executing sqls defined in guzz.xml. For example: {{{select sql_no_cache * from @@comment left join .... force index(idx_special)....}}}. In this sql, @@comment is used to replace the actual table name. If the comment is shadow, guzz will compute the actual table name for the current condition of the comment object, such as TB_COMMENT_2, and then replace it.
+ All guzz's persist API supports Shadow Table, including executing sqls defined in guzz.xml. For example: 
+ 
+{{{
+select sql_no_cache * from @@comment left join .... force index(idx_special)....
+}}}. 
+
+ In this sql, @@comment is used to replace the actual table name. If the comment is shadow, guzz will compute the actual table name for the current condition of the comment object, such as TB_COMMENT_2, and then replace it.
 
 == Where to use?  ==
 
- * 1. Split big table into small ones. Split a big table into many small tables with the rule of createTime, userInfo, channels or so on, to improve performance.
+ * 1. *Split a big table into small ones.* Split a big table into many small tables with the rule of createTime, userInfo, channels or so on, to improve performance.
 
- * 2. Archive data. According to something like timestamp, save data into monthly/daily-created tables, to low the cost of maintaining. For data archiving, Shadow table can be used with mulit-datasources, so you can save archived data in a backup machine, and keep the online database fit.
+ * 2. *Archive data.* According to something like timestamp, save data into monthly/daily-created tables, to low the cost of maintaining. For data archiving, Shadow table can be used with mulit-datasources, so you can save archived data in a backup machine, and keep the online database fit.
 
- * 3. VIP customers treating. For example, you can separate paid users and free users, and provide different service level(paid users in oracle cluster, free users in mysql).
+ * 3. *VIP customers treating.* For example, you can separate paid users and free users, and provide different service level(paid users in oracle cluster, free users in mysql).
 
 == How to Use? ==
 
