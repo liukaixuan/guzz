@@ -9,8 +9,8 @@
  All guzz's persist API supports Shadow Table, including executing sqls defined in guzz.xml. For example: 
  
 {{{
-select sql_no_cache * from @@comment left join .... force index(idx_special)....
-}}}. 
+ select sql_no_cache * from @@comment left join .... force index(idx_special)....
+}}}
 
  In this sql, @@comment is used to replace the actual table name. If the comment is shadow, guzz will compute the actual table name for the current condition of the comment object, such as TB_COMMENT_2, and then replace it.
 
