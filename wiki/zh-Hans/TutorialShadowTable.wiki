@@ -4,7 +4,12 @@
 
  guzz在进行表分切时，允许传入一个参数，开发人员可以根据自己传入的参数来灵活控制分切方式（表分切规则也是由开发人员自己实现的一个接口org.guzz.orm.ShadowTableView）。
 
- guzz提供的所有持久化操作方式全部支持表分切，也就是说，即使你像ibatis一样在xml中配置复杂的sql语句也一样可以完成自动分表操作。例如：{{{select sql_no_cache * from @@comment left join .... force index(idx_special)....}}}。这个sql通过@@comment域对象名称来代替直接的表名称，如果comment对象配置有表分切规则（视为shadow表），在执行这个sql时，guzz将通过程序传入的表分切参数计算出实际应该读取的表（如TB_Comment_2），再进行select操作。
+ guzz提供的所有持久化操作方式全部支持表分切，也就是说，即使你像ibatis一样在xml中配置复杂的sql语句也一样可以完成自动分表操作。例如：
+{{{
+  select sql_no_cache * from @@comment left join .... force index(idx_special)....
+}}}
+
+ 这个sql通过@@comment域对象名称来代替直接的表名称，如果comment对象配置有表分切规则（视为shadow表），在执行这个sql时，guzz将通过程序传入的表分切参数计算出实际应该读取的表（如TB_Comment_2），再进行select操作。
 
 == 表分切应用场景 ==
 

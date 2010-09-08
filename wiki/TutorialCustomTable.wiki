@@ -392,14 +392,21 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 
  == Startup sequences of CustomTableView: ==
 
- # Parse configuration file and instance the CustomTableView class;
- # call setConfiguredTableName(String tableName) to set the configured table name;
- # call setConfiguredObjectMapping(POJOBasedObjectMapping configuredMapping) to set the configured OR-Mapping;
- # call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
- # call startup();
- # call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
- # running....;
- # call shutdown() when guzz exits.
+ * 1. Parse configuration file and instance the CustomTableView class;
+ 
+ * 2. call setConfiguredTableName(String tableName) to set the configured table name;
+ 
+ * 3. call setConfiguredObjectMapping(POJOBasedObjectMapping configuredMapping) to set the configured OR-Mapping;
+ 
+ * 4. call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
+ 
+ * 5. call startup();
+ 
+ * 6. call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
+ 
+ * 7. running....;
+ 
+ * 8. call shutdown() when guzz exits.
 
 == Notes: ==
 

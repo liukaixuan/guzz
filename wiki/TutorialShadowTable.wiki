@@ -249,12 +249,19 @@ public class CommentShadowView extends AbstractShadowTableView {
  
  == Startup sequences of ShadowView: ==
 
- # Parse configuration file and instance the ShadowView class;
- # call setConfiguredTableName(String tableName) to set the configured table name.
- # call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
- # call startup();
- # call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
- # running....;
- # call shutdown() when guzz exits.
+ * 1. Parse configuration file and instance the ShadowView class;
+ 
+ * 2. call setConfiguredTableName(String tableName) to set the configured table name.
+ 
+ * 3. call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
+ 
+ * 4. call startup();
+ 
+ * 5. call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
+ 
+ * 6. running....;
+ 
+ * 7. call shutdown() when guzz exits.
+ 
  
  
