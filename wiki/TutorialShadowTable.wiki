@@ -1,29 +1,33 @@
-== 表分切介绍 ==
+== What is Shadow Table? ==
 
- 表分切是指1个对象（如日志，留言，评论等）按照一定的规则，存储在不同的表中。在guzz中命名表分切技术为shadow。guzz shadow支持开发人员为每个领域对象配置一个表分切规则，guzz在对领域对象进行存储和读取时，自动根据规则计算出对应的数据库表，再进行持久化操作。
+ Shadow Table means splitting a big table into many small ones, and storing domain objects(eg:comment, message, article) among the split small tables. 
+ 
+ To the developers, what they are operating is a domain object corresponding to one (virtual) table, but underly guzz persist data among the split smaller tables according to the user-defined route rules.
 
- guzz在进行表分切时，允许传入一个参数，开发人员可以根据自己传入的参数来灵活控制分切方式（表分切规则也是由开发人员自己实现的一个接口org.guzz.orm.ShadowTableView）。
+ With Shadow Table, you are able to manage split tables with minor efforts. To active Shadow Table, you just have to declare a interface org.guzz.orm.ShadowTableView, and pass a parameter indicating the condition used by the route/split rules before calling guzz's persist API.
+ 
+ All guzz's persist API supports Shadow Table, including executing sqls defined in guzz.xml. For example: {{{select sql_no_cache * from @@comment left join .... force index(idx_special)....}}}. In this sql, @@comment is used to replace the actual table name. If the comment is shadow, guzz will compute the actual table name for the current condition of the comment object, such as TB_COMMENT_2, and then replace it.
 
- guzz提供的所有持久化操作方式全部支持表分切，也就是说，即使你像ibatis一样在xml中配置复杂的sql语句也一样可以完成自动分表操作。例如：{{{select sql_no_cache * from @@comment left join .... force index(idx_special)....}}}。这个sql通过@@comment域对象名称来代替直接的表名称，如果comment对象配置有表分切规则（视为shadow表），在执行这个sql时，guzz将通过程序传入的表分切参数计算出实际应该读取的表（如TB_Comment_2），再进行select操作。
+== Where to use?  ==
 
-== 表分切应用场景 ==
+ * 1. Split big table into small ones. Split a big table into many small tables with the rule of createTime, userInfo, channels or so on, to improve performance.
 
- * 1. 大数据表分隔。通过时间，操作用户，栏目分类等将1个大表分隔成多个相互无关联的小表，降低数据量，提高查询效率。
+ * 2. Archive data. According to something like timestamp, save data into monthly/daily-created tables, to low the cost of maintaining. For data archiving, Shadow table can be used with mulit-datasources, so you can save archived data in a backup machine, and keep the online database fit.
 
- * 2. 日志归档。通过时间，将日志按月生成，降低备份和维护成本。日志归档可以配合guzz多数据源技术，将归档日志传到归档数据库中，保持在线库瘦身。
+ * 3. VIP customers treating. For example, you can separate paid users and free users, and provide different service level(paid users in oracle cluster, free users in mysql).
 
- * 3. 特殊客户处理。如将付费用户和免费用户数据分开，提高付费用户的服务质量。
+== How to Use? ==
 
-== 举例说明：下面实现1个表分切的使用案例 ==
+ For example, we have a comment system for news. To gain better performance, we store the Comment in 2 tables, TB_COMMENT1 for user with a even userId and TB_COMMENT2 for user with a odd userId. (In a real system, you may split tables by news channels.)
 
- 假设我们有1套新闻系统需要开发评论组件，为了提高性能我们设计将评论存储在2张表中，所有用户编号为偶数的存储到TB_COMMENT1，为奇数的存储到TB_COMMENT2。（实际的项目中，可能按照频道来分表，道理都一样）。
+ Now, step by step, I'll show you how to use shadow table.
 
- 下面的例子和代码是guzz的TestCase，可以在源代码的test目录下找到。
+ The sample code is stored in the guzz project, you can find it in the test source folder.
 
-=== step 1: 设计领域对象 ===
+=== step 1: Design the domain class ===
 
- 简单起见，我们的评论包含一个自增的id，用户编号userId，用户昵称userName，评论内容content，以及发表时间createdTime 。定义如下：
-
+ For concision, our Comment class owns a auto-increment id, a userId, a userName, content of the comment, and the createdTime as below:
+ 
 {{{
 package org.guzz.test;
 
@@ -38,14 +42,15 @@ public class Comment {
 	private String content ;
 	
 	private java.util.Date.Date createdTime ;
-        //get and set methods
+    
+    //get and set methods
 }}}
 
- 同时定义用户对象User（略）。
+ And, we define the User class.(skipped)
+ 
+=== step 2: Define OR mapping ===
 
-=== step 2: 配置与数据库表的映射 ===
-
- 创建映射文件Comment.hbm.xml，定义如下：
+ Create the object-relation mapping file Comment.hbm.xml, and fill the content:
 
 {{{
 <?xml version="1.0"?>
@@ -63,11 +68,11 @@ public class Comment {
 </guzz-mapping>
 }}}
 
- 这个文件与hibernate映射类似，但多出了shadow="org.guzz.test.CommentShadowView"属性。
+ This file is similar to hibernate's, but with a extra attribute:shadow="org.guzz.test.CommentShadowView".
 
- shadow属性表示当前域对象org.guzz.test.Comment对应着一个shadow表，表名称应该按照程序运行条件来动态判断。
+ The "shadow" attribute indicates that the domain class of org.guzz.test.Comment should be mapped to a shadow table, the table name should be judged on the runtime condition.
 
- 其中，org.guzz.test.CommentShadowView为表名判断规则，是项目自己实现的类，实现代码如下：
+ And the attribute value "org.guzz.test.CommentShadowView" is the rule of how to judge the runtime table name. The rule is defined by the application itself, in our example, it is:
 
 {{{
 package org.guzz.test;
@@ -78,13 +83,14 @@ import org.guzz.orm.AbstractShadowTableView;
 public class CommentShadowView extends AbstractShadowTableView {
 
 	public String toTableName(Object tableCondition) {
-		if(tableCondition == null){ //强制要求必须设置表分切条件，避免编程时疏忽。
-			throw new GuzzException("null table conditon is not allowed.") ;
+		if(tableCondition == null){ //Force the developers to set the table condition, or raise a exception.
+			throw new GuzzException("null table condition is not allowed.") ;
 		}
 		
+		//The passed table condition is the User object
 		User u = (User) tableCondition ;
 		
-		//如果用户ID为偶数，记入TB_COMMENT1, 否则写入TB_COMMENT2
+		//odd userId to TB_COMMENT1, or TB_COMMENT2
 		int i = u.getId() % 2 + 1 ;
 		
 		return super.getConfiguredTableName() + i;
@@ -93,31 +99,29 @@ public class CommentShadowView extends AbstractShadowTableView {
 }
 }}}
 
- CommentShadowView 继承自 AbstractShadowTableView，并实现了方法public String toTableName(Object tableCondition)。此方法返回当前应该映射的表名称，如在本例中，应该返回TB_COMMENT1或者TB_COMMENT2的一个。tableCondition为应用传递的表分切参数(后面会介绍如何传），在本例中传入的是一个User对象。
+ The CommentShadowView is derived from AbstractShadowTableView, and implement public String toTableName(Object tableCondition). This method returns the actual table on the giving runtime condition. In this example, it returns TB_COMMENT1 or TB_COMMENT2. The tableCondition is the passed condition, set by developers before calling persist method, and can be anything. We'll discuss it more later.
 
- super.getConfiguredTableName()返回的是在Comment.hbm.xml中配置的table属性值。本例中为TB_COMMENT。
+ The super.getConfiguredTableName() returns the table name configured in Comment.hbm.xml. In this example, it returns TB_COMMENT.
 
- 到这里，表分切的映射就已经配置完毕了。下面我们开始使用它。
-
-=== step 3: 将Comment对象加入guzz系统中 ===
-
- 在guzz.xml中添加一个领域对象配置：
+=== step 3: Declare Comment in guzz ===
+ 
+ Add a new line in guzz.xml:
 
 {{{
 <business name="comment" dbgroup="default" file="classpath:org/guzz/test/Comment.hbm.xml" />
 }}}
 
- 我们定义评论对象的名称为comment，以后在sql语句中可以通过@@comment来代替直接书写comment的表名称。
+ We declare the name of the Comment class to "comment", so we can use "@@comment" to replace the Comment's table name in sqls. 
 
-=== step 4: 保存一个Comment对象 ===
+=== step 4: Insert a comment ===
 
- 调用方法与普通对象一样，首先获取事务管理器，打开一个写事务，保存领域对象。
+ As to persist a un-shadow object, the first step is to fetch the TransactionManager, and then open a WriteTranSession, and then execute a persist method.
 
 {{{
-		        TransactionManager tm = guzzContext.getTransactionManager() ;
-		        WriteTranSession session = tm.openRWTran(true) ;
+		    TransactionManager tm = guzzContext.getTransactionManager() ;
+		    WriteTranSession session = tm.openRWTran(true) ;
 
-                        Comment c = new Comment() ;			
+            Comment c = new Comment() ;			
 			c.setContent("my content") ;
 			Date now = new Date() ;
 			c.setCreatedTime(now) ;
@@ -130,33 +134,35 @@ public class CommentShadowView extends AbstractShadowTableView {
 
 }}}
 
- 我们看到代码中多了一行：Guzz.setTableConditon(new User(1)) ;，这个正是shadow参数的传递方式。guzz通过Guzz.setTableConditon(Object o)设置表分切的参数，这个参数会在执行持久化操作时传给分表规则（如上面定义的CommentShadowView#toTableName(Object tableCondition)）来获取真正的表名。
+ To insert the shadow comment, we add a new line:Guzz.setTableConditon(new User(1)) ;. In guzz, this is how we set the runtime table condition.
 
-=== step 5: 读取comment对象 ===
+ When we set this condition, guzz will pass the condition to ShadowView to compute the actual table name, and replace @@comment in sqls with it.
 
- 在guzz中，数据提取主要有4种方式。我们假设通过昵称userName来查询评论。
+=== step 5: Query Comments ===
 
-*第一：*查询表达式。
+ There are 4 methods to query shadow objects in guzz. For example, we have to query comments by userName.
+
+ -*API 1:* By SearchExpression:
 
 {{{
                 TransactionManager tm = guzzContext.getTransactionManager() ;
 		ReadonlyTranSession session = tm.openDelayReadTran() ;
 		
-		Guzz.setTableCondition(new User(1)) ; //设置分表条件
+		Guzz.setTableCondition(new User(1)) ; //set table condition
 		
 		SearchExpression se = SearchExpression.forClass(Comment.class) ;
-		se.and(Terms.eq("userName", "lily")) ; //添加查询条件
+		se.and(Terms.eq("userName", "lily")) ; //add query condition
                 
-                //通过Guzz.setTableCondition设置的分表参数分表查询
+                //query
                 List comments = session.list(se) ;
 
-                //设置本次查询的tableCondition，设置的条件优先级高于Guzz.setTableCondition。
-                //设置的条件不能为null，否则继续使用Guzz.setTableCondition的条件（目前这种策略还在考虑其合理性）。
+                //Set tableCondtion for this SearchExpression, to override the condition set by Guzz.setTableCondition.
+                //If the set tableCondition is null, Guzz.getTableCondition will be used.
                 se.setTableCondition(new User(2)) ; 
-                comments = session.list(se) ; //此时查询的分表参数将为new User(2)
+                comments = session.list(se) ; //In this query, the table will be checked by tableCondition User(2).
 }}}
 
-*第二：*程序拼装的sql。
+ -*API 2:* By CompiledSQL(built sql from plain sql in code)
 
 {{{
                 TransactionManager tm = gf.getTransactionManager() ;
@@ -164,7 +170,7 @@ public class CommentShadowView extends AbstractShadowTableView {
 		
 		String sql = "select * from @@comment where userName = :param_userName" ;
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(Comment.class, sql) ;
-		cs.addParamPropMapping("param_userName", "userName") ; //设置参数param_userName（:param_userName）绑定到userName属性。用于增强参数类型检查。
+		cs.addParamPropMapping("param_userName", "userName") ; //
 		
 		User u2 = new User() ;
 		u2.setId(2) ;
@@ -173,14 +179,15 @@ public class CommentShadowView extends AbstractShadowTableView {
 		assertEquals(session.list(cs.bind("userName", "lily"), 1, 1000).size(), 500) ;
 		assertEquals(session.list(cs.bind("userName", "lucy"), 1, 1000).size(), 0) ;
 
-		//BindedCompiledSQL.setTableCondition条件优先级高于Guzz.setTableCondition。但同样不能为null，否则继续按照Guzz.setTableCondition的条件执行。
+		//BindedCompiledSQL.setTableCondition has a high priority over Guzz.setTableCondition.
+		//But the value set can't be null, or the tableCondtion in Guzz.setTableCondition will be used.
 		assertEquals(session.list(cs.bind("userName", "lily").setTableCondition(u2), 1, 1000).size(), 0) ;
 		assertEquals(session.list(cs.bind("userName", "lucy").setTableCondition(u2), 1, 1000).size(), 500) ;
 }}}
 
-*第三：*在guzz.xml中配置的sql（类似ibatis）。
+ -*API 3:* By SQL configured in guzz.xml(as ibatis)
 
- 首先我们需要在guzz.xml中配置sql语句以及属性和字段的映射关系，配置如下：
+ First, configure the sql and its OR-mapping in guzz.xml:
 
 {{{
             <sqlMap dbgroup="default">
@@ -198,13 +205,13 @@ public class CommentShadowView extends AbstractShadowTableView {
 	</sqlMap>
 }}}
 
- 配置了1个sql语句，id为listCommentsByName，映射orm名称为commentMap。在sql语句中使用了@@替代表名,@替代属性名。注意：如果使用shadow表，必须使用@@替换真实的表名，否则guzz无法知道动态获取的真实表名应该拼接到sql语句的什么位置。
+ In this sample, we declare a sql named listCommentsByName, and map it to commentMap. We use @@comment to replace the table name in sql, as we cann't determine the actual table name now.
 
- 在这个例子里面我们可以看到，@@后面也可以接orm的名称，但要求orm必须配置table属性。此时，如果没有shadow属性，@@commentMap将被替换为TB_COMMENT；如果有shadow属性，将会按照org.guzz.test.CommentShadowView运行时获取的表名进行替换。
+ We declare a attribute "shadow" in the orm element to active the feature of shadow table.
 
- sql语句的orm也可以指定为领域对象名称，如：{{{<select id="listCommentsByName" orm="comment">}}}，此时将按照comment领域对象的映射关系（Comment.hbm.xml）进行orm操作（hibernate的映射方式），不用在重复配置映射。
+ By the way, the "orm" attribute can be a business name to tell guzz that the OR-mapping/shadowing is the same as defined in the xxxx.hbm.xml. For example: {{{<select id="listCommentsByName" orm="comment">}}}.
 
- 言归正传，下面开始使用配置的sql执行查询：
+ After configuration, we can execute it:
 
 {{{
                 TransactionManager tm = gf.getTransactionManager() ;
@@ -218,30 +225,30 @@ public class CommentShadowView extends AbstractShadowTableView {
 		List<Comment> comments = session.list("listCommentsByName", params, 1, 10000) ;
 }}}
 
- 由于按照id查询方法不支持传入tableCondition参数，所有分表参数只能通过Guzz.setTableCondition设置。
+ The method signature doesn't support pass a tableCondition when query by id, so the only way to pass it is by Guzz.setTableCondition.
 
-*第四：*在jsp页面上通过guzz taglib读取。
+ -*API 4:* By guzz taglib
 
- taglib的list, get, page, inc以及boundary标签都支持传入tableCondition属性。只要传入此属性，就将按照此属性的值分表。如果没有传入，或者传入的为null，按照Guzz.setTableCondition设置的值分表。如果boundary设置了tableCondition，所有boundary之内的标签自动继承，也可以覆盖。
-
- 例如读取名称为lily的前20条评论，按照当前用户分表：
+ Guzz's list, get, page, inc and boundary tags also support "tableCondition" attributes.
+ 
+ If tableCondition attribute is set, the value is passed to compute the table name of the business. If the set value is null(default value), guzz use tableCondition set by Guzz.setTableCondition instead when the business is a shadow one.
+ 
+ If you set the "tableCondition" attribute for a g:boundary tag, all tags in this boundary inherits this attribute.
+ 
+ For example, we have to query lily's first 20 comments, and the comments is owned by the current user:
 
 {{{
 <g:list var="m_comments" business="comment" limit="userName=lily" orderBy="id desc" pageSize="20" tableCondition="${currentUser}" />
 }}}
+ 
+ == Startup sequences of ShadowView: ==
 
-== 接口方法调用顺序 ==
-
- * 1. 解析配置文件，生成类实例
-
- * 2. 调用setConfiguredTableName(String tableName)
-
- * 3. 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
-
- * 4. 调用startup()
-
- * 5. 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
-
- * 6. 对外服务……
-
- * 7. guzz关闭时调用shutdown()
+ # Parse configuration file and instance the ShadowView class;
+ # call setConfiguredTableName(String tableName) to set the configured table name.
+ # call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
+ # call startup();
+ # call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
+ # running....;
+ # call shutdown() when guzz exits.
+ 
+ 

@@ -1,13 +1,15 @@
-== 概念介绍 ==
+== What is Custom Table? ==
 
- 自定义属性表是指一个表拥有不确定的字段。在项目设计中，自定义属性表一般指一个领域对象对应着多张数据库表；这些表之间拥有一些相同的字段，同时也拥有一些个性的字段。
+ Custom Table sounds interesting, it maps a domain class to a (virtual) table with *unknown* columns! YES, unknown! The table may be a (virtual) table stored as many small tables like Shadow Table does, and each small table can own some unknown different columns.
 
- 例如典型的购物网站中，可能拥有上千种不同的商品，每种商品都有名称、介绍、价格、上架时间、库存、好评等等，同时每个商品也有自己独特的属性，如书籍有ISBN、作者、出版社；服装有颜色、尺码、品牌；电视机有屏幕尺寸、刷新率、usb支持情况等等。这些自定义的属性在购物网站中有着非常高的价值，例如服装必须能够按照尺码查询，这就要求在设计时需要为每种商品都做一张表来存储，以利于查询。按照传统的ORM模型，有一千张表就需要有一千个java领域对象和一千个hbm.xml映射文件，如果按照良好的分层设计，也需要有一千个Dao和Manager。在数据库设计时，我们可以将不同的商品分散到不同的数据库中，1个数据库保持几十个商品表看起来还能忍受，但java代码是的无法分开的（因为商品的评分、评论、物流等等附加设计不可能也分成很多份）。如果依旧采用传统的ORM，领域对象定义可能就会占用您数千个类，项目也就基本失败了。
+ Custom Table not only sounds interesting, it is also very useful, for example for shopping site. In a typical shopping site, there are thousands of cargoes, and they share some common attributes such as name,description,price,onlineTime,storeCount,rate and so on. In the meantime, each cargo has its own special attributes, for example Book owns ISBN, author, publisher, Clothe owns color, size, brand, and TV set owns screenSize, refreshRate, networkSupport, and so on. These special attributes are very important for a shopping site, as you cann't sell clothes if your customers cann't search it with size and brand.
 
- 为了解决这个问题，就需要有一种动态的表与对象映射技术--无论商品有多少种或者存储在多少张表中，只定义1个领域对象，表名称、字段和属性可以动态的获取并完成映射。在领域对象设计时，只需要定义出商品通用的属性，并预留一个集合类（如Map）用于保存在运行时根据当前处理的具体商品而获取的特殊属性即可。如我们对商品对象定义如下：
+ In a traditional ORM solution, like hibernate, one table is mapped to one java domain class. And If you want your customers to search or list cargoes through database, every cargo must be stored in a separate table as they would own different attributes mapped to different columns. Suppose you have 1000 cargoes, then you must design 1000 tables, and 1000 domain classes in java, and 1000 hbm.xml files for mapping. 1000 tables can be distributed in many machines to keep it manageable, but what about java code? Write duplicate codes for each cargo in many separate projects(every cargo needs basic features such as rating, comment and logistics.), or write one copy for 1000 domain classes in a huge project? Anyway, the code amount would be a nightmare!
+
+ To solve this problem, the best way is to define only one (abstract) domain class, and map it to any tables with shared columns and unknown self columns. The developer can force only on one domain class as a normal pojo, and the domain class can dynamically map itself to the right table and the right (unknown) columns.  In the domain class, we define common properties that every cargo would use, and leave a Collection property to store special properties for the cargo being used. For example:
 
 {{{
-public class Cargo {
+public class Cargo { 
 	
 	private int id ;
 	
@@ -22,7 +24,7 @@ public class Cargo {
 	
 	private Date onlineTime ;
 	
-	/*for the sake of concision, igore other useful properties.*/
+	/*for the sake of concision, ignore other useful properties.*/
 	
 	/**
 	 * special properties owned by only this Item.
@@ -32,9 +34,9 @@ public class Cargo {
         //get and set methods....
 }}}
 
- 其中定义了一些通用的属性，同时通过specialProps保存具体商品特殊的属性。
-
- 定义完领域对象，在定义表映射关系，如下：
+ Here, we define some common properties, and a specialProps field to store a actual cargo's special properties.
+ 
+ To set up OR-mapping, we need to write a hbm.xml file:
 
 {{{
 <?xml version="1.0"?>
@@ -54,15 +56,15 @@ public class Cargo {
 </guzz-mapping>
 }}}
 
- 和平时没什么区别。specialProps的内容在定义是无法确定，因此不做映射。
+ This file is similar to a normal one. As the content of specialProps is unknown, we won't map it.
 
- 这就是guzz解决这类问题的动态映射技术，称为自定义属性表，命名为：Custom Table.
+ This is what we called Custom Table, guzz's solution to do dynamic OR-mapping.
 
-== 案例说明：购物网站 ==
+== User Case: A Shopping Site ==
 
- 继续上面的需求，我们决定为每个商品创建一张表，表的名称为：tb_cargo_商品名称，每种商品表的字段根据此商品的特点单独设计。很显然，先不管每个表的字段怎么样，根据前面Shadow Table的介绍，我们需要定义一个ShadowTableView，根据商品名称（tableCondition）进行分表，如上面的映射中定义的：shadow="org.guzz.test.shop.CargoCustomTableView"。
+ Let's continue our discussion. In the database level, we need to create a table for each cargo. Our rule for the table name is tb_cargo_cargoName, and we design each table on its unique features/columns. Apparently, despite of special columns, we need to split tables for Cargo first as the previous chapter told. We need a ShadowTableView, and split/shadow table with cargoName(tableCondition) as the above mapping defined: shadow="org.guzz.test.shop.CargoCustomTableView".
 
- 由于我们的商品类别可能很多，也可能会经常增加，因此最好的办法是将每个商品的特殊属性保存到数据库中，这样管理起来最方便。我们用一个特殊属性表保存商品的个性属性，定义如下：
+ A shopping site may have many type of cargoes, and new cargoes may join later, so the best way to manage cargoes's special properties is in database, so you can manage them online. We define a new business SpecialProperty for that:
 
 {{{
 /**
@@ -90,7 +92,7 @@ public class SpecialProperty {
         //get and set methods...
 }}}
 
-*定义ORM映射：*
+ -*Define the ORM:*
 
 {{{
 <?xml version="1.0"?>
@@ -112,15 +114,15 @@ public class SpecialProperty {
 </hibernate-mapping>
 }}}
 
-到此，只要框架能够根据这个表的内容动态算出映射关系，就大功告成了。
+ OK, so far so good. If Custom Table can read SpecialProperty from the database, and map cargoes correctly in runtime, we are done.
 
-== 案例说明：CustomTableView ==
+== User Case: CustomTableView ==
 
- 与ShadowTableView动态计算表名称的方法一样，guzz也需要项目告诉他如何计算映射关系，而org.guzz.orm.CustomTableView就是做这个的。CustomTableView继承自ShadowTableView，配置方法与ShadowTableView一样，直接使用shadow属性配置即可，可以理解为是一类特殊的ShadowTableView。CustomTableView定义如下：
+ Like ShadowTableView, guzz needs your application to tell her how to compute the runtime OR-mapping, and this is done by a new interface: org.guzz.orm.CustomTableView. CustomTableView is derived from ShadowTableView, and shares the same attribute "shadow" to declare it in hbm.xml. You can treat CustomTableView as a special type of ShadowTableView. The interface of CustomTableView is:
 
 {{{
 /**
- * Interface for mapping dynamic tables with runtime-determinated columns(different tables and differect tables' columns mapped to a same domain class).
+ * Interface for mapping dynamic tables with runtime-determinated columns(different tables and different tables' columns mapped to a same domain class).
  * <p>
  * Only {@link POJOBasedObjectMapping} supports this feature.
  * </p>
@@ -142,11 +144,11 @@ public interface CustomTableView extends ShadowTableView{
 }
 }}}
 
- 开发者需要实现此接口，并通过实现getRuntimeObjectMapping(Object tableCondition) 方法创建并返回当前运行的表映射关系。表映射关系创建的依据也是tableCondition，与表分切相同。
+ The getRuntimeObjectMapping(Object tableCondition) method is used to compute and return the runtime ORM based on the passed tableCondition. The tableCondition is the same one of Shadow Table.
 
- 创建映射是一项麻烦的工作，需要了解guzz运行机理才行，不过guzz提供了一个抽象类来简化这项工作。实现者一般只要继承org.guzz.orm.AbstractCustomTableView即可。
+ The most difficult part of implementing a CustomTableView is to build the returned POJOBasedObjectMapping, as it requires you to understand the mechanism inside guzz. Fortunately, guzz provides a abstract base class org.guzz.orm.AbstractCustomTableView to ease this job. Your CustomTableView can inherit from it.
 
- 对于购物商品，我们的实现如下：
+ For our cargo, we write its CustomTableView named CargoCustomTableView:
 
 {{{
 /**
@@ -159,9 +161,9 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 	/**
 	 * Lookup mapping every time is expensive, so we cache it.
 	 * <p>
-	 * In a real product system, you should replace it with a real cache, and refresh it on special properties' changing.
+	 * In a real production system, you should replace it with a real cache, and refresh it on special properties' changing.
 	 * <br>
-	 * The real cache can be started and shutted down in the {@link #startup()} and {@link #shutdown()} methods(don't forget to call super).
+	 * The real cache can be started and shut down in the {@link #startup()} and {@link #shutdown()} methods(don't forget to call super).
 	 * <p/>
 	 */
 	private Map orms_cache = new HashMap() ;
@@ -200,7 +202,7 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 	protected void initCustomTableColumn(POJOBasedObjectMapping mapping, Object tableCondition) {
 		String cargoName = (String) tableCondition ;
 		
-		//read the special properties from the master database.
+		//load special properties for this cargo from master database.
 		ReadonlyTranSession session = this.guzzContext.getTransactionManager().openNoDelayReadonlyTran() ;
 		
 		try{
@@ -235,21 +237,23 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 }
 }}}
 
- setCustomPropertyValue和getCustomPropertyValue用于保存和读取自定义属性到领域对象中，在这里我们将他放到域对象的specialProps中。
+ setCustomPropertyValue and getCustomPropertyValue are used to store and load special properties of a domain object. For cargo, we store it in specialProps.
 
- getRuntimeObjectMapping 是麻烦的创建映射方法，但可以通过调用父类的createRuntimeObjectMapping()完成。
+ getRuntimeObjectMapping is used to build the ORM, and we delegate it to super.createRuntimeObjectMapping(). 
 
- initCustomTableColumn 是父类在创建映射时回调的方法，用于初始化自定义属性。我们读取SpecialProperty的表，然后调用父类的createTableColumn方法生成字段并加入到映射中（addTableColumn方法）。
+ initCustomTableColumn is a method called back from the super.createRuntimeObjectMapping(). It is used to load and build special properties of a domain object. In our example, we load SpecialProperty(s) from database, build TableColumn by super.createTableColumn, and add it to the ORM by super.addTableColumn. 
 
- toTableName ShadowTableView接口的方法，用于计算表名称。
+ toTableName is derived from ShadowTableView to compute the underly table name.
 
-== 案例说明：测试准备 ==
+== User Case: Prepare to Run ==
 
- guzz不处理表结构，因此我们需要创建表并加入一些原始数据。假设我们有2个商品，分别为图书和十字绣。
+ guzz never handles with table structures, so we have to create tables by ourself. Suppose we have two cargoes, book and crossStitch in our shopping system.
 
- 图书包含3个特殊属性：ISBN, author and publisher；十字绣包含4个特殊属性：gridNum, backColor, size and brand
+ The book has 3 special properties: ISBN, author and publisher; and the crossStitch has 4 special properties: gridNum, backColor, size and brand.
 
- 这样我们就需要3个表：自定义属性表，图书表和十字绣表。下面初始化表：
+ We need three tables for this, tb_s_property to store the SpecialProperty, tb_cargo_book to store books, and tb_cargo_crossStitch to store crossStitches.
+
+ Initialize the tables:
 
 {{{
                 //create special property table in H2 database.
@@ -290,16 +294,18 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 				")") ;
 }}}
 
- 我们创建了3张表，并在自定义属性表中写入了图书和十字绣的表结构信息。 然后把新的域对象配置到guzz中。在guzz.xml中添加：
+ We created the three tables, and insert special properties into tb_s_property for book and cross stitch. Then, we have to declare business Cargo and SpecialProperty in guzz.xml:
 
 {{{
 	<business name="cargo" dbgroup="default" file="classpath:org/guzz/test/shop/Cargo.hbm.xml" />
 	<business name="sp" dbgroup="default" file="classpath:org/guzz/test/shop/SpecialProperty.hbm.xml" />
 }}}
 
-== 案例说明：插入图书 ==
+== User Case: Insert a cargo ==
 
- 接下来的过程和上一节的ShadowTableView非常类似，设置属性，声明tableCondition，插入/修改/删除或者查询。
+ To persist a custom object, it is similar to a shadow one discussed in the previous chapter. Set property values, set tableCondition, and call persist API.
+
+ For example, to save a book, you would write something like:
 
 {{{
                         WriteTranSession session = tm.openRWTran(true) ;
@@ -320,33 +326,32 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 			book.getSpecialProps().put("publisher", "wolf") ;
 			
 			Guzz.setTableCondition("book") ;			
-			session.insert(book) ; //插入到tb_cargo_book表中
+			session.insert(book) ; //insert into table tb_cargo_book
 }}}
 
-== 案例说明：查询十字绣 ==
+== User Case: Search a cross-stitch ==
 
 {{{
-		//SearchExpression.setTableCondition条件优先级高于Guzz.setTableCondition。
 		se = SearchExpression.forClass(Cargo.class) ;
-		se.and(Terms.eq("brand", "湘湘绣铺")); //设置一个自定义属性的查询条件
-                se.setTableCondition("crossStitch") ; //设置tableCondition
+		se.and(Terms.eq("brand", "湘湘绣铺")); //set query conditions on a special property
+                se.setTableCondition("crossStitch") ; //set tableCondition
 
-                List m_css = session.list(se) ; //查询tb_cargo_crossStitch
+                List m_css = session.list(se) ; //select table tb_cargo_crossStitch
 }}}
 
- 如果在jsp中，也可以用g标签更简洁的实现查询。查询条件支持自定义属性，如：
+ If you are listing crossStitches in a jsp file, it is more convenient to query by guzz taglib:
 
 {{{
 <g:list var="m_css" business="cargo" tableCondition="crossStitch" limit="brand=湘湘绣铺" />
 }}}
 
-== 案例说明：多表查询 ==
+== User Case: Join & Union Query ==
 
- 我们的数据被分切成了很多小表，但某些情况下我们需要对多个表进行联合查询，如获取所有价格高于100.00元的商品。
- 
- 在guzz中进行sql查询时，必须首先确定对象的ORM关系，而对于自定义属性表，ORM是通过上面介绍的public POJOBasedObjectMapping getRuntimeObjectMapping(Object tableCondition) 方法动态获取的。tableCondition在我们上面的实现中，用于判定每一张小表的映射；对于多张小表，tableCondition需要设置一个特殊的值做标记做区分，例如"all"。
- 
- 修改getRuntimeObjectMapping以支持"all"条件。
+ In a custom/shadow table, data is distributed in many unknown small tables. This is good for performance and special features, but sometimes, we need to query over them, such as list all cargoes priced over 100.00 in our case. Join or Union Queries over more than one table can only be archived by sqls in guzz.
+
+ To execute a sql in guzz, what you need is to obtain a ORM for the sql. In a custom table, ORM is returned by public POJOBasedObjectMapping getRuntimeObjectMapping(Object tableCondition), so this method must support returning a ORM for join & union queries first. Here, we define a special tableCondition "all", means that a ORM for multiple-table queries is required.
+
+ Modify getRuntimeObjectMapping method to support "all" condition:
   
 {{{
         .....
@@ -363,9 +368,9 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 		.....
 }}}
 
- 这里，我们定义如果tableCondition为"all"，使用默认配置的OM（hbm.xml或annotation定义的原始OM，不包含每种商品自定义的属性）。
+ If the tableCondition is "all", we use the default ORM configured in hbm.xml or annotation (without any cargo's special properties).
 
- 实现所有高于100.00元商品查询：
+ Query cargoes priced over 100.00 bucks:
 
 {{{
 		ReadonlyTranSession session = tm.openDelayReadTran() ; 
@@ -382,30 +387,24 @@ public class CargoCustomTableView extends AbstractCustomTableView {
                 session.close();
 }}}
 
- 对于表名称，只能使用数据库中的真实表名称，而对于公共(默认)属性，可以继续使用@属性名来代替字段名，当然也可以直接使用数据库字段名。
+ In the union sql statement, @propName is used to replace column name, but the table names must be the actual ones.
 
-== CustomTableView接口中方法调用顺序 ==
+ == Startup sequences of CustomTableView: ==
 
- * 1. 解析配置文件，生成类实例
+ # Parse configuration file and instance the CustomTableView class;
+ # call setConfiguredTableName(String tableName) to set the configured table name;
+ # call setConfiguredObjectMapping(POJOBasedObjectMapping configuredMapping) to set the configured OR-Mapping;
+ # call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
+ # call startup();
+ # call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
+ # running....;
+ # call shutdown() when guzz exits.
 
- * 2. 调用setConfiguredTableName(String tableName)
+== Notes: ==
 
- * 3. 调用setConfiguredObjectMapping(POJOBasedObjectMapping configuredMapping)
+ * 1. Custom Table doesn't support ORM defined in guzz.xml in ibatis's style. It means you must define your business class's ORM in hbm.xml or annotation if you want it to be a custom one.
 
- * 4. 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
+ * 2. For sqls defined in guzz.xml, you can set its "orm" attribute to the domain class's business name to borrow the ORM in hbm.xml, and active custom table support.
 
- * 5. 调用startup()
-
- * 6. 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
-
- * 7. 对外服务……
-
- * 8. guzz关闭时调用shutdown()
-
-== 注意事项 ==
-
- * 1. 自定义属性表不支持ibatis模式配置的映射，也就是说基础的映射必须在hbm.xml中。
-
- * 2. 对于guzz.xml中配置的复杂sql语句，可以将orm设置为领域对象的名字(business name)，借用hbm.xml的映射。
-
- * 3. 与ShadowTableView一样，自动扩展出的表需要DBA手工创建，包括表结构索引等等。
+ * 3. As ShadowTableView, small tables should be created on your own. Guzz won't create that for you.
+ 
