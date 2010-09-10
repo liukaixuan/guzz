@@ -1,8 +1,8 @@
-== FileDynamicSQLServiceImpl服务 ==
+== FileDynamicSQLServiceImpl Service ==
 
-提供来自文件系统的动态SQL。文件为xml文件，文件名除去.xml后为SQL id，文件内容提供sql语句和OR映射。
-
-一个文件，一个SQL。xml格式类似于guzz.xml的sqlMap片段。例如: 
+ FileDynamicSQLServiceImpl provides dynamic sqls stored in file system. The file should be a xml file, and the sql id is the file name without the suffix of ".xml".
+ 
+ One xml file maps to a sql, containing both the sql statement and its OR-mapping. The content format is similar to guzz.xml's. For example:
 
 {{{
  <sqlMap dbgroup="default">
@@ -25,7 +25,7 @@
  </sqlMap> 
 }}}
 
- 或者，你也可以简单的将结果映射为一个Map：
+ Or, you can simply map the result to a Map:
 
 {{{
  <sqlMap dbgroup="default">
@@ -41,12 +41,13 @@
  </sqlMap> 
 }}}
 
- "dbgroup"属性指定sql在哪个数据库组执行。
+ "dbgroup": which database group this sql should be executed in?
 
- "orm"属性指定映射方式名称，可以是business name，guzz.xml中定义的全局orm名称，或是本文件中定义的orm。如果orm名称重名，优先使用本文件中定义的orm映射。
+ "orm": The OR-mapping name. It can be a business name, a global orm name defined in guzz.xml, or a orm defined in this file. The orm defined in this file will override the global one with the same name.
 
- "result-class"属性可以指定为一个任意的javaban对象或者java.util.Map接口的实现类。对于javabean对象，FileDynamicSQLServiceImpl将查询到的结果集根据列名称调用javabean的setxxx方法赋值；对于Map，FileDynamicSQLServiceImpl将查询到的结果集按照列名称（如果设置了orm属性，将列名称尽量转换为属性名称）和字段值，以key-value存储到Map中。定义时，result-class必须传入完整的类名。如：orm="java.util.Hashtable"
+ "result-class": The mapped java object returned to the user. It can be any javabean class, or a implementation of java.util.Map. For javabean class, FileDynamicSQLServiceImpl stores the ResultSet by setXXX() methods; for a Map, FileDynamicSQLServiceImpl stores it by put(key, value). If the "orm" attribute is set, the key of the Map would be the mapped property name. Example: orm="java.util.HashMap"
 
- "paramsMapping"属性设置SQL中的命名参数与属性的对应关系，用于帮助guzz确定参数的数据类型，用于自动将传入的String类型数据转换成需要的格式。paramsMapping为可选配置，如果没有则由JDBC按照setObject()设置参数，一般来说都需要开发者自己转换好数据再传入，否则会出错。建议所有SQL都配置paramsMapping。
+ "paramsMapping": Set the propNames that the parameters in the sql are binding for. This segment is optional, but important. It helps guzz to determine how to transform the passed parameters' values to their correct types JDBC required.
 
- "result"元素支持的属性有： property, column, type, loader, null；含义与guzz.xml中的定义相同。
+ "result": Map a java property with a column as in guzz.xml. The "result" here supports attributes: property, column, type, loader, null.
+ 

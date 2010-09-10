@@ -23,7 +23,7 @@
 
 == Attributes in tags: ==
  
- In all tags, if the attribute name is the same, the function is the same too. In all tags, the property name should be the property name of java pojo class, not column name in database if there is no explicit declarations.
+ In all tags, if the attribute name is the same, the function is the same too. In all tags, the property name should be the property name of java pojo class, not column name in database if there is no explicit declaration.
  
  -*Primary attributes:*
 
