@@ -1,5 +1,4 @@
 #labels Featured
-
 || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans 简体中文] ||
 
 == First Impression: ==
@@ -39,6 +38,14 @@ Guzz's features:
  * Object-oriented database JSP Taglib, fast view-layer's development, maintaining and deployment. (Building pages without writing java codes, very very fast!)
 
  * Support for Configuration System. Help you manage all configurations among different systems in a central system.
+
+= Things guzz won't do: =
+
+ * Create or update table structures.
+
+ * Synchronize data between different databases and different machines. 
+
+ * Support relationships between business classes such as one-one, one-many, many-many, and so on. Join, Union and other complex sqls can only be executed in ibatis's way.
 
 == Doc & Help ==
 
