@@ -4,7 +4,9 @@
 
 == First Impression ==
 
-Guzz is a data-layer framework. With guzz, you can split&store your tables among different database machines; you can add physic machines to improve database performance without changing a single line of code; you can split a big table into many small ones, and each small table can own its special columns for some applications like shopping site; you can store some columns in file system; you can refactor your public modules to Services; you can query databases through jsp taglib or velocity director; you can manage your applications' configurations in a central system; you can choose to persist a object in hibernat's way, or ibatis's direct sql; you can load sqls from other system and secure it. In a word, cool stuffs other frameworks havn't mentioned.
+Guzz is a data-layer framework, and have many unique features others havn't touched or mentioned.
+
+With guzz, you can split&store your tables among different database machines; add physic machines to improve database performance without changing a single line of code; you can split a big table into many small ones, and each small table can own its special columns for some applications like shopping site; you can store some columns in file system; you can refactor your public modules to Services; you can query databases through jsp taglib or velocity director; you can manage your applications' configurations in a central system; you can choose to persist a object in hibernat's way, or ibatis's direct sql; you can load sqls from other system and secure it. In a word, cool stuffs other frameworks havn't mentioned.
 
 = what is guzz? =
 
