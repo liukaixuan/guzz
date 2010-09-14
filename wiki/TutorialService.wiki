@@ -1,56 +1,58 @@
-== 服务介绍 ==
+== What is Service? ==
 
- 服务（Service）是guzz最重要的特性之一，用于帮助开发团队积累和重用代码。这种重用不仅仅是一些api的重用（类似apache commons包），而是更高层的功能模块的重用，类似于SOA。通过服务，团队或公司可以很快沉淀出通用的功能模块，并将其直接在新项目中使用，避免重复开发和重复维护。
+ Service is a concept borrowed from SOA, aimed to help your team accumulated and reuse modules and codes. Service is different from helper classes(, such as apache commons), it is in a higher level to reuse a whole business module, like Log Module or User Management Module. 
 
- 服务的主要设计目标是帮助缩短开发周期、提高项目代码质量、降低维护成本；而实现办法就是功能复用。
+ If you are familiar with SOA, you can consider Guzz Service as a more opened SOA. It only defines a interface and gives you a container, all other things, like protocols, has to be done by yourself. No WSDL, No Soap, everything relies on yourself. 
 
-== 服务实现 ==
+ With Service, projects can borrow similar modules from old ones very easily, and benefit from saving repeating developments.  
 
- 服务通过实现 org.guzz.Service 接口进行声明。在实现中，一般通过继承：
+== How to Write a Service? ==
+
+ To write a service, you just have to write a class implementing the interface of org.guzz.Service. To implement it, we suggest you extend it from:
 
 {{{
 org.guzz.service.AbstractService
 }}}
 
- 来实现。对于需要进行远程调用/异步执行的服务，可以通过继承：
+ If you service needs remote calls or some other asynchronous operations, you are suggested to inherit from:
 
 {{{
 org.guzz.service.AbstractRemoteService<ServiceReturnType>
 }}}
 
- 来实现。
+ It is based on JDK5+.
 
- 下面通过一个具体的例子说明服务如何编写和使用。
+ Now, Let's take a example to figure out how how to write, configure and run a service.
 
-== 反作弊服务 == 
+== Anti-Cheating Service == 
 
- 假设我们正在创建一个大型社区系统，为了防止用户刷屏需要设计反作弊模块。这个模块可能用于：限定一个IP 1分钟只能发10个论坛帖子，一个用户10分钟只能投2票，一个人的博客同一个IP 10秒钟内的访问只记录1次，新闻评论1个用户10分钟只能发8个评论……
+ Suppose we are developing a big SNS system. To avoid cheating, we need to design a module to prevent users flooding us. The module can be used in: Limit one user to post only 10 posts in the forum in 60 seconds; limit a IP address to vote 2 times in 10 minutes; limit the read count of a article in the blog system to update only once in 10 seconds for one IP; limit one user to post 8 comments in 10 minutes in the news system....
 
- 根据分析，虽然业务不同，但我们只需要设计一个接口检测一个标记是否超过了允许操作的次数就可以了。不同的系统可以以自己的要求去生成标记，如论坛以用户ID做标记防止刷屏，以帖子散列为标记去除重复的帖子，博客以IP为标记防止刷访问量等等。
+ These features looked different, but in Service level, they are the same. What we need is to check how many operations have been done for a MARK in a given period. Different systems can provide different marks and time periods, and operate on their own when flooding occurs.
 
-=== 设计接口： ===
+=== Design the Service: ===
 
- 基于此，我们设计如下接口：
+ Based on the requirements, we design the interface:
 
 {{{
 public interface FixedLifeCountService {
 	
 	/**
-	 * 如果增加计数后的值小于或等于最大允许值，增加计数，并返回true；否则不进行计数操作，并返回false。
+	 * Increment the count and return.
 	 * 
-	 * @param key 计数对象的唯一标识。
-	 * @param addCount 增加计数值。正数增加计数，负数减少计数值。如果为0，不更改计数值。
-	 * @param maxCountAllowed 最大允许计数到的值
-	 * @param maxLifeInSeconds 计数有效时间
-	 * @return 返回增加当前计数后，计数值是否超过最大允许值( > @param maxCountAllowed)。
+	 * @param key mark
+	 * @param addCount the count to add.
+	 * @param maxCountAllowed max count allowed.
+	 * @param maxLifeInSeconds time period to alive.
+	 * @return true: the total count for now is less that the max count allowed; false: bigger that max allowed.
 	 */
 	public boolean incCountIfLess(String key, int addCount, int maxCountAllowed, int maxLifeInSeconds) ;
 }
 }}}
 
-=== 实现服务： ===
+=== Implement the Service: ===
 
- 接口定义好了，我们开始将接口做成服务。我们对准确性要求比较高，所以做成服务器端计算的，用一个memcached保存计数。
+ We use memcached to cache the counts in the server side. Our implementation extended from AbstractService as suggested above:
 
 {{{
 import java.io.IOException;
@@ -69,8 +71,7 @@ public class MemcachedCountServiceClientImpl extends AbstractService implements 
 	public boolean incCountIfLess(String key, int addCount, int maxCountAllowed, int maxLifeInSeconds) {
 		String m_key = appName + key ;
 
-		//连接memcached，根据m_key查询已经记录了多少次，返回结果
-		//如果没有作弊嫌疑，向memcached中增加计数，用于下次使用。
+		//inc to memcached, and fetch the count for now from memcached.
 		int countNow = (int) client.incr(m_key, addCount, addCount , maxLifeInSeconds) ;
 		
 		return (maxCountAllowed >= countNow) ;
@@ -113,21 +114,23 @@ public class MemcachedCountServiceClientImpl extends AbstractService implements 
 }
 }}}
 
- 在本实现中，incCountIfLess是继承反作弊接口的实现，通过连接memcached计算key的值是否超出要求。
+ The AbstractService is a abstract class, it leaves some methods for you to finish.
 
- public boolean configure(ServiceConfig[] scs) 方法为配置方法，guzz允许对服务进行配置，并且一个服务可以配置多组（如slave数据库可以通过3个配置组配置3台）。在系统启动时，guzz调用此方法将配置信息注入服务实现中。本例中，我们将appName（应用系统的名称）注入，在实际使用时blog、bbs等配置不同的值，防止key在memcached中冲突。configure方法返回true表示配置成功，可以继续调用startup()启动服务；否则表示启动失败。
+ public boolean configure(ServiceConfig[] scs): Configure method, used to inject Configurations in guzz_app.properties by guzz. The passed parameter is a array, containing the configuration groups in the properties file. In this example, we retrieve appName and serverList items. The appName is the system's name to avoid key conflicting in memcached, and the serverList is the memcached servers' list. configure() method should return true if everything is fine.
+ 
+ public boolean isAvailable() Is the service available now?
 
- public boolean isAvailable() 返回服务是否可用。由应用自己设计用途自己使用。
+ public void shutdown() Shutdown the service, release any resources.
 
- public void shutdown() 在应用关闭时调用，释放资源。
+ public void startup() Start the service, called after configure(ServiceConfig[] scs) returning true.
 
- public void startup() 在configure(ServiceConfig[] scs) 返回true后调用，用于服务初始化自身某些资源。如在本例中初始化memcached连接池等。
+=== Configure the Service: ===
 
-=== 配置服务： ===
+ After writing and compiling the service, we pack it to jar file, and put the jar into the application' lib path. 
 
- 服务实现完成以后，需要将他配置到各个应用系统中去。首先将服务的代码打成jar包，放到各个系统的lib中。随后，以论坛为例，将服务暴露给论坛开发人员使用。
+ Take the forum system as a example, first we have to declare the service in guzz.xml. The service is declared by the tag {{{<service>}}}, and each {{{<service>}}} declared one service.
 
- 服务的配置在guzz.xml中通过标签{{{<service>}}}进行，可以配置无限多个。如我们的反作弊服务配置为：
+ For our anti-cheat service, the guzz.xml would become something like:
 
 {{{
 <guzz-configs>
@@ -143,14 +146,14 @@ public class MemcachedCountServiceClientImpl extends AbstractService implements 
 </guzz-configs>
 }}}
 
-{{{<service>}}}标签中需定义以下属性：
- name：服务名称，应用系统通过名称获取服务。
- configName：配置文件(.properties)中的配置组名称
- class：服务实现完整类名
+ The {{{<service>}}} tag has three attributes:
+ name: service name. We use the service name to retrieve the service in the application. Must be unique.
+ configName: The configuration group name in the configuration property file. Used to pass parameters to the Service.
+ class: full qualified class name of the implementation.
 
- 每个服务都可以有他自己的配置属性（记得上面说的appName？），guzz通过ConfigManager获取这些配置信息，如以上配置文件中的org.guzz.config.LocalFileConfigServer，通过读取本地文件bbs.properties获取服务配置信息。（ConfigManager可以自己实现，从统一的配置管理服务器读取配置。）
+ Every service can define its parameters(like appName and serverList in anti-cheat service), and the parameters are read and passed by the ConfigManager, such as org.guzz.config.LocalFileConfigServer in this example. ConfigManager is a interface, you can write it yourself. The default implementation is LocalFileConfigServer which reads a grouped properties file like bbs.properties, and shipped in guzz's core package.
 
- bbs.properties的格式类似于Mysql的配置文件，以[组名]进行分组。对于我们的服务，需要在bbs.properties中添加如下配置：
+ The format of bbs.properties is similar to Mysql's configuration file divided by [groupName]. To our service, you need to add a new group to bbs.properties:
 
 {{{
 [fundFixedLifeCountServiceClient]
@@ -158,7 +161,7 @@ appName=bbs
 serverList=localhost:11211
 }}}
 
- 与Mysql配置文件不同的时，配置组可以重复，以实现对一个服务配置多组。*假如*我们的这个服务需要传入3个appName，则可以配置成：
+ The group name must be the configName declared in guzz.xml. Unlike Mysql, bbs.properties allow duplicated config groups. For example, *if* we need to pass 3 appName(s) to our service, we can configure it as:
 
 {{{
 [fundFixedLifeCountServiceClient]
@@ -174,18 +177,18 @@ appName=bbs2
 serverList=localhost:11211
 
 }}}
+ 
+ In this situation, public boolean configure(ServiceConfig[] scs) will pass a array lengthen three. If you doesn't configure it at all, guzz will pass a zero-sized array.
 
- 对于这种配置，public boolean configure(ServiceConfig[] scs) 在执行时将传入长度为3的配置数组。如果不配置，传入长度为0的数组。
+=== Fetch & Use Service ===
 
-=== 获取与使用服务： ===
-
- 获取服务的方式有2种，通用的一种是通过GuzzContext获取。首先获取到GuzzContext对象，然后调用：
+ To fetch a service, what you need is to get the reference of GuzzContext, and call:
 
 {{{
 FixedLifeCountService fixedLifeCountService = (FixedLifeCountService) this.getGuzzContext().getService("fixedLifeCountService") ;
 }}}
 
- 另外一种模式是在spring中将服务设置为1个bean：
+ If you are using spring IOC, you can also export the service as a bean, and use the bean as the service in IOC style:
 
 {{{
     <!-- guzzframework -->
@@ -199,12 +202,10 @@ FixedLifeCountService fixedLifeCountService = (FixedLifeCountService) this.getGu
 
 }}}
 
- 然后通过IOC的ref引用注入给需要的类。
-
- 获取到服务后，便可以按照应用需要调用服务方法，如：
+ When you get the service, it is simply a normal java interface, call its method(s) you need:
 
 {{{
 If(!fixedLifeCountService.incCountIfLess(userId, 1,10, 600)){
-	throw new Exception(“别刷屏！”) ;
+	throw new Exception("Have a little rest, please!") ;
 }
 }}}
