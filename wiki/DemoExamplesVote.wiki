@@ -1,36 +1,35 @@
-== 例子1：投票系统 ==
+== Example 1: Vote System ==
 
-本例子为一套投票系统，采用spring + springMVC + guzz + mysql + 基础组件（基础服务）实现。
+This sample project is a vote system, based on spring IOC + springMVC + guzz + mysql + fundamental services.
 
-在数据库层采用2组Mysql数据库，第一组用来运行投票主业务数据，第二组用来运行临时数据以及投票日志。对于投票日志，预留出增加第三组数据库的设计，可以随时更换到第三组数据库上。
+Vote System uses 2 Mysql database groups in the data-layer. The first group is the main database, and the second group is used to store temporary data and logs. For the log, we can switch to a third database when needed.
 
-此例子同时演示了对基础服务的使用，在例子中使用“基础平台”的3项服务：IP反查，缓存，以及统一后台用户服务。
+This sample also showed you how to use (fundamental) services. There are three services involved in, IP to location, anti-cheating service, and admin user service.
 
-此例子还演示了guzz自带的slowupdate/slowupdateServer, log，以及Debug三项服务的使用。
+Guzz's core services slowupdate/slowupdateServer, log，and debug service are also used.
 
-本例子没有演示通过guzz.xml配置sql查询与映射。
+*Download the source：*[http://guzz.googlecode.com/files/GuzzVote.zip http://guzz.googlecode.com/files/GuzzVote.zip]
 
-*下载地址：*[http://guzz.googlecode.com/files/GuzzVote.zip http://guzz.googlecode.com/files/GuzzVote.zip]
+The downloaded zip file is extracted to be a MyEclipse project, and import it directly. doc/vote.sql in the project is used to create the two databases.
 
-下载后的代码为MyEclipse工程，可以直接导入。工程的doc/vote.sql 为数据库创建脚本，创建2组数据库和相应的表结构。
-
-创建完成后，修改/WEB-INF/bigVote.properties文件中相应的数据库连接参数【连接中使用c3p0和dbcp两套连接池】。
+After creating the databases and tables, edit /WEB-INF/bigVote.properties to modify database connections parameters(We use both c3po and dbcp connection pools in this example).
 
 {{{
-注意：此properties文件 不 要使用 MyEclipse Properties Editor 打开，MyEclipse Properties Editor会错误的合并参数项。可以使用Eclipse自带的Properties Editor。
+Warning: Don't open the bigVote.properties with the default "MyEclipse Properties Editor"! It will combine parameters and cause problems.
 
-使用Properties Editor的打开方式：选择文件 -> 右键 -> Open With -> Properties File Editor
+Choose the bigVote.properties -> Right Click -> Open With -> Properties File Editor
 }}}
 
-服务启动后的演示服务地址：/console/login.jsp
+After startup, visit：/console/login.jsp
 
 == java.sql.SQLException: No suitable driver ==
 
-如果您在运行时出现了以下错误：
+If you encounter this error:
 
 {{{
 06:38:33,156 WARN  [BasicResourcePool] com.mchange.v2.resourcepool.BasicResourcePool$AcquireTask@1e146ca
- -- Acquisition Attempt Failed!!! Clearing pending acquires. While trying to acquire a needed new resource, we failed to succeed more than the maximum number of allowed acquisition attempts (30). 
+ -- Acquisition Attempt Failed!!! Clearing pending acquires. 
+ While trying to acquire a needed new resource, we failed to succeed more than the maximum number of allowed acquisition attempts (30). 
  Last acquisition attempt exception: 
 java.sql.SQLException: No suitable driver
  at java.sql.DriverManager.getDriver(DriverManager.java:243)
@@ -39,6 +38,7 @@ java.sql.SQLException: No suitable driver
  .....
 }}}
 
-重新从压缩包中取出bigVote.properties文件放入工程，用普通的Properties File Editor打开编辑。
+extract the bigVote.properties from the zip file, put it into the project again, and edit that file by a normal "Properties File Editor".
 
-千万不要使用MyEclipse默认的高级Properties编辑器。出现这个错误的原因就是MyEclipse的高级编辑器自动合并了“重复的配置项”。由于我们的properties存在分组，名称相同的配置项是不能合并的。
+The default properties editor in MyEclipse is too advanced to achieve this job.
+
