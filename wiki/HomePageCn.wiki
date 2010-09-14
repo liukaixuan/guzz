@@ -1,0 +1,107 @@
+
+|| [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [HomePageCn 简体中文] ||
+
+= what is guzz? =
+
+guzz是一套用来进行快速开发和高性能网站设计的框架，通过ORM、多数据源数据管理、切表、以及通用数据处理，为系统在数据层的设计提供一站式解决方案。用于替代或者补充hibernate或ibatis，并提供更多的大型系统架构设计支持。
+
+*简单来说*，guzz让你可以将系统中的每张表存储到不同机器的不同数据库中；当某些表的读取频率较高时，可以随时进行主从分离，扩展N台读数据库；当某些表增长较大时，可以将大表分切成无数张小表，如果需要还允许每张小表有拥有自己的特殊字段。编程时，像hibernate一样简单的通过领域对象来操作分布复杂的应用数据和多库之间的分布式事务。
+
+guzz的目标是使得大型化网站设计更加简单，团队分工更加明确，框架在使用时更少出问题。主要功能：
+ * 现代大规模系统设计，技术上吸收了ibatis/hibernate的优点
+
+ * 支持像hibernate一样的对象持久，映射和方便的增删改查
+
+ * 支持像ibatis一样，让dba参与sql设计的复杂数据库操作和优化
+
+ * 支持在线加载与调试SQL。按照应用策略，从文件/数据库/Web Service等途径，动态提取与使用SQL语句（Dynamic SQL）。
+
+ * 支持应用使用大量的数据库和主从读写分离
+
+ * 支持数据表在多组机器中水平分布（Shard），并自动维护多组机器之间的分布式事务
+
+ * 支持1张表按照业务规则分切成多张小表（Shadow），并支持每张小表拥有自己特殊的属性字段（Custom）。
+
+ * 支持超越范式的特殊关联、非结构化数据等异构资源POJO模式的统一管理
+
+ * 支持组件化服务（SOA），构建企业/项目实施基础平台
+
+ * 提供面向对象的数据库读取标签(JSP Taglib)，加快页面展示层的快速变更、开发与部署
+
+ * 支持配置管理服务器，可以使用一套软件系统对所有应用系统的配置项进行统一管理
+
+= 功能设计理念 =
+
+*ORM：*guzz的ORM功能参考ibatis和hibernate的设计而来，同时具备ibatis的复杂查询在xml中配置以及简单的CRUD类似hibernate全部对象化管理的特点，适用于大部分数据库操作比较简单（关心进度和技术门槛），而某些性能攸关 sql需要单独维护和调优的项目（关心性能）。
+
+*多数据源管理*：多数据源管理是指guzz可以同时管理多组数据库，在执行查询时根据要查询的对象，自动分配到正确的数据库机器组执行查询操作。每一组可能包含主从，guzz自动分配主从库的操作。这样做到的效果是：在数据库设计时表的存储位置和主从设计完全对开发人员透明；并在以后需要扩展时，可以按照表将数据库分散到多组机器上，并行扩展。
+
+多数据源管理还包括对异构数据的统一管理，如一些对象的某些属性并不保存在数据库里，如基于某种考虑需要先验证在读取或先查缓存再读数据库等。对于这种另类的方式，往往开发人员都是遇到一个特殊代码处理一个，非常混乱；而guzz可以通过自定义属性加载进行统一管理，在普通开发人员看来，并不需要了解数据的具体存储和读取过程。使用这些异构来源数据，就像使用普通的pojo一样简单。这类场景尤其适合于后台开发与前端页面设计分离的开发团队，对前端提供的接口越简单越统一，实施成本就越低（如产品部门与实施团队），对后端产品的侵入也越低。
+
+*通用数据处理：*guzz将某些通用的数据和处理模型定义为服务（Service），如用户登录与认证、 Session 管理、IP地址到地理位置的映射、通过字符获取验证码图片等。这些服务包括数据和数据的运算处理，这些数据和数据运算guzz当作一类特殊的数据进行管理，用于多个项目之间实现共享。这些服务合在一起可以构成企业或项目的基础平台，越积累越多，guzz通过对这些服务的重复利用大幅度降低重复开发成本。
+
+*Guzz JSP Taglib：*为了使java web开发更加灵活，像php一样方便变更，guzz引入了面向对象数据库标签。面向对象数据库主要用于快速开发与快速变更，并解决产品落地实施难题。
+
+根据经验，在中国肯花钱购买的项目一般都会要求定制。在定制过程中，一般后台功能和内部流程是不变的，往往需要变化的就是页面；例如论坛列表页面要求增加一个公告，要求显示出好友列表，要求把用户A（总裁）的帖子自动放在第1条，等等。对于这些变化，基于传统的MVC架构，需要先修改manager提供接口获取数据，在修改Action提取数据，在修改jsp显示数据，从上往下代码修改无一幸免。如果是一套产品，有几个项目实施下来，产品核心会越来越小，项目间代码相互冲突，管理越来越困难，而产品团队基本上也都全部下放到了项目实施团队（java底层代码实施团队往往不愿意碰）。基于guzz的标签，这类页面定制实施问题就可以迎刃而解了；只要产品团队提供出领域对象模式，实施人员便可以自己按照客户需求完成数据提取与展示。
+
+*综述：*guzz并不仅仅是提供一种ORM映射，而是提供一套完整的数据层架构，用于解决项目中可能遇到的各种数据类型和数据处理策略，统一数据接口，简化项目架构设计。guzz提供的可配置的多数据源管理方式，一般大型系统都有自己的实现策略；guzz抽象出这些，对于新项目就不用再摸索了，尤其是多数据库组和主从分离完全可以为系统提供面相未来的支持。
+
+*更多介绍与使用文档参看wiki：* http://code.google.com/p/guzz/wiki/WikiHomePage?tm=6&wl=en
+
+= roadmap =
+
+*下一版本1.2.9 开发计划：*
+ # something
+
+*release note*:
+
+1.2.8 beta2:
+ # support dynamic sql(say: Before this you define sqls in ibatis's config file; and from now, you can define sqls in anywhere(eg: database), and put the new sqls online dynamically.).
+ # support 2 new rpc protocols: hessian, burlap.
+ # support JDK5's enum.
+ # allow pass a parameter to enum and date/time related data types.
+ # support escape character `````` for column name.
+
+1.2.8 beta1:
+ # limited(but enough for guzz) JPA annotation support.
+ # add a new Id generator hilo-multi.
+ # add byte data type support.
+ # fix a bug in "hilo" id generator.
+	
+1.2.7 final build20100406:
+ # fix a few bugs
+	
+1.2.7 rc2:
+ # fix bug: fail to shut down the connection pool when guzz closed.
+ # new: add long data type support as bigint
+ # improvement: others
+	
+1.2.7 rc1:
+ # fix bug: guzz taglib doesn't support custom property in limit
+ # improvement: move IDataTypeHandler to common package.
+ # improvement: call setExtendedBeanFactory after spring's full starting.
+
+1.2.7 beta4:
+ # add support for id generator: hilo, seqhilo
+ # change default sequence name from guzzSeq to guzz_sequence
+ # add support for Service/ShadowTableView/CustomTableView/ColumnDataLoader to fetch outside reference(eg: spring ApplicationContext).
+ # change guzz with spring's integrate configurations.
+
+1.2.7 beta3:
+ # custom table support.
+ # fix bug: ReadonlySession.refresh() should throw a exception if the record doesn't exsit, but not.
+
+1.2.7 beta2:
+ # 完成表分切支持。允许同一对象按照业务规则，分别存储在不同的表中。如新闻评论：新闻频道的评论存放在 tb_c1，娱乐：tb_c2，体育tb_c3，其他：tb_c4，满足同类在线数据的数据表平行扩展需要。表分切技术命名为：Shadow Table
+ # 支持远程服务未来读取结果功能。用于支持多个远程服务可以同步的调用。
+
+1.2.7 beta1:
+ # draft
+
+1.2.6：
+
+ # support clob/blob/decimal/byte data type
+ # new api for writing with upgrade lock
+ # supply new custom loaders for clob and blob
+
+....
