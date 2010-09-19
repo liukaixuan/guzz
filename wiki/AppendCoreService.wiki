@@ -1,23 +1,23 @@
-== 概述 ==
+== Introduction ==
 
- guzz自身携带了一些常用的服务，供项目方便使用。主要有：调试信息服务，动态SQL服务，计数器更新队列服务以及日志队列服务。
+ Guzz distributes itself with some common used services built in to avoid recoding. In 1.2.8 and later, you will find 5 services in the jar: Debug service, Dynamic SQL Service, Count update queue service(client and server), and insert queue service. You can use it directly in your project.
 
-== 1. 调试信息服务： ==
+== 1. Debug Service: ==
 
-*用途：*用于打开或者关闭数据库输出日志，设置系统运行级别。
+*purpose:* Turn on/off the output of executed sqls. Set system run level.
 
-*接口：*org.guzz.service.core.DebugService
+*Interface:* org.guzz.service.core.DebugService
 
-*服务注册名称：*guzzDebug
+*Service name:* guzzDebug
 
-*guzz内部使用范围：*
+*Used inside guzz:*
 
- * 1. guzz在执行数据库操作时，将所有使用的sql语句以及参数传递给debugService进行输出记录。
- * 2. guzz.xml中进行数据库定义时（dbgroup），在debug模式下允许填写的masterDBConfigName或slaveDBConfigName在properties文件中不存在；而在production模式下不允许。
+ * 1. guzz will pass all sqls and their parameters to debugService. The built-in debugService will output the sqls and parameters by your configurations.
+ * 2. When defining database groups in guzz.xml(dbgroup), you can miss configurations in the properties file for masterDBConfigName and slaveDBConfigName in "debug" run level. But in "production" run level, guzz will raise a exception.
 
-*配置加载方法：*不需要配置，guzz启动时自动加载。应用可以通过配置名称为guzzDebug的服务覆盖默认实现。
+*Declare Service:* Not required. Guzz will load it on startup. The application can override the default implementation by declaring a service named guzzDebug.
 
-*服务参数（properties文件定义）：* 
+*Service Parameters(configure in properties file):* 
 
 {{{
 [guzzDebug]
@@ -40,33 +40,34 @@ ignoreDemonThreadSQL=true
 
 }}}
 
-配置参数名称必须为guzzDebug
+The configuration group name must be guzzDebug.
 
-== 2. 动态SQL服务： ==
+== 2. Dynamic SQL Service: ==
 
-*用途：*根据id，动态的加载并执行配置的sql语句。guzz允许在guzz.xml中配置sql和sql映射，按照id执行，类似于ibatis；但这种方式不支持sql的变化，一旦需要修改sql或者添加新的sql，必须重启应用方可生效。动态SQL服务即用来解决此问题，他允许应用自己定义sql和sql映射的来源（如存储在数据库中），并可以按照应用自身的需要动态调整sql，无法重启。动态SQL服务主要有两种应用场景：
- * 1. 动态的调试SQL。当发现某些SQL存在性能隐患时，用新优化的SQL在线替换旧的SQL语句，无需重启系统完成升级。
- * 2. 提供动态数据源。当系统添加新功能时，动态配置增加1条新的sql语句和映射，通过一个统一的servelt按照页面传入的id，参数，分页信息等完成查询并将结果转为json/xml返给调用者处理（如AJAX前端页面），避免后台开发和部署。
- 
-*接口：*org.guzz.service.core.DynamicSQLService
+*purpose:* Load sql by id dynamically. Guzz allows you to configure your sqls in guzz.xml, and use it by id as ibatis does. But, when you need to change or add a sql, you have to modify the guzz.xml, and restart the whole application to take effects. With DynamicSQLService, you can define your own sql-source, change and load the sqls by yourself in a online system, without any restarts. Dynamic SQL is a good choice for:
+ * 1. Tune Performance. Replace a old sql with a new one without restarting.
+ * 2. Dynamic data source. When a new feature is required, add a new sql and its mapping online, then you can query the data by a id, parameters for the sql and pagination through a common servlet(the servlet just has to pass querying to guzz with the passed id and parameters), and return the queried results in json or xml. Then, what you need to do is just to write a ajax script and build your pages.
 
-*服务注册名称：*guzzDynamicSQL
+*Interface:* org.guzz.service.core.DynamicSQLService
 
-*guzz内部使用范围：*
+*Service name:* guzzDynamicSQL
 
- * 1. guzz按id执行sql时，通过DynamicSQLService服务查询需要执行的sql语句。
+*Used inside guzz:*
 
-*配置加载方法：* 配置1个名称为“guzzDynamicSQL”并且实现了org.guzz.service.core.DynamicSQLService接口的服务到guzz中。
+ * 1. Guzz query DynamicSQLService for a sql by id when executing sqls by id.
 
-*guzz默认实现：* guzz默认实现了1个基于文件系统的动态sql服务，每个xml文件包含1个sql及其映射，文件名除去.xml后为其id。
- 
- 配置方法：
-  在guzz.xml中声明：
+*Declare Service:* Configure a service implements org.guzz.service.core.DynamicSQLService with the service name of guzzDynamicSQL.
+
+*Default Implementation in guzz:* guzz distributes a default DynamicSQLService based on file system. Each xml file contains a sql and its mapping, and the sql id is the file name without the suffix of ".xml".
+
+ How to configure?
+
+ Declare in guzz.xml:
  {{{
  <service name="guzzDynamicSQL" configName="guzzDynamicSQL" class="org.guzz.service.core.impl.FileDynamicSQLServiceImpl" />
  }}}
 
- 在properties文件中配置参数：
+ and add configurations in the properties file:
 
  {{{
  [guzzDynamicSQL]
@@ -79,36 +80,36 @@ ignoreDemonThreadSQL=true
  #When both this service and the guzz.xml have defined a sql for a same id, which one takes a priority? true: use sql from this service. false: use sql in the guzz.xml.
  overrideSqlInGuzzXML=false
 
- #cache the parsed sql in memory util the file changed?
+ #cache the parsed sql in memory until the file changed?
  useCache=true
  }}}
 
-注意，服务的名称必须为：guzzDynamicSQL
+Notes: the service name must be: guzzDynamicSQL
 
-== 3. 计数器更新队列服务（客户端）： ==
+== 3. Count update queue service(Client): ==
 
-*用途：* 将按照主键进行字段增加或减少的计数sql操作，通过队列写入临时表。同时另外一个后台线程读取临时表数据，合并对同一条记录的操作，再写回主库进行更新操作。一般用于处理大型网站计数操作的数据库性能瓶颈。本服务为客户端，完成写入到临时表部分的操作。
+*purpose:* Log operations for increment or decrement a count number column by primary key to a temporary table. In the meantime, a demon thread reads operations from the temporary table, combines operations for the a record, and updates back to the main table. This service is usually used in a big site to handle the count updating bottle-neck of database. This service is the client side, and handles the part of writing to a temporary table.
 
-*接口：*org.guzz.service.core.SlowUpdateService
+*Interface:* org.guzz.service.core.SlowUpdateService
 
-*注册服务名称：*guzzSlowUpdate
+*Service name:* guzzSlowUpdate
 
-*guzz内部使用范围：*
- * 1. guzz taglib的 g:inc 标签进行计数器更新时，实际上都转入此服务执行。如果此服务没有配置，g:inc标签无法使用。
+*Used inside guzz:*
+ * 1. g:inc taglib uses this service to do count updating. If this service is not available, g:inc won't work!
 
-guzz实现了2个版本的计数器更新，一个用于处理要更新对象很多的场景（如twitter消息阅读次数），一个用于处理要更新对象很少但更新非常频繁的场景（如twitter上超级明星消息阅读次数），默认是前者。
+Guzz ships with 2 versions of the client implementations. If you have many objects to update, such as message's readCount in twitter, use the first one; If you have less objects to update, but they would be updated very very frequent, like super star's visit count in twitter, use the later one.
 
-*前者配置方法：*
-
- guzz.xml：service不需要配置，默认启动。对临时表映射需要增加一行配置：
+*Declare Service For the first one:* The first one is declared in guzz by default. But you have to add a business declaration in guzz.xml:
 
 {{{
 <business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:xxx/IncUpdateBusiness.hbm.xml" />
 }}}
 
- IncUpdateBusiness.hbm.xml存储在org.guzz.service.core.impl中，需要复制到应用可以找到的目录下。临时表的sql创建语句在IncUpdateBusiness.hbm.xml注释中可以找到，表需要用户自己创建。
+ IncUpdateBusiness.hbm.xml is stored under org.guzz.service.core.impl in guzz's jar file. You need to copy it to somewhere guzz can load, and create the corresponding table with the sqls provided inside IncUpdateBusiness.hbm.xml.
 
- properties文件：
+ IncUpdateBusiness holds the counting operations, and will be stored in the temporary table.
+
+ And you also have to add the configuration parameters for the service in the properties file:
 
 {{{
 [guzzSlowUpdate]
@@ -119,9 +120,7 @@ queueSize=20480
 batchSize=2048
 }}}
 
- 内部工作原理：根据参数queueSize创建一个数组，所有更新操作，记录到数组的1个位置。后台1个线程重复轮询数组，将操作按照所影响数据库的行进行合并，创建批操作，根据batchSize大小将合并后的更新操作写入临时表。执行成功后，将涉及到的数组元素清空，供下次使用。所有操作，没有锁处理。因此，如果queueSize比较小，而计数非常频繁，会出现数组元素被覆盖，计数器漏记。
-
-*后者配置方法：*
+*Declare Service For the later one:*
 
  guzz.xml：
 
@@ -131,63 +130,61 @@ batchSize=2048
 <business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:xxx/IncUpdateBusiness.hbm.xml" />
 }}}
 
- 用同名的服务，覆盖默认实现。（应用也可以自己实现此服务接口，覆盖guzz提供的实现）
+ Override the default one with the same service name. (You can also write your own implementation, and override the default)
 
- properties文件：
+ properties file:
 
 {{{
 [guzzSuperSlowUpdate]
 #batch size for updating to the temporary database.
 batchSize=2048
 
-#how many milseconds to wait when there is no new updates available.
+#how many millseconds to wait when there is no new updates available.
 updateInterval=500
-}}}
+}}} 
 
- 内部工作原理：创建1个Map，每次对1个新行的更新都都记录到Map中，如果是对同一行记录的更新，将Map中计数更新（合并更新操作）。后台有1个线程，轮询Map，将Map中记录到的更新操作按照batchSize创建批操作写入临时表，并将计数设置为0（已经完成数据库更新）；如果元素计数为0，表示从上次入库到现在没有新的更新，判定此元素不再活跃，从Map中删除。如果1次轮询，没有任何需要更新的记录，线程等待updateInterval毫秒后执行。
+*Java API to call the service:*
 
-*调用（接口）方法1：*
-
- 1. 获取配置的guzzSlowUpdate服务，服务的接口类型为：org.guzz.service.core.SlowUpdateService
+ 1. Fetch guzzSlowUpdate service. The service's java interface is: org.guzz.service.core.SlowUpdateService
  
- 2. 调用接口的方法进行更新操作，接口定义如下：
+ 2. Call its methods.
  
 {{{
 public interface SlowUpdateService {
 	
 	/**
-	 * 更新一个计数。
+	 * update a count. Used inside.
 	 * 
-	 * @param dbGroup 要更新的数据库表所在的数据库组
-	 * @param tableName 要更新的数据库表名
-	 * @param columnToUpdate 要更新的字段
-	 * @param pkColName 对象的主键字段名称
-	 * @param pkValue 对象的主键值
-	 * @param countToInc
+	 * @param dbGroup dbgroup to update
+	 * @param tableName table name to update
+	 * @param columnToUpdate column name to update
+	 * @param pkColName primary column name of the table to be updated
+	 * @param pkValue primary key
+	 * @param countToInc count to inc
 	 */
 	public void updateCount(String dbGroup, String tableName, String columnToUpdate, String pkColName, Serializable pkValue, int countToInc) ;
 	
 	
 	/**
-	 * 更新一个计数。
+	 * update a count.
 	 * 
-	 * @param businessName 要更新的域对象
-	 * @param tableCondition shaodow table分表条件
-	 * @param propToUpdate 要更新的属性名称
-	 * @param pkValue 要更新对象的主键值
-	 * @param countToInc
+	 * @param businessName business name
+	 * @param tableCondition shadow table. Pass null if shadow is not used.
+	 * @param propToUpdate the java property name to be updated.
+	 * @param pkValue the primary property value.
+	 * @param countToInc count to inc
 	 */
 	public void updateCount(String businessName, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc) ;
 	
 	
 	/**
-	 * 更新一个计数。
+	 * update a count.
 	 * 
-	 * @param domainClass 要更新的域对象类
-	 * @param tableCondition shaodow table分表条件
-	 * @param propToUpdate 要更新的属性名称
-	 * @param pkValue 要更新对象的主键值
-	 * @param countToInc
+	 * @param domainClass business domain class
+	 * @param tableCondition shadow table. Pass null if shadow is not used.
+	 * @param propToUpdate the java property name to be updated.
+	 * @param pkValue the primary property value.
+	 * @param countToInc count to inc
 	 */
 	public void updateCount(Class domainClass, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc) ;
 
@@ -195,11 +192,11 @@ public interface SlowUpdateService {
 
 }}}
  
-*调用（接口）方法2：*
+*Taglib API: *
 
- 使用g:inc标签进行计数更新，则自动使用此服务。
+ Use g:inc taglib to do the updating in the JSP file.
 
-== 4. 计数器更新队列服务（服务器端）： ==
+== 4. Count update queue service(Server-side): ==
 
 *用途：* 完成从临时表到主库的更新操作。此服务1个临时表只允许1个实例运行，不支持集群，但可以和客户端服务同时运行。
 
