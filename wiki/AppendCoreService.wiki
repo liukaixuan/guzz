@@ -17,7 +17,7 @@
 
 *Declare Service:* Not required. Guzz will load it on startup. The application can override the default implementation by declaring a service named guzzDebug.
 
-*Service Parameters(configure in properties file):* 
+*Service Parameters(configured in properties file):* 
 
 {{{
 [guzzDebug]
@@ -198,71 +198,64 @@ public interface SlowUpdateService {
 
 == 4. Count update queue service(Server-side): ==
 
-*用途：* 完成从临时表到主库的更新操作。此服务1个临时表只允许1个实例运行，不支持集群，但可以和客户端服务同时运行。
+*purpose:* Transfer the operations in the temporary table to the main database. One instance for one temporary table, cluster is not supported.
 
-*接口：*org.guzz.service.db.SlowUpdateServer
+*Interface:* org.guzz.service.db.SlowUpdateServer
 
-*注册服务名称：* 自定义，推荐slowUpdateServer
+*Service name:* Anything you like. slowUpdateServer is suggested.
 
-*guzz内部使用范围：* 内部不使用
+*Used inside guzz:* Guzz won't use it inside the framework.
 
-*配置方法：*
-
- guzz.xml：
+*Declare Service:* Declare in guzz.xml:
 
 {{{
 <service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
 }}}
 
- properties文件：
+*Service Parameters(configured in properties file):* 
 
 {{{
 [guzzSlowUpdateServer]
 #batch size for updating the main database
 batchSize=50
 
-#page size for reading from the temp table
+#page size for reading from the temporary table
 pageSize=40
 
-#how many pages to read from the temp table for one loop updating
+#how many pages to read from the temporary table for one loop updating
 combinePageCount=10
 
 #millseconds to wait for the next round of updates checking
 updateInterval=500
 }}}
 
-*内部工作原理：* slowUpdateServer一次从临时表读取pageSize*combinePageCount条记录，进行一次sql更新合并，然后按照batchSize创建批处理写入到主库中。
+*Mechanism:* slowUpdateServer reads pageSize*combinePageCount records from the temporary table, combines operations for the same records, and updates the main database in a sql batch operation. The batch size is batchSize.
 
-*提示：* slowUpdateServer需要在guzz.xml中和properties文件中都配置时才会启动。一般我们将slowUpdate和slowUpdateServer一起配置到guzz.xml中，但只在其中1台机器上配置slowUpdateServer的properties参数，以保证只有1台机器启动后台同步服务（将临时表更新到主库中）。这样开发与生产系统中的guzz.xml都可以保持一份，每台机器唯一需要额外处理的就是properties参数文件。
+*Tip 1:* slowUpdateServer can only be started when both the declaration in guzz.xml and parameters in properties file are exist. Usually, we declare slowUpdate and slowUpdateServer services in guzz.xml, but only one machine declares slowUpdateServer's configurations, to keep the consist of the guzz.xml and only one instance of slowUpdateServer is started. This is a small trick.
 
-*提示2：* 计数sql合并的效果可以通过在log4j.properties中增加一行：
+*Tip 2:* You can turn on the log to watch out the effects of operation combining. Add a line in your log4j.properties:
 
 {{{
 log4j.logger.org.guzz.service.db.impl=debug
 }}}
+ 
+== 5. Insert Queue Service(We also call it Log Service): ==
 
- 来观察输出。
+*purpose:* Write objects into a queue in the JVM, and another demon thread inserts the queued objects into the database.
 
-== 5. 日志队列服务： ==
+*Interface:* org.guzz.service.log.LogService
 
-*用途：* 将1个对象写入队列，另外1个后台线程将队列中的元素写入到数据库中。用于应用处理不太重要但又可能影响性能的数据库写操作。
+*Service name:* Anything you like. logService is suggested.
 
-*接口：*org.guzz.service.log.LogService
+*Used inside guzz:* Guzz won't use it inside the framework.
 
-*注册服务名称：* 自定义，推荐logService
-
-*guzz内部使用范围：* 内部不使用
-
-*配置方法：*
-
- guzz.xml：
+*Declare Service:* Declare in guzz.xml:
 
 {{{
 <service name="logService" configName="guzzDBLogServiceClient" class="org.guzz.service.log.impl.DBLogServiceImpl" />
-
 }}}
 
- properties文件：
+*Service Parameters(configured in properties file):* 
 
 {{{
 [guzzDBLogServiceClient]
@@ -273,5 +266,7 @@ commitSize=2048
 queueSize=20480
 }}}
 
-*内部工作原理：* 与默认的slowUpdate服务相同。唯一不同的是logService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。logService处理的对象一般是应用系统自己定义的对象。
+*Mechanism:* This service created an array sized of queueSize. All objects inserted are stored in this array in a cycle mode. The demon thread open a not-auto-commit connection, check the array, and insert the queued objects into the main database, and commit it. Each time, the demon thread commit at most commitSize objects.
+
+*Tips:* You can insert different business objects into the LogService at the same time.
  
