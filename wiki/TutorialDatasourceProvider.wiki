@@ -69,9 +69,9 @@ guzz.maxLoad=xxx
 
 === step 1, write the code: ===
 
- In guzz, connection pool is managed by the DataSourceProvicer. To write a new provider, you just have to implement the DataSourceProvicer interface.
+ In guzz, connection pool is managed by the DataSourceProvider. To write a new provider, you just have to implement the DataSourceProvider interface.
 
- DataSourceProvicer:
+ DataSourceProvider:
 
 {{{
 package org.guzz.connection;
@@ -79,7 +79,7 @@ package org.guzz.connection;
 import java.util.Properties;
 import javax.sql.DataSource;
 
-public interface DataSourceProvicer {
+public interface DataSourceProvider {
 	
 	/**
 	 * init or re-config the underly datasource.
@@ -107,8 +107,8 @@ public interface DataSourceProvicer {
  For example, the Apache DBCP connection pool provider is simply:
 
 {{{
-public class DBCPDataSourceProvicer implements DataSourceProvicer{
-	private static transient final Log log = LogFactory.getLog(DBCPDataSourceProvicer.class) ;
+public class DBCPDataSourceProvider implements DataSourceProvider{
+	private static transient final Log log = LogFactory.getLog(DBCPDataSourceProvider.class) ;
 	BasicDataSource dataSource = null ;
 	
 	public void configure(Properties props, int maxLoad){
@@ -175,5 +175,5 @@ public class DBCPDataSourceProvicer implements DataSourceProvicer{
  This is simple. You just have to set the item "pool" to the full qualified class name of your implementation. For example:
 
 {{{
-pool=org.guzz.connection.DBCPDataSourceProvicer
+pool=org.guzz.connection.DBCPDataSourceProvider
 }}}
