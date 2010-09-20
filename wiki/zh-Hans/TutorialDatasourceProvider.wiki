@@ -35,7 +35,7 @@ guzz.maxLoad=30
 pool=dbcp
 
 driverClassName=com.mysql.jdbc.Driver
-url=jdbc:mysql://localhost:3306/log?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true&amp;cachePrepStmts=truee&amp;prepStmtCacheSize=4096&amp;prepStmtCacheSqlLimit=4096&amp;rewriteBatchedStatements=true
+url=jdbc:mysql://localhost:3306/log?useUnicode=true&amp;characterEncoding=UTF-8
 username=log
 password=log
 initialSize=10
@@ -69,7 +69,7 @@ guzz.maxLoad=xxx
 
 === 代码实现 ===
 
- guzz在使用连接池时，通过DataSourceProvicer进行初始化和引用。自定义连接池需要实现此接口。DataSourceProvicer定义如下：
+ guzz在使用连接池时，通过DataSourceProvider进行初始化和引用。自定义连接池需要实现此接口。DataSourceProvider定义如下：
 
 {{{
 package org.guzz.connection;
@@ -77,7 +77,7 @@ package org.guzz.connection;
 import java.util.Properties;
 import javax.sql.DataSource;
 
-public interface DataSourceProvicer {
+public interface DataSourceProvider {
 	
 	/**
 	 * init or re-config the underly datasource.
@@ -105,8 +105,8 @@ public interface DataSourceProvicer {
  例如guzz DBCP连接池的实现：
 
 {{{
-public class DBCPDataSourceProvicer implements DataSourceProvicer{
-	private static transient final Log log = LogFactory.getLog(DBCPDataSourceProvicer.class) ;
+public class DBCPDataSourceProvider implements DataSourceProvider{
+	private static transient final Log log = LogFactory.getLog(DBCPDataSourceProvider.class) ;
 	BasicDataSource dataSource = null ;
 	
 	public void configure(Properties props, int maxLoad){
@@ -173,5 +173,5 @@ public class DBCPDataSourceProvicer implements DataSourceProvicer{
  将配置参数pool设置为自定义连接池实现的完整类名即可。如：
 
 {{{
-pool=org.guzz.connection.DBCPDataSourceProvicer
+pool=org.guzz.connection.DBCPDataSourceProvider
 }}}

@@ -396,11 +396,11 @@ public class Employee implements Serializable {
 
 Not supported.
 
-For to java.sql.Timestamp, use  @org.guzz.annotations.Column, and set type to "datetime" .
+For the java.sql.Timestamp, use @org.guzz.annotations.Column, and set type to "datetime" .
 
-For to java.sql.Date, use @org.guzz.annotations.Column, and set type to  "date" .
+For the java.sql.Date, use @org.guzz.annotations.Column, and set type to  "date" .
 
-For to java.sql.Time, use  @org.guzz.annotations.Column, and set type to "time" .
+For the java.sql.Time, use @org.guzz.annotations.Column, and set type to "time" .
 
 ===  @Transient ===
 
