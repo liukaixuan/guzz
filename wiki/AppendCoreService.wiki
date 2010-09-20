@@ -1,6 +1,6 @@
 == Introduction ==
 
- Guzz distributes itself with some common used services built in to avoid recoding. In 1.2.8 and later, you will find 5 services in the jar: Debug service, Dynamic SQL Service, Count update queue service(client and server), and insert queue service. You can use it directly in your project.
+ Guzz distributes itself with some common used services built in to avoid re-coding. In 1.2.8 and later, you will find 5 services in the jar: Debug service, Dynamic SQL Service, Count update queue service(client and server), and insert queue service. You can use it directly in your projects.
 
 == 1. Debug Service: ==
 
@@ -15,7 +15,7 @@
  * 1. guzz will pass all sqls and their parameters to debugService. The built-in debugService will output the sqls and parameters by your configurations.
  * 2. When defining database groups in guzz.xml(dbgroup), you can miss configurations in the properties file for masterDBConfigName and slaveDBConfigName in "debug" run level. But in "production" run level, guzz will raise a exception.
 
-*Declare Service:* Not required. Guzz will load it on startup. The application can override the default implementation by declaring a service named guzzDebug.
+*Declare Service:* Not required. Guzz will load it on startup. Your application can override the default implementation by declaring a service named guzzDebug.
 
 *Service Parameters(configured in properties file):* 
 
@@ -46,7 +46,10 @@ The configuration group name must be guzzDebug.
 
 *purpose:* Load sql by id dynamically. Guzz allows you to configure your sqls in guzz.xml, and use it by id as ibatis does. But, when you need to change or add a sql, you have to modify the guzz.xml, and restart the whole application to take effects. With DynamicSQLService, you can define your own sql-source, change and load the sqls by yourself in a online system, without any restarts. Dynamic SQL is a good choice for:
  * 1. Tune Performance. Replace a old sql with a new one without restarting.
+ 
  * 2. Dynamic data source. When a new feature is required, add a new sql and its mapping online, then you can query the data by a id, parameters for the sql and pagination through a common servlet(the servlet just has to pass querying to guzz with the passed id and parameters), and return the queried results in json or xml. Then, what you need to do is just to write a ajax script and build your pages.
+
+ * 3. Secure sqls. Load sqls from a secure way, and only expose a id/name to the developers.
 
 *Interface:* org.guzz.service.core.DynamicSQLService
 
@@ -86,9 +89,9 @@ The configuration group name must be guzzDebug.
 
 Notes: the service name must be: guzzDynamicSQL
 
-== 3. Count update queue service(Client): ==
+== 3. Count update queue service(Client-side): ==
 
-*purpose:* Log operations for increment or decrement a count number column by primary key to a temporary table. In the meantime, a demon thread reads operations from the temporary table, combines operations for the a record, and updates back to the main table. This service is usually used in a big site to handle the count updating bottle-neck of database. This service is the client side, and handles the part of writing to a temporary table.
+*purpose:* Log operations for increment or decrement a count number column by primary key to a temporary table. In the meantime, a demon thread reads operations from the temporary table, combines operations for the same records, and updates back to the main table. This service is usually used in a big site to handle the count updating bottle-neck of database. This service is the client side, and handles the part of writing to a temporary table.
 
 *Interface:* org.guzz.service.core.SlowUpdateService
 
@@ -146,14 +149,14 @@ updateInterval=500
 *Java API to call the service:*
 
  1. Fetch guzzSlowUpdate service. The service's java interface is: org.guzz.service.core.SlowUpdateService
- 
+
  2. Call its methods.
  
 {{{
 public interface SlowUpdateService {
 	
 	/**
-	 * update a count. Used inside.
+	 * update a count. database version.
 	 * 
 	 * @param dbGroup dbgroup to update
 	 * @param tableName table name to update
@@ -166,7 +169,7 @@ public interface SlowUpdateService {
 	
 	
 	/**
-	 * update a count.
+	 * update a count. java object version.
 	 * 
 	 * @param businessName business name
 	 * @param tableCondition shadow table. Pass null if shadow is not used.
@@ -178,7 +181,7 @@ public interface SlowUpdateService {
 	
 	
 	/**
-	 * update a count.
+	 * update a count. java object version.
 	 * 
 	 * @param domainClass business domain class
 	 * @param tableCondition shadow table. Pass null if shadow is not used.
@@ -231,9 +234,9 @@ updateInterval=500
 
 *Mechanism:* slowUpdateServer reads pageSize*combinePageCount records from the temporary table, combines operations for the same records, and updates the main database in a sql batch operation. The batch size is batchSize.
 
-*Tip 1:* slowUpdateServer can only be started when both the declaration in guzz.xml and parameters in properties file are exist. Usually, we declare slowUpdate and slowUpdateServer services in guzz.xml, but only one machine declares slowUpdateServer's configurations, to keep the consist of the guzz.xml and only one instance of slowUpdateServer is started. This is a small trick.
+*Tip 1:* slowUpdateServer can only be started when both the declaration in guzz.xml and parameters in properties file are exist. Usually, we declare slowUpdate and slowUpdateServer services in guzz.xml, but only one machine declares slowUpdateServer's configurations, to keep the consist of the guzz.xml and only one instance of slowUpdateServer is started. This is a useful trick.
 
-*Tip 2:* You can turn on the log to watch out the effects of operation combining. Add a line in your log4j.properties:
+*Tip 2:* You can turn on the log to watch out the effects of operations combining. Add a line in your log4j.properties:
 
 {{{
 log4j.logger.org.guzz.service.db.impl=debug
@@ -241,7 +244,7 @@ log4j.logger.org.guzz.service.db.impl=debug
  
 == 5. Insert Queue Service(We also call it Log Service): ==
 
-*purpose:* Write objects into a queue in the JVM, and another demon thread inserts the queued objects into the database.
+*purpose:* Write objects into a memory queue, and another demon thread inserts the queued objects into the database.
 
 *Interface:* org.guzz.service.log.LogService
 
