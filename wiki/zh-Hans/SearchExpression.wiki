@@ -35,6 +35,9 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
 === SearchExpression API： ===
 
+* setOrderBy：*
+  设置排序方式。设置的字段内容必须全部为java property，不能包含数据库 column name。多个排序条件之间以英文逗号分割，如：id asc, createdTime desc
+ 
 * setCountSelectPhrase：*
  SearchExpression通过此方法设置count操作的查询对象，默认为count(*)。例如可以为：count(id), sum(score) 等。
 

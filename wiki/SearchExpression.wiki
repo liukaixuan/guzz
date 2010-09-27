@@ -33,6 +33,9 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
 === SearchExpression API： ===
 
+ -* setOrderBy：*
+ set the order by. Fields in the orderBy should be java property names. Separate multiple fields by comma, for example:id asc, createdTime desc
+ 
  -*setCountSelectPhrase:*
  Set count function for executing count operations in TranSession API. The default function is "count(`*`)", and can be set to be any database function returning a number, such as count(id), sum(score), and so on.
 
