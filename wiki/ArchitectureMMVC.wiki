@@ -1,4 +1,4 @@
-== New Architecture Discussion: MMVC over the old MVC ==
+=== New Architecture: MMVC over the old MVC ===
 
 MMVC = (Traditional) Model + (Smart) Model + View + Controller.
 
@@ -10,7 +10,7 @@ We add a "smart model" in the View layer. It is declarations for the data requir
 
 In the traditional MVC architecture, View layer is just a simple template. The data is decided by the Model View. But this is wrong, it reverses the fact, as the View layer is the real only place knows exactly what the data is needed, not model (maybe your java logic) at all.
 
-The problem of MVC is *WE* have to tell the model what the view need, and human logic is a must for every view pages, old or new. The question is, why can't the View determine what she need herself? Or, why cann't the View tell the model what she need herself?
+The problem of MVC is *WE* have to tell the model what the view need, and human logic is a must for every view pages, old or new. The question is, why can't the View determine what she needs herself? Or, why cann't the View tell the model what she needs herself?
 
 This is the key of MMVC, a smart model is introduced to satisfy the View's demands.
 
