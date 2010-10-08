@@ -27,6 +27,8 @@ import org.guzz.service.ServiceConfig;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class SampleTestService2 extends AbstractService {
+	
+	public SampleTestService sampleTestService1 ;
 
 	/* @see org.guzz.Service#configure(org.guzz.ConfigServer) */
 	public boolean configure(ServiceConfig[] scs) {
@@ -54,6 +56,14 @@ public class SampleTestService2 extends AbstractService {
 	}
 
 	public void startup() {
+	}
+
+	public SampleTestService getSampleTestService() {
+		return sampleTestService1;
+	}
+
+	public void setSampleTestService(SampleTestService sampleTestService1) {
+		this.sampleTestService1 = sampleTestService1;
 	}
 
 }

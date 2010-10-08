@@ -20,7 +20,7 @@
 	</tran>
 	
 	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
-	<service name="onlyForTest2" configName="onlyForTest2Config" class="org.guzz.test.sample.SampleTestService2" />
+	<service name="onlyForTest2" configName="onlyForTest2Config" dependsOn="onlyForTest1" class="org.guzz.test.sample.SampleTestService2" />
 	
 	<import resource="include/part2.xml" />
 

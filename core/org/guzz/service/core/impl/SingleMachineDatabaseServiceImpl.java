@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.guzz.connection.DataSourceProvicer;
+import org.guzz.connection.DataSourceProvider;
 import org.guzz.connection.DataSourceProviderFactory;
 import org.guzz.exception.GuzzException;
 import org.guzz.service.AbstractService;
@@ -36,7 +36,7 @@ import org.guzz.service.core.DatabaseService;
 public class SingleMachineDatabaseServiceImpl extends AbstractService implements DatabaseService {
 	private static transient final Log log = LogFactory.getLog(SingleMachineDatabaseServiceImpl.class) ;
 	
-	DataSourceProvicer dsp = null ;
+	DataSourceProvider dsp = null ;
 	
 	private String serviceIdentifer ;
 	
@@ -67,9 +67,9 @@ public class SingleMachineDatabaseServiceImpl extends AbstractService implements
 					this.dsp.configure(sc.getProps(), sc.getMaxLoad()) ;
 				}else{
 					//销毁上一个连接池，并应用新的连接池。
-					DataSourceProvicer oldDsp = this.dsp ;
+					DataSourceProvider oldDsp = this.dsp ;
 					
-					DataSourceProvicer dsp = DataSourceProviderFactory.buildDataSourceProvicer(sc.getProps(), sc.getMaxLoad()) ;
+					DataSourceProvider dsp = DataSourceProviderFactory.buildDataSourceProvicer(sc.getProps(), sc.getMaxLoad()) ;
 					this.dsp = dsp ;
 					this.serviceIdentifer = sc.getUniqueIdentifer() ;
 					
@@ -78,7 +78,7 @@ public class SingleMachineDatabaseServiceImpl extends AbstractService implements
 					}
 				}
 			}else{ //第一次初始化
-				DataSourceProvicer dsp = DataSourceProviderFactory.buildDataSourceProvicer(sc.getProps(), sc.getMaxLoad()) ;
+				DataSourceProvider dsp = DataSourceProviderFactory.buildDataSourceProvicer(sc.getProps(), sc.getMaxLoad()) ;
 				this.dsp = dsp ;
 				this.serviceIdentifer = sc.getUniqueIdentifer() ;
 			}			

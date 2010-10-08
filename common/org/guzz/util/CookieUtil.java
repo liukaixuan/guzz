@@ -31,6 +31,8 @@ public class CookieUtil {
 	public final static int COOKIE_AGE_1Week = COOKIE_AGE_24H * 7;
 
 	public final static int COOKIE_AGE_1Year = COOKIE_AGE_24H * 365;
+
+	public final static int COOKIE_AGE_SESSION = -1;
 	
 	private String cookiePath = "/" ;
 	
@@ -76,11 +78,20 @@ public class CookieUtil {
 		cookie.setMaxAge(maxAge);
 		response.addCookie(cookie);
 	}
+	
+	public void writeCookie(HttpServletResponse response, String name, String value, String path, int maxAge) {
+		Cookie cookie = new Cookie(name, value);
+		cookie.setVersion(version) ;
+		cookie.setPath(path);
+		cookie.setMaxAge(maxAge);
+		response.addCookie(cookie);
+	}
 
 	public void writeTempCookie(HttpServletResponse response, String name, String value) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setVersion(version) ;
 		cookie.setPath(cookiePath);
+		cookie.setMaxAge(COOKIE_AGE_SESSION) ;
 		response.addCookie(cookie);
 	}
 
@@ -88,7 +99,15 @@ public class CookieUtil {
 		Cookie cookie = new Cookie(name, "");
 		cookie.setVersion(version) ;
 		cookie.setPath(cookiePath);
-		cookie.setMaxAge(-1);
+		cookie.setMaxAge(0);
+		response.addCookie(cookie);
+	}
+	
+	public void deleteCookie(HttpServletResponse response, String name, String path) {
+		Cookie cookie = new Cookie(name, "");
+		cookie.setVersion(version) ;
+		cookie.setPath(path);
+		cookie.setMaxAge(0);
 		response.addCookie(cookie);
 	}
 

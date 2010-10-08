@@ -34,7 +34,7 @@ import org.guzz.exception.InvalidConfigurationException;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class NoPooledDataSourceProvicer implements DataSourceProvicer{
+public class NoPooledDataSourceProvider implements DataSourceProvider{
 	protected DirectConnDataSource ds = null ;
 	
 	public void configure(Properties props, int maxLoad){

@@ -655,13 +655,13 @@ public class GuzzConfigFileBuilder {
 		return server ;
 	}
 	
-	public List loadServices() throws IOException, ClassNotFoundException{
+	public Map loadServices() throws IOException, ClassNotFoundException{
 		/*
 		 <service class="org.guzz.test.sample.SampleTestService1" />
 		 <service class="org.guzz.test.sample.SampleTestService2" />
 		*/
 
-		LinkedList services = new LinkedList() ;
+		HashMap services = new HashMap() ;
 		
 		List es = this.rootDoc.selectNodes("//service") ;
 		
@@ -676,21 +676,20 @@ public class GuzzConfigFileBuilder {
 			String className = e.attributeValue("class") ;
 			String serviceName = e.attributeValue("name") ;
 			String configName = e.attributeValue("configName") ;
+			String dependsOn = e.attributeValue("dependsOn") ;
 			if(StringUtil.isEmpty(className)){
 				throw new GuzzException("attribute [class] is null. " + e.asXML()) ;
 			}
 			if(StringUtil.isEmpty(serviceName)){
 				throw new GuzzException("attribute [serviceName] is null. " + e.asXML()) ;
 			}
-			if(StringUtil.isEmpty(configName)){
-				throw new GuzzException("attribute [configName] is null. " + e.asXML()) ;
-			}
 			
 			info.setConfigName(configName) ;
 			info.setServiceName(serviceName) ;
 			info.setImplClass(Class.forName(className)) ;
+			info.setDependedServices(dependsOn) ;
 			
-			services.add(info) ;
+			services.put(serviceName, info) ;
 		}
 		
 		return services ;

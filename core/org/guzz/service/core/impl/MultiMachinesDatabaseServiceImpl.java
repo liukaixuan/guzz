@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.guzz.connection.DataSourceProvicer;
+import org.guzz.connection.DataSourceProvider;
 import org.guzz.connection.DataSourceProviderFactory;
 import org.guzz.exception.GuzzException;
 import org.guzz.service.AbstractService;
@@ -42,7 +42,7 @@ import org.guzz.util.lb.RoundCard;
 public class MultiMachinesDatabaseServiceImpl extends AbstractService implements DatabaseService {
 	private static transient final Log log = LogFactory.getLog(MultiMachinesDatabaseServiceImpl.class) ;
 		
-	DataSourceProvicer[] uniqueProviders = null ;
+	DataSourceProvider[] uniqueProviders = null ;
 	
 	private RoundCard card ;	
 	
@@ -56,7 +56,7 @@ public class MultiMachinesDatabaseServiceImpl extends AbstractService implements
 	}
 	
 	public DataSource getDataSource() {
-		DataSourceProvicer p = (DataSourceProvicer) card.getCard() ;
+		DataSourceProvider p = (DataSourceProvider) card.getCard() ;
 		if(p == null){
 			return null ;
 		}
@@ -71,7 +71,7 @@ public class MultiMachinesDatabaseServiceImpl extends AbstractService implements
 				return false;
 			}
 			
-			DataSourceProvicer[] uniqueProviders = new DataSourceProvicer[scs.length] ;
+			DataSourceProvider[] uniqueProviders = new DataSourceProvider[scs.length] ;
 			
 			LBRound lr = new LBRound() ;
 			
@@ -88,7 +88,7 @@ public class MultiMachinesDatabaseServiceImpl extends AbstractService implements
 					sc.setMaxLoad(maxLoad) ;
 				}
 				
-				DataSourceProvicer oldProvider = (DataSourceProvicer) configProviders.get(sc.getUniqueIdentifer()) ;
+				DataSourceProvider oldProvider = (DataSourceProvider) configProviders.get(sc.getUniqueIdentifer()) ;
 				
 				if(oldProvider == null){
 					oldProvider = DataSourceProviderFactory.buildDataSourceProvicer(sc.getProps(), maxLoad) ;
@@ -106,7 +106,7 @@ public class MultiMachinesDatabaseServiceImpl extends AbstractService implements
 			//更新到当前使用中
 			this.card = lr ;
 			
-			DataSourceProvicer[] oldProviders = this.uniqueProviders ;			
+			DataSourceProvider[] oldProviders = this.uniqueProviders ;			
 			this.uniqueProviders = uniqueProviders ;
 			
 			//重新创建现有的configProviders
@@ -116,7 +116,7 @@ public class MultiMachinesDatabaseServiceImpl extends AbstractService implements
 			//作废以前的连接池
 			if(oldProviders != null){
 				for(int i = 0 ; i < oldProviders.length ; i++){
-					DataSourceProvicer oldDsp = oldProviders[i] ;
+					DataSourceProvider oldDsp = oldProviders[i] ;
 					
 					if(ArrayUtil.inArray(this.uniqueProviders, oldDsp)){ //新的连接中已经不再使用
 						try{

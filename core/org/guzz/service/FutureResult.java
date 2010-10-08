@@ -32,6 +32,7 @@ import org.guzz.exception.ServiceExecutionException;
  * 在应用返回FutureResult的同时，后台进程将会并行的读取3个网络服务资源，并存储到FutureResult中，这样3个网络服务就完成了并行操作，实际网络操作时间为3个网络服务中最慢的1个。
  *
  * @author liukaixuan(liukaixuan@gmail.com)
+ * @see Future
  */
 public class FutureResult<ReturnType> {
 

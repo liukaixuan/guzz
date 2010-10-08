@@ -29,17 +29,17 @@ import org.guzz.util.StringUtil;
  */
 public class PageFlip {
 	
-	/**分页信息保存在request中的参数名称*/
+	/**variable name stored in request*/
 	public static final String FLIP_SOURCE = "PAGE_FLIP" ;
 	
 	public PageFlip(){}
 	
 
 	/**
-	 * @param totalCount 总的纪录数
-	 * @param pageNo 当前的页，以1开始，作为第一个页。
-	 * @param pageSize 每页显示的纪录数
-	 * @param elements 数据
+	 * @param totalCount total count
+	 * @param pageNo current page number. starts from 1
+	 * @param pageSize page size
+	 * @param elements data of the this page
 	 **/
 	public void setResult(int totalCount, int pageNo, int pageSize, List elements) {
 		pageStart = pageNo - 5;
@@ -68,9 +68,7 @@ public class PageFlip {
 	
 	private int skipCount ;
 
-//	private int pageEnd ; //在页面上分页的结束页
-
-	private int pagesShow = 10 ; //在页面上显示的分页数
+	private int pagesShow = 10 ;
 
 	private List elements;
 
@@ -78,13 +76,11 @@ public class PageFlip {
 	
 	private String webPageNoParam = "pageNo" ;
 
-	//基准地址，例如：http://www.book.com/listBook.do?uid=1&pageNo=3
+	//base url with parameter pageNo：http://www.book.com/listBook.do?uid=1&pageSize=15
 	private String flipURL ;
 	
-	/**在当前页数前面的页面小于此值时显示前面所有页*/
 	private int pageBeforeSpan = 5 ;
 	
-	/**在当前页数后面剩余的页数小于此值时显示后面所有页*/
 	private int pageAfterSpan = 5 ;
 	
 	/**
@@ -94,7 +90,7 @@ public class PageFlip {
 		int before = pageNo - 1 ;
 		int after = pageCount - pageNo ;
 
-		if(before < pageBeforeSpan) return 1 ; //如果前面小于5页就全部留下，或者往后翻。
+		if(before < pageBeforeSpan) return 1 ;
 		else{
 			if(after > pagesShow - pageAfterSpan){
 				return pageNo - pageAfterSpan + 1 ;
@@ -300,9 +296,9 @@ public class PageFlip {
 	}
 
 	/**
-	 * 设置翻页的基础URL。同时把此PageFlip通过key：FLIP_SOURCE保存到request的attribute中
+	 * Set page navigation's based url, and store this object to variable "FLIP_SOURCE" in the request.
 	 * @param request HttpServletRequest
-	 * @param pageNoParamName 存储在request中，用于表示当前页码的参数名称
+	 * @param pageNoParamName parameter name of the page number.
 	 */
 	public void setFlipURL(HttpServletRequest request, String pageNoParamName){
 		String queryString = request.getQueryString() ;

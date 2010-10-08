@@ -26,7 +26,7 @@ import javax.sql.DataSource;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface DataSourceProvicer {
+public interface DataSourceProvider {
 	
 	/**
 	 * init or re-config the underly datasource.

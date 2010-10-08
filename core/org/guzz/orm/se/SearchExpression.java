@@ -22,8 +22,10 @@ import org.guzz.Guzz;
 import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
+import org.guzz.orm.mapping.RowDataLoader;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
+import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
 
 
@@ -71,6 +73,8 @@ public abstract class SearchExpression {
 	private Class pageFlipClass ;
 	
 	private Object tableCondition ;
+	
+	private RowDataLoader rowDataLoader ;
 	
 	/**主从使用策略*/
 //	private int persistPolicy = PersistPolicyParameter.PERSIST_POLICY_AUTO;
@@ -273,7 +277,17 @@ public abstract class SearchExpression {
 		MarkedSQL sql = new MarkedSQL(mapping, sb.toString()) ;
 	        
 	    return sql ;
-	}	
+	}
+	
+	public BindedCompiledSQL prepareHits(BindedCompiledSQL bsql){
+		bsql.setTableCondition(getTableCondition()) ;
+		
+		if(this.rowDataLoader != null){
+			bsql.setRowDataLoader(this.rowDataLoader) ;
+		}
+		
+		return bsql ;
+	}
 
 	public OrderByTerm getOrderBy() {
 		return orderByTerm;
@@ -387,6 +401,14 @@ public abstract class SearchExpression {
 	public SearchExpression setTableCondition(Object tableCondition) {
 		this.tableCondition = tableCondition;
 		return this ;
+	}
+
+	public RowDataLoader getRowDataLoader() {
+		return rowDataLoader;
+	}
+
+	public void setRowDataLoader(RowDataLoader rowDataLoader) {
+		this.rowDataLoader = rowDataLoader;
 	}	
 
 }

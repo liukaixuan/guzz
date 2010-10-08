@@ -64,6 +64,7 @@ public abstract class AbstractDialect implements Dialect {
 	
 	protected void regSystemTypes(){
 		sqlTypes.put("int", IntegerSQLDataType.class) ;
+		sqlTypes.put("Integer", IntegerSQLDataType.class) ;
 		sqlTypes.put(Integer.class.getName(), IntegerSQLDataType.class) ;
 		
 		sqlTypes.put("string", StringSQLDataType.class) ;

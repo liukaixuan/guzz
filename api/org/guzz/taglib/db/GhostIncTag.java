@@ -16,6 +16,8 @@
  */
 package org.guzz.taglib.db;
 
+import java.io.Serializable;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
@@ -43,7 +45,7 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 	
 	private String updatePropName ;
 		
-	private String pkValue ;
+	private Serializable pkValue ;
 	
 	protected GuzzContext guzzContext ;
 	
@@ -127,7 +129,7 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 		}
 	}
 
-	public String getPkValue() {
+	public Serializable getPkValue() {
 		return pkValue;
 	}
 

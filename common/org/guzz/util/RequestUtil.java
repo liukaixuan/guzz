@@ -78,6 +78,30 @@ public class RequestUtil {
      * @param request 指定request
      * @param param 指定参数
      * @param defaultValue 给定的默认值.
+     * @return long value of the parameter. 如果该参数不存在或者解析整数时发生了异常, 则返回给定的默认值.
+     */
+    public static long getParameterAsLong(HttpServletRequest request, String param, long defaultValue) {
+        String value = request.getParameter(param);
+        if (value == null) {
+        	return defaultValue;
+        }
+        value = value.trim();
+        if (value.length() == 0) {
+        	return defaultValue;
+        }
+        try {
+            return Long.parseLong(value);
+        } catch (Exception e) {
+            logger.warn("err=" + e + "! param=" + param + ", value=" + value + "! return " + defaultValue);
+            return defaultValue;
+        }
+    }
+    
+    /**
+     * 获取指定request的指定参数的整数值. 如果该参数不存在或者解析整数时发生了异常, 则返回给定的默认值.
+     * @param request 指定request
+     * @param param 指定参数
+     * @param defaultValue 给定的默认值.
      * @return 参数值的整数数组形式. 如果该参数不存在返回int[0]；解析整数时发生了异常, 则设定为默认值.
      */
     public static int[] getParameterAsIntArray(HttpServletRequest request, String param, int defaultValue) {
