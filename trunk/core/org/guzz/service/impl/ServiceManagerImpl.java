@@ -17,6 +17,8 @@
 package org.guzz.service.impl;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,11 +30,13 @@ import org.guzz.GuzzContextImpl;
 import org.guzz.Service;
 import org.guzz.config.ConfigServer;
 import org.guzz.exception.GuzzException;
+import org.guzz.exception.InvalidConfigurationException;
 import org.guzz.service.ProxyService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
 import org.guzz.service.ServiceManager;
 import org.guzz.util.CloseUtil;
+import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.web.context.ExtendedBeanFactoryAware;
 import org.guzz.web.context.GuzzContextAware;
@@ -87,6 +91,7 @@ public class ServiceManagerImpl implements ServiceManager {
 	}
 
 	public void shutdown() {
+		//TODO: services are started in sequence, so shutdown them in order too.
 		Iterator i = services.values().iterator() ;
 		
 		while(i.hasNext()){
@@ -101,10 +106,58 @@ public class ServiceManagerImpl implements ServiceManager {
 		this.services.clear() ;
 	}
 	
-	
 	public static Service createNewService(final GuzzContextImpl guzzContext, final ConfigServer configServer, final ServiceInfo serviceInfo){
 		final Service s = (Service) BeanCreator.newBeanInstance(serviceInfo.getImplClass()) ;
 		s.setServiceInfo(serviceInfo) ;
+		
+		//inject depended services.
+		if(serviceInfo.hasDependedServices()){
+			Method[] ms = s.getClass().getMethods() ;
+			String[] dependsOn = serviceInfo.getDependedServices() ;
+			
+			for(int i = 0 ; i < dependsOn.length ; i++){
+				Service ds = guzzContext.getService(dependsOn[i]) ;
+				
+				if(ds == null){
+					throw new InvalidConfigurationException("depended service [" + dependsOn[i] + "] not found for service: " + serviceInfo.getServiceName()) ;
+				}
+				
+				boolean injected = false ;
+				
+				//Inject the service.
+				for(int k = 0 ; k < ms.length ; k++){
+					Method m = ms[k] ;
+					
+					if(!m.getName().startsWith("set")) continue ;
+					if(!m.getName().endsWith("Service")) continue ;
+					if(m.getParameterTypes().length != 1) continue ;
+					
+					if(m.getParameterTypes()[0].isAssignableFrom(ds.getClass())){
+						if(injected){
+							//Has already injected. 
+							throw new InvalidConfigurationException("ambiguous setXXXService methods in service [" + serviceInfo.getServiceName() + "] for depended service [" + dependsOn[i] + "]") ;
+						}
+						
+						try {
+							m.invoke(s, new Object[]{ds}) ;
+						} catch (IllegalArgumentException e) {
+							throw new InvalidConfigurationException("cann't set depended service [" + dependsOn[i] + "] to service: " + serviceInfo.getServiceName(), e) ;
+						} catch (IllegalAccessException e) {
+							throw new InvalidConfigurationException("cann't set depended service [" + dependsOn[i] + "] to service: " + serviceInfo.getServiceName(), e) ;
+						} catch (InvocationTargetException e) {
+							throw new InvalidConfigurationException("cann't set depended service [" + dependsOn[i] + "] to service: " + serviceInfo.getServiceName(), e) ;
+						}
+						
+						injected = true ;
+					}
+				}
+				
+				if(!injected){
+					//Has already injected. 
+					throw new InvalidConfigurationException("NO setXXXService method in service [" + serviceInfo.getServiceName() + "] for depended service [" + dependsOn[i] + "] to be injected.") ;
+				}
+			}
+		}
 		
 		if(s instanceof GuzzContextAware){
 			guzzContext.registerContextStartedAware(
@@ -128,11 +181,16 @@ public class ServiceManagerImpl implements ServiceManager {
 	
 	private static void startupService(ConfigServer configServer, Service s){
 		ServiceInfo serviceInfo = s.getServiceInfo() ;
+		String configName = serviceInfo.getConfigName() ;
 		boolean configOK = false ;
 		
 		ServiceConfig[] scs;
 		try {
-			scs = configServer.queryConfig(serviceInfo.getConfigName());
+			if(StringUtil.notEmpty(configName)){
+				scs = configServer.queryConfig(configName);
+			}else{
+				scs = new ServiceConfig[0] ;
+			}
 			
 			configOK = s.configure(scs) ;		
 		} catch (IOException e) {

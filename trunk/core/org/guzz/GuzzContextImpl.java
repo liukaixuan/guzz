@@ -232,7 +232,20 @@ public class GuzzContextImpl implements GuzzContext{
 		serviceManager.registerService(sus) ;
 		
 		//加载应用自定义Service
-		List services = builder.loadServices() ;
+		Map services = builder.loadServices() ;
+		LinkedList queuedServices = new LinkedList() ;
+		while(!services.isEmpty()){
+			Iterator i = services.entrySet().iterator() ;
+			Entry e = (Entry) i.next() ;
+			i.remove() ;
+			
+			String serviceName = (String) e.getKey() ;
+			ServiceInfo serviceInfo = (ServiceInfo) e.getValue() ;
+			
+			initUnOrderedService(services, queuedServices, serviceInfo) ;
+		}
+		
+		//One Service could be depend on others. So we have to compute the dependencies, and start the services in the correct order.
 		for(int i = 0 ; i < services.size() ; i++){
 			ServiceInfo info = (ServiceInfo) services.get(i) ;
 			Service s = ServiceManagerImpl.createNewService(this, configServer, info) ;
@@ -251,6 +264,42 @@ public class GuzzContextImpl implements GuzzContext{
 		//10. 通知组件开始进行初始化(startup)
 		this.columnDataLoaderManager.onGuzzFullStarted() ;
 		this.shadowTableViewManager.onGuzzFullStarted() ;
+	}
+	
+	protected void initUnOrderedService(Map services, LinkedList queuedServices, ServiceInfo serviceInfo){
+		if(serviceInfo.hasDependedServices()){
+			queuedServices.addLast(serviceInfo) ;
+			
+			String[] dependsOn = serviceInfo.getDependedServices() ;
+			
+			for(int k = 0 ; k < dependsOn.length ; k++){
+				for(int i = 0 ; i < queuedServices.size() ; i++){
+					String queueServiceName = ((ServiceInfo) queuedServices.get(i)).getServiceName() ;
+					
+					if(queueServiceName.equals(dependsOn[k])){
+						throw new InvalidConfigurationException("cycle dependencies found in guzz services. From [" + queueServiceName + "] to [" + dependsOn[k] + "].") ;
+					}
+				}
+				
+				//add depended-services from un-inited-services to the queuedServices
+				ServiceInfo si = (ServiceInfo) services.remove(dependsOn[k]) ;
+				if(si != null){
+					//process the depended service first.
+					initUnOrderedService(services, queuedServices, si) ;
+				}else{
+					//the service may have already been registered to the ServiceManager
+				}
+			}
+			
+			//Depended services have been inited. Start the current one.
+			Service s = ServiceManagerImpl.createNewService(this, configServer, serviceInfo) ;
+			serviceManager.registerService(s) ;
+			
+			queuedServices.remove(serviceInfo) ;
+		}else{
+			Service s = ServiceManagerImpl.createNewService(this, configServer, serviceInfo) ;
+			serviceManager.registerService(s) ;
+		}
 	}
 
 	public void setExtendedBeanFactory(ExtendedBeanFactory extendedBeanFactory) {

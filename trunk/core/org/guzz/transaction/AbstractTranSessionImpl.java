@@ -224,7 +224,7 @@ public class AbstractTranSessionImpl {
 		
 		CompiledSQL sql = this.compiledSQLBuilder.buildCompiledSQL(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 		
-		return list(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), se.getStartPos(), se.getPageSize()) ;
+		return list(se.prepareHits(sql.bind(sp.getSearchParams())), se.getStartPos(), se.getPageSize()) ;
 	}
 	
 	public long count(SearchExpression se) {
@@ -240,7 +240,7 @@ public class AbstractTranSessionImpl {
 		
 		CompiledSQL sql = this.compiledSQLBuilder.buildCompiledSQL(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 		
-		Object ret = findCell00(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), Long.class.getName()) ;
+		Object ret = findCell00(se.prepareHits(sql.bind(sp.getSearchParams())), Long.class.getName()) ;
 		
 		if(ret == null){
 			return 0L ;
@@ -274,12 +274,12 @@ public class AbstractTranSessionImpl {
 		int recordCount = 0 ;
 		
 		if(se.isComputeRecordNumber()){
-			SearchParams sp = new SearchParams() ;			
+			SearchParams sp = new SearchParams() ;
 			MarkedSQL ms = se.toComputeRecordNumberSQL((POJOBasedObjectMapping) m, sp) ;
 			
 			CompiledSQL sql = this.compiledSQLBuilder.buildCompiledSQL(ms).setParamPropMapping(sp.getParamPropMapping()) ;
 			
-			Integer count = (Integer) findCell00(sql.bind(sp.getSearchParams()).setTableCondition(se.getTableCondition()), "int") ;
+			Integer count = (Integer) findCell00(se.prepareHits(sql.bind(sp.getSearchParams())), "int") ;
 			recordCount = count.intValue() ;
 		}
 		

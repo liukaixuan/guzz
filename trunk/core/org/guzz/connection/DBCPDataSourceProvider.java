@@ -23,39 +23,40 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
 /**
  * 
- * C3P0 connection pool. 
+ * Apache commons dbcp datasource provider.
+ * 
  * <br>Configuration details: 
- * <a target="_blank" href="http://www.mchange.com/projects/c3p0/index.html#configuration_properties">http://www.mchange.com/projects/c3p0/index.html#configuration_properties</a>
+ * <a target="_blank" href="http://commons.apache.org/dbcp/configuration.html">http://commons.apache.org/dbcp/configuration.html</a>
+ *
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class C3P0DataSourceProvicer implements DataSourceProvicer{
-	private static transient final Log log = LogFactory.getLog(C3P0DataSourceProvicer.class) ;
-	ComboPooledDataSource c3p0 = null ;
+public class DBCPDataSourceProvider implements DataSourceProvider{
+	private static transient final Log log = LogFactory.getLog(DBCPDataSourceProvider.class) ;
+	BasicDataSource dataSource = null ;
 	
 	public void configure(Properties props, int maxLoad){
-		if(c3p0 == null){
-			c3p0 = new ComboPooledDataSource() ;
+		if(dataSource == null){
+			dataSource = new BasicDataSource() ;
 		}
 		
-		JavaBeanWrapper bw = BeanWrapper.createPOJOWrapper(c3p0.getClass()) ;
+		JavaBeanWrapper bw = BeanWrapper.createPOJOWrapper(dataSource.getClass()) ;
 		Enumeration e = props.keys() ;
 		while(e.hasMoreElements()){
 			String key = (String) e.nextElement() ;
 			String value = props.getProperty(key) ;
 			
 			try{
-				bw.setValueAutoConvert(c3p0, key, value) ;
+				bw.setValueAutoConvert(dataSource, key, value) ;
 			}catch(Exception e1){
 				log.error("unkown property:[" + key + "=" + value + "]", e1) ;
 			}
@@ -66,12 +67,12 @@ public class C3P0DataSourceProvicer implements DataSourceProvicer{
 			maxLoad = 500 ;
 		}
 		
-		c3p0.setMaxPoolSize(maxLoad) ;
+		dataSource.setMaxActive(maxLoad) ;
 		
-		//fetch a connection to force c3p0 building the pool
+		//fetch a connection to force the datasource building the pool
 		Connection c = null ;
 		try {
-			c = c3p0.getConnection() ;
+			c = dataSource.getConnection() ;
 		} catch (SQLException e1) {
 			log.error(props, e1) ;
 		}finally{
@@ -80,13 +81,18 @@ public class C3P0DataSourceProvicer implements DataSourceProvicer{
 	}
 
 	public DataSource getDataSource() {
-		return c3p0 ;
+		return dataSource ;
 	}
 
 	public void shutdown() {
-		if(c3p0 != null){
-			c3p0.close() ;
-			c3p0 = null ;
+		if(dataSource != null){
+			try {
+				dataSource.close() ;
+			} catch (SQLException e) {
+				log.error("fail to shutdown the DBCPDataSource", e) ;
+			}
+			
+			dataSource = null ;
 		}
 	}
 	

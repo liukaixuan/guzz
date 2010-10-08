@@ -19,6 +19,7 @@ package org.guzz.transaction;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.guzz.exception.InvalidConfigurationException;
 import org.guzz.util.CloseUtil;
 
 /**
@@ -30,7 +31,14 @@ import org.guzz.util.CloseUtil;
 public class DBGroupManager extends HashMap {
 	
 	public DBGroup getGroup(String groupName){
-		return (DBGroup) this.get(groupName) ;
+		DBGroup group = (DBGroup) this.get(groupName) ;
+		
+		//TODO: move this to GuzzContext.
+		if(group == null){
+			throw new InvalidConfigurationException("unknown database group:" + groupName) ;
+		}
+		
+		return group ;
 	}
 	
 	public void shutdown(){

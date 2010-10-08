@@ -38,8 +38,9 @@
 
 <!ELEMENT service EMPTY>
 <!ATTLIST service name CDATA #REQUIRED>
-<!ATTLIST service configName CDATA #REQUIRED>
+<!ATTLIST service configName CDATA #IMPLIED>
 <!ATTLIST service class CDATA #REQUIRED>
+<!ATTLIST service dependsOn CDATA #IMPLIED>
 
 
 <!ELEMENT import EMPTY>

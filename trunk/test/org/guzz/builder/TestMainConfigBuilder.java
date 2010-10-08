@@ -16,6 +16,7 @@
  */
 package org.guzz.builder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,8 @@ import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
+import org.guzz.test.sample.SampleTestService;
+import org.guzz.test.sample.SampleTestService2;
 import org.guzz.transaction.DBGroup;
 import org.guzz.util.CloseUtil;
 
@@ -176,7 +179,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;
 		
-		List ss = b.loadServices() ;
+		List ss = Collections.list(Collections.enumeration(b.loadServices().values())) ;
 		
 		assertNotNull(ss) ;
 		assertEquals(ss.size(),2) ;
@@ -189,6 +192,14 @@ public class TestMainConfigBuilder extends TestCase {
 		s = (ServiceInfo) ss.get(1) ;
 		assertEquals(s.getServiceName(), "onlyForTest2") ;
 		assertEquals(s.getConfigName(), "onlyForTest2Config") ;
+		
+		//test service dependencies.
+		SampleTestService ts1 = (SampleTestService) gf.getService("onlyForTest1") ;
+		SampleTestService2 ts2 = (SampleTestService2) gf.getService("onlyForTest2") ;
+		
+		assertNotNull(ts1) ;
+		assertNotNull(ts2) ;
+		assertSame(ts1, ts2.sampleTestService1) ;
 		
 		CloseUtil.close(fs) ;
 		((GuzzContextImpl) gf).shutdown() ;

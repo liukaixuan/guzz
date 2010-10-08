@@ -43,7 +43,7 @@ public class C3P0DSTest extends TestCase {
 		
 		ServiceConfig sc = cc.queryConfig("masterDB")[0] ;
 		
-		DataSourceProvicer dsp = DataSourceProviderFactory.buildDataSourceProvicer(sc.getProps(), 20) ;
+		DataSourceProvider dsp = DataSourceProviderFactory.buildDataSourceProvicer(sc.getProps(), 20) ;
 		assertNotNull(dsp.getDataSource()) ;
 		
 		DataSource ds = dsp.getDataSource() ;

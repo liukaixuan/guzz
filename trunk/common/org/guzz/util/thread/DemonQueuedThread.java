@@ -22,10 +22,8 @@ import org.guzz.service.core.DebugService;
 
 /**
  * 
- * 临时后台队列线程。此线程可以维护一个快速的队列，当队列内容超过最大值时，自动覆盖以前的值。
- * <p />队列不保证线程安全，也不能保证数据不丢失。仅可以用来处理临时非关键数据。
- * 
- * TODO: 做成后退数组队列，提高性能。
+ * A demon thread holding a queue. When the queue is full, new arrived objects override the oldest one.
+ * <p />The queue is not thread-safe, and doesn't guarantee that no data will lose. Objects in this queue is processed randomly.
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

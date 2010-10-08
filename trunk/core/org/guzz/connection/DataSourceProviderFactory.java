@@ -37,12 +37,12 @@ public abstract class DataSourceProviderFactory {
 	private final static Map systemProviders = new HashMap() ;
 	
 	static{
-		systemProviders.put("c3p0", C3P0DataSourceProvicer.class.getName()) ;
-		systemProviders.put("dbcp", DBCPDataSourceProvicer.class.getName()) ;
-		systemProviders.put("nopool", NoPooledDataSourceProvicer.class.getName()) ;
-	}	
+		systemProviders.put("c3p0", C3P0DataSourceProvider.class.getName()) ;
+		systemProviders.put("dbcp", DBCPDataSourceProvider.class.getName()) ;
+		systemProviders.put("nopool", NoPooledDataSourceProvider.class.getName()) ;
+	}
 	
-	public static DataSourceProvicer buildDataSourceProvicer(Properties props, int maxLoad){
+	public static DataSourceProvider buildDataSourceProvicer(Properties props, int maxLoad){
 		String provider = (String) props.remove("pool") ;
 		if(StringUtil.isEmpty(provider)){
 			provider = "c3p0" ;
@@ -53,7 +53,7 @@ public abstract class DataSourceProviderFactory {
 			providerClass = provider ;
 		}
 		
-		DataSourceProvicer ds = (DataSourceProvicer) BeanCreator.newBeanInstance(providerClass) ;
+		DataSourceProvider ds = (DataSourceProvider) BeanCreator.newBeanInstance(providerClass) ;
 		ds.configure(props, maxLoad) ;
 		return ds ;
 	}

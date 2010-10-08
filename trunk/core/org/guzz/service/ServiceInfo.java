@@ -18,6 +18,9 @@ package org.guzz.service;
 
 import java.io.Serializable;
 
+import org.guzz.util.StringUtil;
+import org.guzz.util.ViewFormat;
+
 /**
  * 
  * 
@@ -31,6 +34,8 @@ public class ServiceInfo implements Serializable {
 	private String configName ;
 	
 	private Class implClass ;
+	
+	private String[] dependedServices ;
 	
 	private int usedCount ;
 	
@@ -72,6 +77,33 @@ public class ServiceInfo implements Serializable {
 
 	public void setUsedCount(int usedCount) {
 		this.usedCount = usedCount;
+	}
+
+	public String[] getDependedServices() {
+		return dependedServices;
+	}
+
+	public void setDependedServices(String[] dependedServices) {
+		this.dependedServices = dependedServices;
+	}
+	
+	/**service names separated by comma*/
+	public void setDependedServices(String dependedServices) {
+		if(StringUtil.isEmpty(dependedServices)){
+			this.dependedServices = null ;
+		}else{
+			dependedServices = StringUtil.replaceString(dependedServices, ";", ",") ;
+			String[] temp = StringUtil.splitString(dependedServices, ",") ;
+			this.dependedServices = new String[temp.length] ;
+			
+			for(int i = 0 ; i < temp.length ; i++){
+				this.dependedServices[i] = temp[i].trim() ;
+			}
+		}
+	}
+	
+	public boolean hasDependedServices(){
+		return this.dependedServices != null ;
 	}
 	
 }
