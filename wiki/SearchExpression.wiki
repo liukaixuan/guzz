@@ -78,7 +78,13 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 || !WhereTerm || add where statement. || public !WhereTerm(!SearchTerm condition) || set where statement. private API. ||
 
  SearchTerm is not recommended to construct directly. Use the static methods in Terms and SearchExpression is the first choice.
-
+ 
+ For example, to add a condition "userId=7 and status='deleted'", you can write:
+ {{{
+ se.and(Terms.eq("userId", 7)) ;
+ se.and(Terms.eq("status", "deleted")) ;
+ }}
+ 
 == How to write very complicated queries? ==
 
  For complicated queries, guzz suggests that you store them in guzz.xml, and perform queries by id as ibatis did. We believe that complicated sqls are better to be separated for dbas later.

@@ -86,7 +86,11 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
  * !WhereTerm 拼接where语句。public !WhereTerm(!SearchTerm condition)。内部使用。
 
- 对于大部分的SearchTerm不建议直接使用，推荐通过Terms静态方法和SearchExpression提供的方法进行操作。
+ 对于大部分的SearchTerm不建议直接使用，推荐通过Terms静态方法和SearchExpression提供的方法进行操作。例如我们需要添加userId=7并且状态为deleted的查询条件，则：
+ {{{
+ se.and(Terms.eq("userId", 7)) ;
+ se.and(Terms.eq("status", "deleted")) ;
+ }}
 
 == 更加复杂的查询： ==
 
