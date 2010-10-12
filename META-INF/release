@@ -1,5 +1,6 @@
 1.2.9 alpha 1
 	1. new feature: support a service to depend on other services.
+	2. add a new Id generator--random id generator.
 
 
 1.2.8 final

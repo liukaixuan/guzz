@@ -22,13 +22,13 @@ import org.guzz.transaction.WriteTranSession;
 
 /**
  * 
- * this id generator will do nothing. the id should be maintained by the underly database(eg: use a trigger).
+ * This id generator will do nothing. the id should be maintained by the underly database(eg: use a trigger).
  * <p/>
  * guzz won't and unable to bind the new created id to the inserted object after performing database inserting operation.
  * 
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class SlientIdGenerator implements IdentifierGenerator {
+public class SilentIdGenerator implements IdentifierGenerator {
 
 	public Serializable preInsert(WriteTranSession session, Object domainObject) {
 		return null ;
