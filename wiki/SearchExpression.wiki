@@ -80,10 +80,10 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
  SearchTerm is not recommended to construct directly. Use the static methods in Terms and SearchExpression is the first choice.
  
  For example, to add a condition "userId=7 and status='deleted'", you can write:
- {{{
+{{{
  se.and(Terms.eq("userId", 7)) ;
  se.and(Terms.eq("status", "deleted")) ;
- }}
+}}}
  
 == How to write very complicated queries? ==
 
