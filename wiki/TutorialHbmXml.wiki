@@ -61,8 +61,9 @@ On mapping the ResultSet to java Object, guzz supports both hibernate and ibatis
 || assigned || √ || √ || lets the application to assign an identifier to the object before save() is called. This is the default strategy if no `<generator>` element is specified. ||
 || select || √ || × || retrieves a primary key assigned by a database trigger by selecting the row by some unique key and retrieving the primary key value. ||
 || foreign || √ || × || uses the identifier of another associated object. Usually used in conjunction with a `<one-to-one>` primary key association. ||
-|| slient || × || √ || The slient generator does nothing. Usually used when you need to manage the id in the database, for example with a trigger. ||
-|| hilo.multi || × || √ || Works as hilo, but allows many Ids stored in a single table disguised by the primary key of each row. Mapping parameters supported: table, column, db_group, max_lo, pk_column_name, pk_column_value(requried, and must be a positive integer)||
+|| silent || × || √ || The silent generator does nothing. Usually used when you need to manage the id in the database, for example with a trigger. ||
+|| random || × || √ || A <tt>RandomIdGenerator</tt> that returns a string of length 32 (or the length you given in parameter:length). This string will consist of only a-z and 0-9, and is unable to predicate. <br><b>Note: the length maybe a little shorter than the given length.</b> <br>Mapping parameters supported: length ||
+|| hilo.multi || × || √ || Works as hilo, but allows many Ids stored in a single table disguised by the primary key of each row. Mapping parameters supported: table, column, db_group, max_lo, pk_column_name, pk_column_value(required, and must be a positive integer)||
 
  The parameters and their meanings in guzz is similar to hibernate, on one exception: the table name of hilo is "guzz_unique_key" in guzz, not "hibernate_unique_key".
 
