@@ -30,9 +30,10 @@ public final class IdentifierGeneratorFactory {
 		GENERATORS.put("identity", AutoIncrementIdGenerator.class.getName()) ;
 		GENERATORS.put("assigned", AssignedIdGenerator.class.getName()) ;
 		GENERATORS.put("sequence", SequenceIdGenerator.class.getName()) ;
-		GENERATORS.put("slient", SlientIdGenerator.class.getName()) ;
+		GENERATORS.put("silent", SilentIdGenerator.class.getName()) ;
 		GENERATORS.put("guid", GUIDIdGenerator.class.getName()) ;
 		GENERATORS.put("uuid", UUIDHexGenerator.class.getName()) ;
+		GENERATORS.put("random", RandomIdGenerator.class.getName()) ;
 		
 		GENERATORS.put("hilo", TableHiLoGenerator.class.getName()) ;
 		GENERATORS.put("seqhilo", SequenceHiLoGenerator.class.getName()) ;

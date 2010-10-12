@@ -17,6 +17,8 @@
 package org.guzz.id;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Properties;
 
 import org.guzz.dialect.Dialect;
@@ -26,45 +28,30 @@ import org.guzz.util.StringUtil;
 
 
 /**
- * <b>uuid</b><br>
+ * <b>random</b><br>
  * <br>
- * A <tt>UUIDGenerator</tt> that returns a string of length 32,
- * This string will consist of only hex digits. Optionally,
- * the string may be generated with separators between each
- * component of the UUID.
- *
- * Mapping parameters supported: separator.
- *
+ * A <tt>RandomIdGenerator</tt> that returns a string of length 32 (or the length you given in parameter:length),
+ * This string will consist of only a-z and 0-9, and is unable to predicate. 
+ * 
+ * <br><b>Note: the length maybe a little shorter than the given length.</b>
+ * <br>
+ * <br>Mapping parameters supported: length.
  */
 
-public class UUIDHexGenerator extends AbstractUUIDGenerator implements Configurable {
+public class RandomIdGenerator implements IdentifierGenerator, Configurable {
 	private POJOBasedObjectMapping mapping ;
 	private String primaryKeyPropName ;
-	
-	private String sep = "";
+	private SecureRandom random = new SecureRandom() ;
+	private int length = 32 ;
 
-	protected String format(int intval) {
-		String formatted = Integer.toHexString(intval);
-		StringBuffer buf = new StringBuffer("00000000");
-		buf.replace( 8-formatted.length(), 8, formatted );
-		return buf.toString();
-	}
-
-	protected String format(short shortval) {
-		String formatted = Integer.toHexString(shortval);
-		StringBuffer buf = new StringBuffer("0000");
-		buf.replace( 4-formatted.length(), 4, formatted );
-		return buf.toString();
-	}
-
-	protected String generateUUID() {
-		return new StringBuffer(36)
-			.append( format( getIP() ) ).append(sep)
-			.append( format( getJVM() ) ).append(sep)
-			.append( format( getHiTime() ) ).append(sep)
-			.append( format( getLoTime() ) ).append(sep)
-			.append( format( getCount() ) )
-			.toString();
+	protected String random() {
+		String s = new BigInteger(length*5, random).toString(36);
+		
+		if(s.length() > length){
+			return s.substring(0, s.length()) ;
+		}
+		
+		return s ;
 	}
 	
 	protected void setPrimaryKey(Object domainObject, Object value){
@@ -75,10 +62,7 @@ public class UUIDHexGenerator extends AbstractUUIDGenerator implements Configura
 		this.mapping = mapping ;
 		primaryKeyPropName = mapping.getTable().getPKPropName() ;
 		
-		String sep = params.getProperty("separator") ;
-		if(StringUtil.notEmpty(sep)){
-			this.sep = sep ;
-		}
+		this.length = StringUtil.toInt(params.getProperty("length"), 32) ;
 	}
 
 	public boolean insertWithPKColumn() {
@@ -90,23 +74,21 @@ public class UUIDHexGenerator extends AbstractUUIDGenerator implements Configura
 	}
 
 	public Serializable preInsert(WriteTranSession session, Object domainObject) {
-		String uuid = generateUUID() ;		
-		setPrimaryKey(domainObject, uuid) ;		
-		return (Serializable) uuid ;
+		String id = random() ;		
+		setPrimaryKey(domainObject, id) ;		
+		return id ;
 	}
 
 	public static void main( String[] args ) throws Exception {
-		UUIDHexGenerator gen = new UUIDHexGenerator();
-		UUIDHexGenerator gen2 = new UUIDHexGenerator();
-		gen.sep = "/" ;
+		RandomIdGenerator gen = new RandomIdGenerator();
+		RandomIdGenerator gen2 = new RandomIdGenerator();
 
 		for ( int i=0; i<10; i++) {
-			String id = (String) gen.generateUUID();
-			System.out.println(id);
-			String id2 = (String) gen2.generateUUID();
-			System.out.println(id2);
+			String id = (String) gen.random();
+			System.out.println(id.length() + "=" + id);
+			String id2 = (String) gen2.random();
+			System.out.println(id2.length() + "=" + id2);
 		}
-
 	}
 
 }
