@@ -41,11 +41,11 @@ public abstract class AbstractRemoteService<ServiceReturnType> extends AbstractS
 	
 	public boolean configure(ServiceConfig[] scs) {
 		if(scs == null || scs.length == 0){
-			log.warn("remoteRPCProxy proxy not started. no configuration found.") ;
-			return false;
+			log.info("no configuration found for the ThreadPool in service:" + getClass().getName()) ;
+			this.config = new Properties() ;
+		}else{
+			this.config = scs[0].getProps() ;
 		}
-		
-		this.config = scs[0].getProps() ;
 		
 		return true ;
 	}

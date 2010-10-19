@@ -20,6 +20,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.guzz.lang.NullValue;
+
 /**
  * 
  * 为Boundary动态增加条件。
@@ -62,6 +64,10 @@ public class GhostAddLimitTag extends TagSupport {
 			throw new JspException("g:addLimit must be used between g:boundary tag!") ;
 		}
 		
+		if(limit == NullValue.instance || limit2 == NullValue.instance || limit3 == NullValue.instance){
+			throw new JspException("you cann't add a null limit condition to <g:addLimit> tag.") ;
+		}
+		
 		m_parent.addLimitCondition(limit) ;
 		
 		if(limit2 != null){
@@ -81,7 +87,7 @@ public class GhostAddLimitTag extends TagSupport {
 
 	public void setLimit(Object limit) throws JspException {
 		if(limit == null){
-			throw new JspException("you cann't add a null limit condition to <g:addLimit> tag.") ;
+			limit = NullValue.instance ;
 		}
 		
 		this.limit = limit;
@@ -93,7 +99,7 @@ public class GhostAddLimitTag extends TagSupport {
 
 	public void setLimit2(Object limit2) throws JspException {
 		if(limit == null){
-			throw new JspException("you cann't add a null limit condition to <g:addLimit> tag.") ;
+			limit = NullValue.instance ;
 		}
 		
 		this.limit2 = limit2;
@@ -105,7 +111,7 @@ public class GhostAddLimitTag extends TagSupport {
 
 	public void setLimit3(Object limit3) throws JspException {
 		if(limit == null){
-			throw new JspException("you cann't add a null limit condition to <g:addLimit> tag.") ;
+			limit = NullValue.instance ;
 		}
 		
 		this.limit3 = limit3;
