@@ -31,7 +31,7 @@ import org.guzz.web.context.ExtendedBeanFactory;
 
 /**
  * 
- * 
+ * GuzzContext
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */

@@ -87,7 +87,7 @@ public class TypeConvertHashMap extends HashMap {
 		
 		char c = value.toString().charAt(0) ;
 		
-		if(c == '1' || c == 'y' || c == 'Y' || c == 't' || c == 'T' || c == '是'){
+		if(c == '1' || c == 'y' || c == 'Y' || c == 't' || c == 'T'){
 			return true ;
 		}
 		
