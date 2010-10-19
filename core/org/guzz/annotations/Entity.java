@@ -38,9 +38,9 @@ import org.guzz.orm.BusinessInterpreter;
 public @interface Entity {
 	
 	/**
-	 * (Required) A unique name referenced to the domain class.
+	 * (Optional) A unique name referenced to the domain class.
 	 */
-	String businessName() ;
+	String businessName() default "" ;
 	
 	/**
 	 * (Optional) the interpretor for the domain class.
