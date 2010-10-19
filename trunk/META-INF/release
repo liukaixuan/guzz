@@ -1,7 +1,7 @@
-1.2.9 alpha 1
+1.2.9 beta1
 	1. new feature: support a service to depend on other services.
-	2. add a new Id generator--random id generator.
-
+	2. add a new Id generator--random id generator(generate a secure id).
+	3. fix some bugs.
 
 1.2.8 final
 	1. fix a bug in annotated Enumeration.
