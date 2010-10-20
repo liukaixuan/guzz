@@ -75,17 +75,22 @@ java.sql.SQLException: No suitable driver
 
  shard做的是将不同的表分到不同的物理数据库中，不涉及同1张表的分切。对于同一张的分切，我们现在使用的有自定义调查，每次调查1张表。具体可以看下：[http://guzz.javaeye.com/blog/638931]
 
-*7. 表的分切（shadow）是否也可以和shard技术融合，切分后的多张小表分布在不同的数据库组中？*
+*7. 表的分切（shadow），之后。能支持join操作吗？如果支持，join的效率是不是很低的？还是，就是如何支持limit m，n?我要limit 0 10，你要遍历所有的库吗？*
 
- 切分后的小表不支持分散在多组数据库中。
+ 支持。进行多表查询需要自己编写sql语句，需要join那些表，sql效率如何完全由开发者或DBA决定。因为shadow策略是项目自己定义的，guzz并不知道实际有多少表，数据是如何分布的，所有也不可能进行自动遍历。所有可能牵涉到性能攸关的地方，guzz一般会自动降低设计等级，由类似hibernate的接口转入类似ibatis的接口，以方便程序更好的控制。具体使用方式：[http://code.google.com/p/guzz/wiki/TutorialCustomTable?wl=zh-Hans#案例说明：多表查询]
 
  这种功能可能会造成数据库表分散的非常复杂，最后连DBA都晕，所以想先收集下shard和shadow的使用案例和技巧，在进行设计。这个功能计划在1.2.9或者1.3.0版本实现。
 
-*8. Guzz JSP Taglib中说可以只写jsp，不用写java代码，直接部署jsp不用重启应用服务器？jsp改动或者增加新的jsp，可以不用重启应用服务器？*
+*9. Guzz JSP Taglib中说可以只写jsp，不用写java代码，直接部署jsp不用重启应用服务器？jsp改动或者增加新的jsp，可以不用重启应用服务器？*
 
  改动JSP是不需要重启应用服务器的，所有java应用服务器都支持。
 
-*9. 怎么调用存储过程？
+
+*9. Guzz JSP Taglib中说可以只写jsp，不用写java代码，直接部署jsp不用重启应用服务器？jsp改动或者增加新的jsp，可以不用重启应用服务器？*
+
+ 改动JSP是不需要重启应用服务器的，所有java应用服务器都支持。
+
+*10. 怎么调用存储过程？
  
  通过ReadonlyTranSession或WriteTranSession的createJDBCTemplate获取JDBCTemplate。通过JDBCTemplate.getConnection()获取数据库连接，然后通过JDBC的调用方法进行调用。
 
