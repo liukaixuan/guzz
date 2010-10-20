@@ -210,6 +210,11 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	}
 
 	public void clearBatch() {
+		//not initialized.
+		if(mark == 0){
+			return ;
+		}
+		
 		try {
 			ps.clearBatch() ;
 		} catch (SQLException e) {
@@ -218,6 +223,11 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	}
 
 	public int[] executeUpdate() {
+		//not initialized.
+		if(mark == 0){
+			return new int[0] ;
+		}
+		
 		try {
 			return ps.executeBatch() ;
 		} catch (SQLException e) {
@@ -235,7 +245,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 
 	public void setTableCondition(Object tableCondition) {
 		if(mark != 0){ //sql已经准备完毕了，不允许在更改。避免同一个对象映射到多个表在1个batch中执行。
-			throw new DaoException("batch has already started. please setTableCondtion before invoking insert/update/delete method.") ;
+			throw new DaoException("batch has already been started. Call setTableCondtion before invoking insert/update/delete method.") ;
 		}
 		
 		this.tableCondition = tableCondition;

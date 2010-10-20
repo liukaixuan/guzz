@@ -33,9 +33,9 @@ import org.guzz.orm.sql.CompiledSQL;
  */
 public class SQLBatcherImpl implements SQLBatcher {
 
-	private PreparedStatement ps ;
-	private Dialect dialect ;
-	private CompiledSQL cs ;
+	private final PreparedStatement ps ;
+	private final Dialect dialect ;
+	private final CompiledSQL cs ;
 	
 	public SQLBatcherImpl(PreparedStatement ps, Dialect dialect, CompiledSQL cs){
 		this.ps = ps ;
