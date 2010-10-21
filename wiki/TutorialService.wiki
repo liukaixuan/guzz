@@ -146,8 +146,7 @@ public class MemcachedCountServiceClientImpl extends AbstractService implements 
 </guzz-configs>
 }}}
 
- The {{{<service>}}} tag has four attributes:
- 
+The {{{<service>}}} tag has four attributes: 
  # name: service name. We use the service name to retrieve the service in the application. Must be unique.
  # configName(Optional): The configuration group name in the configuration property file. Used to pass parameters to the Service.
  # dependsOn(Optional): Depended services. Separate multiple depended service names with comma. Guzz will inject the depended services on startup by calling "public void setXXXXService(depended service's interface)". The method must be public, starts with "set" and ends with "Service". Injected by type.
