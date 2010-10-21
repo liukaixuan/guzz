@@ -147,10 +147,11 @@ public class MemcachedCountServiceClientImpl extends AbstractService implements 
 }}}
 
  The {{{<service>}}} tag has four attributes:
- name: service name. We use the service name to retrieve the service in the application. Must be unique.
- configName(Optional): The configuration group name in the configuration property file. Used to pass parameters to the Service.
- dependsOn(Optional): Depended services. Separate multiple depended service names with comma. Guzz will inject the depended services on startup by calling "public void setXXXXService(depended service's interface)". The method must be public, starts with "set" and ends with "Service". Injected by type.
- class: full qualified class name of the implementation.
+ 
+ # name: service name. We use the service name to retrieve the service in the application. Must be unique.
+ # configName(Optional): The configuration group name in the configuration property file. Used to pass parameters to the Service.
+ # dependsOn(Optional): Depended services. Separate multiple depended service names with comma. Guzz will inject the depended services on startup by calling "public void setXXXXService(depended service's interface)". The method must be public, starts with "set" and ends with "Service". Injected by type.
+ # class: full qualified class name of the implementation.
 
  Every service can define its parameters(like appName and serverList in anti-cheat service), and the parameters are read and passed by the ConfigManager, such as org.guzz.config.LocalFileConfigServer in this example. ConfigManager is a interface, you can write it yourself. The default implementation is LocalFileConfigServer which reads a grouped properties file like bbs.properties, and shipped in guzz's core package.
 
