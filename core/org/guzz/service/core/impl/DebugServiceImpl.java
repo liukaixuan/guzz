@@ -81,10 +81,12 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 			return ;
 		}
 		
-		if(printSQLParams){
-			logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
-		}else if(printSQL){
-			logInfo("sql:[" + sql + "]") ;
+		if(printSQL){
+			if(printSQLParams){
+				logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
+			}else{
+				logInfo("sql:[" + sql + "]") ;
+			}
 		}
 	}
 	
@@ -93,10 +95,12 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 			return ;
 		}
 		
-		if(printSQLParams){
-			logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
-		}else if(printSQL){
-			logInfo("sql:[" + sql + "]") ;
+		if(printSQL){
+			if(printSQLParams){
+				logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
+			}else{
+				logInfo("sql:[" + sql + "]") ;
+			}
 		}
 	}
 	
@@ -105,10 +109,12 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 			return ;
 		}		
 		
-		if(printSQLParams){
-			logInfo("sql:[" + bsql.getSQLToRun() + "], params is:[" + bsql.getBindedParams() + "]") ;
-		}else if(printSQL){
-			logInfo("sql:[" + bsql.getSQLToRun() + "]") ;
+		if(printSQL){
+			if(printSQLParams){
+				logInfo("sql:[" + bsql.getSQLToRun() + "], params is:[" + bsql.getBindedParams() + "]") ;
+			}else{
+				logInfo("sql:[" + bsql.getSQLToRun() + "]") ;
+			}
 		}
 	}
 	
@@ -117,10 +123,12 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 			return ;
 		}
 		
-		if(printSQLParams){
-			logInfo("sql:[" + sqlStatment + "], params is:[" + bsql.getBindedParams() + "]") ;
-		}else if(printSQL){
-			logInfo("sql:[" + sqlStatment + "]") ;
+		if(printSQL){
+			if(printSQLParams){
+				logInfo("sql:[" + sqlStatment + "], params is:[" + bsql.getBindedParams() + "]") ;
+			}else{
+				logInfo("sql:[" + sqlStatment + "]") ;
+			}
 		}
 	}
 
