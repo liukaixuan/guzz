@@ -10,7 +10,7 @@
 
 本例子没有演示通过guzz.xml配置sql查询与映射。
 
-*下载地址：*[http://guzz.googlecode.com/files/GuzzVote_cn.zip]
+*下载地址：*[http://code.google.com/p/guzz/downloads/list http://guzz.googlecode.com/files/GuzzVote_cn.zip]
 
 下载后的代码为MyEclipse工程，可以直接导入。工程的doc/vote.sql 为数据库创建脚本，创建2组数据库和相应的表结构。
 

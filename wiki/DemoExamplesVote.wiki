@@ -8,7 +8,7 @@ This sample also showed you how to use (fundamental) services. There are three s
 
 Guzz's core services slowupdate/slowupdateServer, log，and debug service are also used.
 
-*Download the source：*[http://guzz.googlecode.com/files/GuzzVote.zip http://guzz.googlecode.com/files/GuzzVote.zip]
+*Download the source：*[http://code.google.com/p/guzz/downloads/list http://guzz.googlecode.com/files/GuzzVote.zip]
 
 The downloaded zip file is extracted to be a MyEclipse project, and import it directly. doc/vote.sql in the project is used to create the two databases.
 
