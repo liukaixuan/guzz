@@ -145,7 +145,8 @@ public class MemcachedCountServiceClientImpl extends AbstractService implements 
 
 {{{<service>}}}标签中需定义以下属性：
  name：服务名称，应用系统通过名称获取服务。
- configName：配置文件(.properties)中的配置组名称
+ configName（可选属性）：配置文件(.properties)中的配置组名称。
+ dependsOn（可选属性）: 依赖的服务。属性的值为所依赖的服务名称，多个服务之间用英文逗号分隔。guzz在服务初始化时进行IOC依赖注入，注入时调用服务实现类的public void setXXXXService(所依赖服务类型 )注入；方法必须以set开头，以Service结尾，参数为所依赖服务的类型。
  class：服务实现完整类名
 
  每个服务都可以有他自己的配置属性（记得上面说的appName？），guzz通过ConfigManager获取这些配置信息，如以上配置文件中的org.guzz.config.LocalFileConfigServer，通过读取本地文件bbs.properties获取服务配置信息。（ConfigManager可以自己实现，从统一的配置管理服务器读取配置。）
