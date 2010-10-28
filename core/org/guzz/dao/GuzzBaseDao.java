@@ -217,7 +217,7 @@ public class GuzzBaseDao {
 	
 	public void setGuzzContext(GuzzContext guzzContext){
 		this.guzzContext = guzzContext ;
-		this.transactionManager = guzzContext.getTransactionManager() ;
+		setTransactionManager(guzzContext.getTransactionManager()) ;
 	}
 	
 	public GuzzContext getGuzzContext(){
