@@ -49,25 +49,21 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 	private int queueSize = 20480 ;
 	private int updateInterval ;
 
-	public boolean configure(ServiceConfig[] scs) {			
-		if(scs == null || scs.length == 0){
-			//没有配置此项，不启动。
-			log.warn("slowUpdateServer is not started. no configuration found.") ;
-			return false;
-		}
-		
-		ServiceConfig sc = scs[0] ;
-		
-		String m_commitSize = (String) sc.getProps().get("commitSize") ;
-		String m_queueSize = (String) sc.getProps().get("queueSize") ;
-		String m_checkInterval = (String) sc.getProps().get("checkInterval") ;
-		
-		this.commitSize = StringUtil.toInt(m_commitSize, this.commitSize) ;
-		this.queueSize = StringUtil.toInt(m_queueSize, this.queueSize) ;
-		this.updateInterval = StringUtil.toInt(m_checkInterval, -1) ;
-		
-		if(this.updateThread != null && this.updateInterval > 10){
-			this.updateThread.setMillSecondsToSleep(updateInterval) ;
+	public boolean configure(ServiceConfig[] scs) {
+		if(scs != null || scs.length > 0){
+			ServiceConfig sc = scs[0] ;
+			
+			String m_commitSize = (String) sc.getProps().get("commitSize") ;
+			String m_queueSize = (String) sc.getProps().get("queueSize") ;
+			String m_checkInterval = (String) sc.getProps().get("checkInterval") ;
+			
+			this.commitSize = StringUtil.toInt(m_commitSize, this.commitSize) ;
+			this.queueSize = StringUtil.toInt(m_queueSize, this.queueSize) ;
+			this.updateInterval = StringUtil.toInt(m_checkInterval, -1) ;
+			
+			if(this.updateThread != null && this.updateInterval > 10){
+				this.updateThread.setMillSecondsToSleep(updateInterval) ;
+			}
 		}
 		
 		return true ;

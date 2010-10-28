@@ -100,7 +100,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 	
 	public void updateCount(String dbGroup, String tableName, String columnToUpdate, String pkColName, Serializable pkValue, int countToInc) {
 		if(!isAvailable()){
-			throw new GuzzException("superSlowUpdateService is not available. use the config server's [slowUpdate] to active this service.") ;
+			throw new GuzzException("superSlowUpdateService is not available. use the config server's [" + FAMOUSE_SERVICE.SLOW_UPDATE + "] to active this service.") ;
 		}
 		
 		//key
