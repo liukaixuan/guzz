@@ -92,6 +92,26 @@ org.guzz.web.context.GuzzContextAware
  is declared to tell guzz to inject the !GuzzContext to this Interpreter.
  
  A BusinessInterpreter is instanced only once on the startup for one domain class, so, it must be thread-safe!
+ 
+== Keys of writing a custom Interpreter == 
+ 
+ The simple way to write a custom BusinessInterpreter is to create a class derived from SEBusinessInterpreter, then override its parent's "protected Object explainWellKnownCondition(String limitTo)" and "protected Object explainOtherTypeConditon(Object limitTo)".
+ 
+ explainWellKnownCondition is called to parse user-defined String conditions, like "myArticles" and so so.
+
+ explainOtherTypeConditon is used to parse non-String conditions. Such as the condition "${consoleUser}" in the above.
+
+ The default implementation of both the two methods are throwing a exception, indicating a illegal condition.
+ 
+ In your implementation, return null if you believe there is no need to add the current passed custom condition to the query, throw a exception if the condition is illegal such as no permission granted for a special queried column, OR return a normal SearchTerm condition.
+ 
+== Configure the Interpreter == 
+
+ Custom Interpreter is configured with the business object.
+ 
+ If you are mapping business object with hbm.xml and declare it with business tag in guzz.xml, set the interpreter attribute of the business tag to your implementation's full class name.
+ 
+ If you map it with (JPA) annotation. Add the annotation of org.guzz.annotations.Entity in the business class, and set the annotation's interpreter attribute to your implementation.
 
 == BusinessInterpreter Interface:  ==
 
