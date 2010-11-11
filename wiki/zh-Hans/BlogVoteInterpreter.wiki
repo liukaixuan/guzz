@@ -81,6 +81,25 @@ public class BlogVoteInterpreter extends SEBusinessInterpreter implements GuzzCo
 org.guzz.web.context.GuzzContextAware
 }}}
  用于在初始化时注入!GuzzContext实例。BusinessInterpreter在系统启动时初始化，仅初始化1次，每一个域对象对应1个实例，因此需要支持多线程操作。
+ 
+== Interpreter编写要点 == 
+ 
+ 一般情况下，自定义的Interpreter类继承SEBusinessInterpreter，并覆盖实现基类的protected Object explainWellKnownCondition(String limitTo)和protected Object explainOtherTypeConditon(Object limitTo)方法。
+ 
+explainWellKnownCondition用于解析guzz标准解析器无法解析的字符串条件，如“myArticles”。
+
+explainOtherTypeConditon用于解析非String类型的条件，如上面传入的"${consoleUser}"。
+
+这两个方法默认实现均为抛出异常，提示用户传入了非法条件。
+
+方法如果返回null，表示传入的条件不加入到查询语句中；如果传入条件非法，应抛出异常。
+
+
+== Interpreter的配置 == 
+
+ Interpreter在配置领域对象时配置。如果领域对象采用hbm.xml的映射文件，则在guzz.xml中配置business标签时，设置interpreter属性值为Interpreter实现的完整类名。
+ 
+  如果采用annotation声明领域对象，则在领域class上添加org.guzz.annotations.Entity注释，并设置注释的interpreter属性为Interpreter实现类。
 
 == BusinessInterpreter定义：  ==
 
