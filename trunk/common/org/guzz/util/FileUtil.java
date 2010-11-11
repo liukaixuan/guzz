@@ -110,8 +110,10 @@ public abstract class FileUtil {
 			
 			byte buff[] = new byte[4096];
 			int length;
-			while ((length = inputStream.read(buff, 0, 4096)) > 0) {
-				fos.write(buff, 0, length);
+			while ((length = inputStream.read(buff, 0, 4096)) != -1) {
+				if(length > 0){
+					fos.write(buff, 0, length);
+				}
 			}
 		} finally {
 			CloseUtil.close(fos) ;
@@ -130,8 +132,10 @@ public abstract class FileUtil {
 
 			byte buff[] = new byte[4096];
 			int length;
-			while ((length = inputStream.read(buff, 0, 4096)) > 0) {
-				bos.write(buff, 0, length);
+			while ((length = inputStream.read(buff, 0, 4096)) != -1) {
+				if(length > 0){
+					bos.write(buff, 0, length);
+				}
 			}
 			
 			return bos.toByteArray() ;
@@ -158,8 +162,10 @@ public abstract class FileUtil {
             char buff[] = new char[4096];
     		int length;
     		
-    		while ((length = isr.read(buff, 0, 4096)) > 0) {
-    			 sb.append(buff, 0, length) ;
+    		while ((length = isr.read(buff, 0, 4096)) != -1) {
+    			if(length > 0){ 
+    				sb.append(buff, 0, length) ;
+    			}
     		}
     		
             return sb.toString();
