@@ -95,7 +95,7 @@ public class DemonQueuedThread  extends Thread{
 			}catch(Exception e){
 				shouldSleep = true ;
 				//ignore all errors
-				log.error("error whiling updating inc queue.", e) ;
+				log.error("error occured whiling processing the queue of thread: " + this.threadName, e) ;
 			}
 			
 			if(shouldSleep){
