@@ -25,64 +25,72 @@ import java.util.Collection;
  */
 public class Terms {
 	
-	public static CompareTerm eq(String paramName, int paramValue){
-		return new CompareTerm(paramName, CompareTerm.EQUALS , new Integer(paramValue)) ;
+	public static CompareTerm eq(String propName, int paramValue){
+		return new CompareTerm(propName, CompareTerm.EQUALS , new Integer(paramValue)) ;
 	}
 	
-	public static CompareTerm notEq(String paramName, int paramValue){
-		return new CompareTerm(paramName, CompareTerm.NOT_EQUALS , new Integer(paramValue)) ;
+	public static CompareTerm notEq(String propName, int paramValue){
+		return new CompareTerm(propName, CompareTerm.NOT_EQUALS , new Integer(paramValue)) ;
 	}
 	
-	public static CompareTerm notEq(String paramName, Object paramValue){
-		return new CompareTerm(paramName, CompareTerm.NOT_EQUALS , paramValue) ;
+	public static CompareTerm notEq(String propName, Object paramValue){
+		return new CompareTerm(propName, CompareTerm.NOT_EQUALS , paramValue) ;
 	}
 		
-	public static CompareTerm eq(String paramName, Object paramValue){		
-		return new CompareTerm(paramName, CompareTerm.EQUALS , paramValue) ;
+	public static CompareTerm eq(String propName, Object paramValue){		
+		return new CompareTerm(propName, CompareTerm.EQUALS , paramValue) ;
 	}
 	
-	public static CompareTerm smaller(String paramName, int paramValue){
-		return new CompareTerm(paramName, CompareTerm.SMALLER , new Integer(paramValue)) ;
+	public static CompareTerm smaller(String propName, int paramValue){
+		return new CompareTerm(propName, CompareTerm.SMALLER , new Integer(paramValue)) ;
 	}
 	
-	public static CompareTerm smaller(String paramName, Object paramValue){
-		return new CompareTerm(paramName, CompareTerm.SMALLER , paramValue) ;
+	public static CompareTerm smaller(String propName, Object paramValue){
+		return new CompareTerm(propName, CompareTerm.SMALLER , paramValue) ;
 	}
 	
-	public static CompareTerm smallerOrEq(String paramName, Object paramValue){
-		return new CompareTerm(paramName, CompareTerm.SMALLER_OR_EQUALS , paramValue) ;
+	public static CompareTerm smallerOrEq(String propName, Object paramValue){
+		return new CompareTerm(propName, CompareTerm.SMALLER_OR_EQUALS , paramValue) ;
 	}
 	
-	public static CompareTerm bigger(String paramName, Object paramValue){
-		return new CompareTerm(paramName, CompareTerm.BIGGER , paramValue) ;
+	public static CompareTerm bigger(String propName, Object paramValue){
+		return new CompareTerm(propName, CompareTerm.BIGGER , paramValue) ;
 	}
 	
-	public static CompareTerm biggerOrEq(String paramName, Object paramValue){
-		return new CompareTerm(paramName, CompareTerm.BIGGER_OR_EQUALS , paramValue) ;
+	public static CompareTerm biggerOrEq(String propName, Object paramValue){
+		return new CompareTerm(propName, CompareTerm.BIGGER_OR_EQUALS , paramValue) ;
 	}
 	
-	public static CompareTerm bigger(String paramName, int paramValue){		
-		return new CompareTerm(paramName, CompareTerm.BIGGER , new Integer(paramValue)) ;
+	public static CompareTerm bigger(String propName, int paramValue){		
+		return new CompareTerm(propName, CompareTerm.BIGGER , new Integer(paramValue)) ;
 	}
 	
-	public static CompareTerm biggerOrEq(String paramName, int paramValue){
-		return new CompareTerm(paramName, CompareTerm.BIGGER_OR_EQUALS , new Integer(paramValue)) ;
+	public static CompareTerm biggerOrEq(String propName, int paramValue){
+		return new CompareTerm(propName, CompareTerm.BIGGER_OR_EQUALS , new Integer(paramValue)) ;
 	}
 	
-	public static CompareTerm like(String paramName, String paramValue, boolean ignoreCase){
-		return new StringCompareTerm(paramName, StringCompareTerm.LIKE , paramValue, ignoreCase) ;
+	public static CompareTerm like(String propName, String paramValue, boolean ignoreCase){
+		return new StringCompareTerm(propName, StringCompareTerm.LIKE , paramValue, ignoreCase) ;
 	}
 	
-	public static CompareTerm stringEq(String paramName, String paramValue, boolean ignoreCase){
-		return new StringCompareTerm(paramName, StringCompareTerm.EQUALS , paramValue, ignoreCase) ;
+	public static CompareTerm stringEq(String propName, String paramValue, boolean ignoreCase){
+		return new StringCompareTerm(propName, StringCompareTerm.EQUALS , paramValue, ignoreCase) ;
 	}
 	
-	public static InTerm in(String paramName, int[] values){		
-		return new InTerm(paramName, values) ;
+	public static InTerm in(String propName, int[] values){		
+		return new InTerm(propName, values) ;
 	}
 	
-	public static InTerm in(String paramName, Collection values){		
-		return new InTerm(paramName, values) ;
+	public static InTerm in(String propName, Collection values){		
+		return new InTerm(propName, values) ;
+	}
+	
+	public static IsNullTerm isNull(String propName){		
+		return new IsNullTerm(propName) ;
+	}
+	
+	public static NotNullTerm notNull(String propName){		
+		return new NotNullTerm(propName) ;
 	}
 	
 }
