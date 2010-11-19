@@ -133,7 +133,7 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 		return pkValue;
 	}
 
-	public void setPkValue(String pkValue) {
+	public void setPkValue(Serializable pkValue) {
 		this.pkValue = pkValue;
 	}
 
