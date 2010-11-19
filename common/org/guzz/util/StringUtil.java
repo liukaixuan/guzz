@@ -387,24 +387,39 @@ public class StringUtil {
 	 * </pre>
 	 */
 	public static String squeezeWhiteSpace(String str) {
-		str = dealNull(str);
-		StringBuffer sb = new StringBuffer(str);
-		StringBuffer sb2 = new StringBuffer();
-		boolean flag = false;
-
-		for (int i = 0; i < sb.length(); i++) {
-			char c = sb.charAt(i);
-			if (c != ' ' && c != '\t') {
-				if (flag) {
-					sb2.append(' ');
-					flag = false;
+		if(str == null) return null ;
+		char[] cs = str.toCharArray() ;
+		
+		StringBuffer sb2 = new StringBuffer(cs.length);
+		
+		boolean alreadyMeetSpace = true ;
+		
+		for(int i = 0 ; i < cs.length ; i++){
+			char c = cs[i] ;
+			
+			if(c == ' ' || c == '\t'){
+				if(alreadyMeetSpace){
+					continue ;
+				}else{
+					sb2.append(' ') ;
+					alreadyMeetSpace = true ;
 				}
-				sb2.append(c);
-			} else {
-				flag = true;
+			}else{
+				sb2.append(c) ;
+				
+				alreadyMeetSpace = false ;
 			}
 		}
-		return sb2.toString().trim();
+		
+		//check the last char is not space
+		if(alreadyMeetSpace){
+			//perform right-trim()
+			if(sb2.length() > 0){
+				sb2.setLength(sb2.length() - 1) ;
+			}
+		}
+		
+		return sb2.toString() ;
 	}
 
 	public static int toInt(String s, int defaultValue) {
