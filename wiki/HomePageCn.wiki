@@ -1,4 +1,4 @@
-|| [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [HomePageCn?wl=zh-Hans 简体中文] ||
+|| [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [HomePageCn 简体中文] ||
 
 = 什么是guzz？ =
 
