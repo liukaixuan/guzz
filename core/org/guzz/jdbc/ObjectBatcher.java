@@ -52,5 +52,7 @@ public interface ObjectBatcher extends Batcher {
 	public void update(Object domainObject) ;
 	
 	public void delete(Object domainObject) ;
+
+	public void setTableCondition(Object tableCondition) ;
 	
 }

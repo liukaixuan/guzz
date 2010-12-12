@@ -220,6 +220,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error execute clearBatch. CompiledSQL is:" + runtimeCS, e) ;
 		}
+		
+		this.mark = 0 ;
 	}
 
 	public int[] executeUpdate() {

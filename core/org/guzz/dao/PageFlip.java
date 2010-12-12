@@ -301,10 +301,21 @@ public class PageFlip {
 	 * @param pageNoParamName parameter name of the page number.
 	 */
 	public void setFlipURL(HttpServletRequest request, String pageNoParamName){
-		String queryString = request.getQueryString() ;
+		//servlet 1.4 --handle forward. http://www.caucho.com/resin-3.0/webapp/faq.xtp
+		String queryString = (String) request.getAttribute("javax.servlet.forward.query_string") ;
+		if(queryString == null){
+			queryString = request.getQueryString() ;
+		}
+		
 		queryString =  StringUtil.getSubQueryString(queryString, pageNoParamName) ;
-
-		StringBuffer spath = request.getRequestURL() ;
+		
+		String requestUri =	(String) request.getAttribute("javax.servlet.forward.request_uri");
+		if(requestUri == null){
+			requestUri = request.getRequestURI() ;
+		}
+		
+		StringBuffer spath = new StringBuffer(requestUri.length() + 16) ;
+		spath.append(requestUri) ;
 
 		if(StringUtil.isEmpty(queryString)){
 			spath.append("?") ;

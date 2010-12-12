@@ -256,7 +256,15 @@
         <name>scope</name>
         <required>false</required>
         <rtexprvalue>true</rtexprvalue>
-    </attribute>    
+    </attribute>
+    <attribute>
+        <description>
+			排序方式，多个排序用英文的逗号分隔，如：name asc, id desc, friendCount asc 
+        </description>
+        <name>orderBy</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
   </tag>
   
   <tag>
