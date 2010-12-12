@@ -1,18 +1,19 @@
-
 || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [HomePageCn 简体中文] ||
 
 = what is guzz? =
 
 guzz是一套用来进行快速开发和高性能网站设计的框架，通过ORM、多数据源数据管理、切表、以及通用数据处理，为系统在数据层的设计提供一站式解决方案。用于替代或者补充hibernate或ibatis，并提供更多的大型系统架构设计支持。
 
-*简单来说*，guzz让你可以将系统中的每张表存储到不同机器的不同数据库中；当某些表的读取频率较高时，可以随时进行主从分离，扩展N台读数据库；当某些表增长较大时，可以将大表分切成无数张小表，如果需要还允许每张小表有拥有自己的特殊字段。编程时，像hibernate一样简单的通过领域对象来操作分布复杂的应用数据和多库之间的分布式事务。
+*简单来说*，guzz让你可以将系统中的每张表存储到不同机器的不同数据库中；当某些表的读取频率较高时，可以随时进行主从分离，扩展N台读数据库；当某些表增长较大时，可以将大表分切成无数张小表，如果需要还允许每张小表有拥有自己的特殊字段。编程时，像hibernate一样简单的通过领域对象来操作分布复杂的应用数据和多库之间的分布式事务。guzz也会影响您的编程习惯，设计时考虑更多的数据扩展与分布，写代码时使用更多的批操作。
 
 guzz的目标是使得大型化网站设计更加简单，团队分工更加明确，框架在使用时更少出问题。主要功能：
  * 现代大规模系统设计，技术上吸收了ibatis/hibernate的优点
 
- * 支持像hibernate一样的对象持久，映射和方便的增删改查
+ * 对于大部分场景，支持像hibernate一样的对象持久，映射和方便的增删改查，提高开发效率。
 
- * 支持像ibatis一样，让dba参与sql设计的复杂数据库操作和优化
+ * 对于复杂场景，支持像ibatis一样，让dba参与sql设计的复杂数据库操作和优化，以及SQL在线调试。
+
+ * 更简洁，更好用，更容易控制的批操作接口。
 
  * 支持在线加载与调试SQL。按照应用策略，从文件/数据库/Web Service等途径，动态提取与使用SQL语句（Dynamic SQL）。
 
@@ -50,58 +51,4 @@ guzz的目标是使得大型化网站设计更加简单，团队分工更加明�
 
 = roadmap =
 
-*下一版本1.2.9 开发计划：*
- # something
-
-*release note*:
-
-1.2.8 beta2:
- # support dynamic sql(say: Before this you define sqls in ibatis's config file; and from now, you can define sqls in anywhere(eg: database), and put the new sqls online dynamically.).
- # support 2 new rpc protocols: hessian, burlap.
- # support JDK5's enum.
- # allow pass a parameter to enum and date/time related data types.
- # support escape character `````` for column name.
-
-1.2.8 beta1:
- # limited(but enough for guzz) JPA annotation support.
- # add a new Id generator hilo-multi.
- # add byte data type support.
- # fix a bug in "hilo" id generator.
-	
-1.2.7 final build20100406:
- # fix a few bugs
-	
-1.2.7 rc2:
- # fix bug: fail to shut down the connection pool when guzz closed.
- # new: add long data type support as bigint
- # improvement: others
-	
-1.2.7 rc1:
- # fix bug: guzz taglib doesn't support custom property in limit
- # improvement: move IDataTypeHandler to common package.
- # improvement: call setExtendedBeanFactory after spring's full starting.
-
-1.2.7 beta4:
- # add support for id generator: hilo, seqhilo
- # change default sequence name from guzzSeq to guzz_sequence
- # add support for Service/ShadowTableView/CustomTableView/ColumnDataLoader to fetch outside reference(eg: spring ApplicationContext).
- # change guzz with spring's integrate configurations.
-
-1.2.7 beta3:
- # custom table support.
- # fix bug: ReadonlySession.refresh() should throw a exception if the record doesn't exsit, but not.
-
-1.2.7 beta2:
- # 完成表分切支持。允许同一对象按照业务规则，分别存储在不同的表中。如新闻评论：新闻频道的评论存放在 tb_c1，娱乐：tb_c2，体育tb_c3，其他：tb_c4，满足同类在线数据的数据表平行扩展需要。表分切技术命名为：Shadow Table
- # 支持远程服务未来读取结果功能。用于支持多个远程服务可以同步的调用。
-
-1.2.7 beta1:
- # draft
-
-1.2.6：
-
- # support clob/blob/decimal/byte data type
- # new api for writing with upgrade lock
- # supply new custom loaders for clob and blob
-
-....
+请看首页的：）～～
