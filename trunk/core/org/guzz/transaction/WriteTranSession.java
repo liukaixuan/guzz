@@ -104,6 +104,17 @@ public interface WriteTranSession extends TranSession{
 	public boolean delete(Object domainObject) ;
 	
 	
+	/**
+	 * @param domainObject
+	 * @param tableCondition
+	 */
+	public Serializable insert(Object domainObject, Object tableCondition) ;
+	
+	public boolean update(Object domainObject, Object tableCondition) ;
+	
+	public boolean delete(Object domainObject, Object tableCondition) ;
+	
+	
 	//通用的更新查询。
 	public int executeUpdate(String id, Map params) ;
 	

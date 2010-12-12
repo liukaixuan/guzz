@@ -30,6 +30,10 @@ public class CookieUtil {
 
 	public final static int COOKIE_AGE_1Week = COOKIE_AGE_24H * 7;
 
+	public final static int COOKIE_AGE_1Month = COOKIE_AGE_24H * 30;
+
+	public final static int COOKIE_AGE_3Month = COOKIE_AGE_1Month * 3;
+
 	public final static int COOKIE_AGE_1Year = COOKIE_AGE_24H * 365;
 
 	public final static int COOKIE_AGE_SESSION = -1;

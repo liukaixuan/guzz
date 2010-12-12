@@ -67,12 +67,25 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	}
 	
 	public boolean delete(Object domainObject) {
+		return this.delete(domainObject, Guzz.getTableCondition()) ;
+	}
+
+	public Serializable insert(Object domainObject) {
+		return this.insert(domainObject, Guzz.getTableCondition()) ;
+	}
+
+	public boolean update(Object domainObject) {
+		return this.update(domainObject, Guzz.getTableCondition()) ;
+	}
+	
+	public boolean delete(Object domainObject, Object tableCondition) {
 		CompiledSQL cs = this.compiledSQLManager.getDefinedDeleteSQL(getRealDomainClass(domainObject).getName()) ;
 		if(cs == null){
 			throw new DaoException("no defined sql found for class:[" + getRealDomainClass(domainObject).getName() + "]. forget to register it in guzz.xml?") ;
 		}
 		
 		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		bsql.setTableCondition(tableCondition) ;
 		NormalCompiledSQL runtimeCS = bsql.getCompiledSQLToRun() ;
 		
 		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
@@ -97,7 +110,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		return success ;
 	}
 
-	public Serializable insert(Object domainObject) {
+	public Serializable insert(Object domainObject, Object tableCondition) {
 		//inserted domainObject must be orginal(not proxied).
 		CompiledSQL cs = this.compiledSQLManager.getDefinedInsertSQL(domainObject.getClass().getName()) ;
 		if(cs == null){
@@ -105,6 +118,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		}
 		
 		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		bsql.setTableCondition(tableCondition) ;
 		NormalCompiledSQL runtimeCS = bsql.getCompiledSQLToRun() ;
 		
 		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
@@ -139,7 +153,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		return pk ;
 	}
 
-	public boolean update(Object domainObject) {
+	public boolean update(Object domainObject, Object tableCondition) {
 		/*
 		 * 1. 所有含有loader字段的属性不进行保存。
 		 * 2. 所有lazy属性，只有在显式的调用setxxx方法后才进行保存。
@@ -211,6 +225,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		}
 		
 		BindedCompiledSQL bsql = cs.bindNoParams() ;
+		bsql.setTableCondition(tableCondition) ;
 				
 		for(int i = 0 ; i < updatedProps.length ; i++){
 			Object value = bw.getValueUnderProxy(domainObject, updatedProps[i]) ;

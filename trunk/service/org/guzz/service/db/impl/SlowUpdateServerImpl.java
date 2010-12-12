@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContext;
+import org.guzz.Service;
 import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
 import org.guzz.jdbc.JDBCTemplate;
@@ -83,6 +84,8 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 		
 	protected UpdateToMasterDBThread updateThread ;
 	
+	private UpdateExceptionHandlerService updateExceptionHandlerService ;
+	
 	public int getLatency() {
 		//FIXME: implmemet this
 		return 0;
@@ -121,22 +124,45 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 		return true ;
 	}
 
+	public boolean isAvailable() {
+		return updateThread != null ;
+	}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		this.guzzContext = guzzContext ;
+		this.tm = guzzContext.getTransactionManager() ;	
+	}
+
+	public void startup() {
+	}
+
 	public void shutdown() {
 		if(updateThread != null){
 			updateThread.shutdown() ;
 			updateThread = null ;
 		}
 	}
+
+	public void setUpdateExceptionHandlerService(UpdateExceptionHandlerService updateExceptionHandlerService) {
+		this.updateExceptionHandlerService = updateExceptionHandlerService;
+	}
 	
 	class UpdateToMasterDBThread extends DemonQueuedThread{
 		
+		protected CompiledSQL deleteTempSQL ;
+		
 		public UpdateToMasterDBThread(int queueSize){
 			super("slowUpdateServerThread", queueSize) ;
+			
+			deleteTempSQL = tm.getCompiledSQLBuilder().buildCompiledSQL(IncUpdateBusiness.class, "delete from @@" + IncUpdateBusiness.class.getName() + " where @id <= :id") ;
+			deleteTempSQL.addParamPropMapping("id", "id") ;
 		}
 		
 		protected boolean doWithTheQueue() throws SQLException{
-			TransactionManager tm = SlowUpdateServerImpl.this.tm ;
-			if(tm == null) return false ;
+			if(updateExceptionHandlerService != null && !((Service) updateExceptionHandlerService).isAvailable() ){
+				//updateExceptionHandlerService is defined, but not available. wait for it.
+				return false ;
+			}
 			
 			ReadonlyTranSession readSession = null ;
 			WriteTranSession writeSession = null ;
@@ -172,7 +198,7 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 				
 				//更新到主数据库
 				writeSession =tm.openRWTran(false) ;
-				for(int i = 0 ; i < combinedUpdates.size() ; i++){
+				for(int i = 0 ; i < combinedUpdates.size() ;i++){
 					IncUpdateBusiness obj = (IncUpdateBusiness) combinedUpdates.get(i) ;
 					
 					if(obj.getCountToInc() == 0) continue ;
@@ -181,23 +207,39 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 										
 					JDBCTemplate masterJDBC = writeSession.createJDBCTemplateByDbGroup(obj.getDbGroup()) ;
 					
-					masterJDBC.executeUpdate(
-							tableModel.sqlToUpdate, 
-							new SQLDataType[]{tableModel.incCountDataType, tableModel.pkDataType},
-							new Object[]{new Integer(obj.getCountToInc()), obj.getPkValue()}
-						) ;
+					try{
+						int affectedRows = masterJDBC.executeUpdate(
+								tableModel.sqlToUpdate, 
+								new SQLDataType[]{tableModel.incCountDataType, tableModel.pkDataType},
+								new Object[]{new Integer(obj.getCountToInc()), obj.getPkValue()}
+							) ;
+						
+						if(affectedRows == 0 && updateExceptionHandlerService != null){
+							if(updateExceptionHandlerService.recordNotFoundInMainDB(writeSession, masterJDBC, obj)){
+								//go back to re-execute this again
+								i-- ;
+							}
+						}
+					}catch(Exception e){
+						if(updateExceptionHandlerService != null){
+							updateExceptionHandlerService.exceptionCaught(e) ;
+						}else{
+							throw e ;
+						}
+					}
 				}
 				
-				//从临时表删除数据				
-				CompiledSQL deleteTempSQL = tm.getCompiledSQLBuilder().buildCompiledSQL(IncUpdateBusiness.class, "delete from @@" + IncUpdateBusiness.class.getName() + " where @id <= :id") ;
-				deleteTempSQL.addParamPropMapping("id", "id") ;
-				
+				//从临时表删除数据
 				writeSession.executeUpdate(deleteTempSQL.bind("id", maxIdNum)) ;
 				
 				writeSession.commit() ;
 			}catch(Exception e){
 				if(writeSession != null){
 					writeSession.rollback() ;
+				}
+				
+				if(log.isDebugEnabled()){
+					log.error("####slowupdateserver_demon_exception", e) ;
 				}
 				
 				throw new GuzzException(e) ;
@@ -313,18 +355,6 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 		
 		public String sqlToUpdate ;		
 		
-	}
-
-	public boolean isAvailable() {
-		return updateThread != null ;
-	}
-
-	public void setGuzzContext(GuzzContext guzzContext) {
-		this.guzzContext = guzzContext ;
-	}
-
-	public void startup() {
-		this.tm = guzzContext.getTransactionManager() ;	
 	}
 
 }

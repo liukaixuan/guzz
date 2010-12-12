@@ -24,6 +24,7 @@ import javax.servlet.jsp.JspException;
 import org.guzz.orm.Business;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.transaction.ReadonlyTranSession;
+import org.guzz.util.StringUtil;
 
 /**
  * 加载数据。
@@ -31,11 +32,23 @@ import org.guzz.transaction.ReadonlyTranSession;
  * @author liu kaixuan
  */
 public class GhostGetTag extends SummonTag {
+	
+	private String orderBy ;		
+		
+	protected void init() {
+		super.init();
+		
+		this.orderBy = null ;
+	}
 		
 	protected Object summonGhosts(Business business, List conditions) throws JspException, IOException {
 		SearchExpression se = SearchExpression.forBusiness(business.getName()) ;
 		se.setTableCondition(getTableCondition()) ;
 		se.and(conditions) ;
+		
+		if(StringUtil.notEmpty(orderBy)){
+			se.setOrderBy(orderBy) ;
+		}
 		
 		ReadonlyTranSession tran = guzzContext.getTransactionManager().openDelayReadTran() ;
 		
@@ -44,6 +57,14 @@ public class GhostGetTag extends SummonTag {
 		}finally{
 			tran.close() ;
 		}
+	}
+
+	public String getOrderBy() {
+		return orderBy;
+	}
+
+	public void setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
 	}
 
 }

@@ -71,6 +71,36 @@ public class GuzzBaseDao {
 		}
 	}
 	
+	public Serializable insert(Object domainObject, Object tableCondition){
+		WriteTranSession session = transactionManager.openRWTran(true) ;
+		
+		try{
+			return session.insert(domainObject, tableCondition) ;
+		}finally{
+			session.close() ;
+		}
+	}
+	
+	public void update(Object domainObject, Object tableCondition){
+		WriteTranSession session = transactionManager.openRWTran(true) ;
+		
+		try{
+			session.update(domainObject, tableCondition) ;
+		}finally{
+			session.close() ;
+		}
+	}
+	
+	public void delete(Object domainObject, Object tableCondition){
+		WriteTranSession session = transactionManager.openRWTran(true) ;
+		
+		try{
+			session.delete(domainObject, tableCondition) ;
+		}finally{
+			session.close() ;
+		}
+	}
+	
 	public Object getForUpdate(Class domainClass, Serializable pk){
 		WriteTranSession session = transactionManager.openRWTran(true) ;
 		

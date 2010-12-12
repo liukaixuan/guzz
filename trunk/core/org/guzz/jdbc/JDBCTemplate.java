@@ -17,6 +17,7 @@
 package org.guzz.jdbc;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 import javax.transaction.Transaction;
 
@@ -49,12 +50,21 @@ public interface JDBCTemplate {
      * 执行一个SQL语句。
      * @param sql 如：update a set a = a + 1 ;
      * @param params 参数
-     * @return 执行后的结果，返回值参看PreparedStatement.executeUpdate()
+     * @return 执行后的结果，返回值参看{@link PreparedStatement#executeUpdate()}
      */
 	public int executeUpdate(String sql, int[] params) ;
 	
+	/**
+	 * @return {@link PreparedStatement#executeUpdate()}
+	 */
 	public int executeUpdate(String sql, SQLDataType[] dataTypes, Object[] params) ;
 	
+	/**
+	 * 
+	 * Execute a sql without PreparedStatement
+	 * 
+	 * @return {@link PreparedStatement#executeUpdate()}
+	 */
 	public int executeUpdateWithoutPrepare(String sql) ;
 	
 	/**
