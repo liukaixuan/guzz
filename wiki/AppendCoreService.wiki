@@ -108,9 +108,9 @@ Guzz ships with 2 versions of the client implementations. If you have many objec
 <business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:xxx/IncUpdateBusiness.hbm.xml" />
 }}}
 
- [MoreIncUpdateBusinessHbmXml IncUpdateBusiness.hbm.xml] is stored under org.guzz.service.core.impl in guzz's jar file. You need to copy it to somewhere guzz can load, and create the corresponding table with the sqls provided inside IncUpdateBusiness.hbm.xml.
+ [MoreIncUpdateBusinessHbmXml IncUpdateBusiness.hbm.xml] is stored under org.guzz.service.core.impl in guzz's jar file. You need to copy it to somewhere guzz can load, and create the corresponding table with the sqls provided inside [MoreIncUpdateBusinessHbmXml IncUpdateBusiness.hbm.xml].
 
- IncUpdateBusiness holds the counting operations, and will be stored in the temporary table.
+ [MoreIncUpdateBusinessHbmXml IncUpdateBusiness.hbm.xml] holds the counting operations, and will be stored in the temporary table.
 
  And you also have to add the configuration parameters for the service in the properties file:
 

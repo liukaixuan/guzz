@@ -106,7 +106,7 @@ guzz实现了2个版本的计数器更新，一个用于处理要更新对象很
 <business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:xxx/IncUpdateBusiness.hbm.xml" />
 }}}
 
- IncUpdateBusiness.hbm.xml存储在org.guzz.service.core.impl中，需要复制到应用可以找到的目录下。临时表的sql创建语句在IncUpdateBusiness.hbm.xml注释中可以找到，表需要用户自己创建。
+ [MoreIncUpdateBusinessHbmXml IncUpdateBusiness.hbm.xml]存储在org.guzz.service.core.impl中，需要复制到应用可以找到的目录下。临时表的sql创建语句在[MoreIncUpdateBusinessHbmXml IncUpdateBusiness.hbm.xml]注释中可以找到，表需要用户自己创建。
 
  properties文件：
 
