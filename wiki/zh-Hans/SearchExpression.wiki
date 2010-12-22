@@ -99,3 +99,55 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
  对于复杂的查询语句，guzz推荐将查询语句配置到guzz.xml中，通过id查询，类似ibatis。这部分内容一般是以后dba可能会关注的。
 
  对于比较奇特但不会有改动的查询，建议构造CompiledSQL进行。
+ 
+ 在guzz.xml中的配置方式：参看[TutorialGuzzXml]中给的例子和介绍
+ 
+ 在程序构造CompiledSQL的方式：获取TransactionManager，然后获取CompiledSQLBuilder，调用buildCompiledSQL方法。例如：
+ 
+ {{{
+ 
+ 	private CompiledSQL deleteFriendActionsSQL ;
+ 
+ 	//初始化的时候编译SQL，并保存起来。
+ 	public void startup() {
+		//delete a friend's friendActions when un-followed.
+		this.deleteFriendActionsSQL = tm.getCompiledSQLBuilder().buildCompiledSQL(FriendsAction.class, 
+				"delete from @@" + FriendsAction.class.getName() + " where @copiedFrom = :copiedFrom and @owner = :owner"
+				);
+				
+		//绑定参数名和对应的java属性，以确定参数的数据类型。
+		this.deleteFriendActionsSQL.addParamPropMapping("copiedFrom", "copiedFrom") ;
+		this.deleteFriendActionsSQL.addParamPropMapping("owner", "owner") ;
+		
+	}
+	
+	.....
+	
+	//实际运行代码。运行时绑定参数，然后执行。
+	public void runDeleteXXX(String owner， String starName){
+		BindedCompiledSQL bsql = this.deleteFriendActionsSQL.bind("copiedFrom", starName).bind("owner", owner) ;
+		//用owner做分表参数
+		bsql.setTableCondition(owner) ;
+				
+		WriteTranSession write = tm.openRWTran(true) ;
+		
+		try{
+		    //执行删除
+			int rowsDeleted = write.executeUpdate(bsql) ;
+			
+			//通过计数器服务，降低统计计数。
+			slowUpdateService.updateCount(UserActionsCount.class, owner, "friendsActionCount", owner, -rowsDeleted) ;
+		}finally{
+			write.close() ;
+		}
+ 	}
+ 
+ }}}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
