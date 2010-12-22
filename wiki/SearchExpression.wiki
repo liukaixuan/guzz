@@ -89,6 +89,59 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
  For complicated queries, guzz suggests that you store them in guzz.xml, and perform queries by id as ibatis did. We believe that complicated sqls are better to be separated for dbas later.
  
- For weird but stable sqls, you can build them to CompiledSQLs, and use CompiledSQL's API.
+ For weird but stable sqls, you can build them into CompiledSQLs, and use CompiledSQL's API.
+
+*sqls in guzz.xml：*
+ 
+  For guzz.xml in [TutorialGuzzXml], the following code demonstrates how to execute the query named listCommentsByName.
+ 
+ {{{
+	HashMap params = new HashMap() ;
+	params.put("userName", "lily") ;
+	
+	List<Comment> comments = session.list("listCommentsByName", params, 1, 100) ;
+ }}}
+ 
+*build CompiledSQLs in the java code：*
+ 
+ First, fetch !TransactionManager, then get CompiledSQLBuilder from it, and then, call buildCompiledSQL.
+ 
+ {{{
+ 	private CompiledSQL deleteFriendActionsSQL ;
+ 
+ 	//build and compile sqls on startup, and cache it.
+ 	public void startup() {
+		//delete a friend's friendActions when un-followed.
+		this.deleteFriendActionsSQL = tm.getCompiledSQLBuilder().buildCompiledSQL(FriendsAction.class, 
+				"delete from @@" + FriendsAction.class.getName() + " where @copiedFrom = :copiedFrom and @owner = :owner"
+				);
+				
+		//bind the paramName with its java property, to tell guzz the data type of that parameter.
+		this.deleteFriendActionsSQL.addParamPropMapping("copiedFrom", "copiedFrom") ;
+		this.deleteFriendActionsSQL.addParamPropMapping("owner", "owner") ;
+	}
+	
+	.....
+	
+	//bind parameters, and execute the sql.
+	public void runDeleteXXX(String owner， String starName){
+		BindedCompiledSQL bsql = this.deleteFriendActionsSQL.bind("copiedFrom", starName).bind("owner", owner) ;
+		//use owner to shadow the table.
+		bsql.setTableCondition(owner) ;
+				
+		WriteTranSession write = tm.openRWTran(true) ;
+		
+		try{
+			//perform deleting.
+			int rowsDeleted = write.executeUpdate(bsql) ;
+			
+			//dec the count by the count service.
+			slowUpdateService.updateCount(UserActionsCount.class, owner, "friendsActionCount", owner, -rowsDeleted) ;
+		}finally{
+			write.close() ;
+		}
+ 	}
+ 
+ }}} 
  
  
