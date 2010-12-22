@@ -100,7 +100,7 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 
  对于比较奇特但不会有改动的查询，建议构造CompiledSQL进行。
  
- *在guzz.xml中的配置方式：*
+*在guzz.xml中的配置方式：*
  
   对于[TutorialGuzzXml]中的guzz.xml配置，以下例子演示了如何调用id为listCommentsByName的查询。
  
@@ -111,7 +111,7 @@ SearchExpression se = SearchExpression.forBusiness("blogArticle", pageNo, pageSi
 	List<Comment> comments = session.list("listCommentsByName", params, 1, 100) ;
  }}}
  
- *在程序构造CompiledSQL的方式：*
+*在程序构造CompiledSQL的方式：*
  
   获取!TransactionManager，然后获取CompiledSQLBuilder，调用buildCompiledSQL方法，例如：
  
