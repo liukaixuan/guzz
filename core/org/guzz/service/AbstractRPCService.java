@@ -32,7 +32,7 @@ public abstract class AbstractRPCService<T> extends AbstractRemoteService<T> {
 	protected RemoteRPCProxy remoteRPCProxy ;	
 	
 	public boolean configure(ServiceConfig[] scs) {
-		if(super.configure(scs)){
+		if(super.configure(scs) && scs.length > 0){
 			//TODO: add support for many servers.
 			
 			String protocol = (String) scs[0].getProps().remove(RemoteRPCProxy.RPC_PARAM_PREFIX + "protocol") ;

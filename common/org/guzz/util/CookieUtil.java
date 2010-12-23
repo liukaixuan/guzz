@@ -40,6 +40,8 @@ public class CookieUtil {
 	
 	private String cookiePath = "/" ;
 	
+	private String domain = null ;
+	
 	private int version = 0 ;
 	
 	public static CookieUtil forVersion0(){
@@ -79,6 +81,9 @@ public class CookieUtil {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setVersion(version) ;
 		cookie.setPath(cookiePath);
+		if(this.domain != null){
+			cookie.setDomain(this.domain) ;
+		}
 		cookie.setMaxAge(maxAge);
 		response.addCookie(cookie);
 	}
@@ -87,6 +92,20 @@ public class CookieUtil {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setVersion(version) ;
 		cookie.setPath(path);
+		if(this.domain != null){
+			cookie.setDomain(this.domain) ;
+		}
+		cookie.setMaxAge(maxAge);
+		response.addCookie(cookie);
+	}
+	
+	public void writeCookie(HttpServletResponse response, String name, String value, String domain, String path, int maxAge) {
+		Cookie cookie = new Cookie(name, value);
+		cookie.setVersion(version) ;
+		cookie.setPath(path);
+		if(domain != null){
+			cookie.setDomain(domain) ;
+		}
 		cookie.setMaxAge(maxAge);
 		response.addCookie(cookie);
 	}
@@ -95,6 +114,9 @@ public class CookieUtil {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setVersion(version) ;
 		cookie.setPath(cookiePath);
+		if(this.domain != null){
+			cookie.setDomain(this.domain) ;
+		}
 		cookie.setMaxAge(COOKIE_AGE_SESSION) ;
 		response.addCookie(cookie);
 	}
@@ -103,6 +125,9 @@ public class CookieUtil {
 		Cookie cookie = new Cookie(name, "");
 		cookie.setVersion(version) ;
 		cookie.setPath(cookiePath);
+		if(this.domain != null){
+			cookie.setDomain(this.domain) ;
+		}
 		cookie.setMaxAge(0);
 		response.addCookie(cookie);
 	}
@@ -111,6 +136,20 @@ public class CookieUtil {
 		Cookie cookie = new Cookie(name, "");
 		cookie.setVersion(version) ;
 		cookie.setPath(path);
+		if(this.domain != null){
+			cookie.setDomain(this.domain) ;
+		}
+		cookie.setMaxAge(0);
+		response.addCookie(cookie);
+	}
+	
+	public void deleteCookie(HttpServletResponse response, String name, String domain, String path) {
+		Cookie cookie = new Cookie(name, "");
+		cookie.setVersion(version) ;
+		cookie.setPath(path);
+		if(domain != null){
+			cookie.setDomain(domain) ;
+		}
 		cookie.setMaxAge(0);
 		response.addCookie(cookie);
 	}
@@ -167,6 +206,14 @@ public class CookieUtil {
 
 	public void setCookiePath(String cookiePath) {
 		this.cookiePath = cookiePath;
+	}
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public void setDomain(String domainPath) {
+		this.domain = domainPath;
 	}
 
 }

@@ -71,6 +71,7 @@ public class HbmXMLBuilder {
 		
 		document = reader.read(r.getInputStream());
 		final Element root = document.getRootElement();
+		String packageName = root.attributeValue("package") ;
 		
 		List bus = root.selectNodes("//class") ;
 		
@@ -81,7 +82,12 @@ public class HbmXMLBuilder {
 		
 		Element e = (Element) bus.get(0) ;
 		
-		return e.attributeValue("name") ;
+		String className = e.attributeValue("name") ;
+		if(StringUtil.notEmpty(packageName)){
+			className = packageName + "." + className ;
+		}
+		
+		return className ;
 	}
 	
 	public static POJOBasedObjectMapping parseHbmStream(final GuzzContextImpl gf, final DBGroup dbGroup, final Business business, Resource r) throws DocumentException, IOException, SAXException, ClassNotFoundException{
@@ -113,14 +119,23 @@ public class HbmXMLBuilder {
 		
 		Visitor visitor = new VisitorSupport() {
 			
+			private String packageName ;
+			
 			public void visit(Element e) {
 				
-				//遇到了一个类
-				if("class".equalsIgnoreCase(e.getName())){
+				//package
+				if("hibernate-mapping".equalsIgnoreCase(e.getName()) || "guzz-mapping".equalsIgnoreCase(e.getName())){
+					this.packageName = e.attributeValue("package") ;
+					
+				}else if("class".equalsIgnoreCase(e.getName())){
 					String className = e.attributeValue("name") ;
 					String tableName = e.attributeValue("table") ;
 					String shadow = e.attributeValue("shadow") ;
 					boolean dynamicUpdate = StringUtil.toBoolean(e.attributeValue("dynamic-update"), false) ;
+					
+					if(StringUtil.notEmpty(this.packageName)){
+						className = this.packageName + "." + className ;
+					}
 					
 					//business中已经提前从hbml.xml中解析到了class name，并且按照business定义优先级作出最高优先级的class选择。
 					Class cls = business.getDomainClass() ;
