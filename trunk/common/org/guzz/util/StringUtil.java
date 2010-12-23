@@ -397,7 +397,7 @@ public class StringUtil {
 		for(int i = 0 ; i < cs.length ; i++){
 			char c = cs[i] ;
 			
-			if(c == ' ' || c == '\t'){
+			if(c == ' ' || c == '\t' || c == '　'){
 				if(alreadyMeetSpace){
 					continue ;
 				}else{
