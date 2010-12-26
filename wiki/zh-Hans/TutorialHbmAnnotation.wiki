@@ -68,39 +68,8 @@ public class Comment {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public Date getCreatedTime() {
-		return createdTime;
-	}
-
-	public void setCreatedTime(Date createdTime) {
-		this.createdTime = createdTime;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public int getUserId() {
-		return userId;
-	}
-
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
 	
+	//other gets/sets...
 }
 }}}
 
@@ -140,3 +109,102 @@ Guzz支持的JPA Annotation，以及Guzz自身扩展的Annotation的详细使用
 }}}
 
 其中，每个领域对象的定义可以在guzz测试源代码中找到。
+
+ 
+== 主键使用示例 ==
+
+*native(Mysql和H2中为自增):*
+{{{
+@javax.persistence.Entity
+@org.guzz.annotations.Entity(businessName="user")
+@Table(name="tb_user")
+public class User implements Serializable {
+	
+	private int id ;
+	...
+	
+	@javax.persistence.Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	public int getId() {
+		return id;
+	}
+	...
+}}}
+
+*assigned:*
+{{{
+@javax.persistence.Entity
+@Table(name="tb_user")
+public class User implements Serializable {
+	
+	private int id ;
+	...
+	
+	@javax.persistence.Id
+	@GenericGenerator(name = "assignedGen", strategy = "assigned")
+	@GeneratedValue(generator = "assignedGen")
+	public int getId() {
+		return id;
+	}
+	...
+}}}
+
+
+*sequence:*
+{{{
+@javax.persistence.Entity
+@Table(name="tb_user")
+public class User implements Serializable {
+	
+	private int id ;
+	...
+	
+	@javax.persistence.Id
+	@Column(name="pk")
+	@GeneratedValue(generator="userIdGen")
+	@GenericGenerator(name="userIdGen", strategy="native", parameters={@Parameter(name="sequence", value="seq_user_id")}
+	)
+	public id getId() {
+		return id;
+	}
+	...
+}}}
+
+
+*random:*
+{{{
+@javax.persistence.Entity
+@Table(name="tb_invitation_key")
+public class InvitationKey implements Serializable {
+	
+	private String id ;
+	...
+	
+	@javax.persistence.Id
+	@GeneratedValue(generator="randomGen")
+	@GenericGenerator(name = "randomGen", strategy = "random", parameters={@Parameter(name = "length", value = "32")})
+	public String getId() {
+		return id;
+	}
+	...
+}}}
+
+*uuid:*
+{{{
+@javax.persistence.Entity
+@Table(name="tb_invitation_key")
+public class InvitationKey implements Serializable {
+	
+	private String id ;
+	...
+	
+	@javax.persistence.Id
+	@GeneratedValue(generator="uuidGen")
+	@GenericGenerator(name = "uuidGen", strategy = "uuid")
+	public String getId() {
+		return id;
+	}
+	...
+}}}
+
+其他主键生成策略，以及策略详细参数，请阅读 [TutorialHbmXml]。如果您有好的示例补充，也请通过本页评论告诉我们。

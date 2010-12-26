@@ -71,38 +71,7 @@ public class Comment {
 		this.id = id;
 	}
 
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public Date getCreatedTime() {
-		return createdTime;
-	}
-
-	public void setCreatedTime(Date createdTime) {
-		this.createdTime = createdTime;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public int getUserId() {
-		return userId;
-	}
-
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
-	
+	//other gets/sets....	
 }
 }}}
 
@@ -144,7 +113,7 @@ public class Comment {
  
 == Samples of Annotating Primary Generators ==
 
-*native(auto-increment):*
+*native(auto-increment in mysql and H2):*
 {{{
 @javax.persistence.Entity
 @org.guzz.annotations.Entity(businessName="user")
