@@ -209,4 +209,4 @@ public class InvitationKey implements Serializable {
 
 Other Identify Generators and their parameters: [TutorialHbmXml]
 
-Feel free to supply us some samples of other generators in the comment below.
+Feel free to supply us more samples in the comment below.

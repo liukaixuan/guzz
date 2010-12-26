@@ -207,4 +207,4 @@ public class InvitationKey implements Serializable {
 	...
 }}}
 
-其他主键生成策略，以及策略详细参数，请阅读 [TutorialHbmXml]。如果您有好的示例补充，也请通过本页评论告诉我们。
+其他主键生成策略，以及策略详细参数，请阅读 [TutorialHbmXml]。如果您有其他示例补充，请通过本页评论告诉我们。
