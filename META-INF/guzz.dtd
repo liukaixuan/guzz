@@ -70,6 +70,7 @@
 <!ATTLIST select id ID #REQUIRED>
 <!ATTLIST select orm CDATA #REQUIRED>
 <!ATTLIST select dbgroup CDATA "default">
+<!ATTLIST select result-class CDATA #IMPLIED>
 
 <!ELEMENT update (#PCDATA|paramsMapping)*>
 <!ATTLIST update id ID #REQUIRED>

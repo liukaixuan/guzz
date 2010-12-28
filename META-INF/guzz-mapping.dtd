@@ -12,6 +12,7 @@
  -->
 
 <!ELEMENT guzz-mapping (class)>
+<!ATTLIST guzz-mapping package CDATA #IMPLIED>
 
 <!--
 	Root entity mapping.  Poorly named as entities do not have to be represented by 
