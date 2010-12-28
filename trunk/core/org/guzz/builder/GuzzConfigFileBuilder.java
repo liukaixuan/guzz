@@ -402,7 +402,10 @@ public class GuzzConfigFileBuilder {
 		
 		if(StringUtil.isEmpty(m_dbgroup)){
 			m_dbgroup = parentDBGroup ;
-		}	
+		}
+		
+		Assert.assertNotEmpty(m_id, "missing attribute [id] in:" + ormFragment.asXML()) ;
+		Assert.assertNotEmpty(m_class, "missing attribute [class] in" + ormFragment.asXML()) ;
 		
 		ResultMapBasedObjectMapping map =  ObjectMappingUtil.createResultMapping(gf, m_id, Class.forName(m_class), m_dbgroup, shadow, table) ;
 		
