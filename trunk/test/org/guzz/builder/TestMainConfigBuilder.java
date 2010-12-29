@@ -194,7 +194,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(s.getConfigName(), "onlyForTest2Config") ;
 		
 		//test service dependencies.
-		SampleTestService ts1 = (SampleTestService) gf.getService("onlyForTest1") ;
+		SampleTestService ts1 = (SampleTestService) gf.getService("onlyForTest") ;
 		SampleTestService2 ts2 = (SampleTestService2) gf.getService("onlyForTest2") ;
 		
 		assertNotNull(ts1) ;

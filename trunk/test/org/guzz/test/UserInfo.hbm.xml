@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
 
-<guzz-mapping>
-    <class name="org.guzz.test.UserInfo" table="TB_USER_INFO">
+<guzz-mapping package="org.guzz.test">
+    <class name="UserInfo" table="TB_USER_INFO">
         <id name="id" type="int" column="`ID`">
         	<generator class="native">
         		<param name="seq">guzz_sequence</param>
