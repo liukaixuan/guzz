@@ -19,7 +19,7 @@
 		<dbgroup name="oracle" masterDBConfigName="oracleDB" dialectName="oracle10gdialect" />
 	</tran>
 	
-	<service name="onlyForTest2" configName="onlyForTest2Config" dependsOn="onlyForTest1" class="org.guzz.test.sample.SampleTestService2" />
+	<service name="onlyForTest2" configName="onlyForTest2Config" dependsOn="onlyForTest" class="org.guzz.test.sample.SampleTestService2" />
 	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
 	
 	<import resource="include/part2.xml" />
