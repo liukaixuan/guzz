@@ -397,7 +397,8 @@ public class StringUtil {
 		for(int i = 0 ; i < cs.length ; i++){
 			char c = cs[i] ;
 			
-			if(c == ' ' || c == '\t' || c == '　'){
+			//whitespace, tab, Chinese whitespace, no-breaking whitespace(ASCII code 160)
+			if(c == ' ' || c == '\t' || c == '　' || c == ' '){
 				if(alreadyMeetSpace){
 					continue ;
 				}else{
