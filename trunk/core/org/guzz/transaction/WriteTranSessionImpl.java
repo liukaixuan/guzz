@@ -524,10 +524,13 @@ class WriteConnectionFetcher implements ConnectionFetcher{
 		DatabaseService masterDatabaseService = dbGroup.getMasterDB() ;
 		
 		if(masterDatabaseService != null && masterDatabaseService.isAvailable()){
-			Connection conn;
+			Connection conn = null ;
 			try {
 				conn = masterDatabaseService.getDataSource().getConnection();				
 			} catch (SQLException e) {
+				//be careful of conn leak.
+				CloseUtil.close(conn) ;
+				
 				throw new DaoException("master datasource failed.", e) ;
 			}
 			
