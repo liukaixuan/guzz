@@ -68,12 +68,15 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 		DatabaseService slaveDatabaseService = dbGroup.getSlaveDB() ;
 		
 		if(slaveDatabaseService != null && slaveDatabaseService.isAvailable()){
-			Connection conn;
+			Connection conn = null;
 			try {
 				conn = slaveDatabaseService.getDataSource().getConnection();
 			} catch (SQLException e) {
+				//be careful of conn leak.
+				CloseUtil.close(conn) ;
+				
 				//TODO: add a check job to diagnose the datasource. refetch the connection from another slave datasource.
-				throw new DaoException(e) ;
+				throw new DaoException("fail to acquire readonly conn.", e) ;
 			}
 
 			try {
@@ -95,15 +98,18 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 		DatabaseService masterDatabaseService = dbGroup.getMasterDB() ;
 		
 		if(masterDatabaseService != null && masterDatabaseService.isAvailable()){
-			Connection conn;
+			Connection conn = null;
 			try {
 				conn = masterDatabaseService.getDataSource().getConnection();
 				
 				//were not make master database's connection to readonly
 				return conn ;
 			} catch (SQLException e) {
+				//be careful of conn leak.
+				CloseUtil.close(conn) ;
+				
 				//TODO: add a check job to diagnose the datasource. refetch the connection from another slave datasource.
-				throw new DaoException(e) ;
+				throw new DaoException("fail to acquire no-delay readonly conn.", e) ;
 			}
 		}
 		
