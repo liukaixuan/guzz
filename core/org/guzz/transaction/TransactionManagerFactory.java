@@ -16,6 +16,7 @@
  */
 package org.guzz.transaction;
 
+import org.guzz.connection.DBGroupManager;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;

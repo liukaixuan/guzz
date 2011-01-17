@@ -30,6 +30,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.Guzz;
+import org.guzz.connection.ConnectionFetcher;
+import org.guzz.connection.DBGroup;
+import org.guzz.connection.DBGroupManager;
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.dao.PageFlip;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
@@ -113,12 +117,18 @@ public class AbstractTranSessionImpl {
 		}
 	}
 	
-	public Connection getConnection(DBGroup group){
-		Connection conn = (Connection) this.opennedConnections.get(group.getGroupName()) ;
+	public Connection getConnection(DBGroup group, Object tableCondition){
+		PhysicsDBGroup fdb = group.getPhysicsDBGroup(tableCondition) ;
+		
+		return getConnection(fdb) ;
+	}
+	
+	public Connection getConnection(PhysicsDBGroup fdb){
+		Connection conn = (Connection) this.opennedConnections.get(fdb.getGroupName()) ;
 			
 		if(conn == null){
-			conn = connectionFetcher.getConnection(group) ;
-			this.opennedConnections.put(group.getGroupName(), conn) ;
+			conn = connectionFetcher.getConnection(fdb) ;
+			this.opennedConnections.put(fdb.getGroupName(), conn) ;
 		}
 		
 		return conn ;
@@ -185,7 +195,7 @@ public class AbstractTranSessionImpl {
 		ResultSet rs = null ;
 		
 		try{
-			Connection conn = getConnection(db) ;
+			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
 			
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
@@ -325,7 +335,7 @@ public class AbstractTranSessionImpl {
 		ResultSet rs = null ;
 		
 		try{
-			Connection conn = getConnection(db) ;
+			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
@@ -388,7 +398,7 @@ public class AbstractTranSessionImpl {
 		ResultSet rs = null ;
 		
 		try{
-			Connection conn = getConnection(db) ;
+			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
@@ -456,7 +466,7 @@ public class AbstractTranSessionImpl {
 		ResultSet rs = null ;
 		
 		try{
-			Connection conn = getConnection(db) ;
+			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
 			
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
@@ -549,29 +559,42 @@ public class AbstractTranSessionImpl {
 		
 		return findObject(bsql) ;
 	}
+	
 
-	public JDBCTemplate createJDBCTemplate(Class domainClass) {				
-		return createJDBCTemplate(domainClass.getName()) ;
+
+	public JDBCTemplate createJDBCTemplate(Class domainClass) {
+		return this.createJDBCTemplate(domainClass, Guzz.getTableCondition()) ;
+	}
+	
+	public JDBCTemplate createJDBCTemplate(String businessName) {
+		return this.createJDBCTemplate(businessName, Guzz.getTableCondition()) ;
+	}
+	
+	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup) {
+		return this.createJDBCTemplateByDbGroup(dbGroup, Guzz.getTableCondition()) ;
 	}
 
-	public JDBCTemplate createJDBCTemplateByDbGroup(String groupName) {
+	public JDBCTemplate createJDBCTemplate(Class domainClass, Object tableCondition) {				
+		return createJDBCTemplate(domainClass.getName(), tableCondition) ;
+	}
+
+	public JDBCTemplate createJDBCTemplateByDbGroup(String groupName, Object tableCondition) {
 		DBGroup group = this.dbGroupManager.getGroup(groupName) ;
 		
-		Connection conn = getConnection(group) ;
+		Connection conn = getConnection(group, tableCondition) ;
 		
 		return new JDBCTemplateImpl(group.getDialect(), debugService, conn, isReadonly) ;
 	}
 	
-	public JDBCTemplate createJDBCTemplate(String businessName){
-		ObjectMapping map = this.omm.getObjectMapping(businessName, Guzz.getTableCondition()) ;
+	public JDBCTemplate createJDBCTemplate(String businessName, Object tableCondition){
+		ObjectMapping map = this.omm.getObjectMapping(businessName, tableCondition) ;
 		
 		if(map == null){
 			throw new ORMException("unknown business:[" + businessName + "]") ;
 		}
 		
 		DBGroup group = map.getDbGroup() ;
-		
-		Connection conn = getConnection(group) ;
+		Connection conn = getConnection(group, tableCondition) ;
 				
 		return new JDBCTemplateImpl(group.getDialect(), debugService, conn, isReadonly) ;
 	}

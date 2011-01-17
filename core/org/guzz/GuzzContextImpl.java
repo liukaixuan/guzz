@@ -31,7 +31,12 @@ import org.guzz.builder.HbmXMLBuilder;
 import org.guzz.bytecode.CglibProxyFactory;
 import org.guzz.bytecode.ProxyFactory;
 import org.guzz.config.ConfigServer;
+import org.guzz.connection.DBGroup;
+import org.guzz.connection.DBGroupManager;
+import org.guzz.connection.PhysicsDBGroup;
+import org.guzz.connection.VirtualDBView;
 import org.guzz.dialect.Dialect;
+import org.guzz.exception.DaoException;
 import org.guzz.exception.GuzzException;
 import org.guzz.exception.InvalidConfigurationException;
 import org.guzz.io.FileResource;
@@ -64,8 +69,6 @@ import org.guzz.service.core.impl.SlowUpdateServiceImpl;
 import org.guzz.service.core.impl.SlowUpdateServiceProxy;
 import org.guzz.service.impl.ServiceManagerFactory;
 import org.guzz.service.impl.ServiceManagerImpl;
-import org.guzz.transaction.DBGroup;
-import org.guzz.transaction.DBGroupManager;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.TransactionManagerFactory;
 import org.guzz.util.CloseUtil;
@@ -87,6 +90,8 @@ public class GuzzContextImpl implements GuzzContext{
 	private Map dialects ;
 		
 	private DBGroupManager dbGroupManager = null ;
+	
+	private List contextLifeCycles = new LinkedList() ;
 	
 	ObjectMappingManager objectMappingManager ;
 	
@@ -385,9 +390,41 @@ public class GuzzContextImpl implements GuzzContext{
 		compiledSQLManager = new CompiledSQLManagerImpl(compiledSQLBuilder) ;
 	}
 	
+	public void addVirtualDBView(VirtualDBView view){
+		registerContextLifeCycle(view) ;
+	}
+	
+	protected void registerContextLifeCycle(ContextLifeCycle c){
+		this.contextLifeCycles.add(c) ;
+		
+		if(c instanceof GuzzContextAware){
+			this.registerContextStartedAware((GuzzContextAware) c) ;
+		}
+		
+		if(this.isFullStarted()){
+			c.startup() ;
+		}
+		
+		if(c instanceof ExtendedBeanFactoryAware){
+			this.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) c) ;
+		}
+	}
+	
 	public void shutdown(){	
 		columnDataLoaderManager.shutdown() ;
 		shadowTableViewManager.shutdown() ;
+		
+		for(int i = 0 ; i < this.contextLifeCycles.size() ; i++){
+			ContextLifeCycle c = (ContextLifeCycle) this.contextLifeCycles.get(i) ;
+			
+			try {
+				c.shutdown() ;
+			} catch (Exception e) {
+				log.error("error while shutting down :" + c.getClass(), e) ;
+			}
+		}
+		this.contextLifeCycles.clear() ;
+		
 		
 		if(serviceManager != null){
 			serviceManager.shutdown() ;
@@ -453,10 +490,14 @@ public class GuzzContextImpl implements GuzzContext{
 		return business ;
 	}
 	
-	public DBGroup getDBGroup(String name) {
-		DBGroup g = this.dbGroupManager.getGroup(name) ;
-		
+	public DBGroup getDBGroup(String groupName) throws DaoException{
+		DBGroup g = this.dbGroupManager.getGroup(groupName) ;
+				
 		return g;
+	}
+	
+	public PhysicsDBGroup getPhysicsDBGroup(String groupName) throws DaoException{
+		return this.dbGroupManager.getPhysicsDBGroup(groupName) ;
 	}
 	
 	public Service getService(String serviceName){

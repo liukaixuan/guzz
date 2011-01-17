@@ -42,12 +42,12 @@ public class AutoIncrementIdGenerator implements IdentifierGenerator, Configurab
 		mapping.getBeanWrapper().setValue(domainObject, pkColumn.getPropName(), value) ;
 	}
 
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		return null ;
 	}
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
-		JDBCTemplate jt = session.createJDBCTemplate(domainObject.getClass()) ;
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
+		JDBCTemplate jt = session.createJDBCTemplate(domainObject.getClass(), tableCondition) ;
 		
 		Object pk = jt.executeQuery(dialect.getSelectInsertedAutoIdClause(), 
 				new SQLQueryCallBack(){

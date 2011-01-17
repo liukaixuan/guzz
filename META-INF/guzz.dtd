@@ -19,13 +19,18 @@
 <!ATTLIST param name CDATA #REQUIRED>
 <!ATTLIST param value CDATA #REQUIRED>
 
+<!ELEMENT tran ((dbgroup* | virtualdbgroup*)+)>
 
-<!ELEMENT tran (dbgroup+)>
+<!ELEMENT virtualdbgroup (dbgroup*)>
+<!ATTLIST virtualdbgroup name CDATA #REQUIRED>
+<!ATTLIST virtualdbgroup dialectName CDATA "default">
+<!ATTLIST virtualdbgroup shadow CDATA #REQUIRED>
+
 <!ELEMENT dbgroup EMPTY>
 <!ATTLIST dbgroup name CDATA "default">
 <!ATTLIST dbgroup masterDBConfigName CDATA #IMPLIED>
 <!ATTLIST dbgroup slaveDBConfigName CDATA #IMPLIED>
-<!ATTLIST dbgroup dialectName CDATA #IMPLIED>
+<!ATTLIST dbgroup dialectName CDATA "default">
 
 
 <!ELEMENT dialect (type*)>

@@ -66,14 +66,14 @@ public class TableHiLoGenerator extends TableGenerator {
 		this.returnType = pkColumn.getSqlDataType().getDataType() ;
 	}
 
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		Serializable value ;
 		
 		//open a new transaction.
 		WriteTranSession newSession = this.tm.openRWTran(true) ;
 		
 		try{
-			value = generate(newSession) ;
+			value = generate(newSession, tableCondition) ;
 		}finally{
 			newSession.close() ;
 		}
@@ -83,20 +83,20 @@ public class TableHiLoGenerator extends TableGenerator {
 		return (Serializable) value ;
 	}
 	
-	public synchronized Number generate(WriteTranSession session) {
+	public synchronized Number generate(WriteTranSession session, Object tableCondition) {
 		if (maxLo < 1) {
 			//keep the behavior consistent even for boundary usages
-			Integer n = super.nextValueInTable(session) ;
+			Integer n = super.nextValueInTable(session, tableCondition) ;
 			
 			if(n.intValue() == 0){
-				n = super.nextValueInTable(session) ;
+				n = super.nextValueInTable(session, tableCondition) ;
 			}
 			
 			return IdentifierGeneratorFactory.createNumber(n.longValue(), this.returnType) ;
 		}
 		
 		if (lo > maxLo){
-			Number n = super.nextValueInTable(session) ;
+			Number n = super.nextValueInTable(session, tableCondition) ;
 			
 			int hival = n.intValue() ;
 			lo = (hival == 0) ? 1 : 0;

@@ -27,6 +27,10 @@ import java.util.Map;
 
 import org.guzz.Guzz;
 import org.guzz.bytecode.LazyPropChangeDetector;
+import org.guzz.connection.ConnectionFetcher;
+import org.guzz.connection.DBGroup;
+import org.guzz.connection.DBGroupManager;
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.dao.PersistListener;
 import org.guzz.exception.DaoException;
 import org.guzz.exception.GuzzException;
@@ -101,7 +105,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		boolean success = executeUpdateWithPrePL(runtimeCS.getMapping(), bsql, pls, domainObject, null, 3) == 1 ;
 
 		if(pls.length > 0){
-			Connection conn = getConnection(runtimeCS.getMapping().getDbGroup()) ;
+			Connection conn = getConnection(bsql.getPhysicsDBGroup()) ;
 			for(int i = 0 ; i < pls.length ; i++){
 				pls[i].postDelete(this, conn, domainObject) ;
 			}
@@ -127,7 +131,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		IdentifierGenerator ig = mapping.getTable().getIdentifierGenerator() ;		
 		BeanWrapper bw = mapping.getBeanWrapper() ;
 		
-		Serializable pk = ig.preInsert(this, domainObject) ;
+		Serializable pk = ig.preInsert(this, domainObject, bsql.getTableCondition()) ;
 		
 		String[] props = runtimeCS.getOrderedParams() ;
 		for(int i = 0 ; i < props.length ; i++){
@@ -138,13 +142,13 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		executeUpdateWithPrePL(runtimeCS.getMapping(), bsql, pls, domainObject, pk, 1) ;
 		
 		if(pk == null){
-			pk = ig.postInsert(this, domainObject) ;
+			pk = ig.postInsert(this, domainObject, bsql.getTableCondition()) ;
 		}else{
-			ig.postInsert(this, domainObject) ;
+			ig.postInsert(this, domainObject, bsql.getTableCondition()) ;
 		}
 
 		if(pls.length > 0){
-			Connection conn = getConnection(runtimeCS.getMapping().getDbGroup()) ;
+			Connection conn = getConnection(bsql.getPhysicsDBGroup()) ;
 			for(int i = 0 ; i < pls.length ; i++){
 				pls[i].postInsert(this, conn, domainObject, pk) ;
 			}
@@ -237,7 +241,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		boolean success = executeUpdateWithPrePL(mapping, bsql, pls, domainObject, null, 2) == 1 ;
 
 		if(pls.length > 0){
-			Connection conn = getConnection(mapping.getDbGroup()) ;
+			Connection conn = getConnection(bsql.getPhysicsDBGroup()) ;
 			for(int i = 0 ; i < pls.length ; i++){
 				pls[i].postUpdate(this, conn, domainObject) ;
 			}
@@ -275,7 +279,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		PreparedStatement pstm = null;
 		
 		try {
-			Connection conn = getConnection(db) ;
+			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL);			
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
@@ -315,7 +319,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		PreparedStatement pstm = null;
 		
 		try {
-			Connection conn = getConnection(db) ;
+			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL);			
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 		
@@ -386,7 +390,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		PreparedStatement pstm = null;
 		
 		try {
-			Connection conn = getConnection(db) ;
+			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL);
 		}catch(SQLException e){
 			CloseUtil.close(pstm) ;
@@ -516,11 +520,11 @@ class WriteConnectionFetcher implements ConnectionFetcher{
 		this.autoCommit = autoCommit ;
 	}
 	
-	public Connection getConnection(DBGroup dbGroup) {
+	public Connection getConnection(PhysicsDBGroup dbGroup) {
 		return openRWConn(dbGroup) ;
 	}
 	
-	public Connection openRWConn(DBGroup dbGroup) {
+	public Connection openRWConn(PhysicsDBGroup dbGroup) {
 		DatabaseService masterDatabaseService = dbGroup.getMasterDB() ;
 		
 		if(masterDatabaseService != null && masterDatabaseService.isAvailable()){

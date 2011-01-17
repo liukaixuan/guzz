@@ -31,8 +31,8 @@ public interface IdentifierGenerator {
 	/**在数据库执行插入时，是否包含PK字段。*/
 	public boolean insertWithPKColumn() ;	
 	
-	public Serializable preInsert(WriteTranSession session, Object domainObject) ;
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) ;
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) ;
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) ;
 	
 }

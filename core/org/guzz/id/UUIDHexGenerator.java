@@ -85,11 +85,11 @@ public class UUIDHexGenerator extends AbstractUUIDGenerator implements Configura
 		return true ;
 	}
 
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		return null;
 	}
 
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		String uuid = generateUUID() ;		
 		setPrimaryKey(domainObject, uuid) ;		
 		return (Serializable) uuid ;

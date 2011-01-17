@@ -27,6 +27,8 @@ import org.dom4j.Element;
 import org.guzz.Configuration;
 import org.guzz.GuzzContextImpl;
 import org.guzz.config.ConfigServer;
+import org.guzz.connection.DBGroup;
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.dialect.Dialect;
 import org.guzz.dialect.H2Dialect;
 import org.guzz.dialect.Mysql5Dialect;
@@ -38,7 +40,6 @@ import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
 import org.guzz.test.sample.SampleTestService;
 import org.guzz.test.sample.SampleTestService2;
-import org.guzz.transaction.DBGroup;
 import org.guzz.util.CloseUtil;
 
 /**
@@ -214,10 +215,10 @@ public class TestMainConfigBuilder extends TestCase {
 		List gs = b.listDBGroups() ;
 		
 		assertNotNull(gs) ;
-		assertEquals(gs.size(),3) ;
+		assertEquals(gs.size(),6) ;
 		
 		//test load order
-		DBGroup g1 = (DBGroup) gs.get(0) ;
+		PhysicsDBGroup g1 = (PhysicsDBGroup) gs.get(0) ;
 		assertEquals(g1.getGroupName(), "default") ;
 		assertNotNull(g1.getMasterDB()) ;
 		assertNull(g1.getSlaveDB()) ;

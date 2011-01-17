@@ -52,16 +52,16 @@ public class SequenceHiLoGenerator extends SequenceIdGenerator {
 	
 	private Class returnType ;
 	
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
-		Serializable value = generate(session) ;
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
+		Serializable value = generate(session, tableCondition) ;
 		
 		setPrimaryKey(domainObject, value) ;
 		
 		return (Serializable) value ;
 	}
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
-		return super.postInsert(session, domainObject) ;
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
+		return super.postInsert(session, domainObject, tableCondition) ;
 	}
 	
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
@@ -72,20 +72,20 @@ public class SequenceHiLoGenerator extends SequenceIdGenerator {
 		this.returnType = pkDataType.getDataType() ;
 	}
 
-	public synchronized Number generate(WriteTranSession session) {
+	public synchronized Number generate(WriteTranSession session, Object tableCondition) {
 		if (maxLo < 1) {
 			//keep the behavior consistent even for boundary usages
-			Number n = super.nextSequenceValue(session) ;
+			Number n = super.nextSequenceValue(session, tableCondition) ;
 			
 			if(n.longValue() == 0L){
-				n = super.nextSequenceValue(session) ;
+				n = super.nextSequenceValue(session, tableCondition) ;
 			}
 			
 			return IdentifierGeneratorFactory.createNumber(n.longValue(), this.returnType) ;
 		}
 		
 		if (lo > maxLo){
-			Number n = super.nextSequenceValue(session) ;
+			Number n = super.nextSequenceValue(session, tableCondition) ;
 			
 			long hival = n.longValue() ;
 			lo = (hival == 0) ? 1 : 0;

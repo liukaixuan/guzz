@@ -88,7 +88,7 @@ public class TestTranSession extends DBBasedTestCase{
 	public void testJDBCTemplate() throws SQLException, Exception{
 		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
 		
-		JDBCTemplate jt = ts.createJDBCTemplate(Article.class) ;
+		JDBCTemplate jt = ts.createJDBCTemplate(Article.class, null) ;
 		String name2 = (String) jt.executeQuery("select * from TB_ARTICLE where id = 2", new SQLQueryCallBack(){
 
 			public Object iteratorResultSet(ResultSet rs) throws Exception {

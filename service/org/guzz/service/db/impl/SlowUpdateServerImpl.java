@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.GuzzContext;
 import org.guzz.Service;
+import org.guzz.connection.DBGroup;
 import org.guzz.exception.DataTypeException;
 import org.guzz.exception.GuzzException;
 import org.guzz.jdbc.JDBCTemplate;
@@ -45,7 +46,6 @@ import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.impl.IncUpdateBusiness;
 import org.guzz.service.db.SlowUpdateServer;
-import org.guzz.transaction.DBGroup;
 import org.guzz.transaction.ReadonlyTranSession;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
@@ -204,8 +204,9 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 					if(obj.getCountToInc() == 0) continue ;
 					
 					MasterIncTableModel tableModel = this.getTableModel(obj) ;
-										
-					JDBCTemplate masterJDBC = writeSession.createJDBCTemplateByDbGroup(obj.getDbGroup()) ;
+					
+					//The stored dbGroup is physics
+					JDBCTemplate masterJDBC = writeSession.createJDBCTemplateByDbGroup(obj.getDbGroup(), null) ;
 					
 					try{
 						int affectedRows = masterJDBC.executeUpdate(
@@ -304,7 +305,7 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 				try{
 					DBGroup group = guzzContext.getDBGroup(obj.getDbGroup()) ;
 					
-					JDBCTemplate masterJDBC = writeMasterSession.createJDBCTemplateByDbGroup(obj.getDbGroup()) ;
+					JDBCTemplate masterJDBC = writeMasterSession.createJDBCTemplateByDbGroup(obj.getDbGroup(), null) ;
 					
 					String sql = "select " + pkColName + " from " + tableName ;
 					sql = group.getDialect().getLimitedString(sql, 0, 1) ;

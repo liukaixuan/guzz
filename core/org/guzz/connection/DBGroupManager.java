@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.transaction;
+package org.guzz.connection;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,14 +41,38 @@ public class DBGroupManager extends HashMap {
 		return group ;
 	}
 	
+	public PhysicsDBGroup getPhysicsDBGroup(String groupName){
+		DBGroup group = getGroup(groupName) ;
+		
+		if(!group.isPhysics()){
+			throw new InvalidConfigurationException("database group is a physics one:" + groupName) ;
+		}
+		
+		return (PhysicsDBGroup) group ;
+	}
+	
+	public VirtualDBGroup getVirtualDBGroup(String groupName){
+		DBGroup group = getGroup(groupName) ;
+		
+		if(group.isPhysics()){
+			throw new InvalidConfigurationException("database group is a virtual one:" + groupName) ;
+		}
+		
+		return (VirtualDBGroup) group ;
+	}
+	
 	public void shutdown(){
 		Iterator i = this.values().iterator() ;
 		
 		while(i.hasNext()){
 			DBGroup group = (DBGroup) i.next() ;
 			
-			CloseUtil.close(group.getMasterDB()) ;
-			CloseUtil.close(group.getSlaveDB()) ;
+			if(group.isPhysics()){
+				PhysicsDBGroup fdb = (PhysicsDBGroup) group ;
+				
+				CloseUtil.close(fdb.getMasterDB()) ;
+				CloseUtil.close(fdb.getSlaveDB()) ;
+			}
 		}
 	}
 

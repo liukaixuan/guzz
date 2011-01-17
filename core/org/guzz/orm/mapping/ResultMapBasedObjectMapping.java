@@ -20,9 +20,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.guzz.connection.DBGroup;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
-import org.guzz.transaction.DBGroup;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;

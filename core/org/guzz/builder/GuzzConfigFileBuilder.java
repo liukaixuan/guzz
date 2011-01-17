@@ -33,8 +33,13 @@ import org.dom4j.io.SAXReader;
 import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
 import org.guzz.config.ConfigServer;
+import org.guzz.connection.DBGroup;
+import org.guzz.connection.PhysicsDBGroup;
+import org.guzz.connection.VirtualDBGroup;
+import org.guzz.connection.VirtualDBView;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.GuzzException;
+import org.guzz.exception.InvalidConfigurationException;
 import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
@@ -48,7 +53,6 @@ import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.service.ServiceInfo;
-import org.guzz.transaction.DBGroup;
 import org.guzz.util.Assert;
 import org.guzz.util.ClassUtil;
 import org.guzz.util.CloseUtil;
@@ -143,21 +147,95 @@ public class GuzzConfigFileBuilder {
 		/*
 		 <tran>
 			<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" dialectName="mysql5dialect" />
-			<dbgroup name="log" masterDBConfigName="masterLogDB" defaultDialect="h2dialect" />
-		</tran>
+			<dbgroup name="activeLog" masterDBConfigName="masterLogDB" defaultDialect="h2dialect" />
+		
+			<virtualdbgroup name="log" dialectName="h2dialect" shadow="xxx.VirtualDBGroupView">
+				<dbgroup name="log.old.1" masterDBConfigName="masterLogDB2" />
+				<dbgroup name="log.old.2" masterDBConfigName="masterLogDB3" />
+				<dbgroup name="log.old.3" masterDBConfigName="masterLogDB4" />
+			</virtualdbgroup>
+		 </tran>
 		*/
 		
-		List ls = this.rootDoc.selectNodes("//tran/dbgroup") ;
-		
-		if(ls == null) return null ;
-		if(ls.isEmpty()) return null ;
 		
 		LinkedList dbGroups = new LinkedList() ;
 		
-		for(int i = 0 ; i < ls.size() ; i++){
-			Element e = (Element) ls.get(i) ;
+		List rootDBGroups = parseForPhysicsDBGroup(this.rootDoc.selectNodes("//tran/dbgroup"), "default") ;
+		if(rootDBGroups != null ){
+			dbGroups.addAll(rootDBGroups) ;
+		}
+		
+		//Load virtual dbGroup
+		List vss = this.rootDoc.selectNodes("//tran/virtualdbgroup") ;
+		
+		if(vss != null && !vss.isEmpty()){
+			for(int i = 0 ; i < vss.size() ; i++){
+				Element e = (Element) vss.get(i) ;
+				
+				VirtualDBGroup db = new VirtualDBGroup() ;
+				String groupName = e.attributeValue("name") ;
+				String dialectName = e.attributeValue("dialectName") ;
+				String shadow = e.attributeValue("shadow") ;
+				
+				if(StringUtil.isEmpty(groupName)){
+					db.setGroupName("default") ;
+				}else{
+					db.setGroupName(groupName) ;
+				}
+				
+				if(StringUtil.isEmpty(dialectName)){
+					dialectName = "default" ;
+				}
+				
+				Dialect dt = this.gf.getDialect(dialectName) ;
+				if(dt == null){
+					throw new InvalidConfigurationException("dialect:[" + dialectName + "] not found for dbgroup:[" + e.asXML() + "]") ;
+				}
+					
+				db.setDialect(dt) ;
+				
+				//shadow
+				if(StringUtil.isEmpty(shadow)){
+					throw new InvalidConfigurationException("missing attribute [shadow] in virtualdbgroup:[" + e.asXML() + "]") ;
+				}
+				
+				Object vv = BeanCreator.newBeanInstance(shadow) ;
+				
+				if(vv instanceof VirtualDBView){
+					VirtualDBView vdv = (VirtualDBView) vv ;
+					vdv.setConfiguredVirtualDBGroup(db) ;
+					
+					this.gf.addVirtualDBView(vdv) ;
+					
+					db.setVirtualDBGroupView(vdv) ;
+				}else{
+					throw new InvalidConfigurationException("attribute [shadow] must be a subclass of + " + VirtualDBView.class.getName() + " for virtualdbgroup:[" + e.asXML() + "]") ;
+				}
+				
+				dbGroups.addLast(db) ;
+				
+				//Load virtualdbgroup's sub dbgroup.
+				List subDBGroups = parseForPhysicsDBGroup(e.selectNodes("dbgroup"), dialectName) ;
+				if(subDBGroups != null ){
+					dbGroups.addAll(subDBGroups) ;
+				}
+			}
+		}
+		
+		return dbGroups ;
+	}
+	
+	protected List parseForPhysicsDBGroup(List segElements, String defaultDialect){
+		if(segElements == null) return null ;
+		
+		if(segElements.isEmpty()) return null ;
+		
+		LinkedList dbGroups = new LinkedList() ;
+		
+		for(int i = 0 ; i < segElements.size() ; i++){
+			Element e = (Element) segElements.get(i) ;
 			
-			DBGroup db = new DBGroup() ;
+			PhysicsDBGroup db = new PhysicsDBGroup() ;
 			String groupName = e.attributeValue("name") ;
 			String masterName = e.attributeValue("masterDBConfigName") ;
 			String slaveName = e.attributeValue("slaveDBConfigName") ;
@@ -178,7 +256,7 @@ public class GuzzConfigFileBuilder {
 			}
 			
 			if(StringUtil.isEmpty(dialectName)){
-				dialectName = "default" ;
+				dialectName = defaultDialect ;
 			}
 			
 			Dialect dt = this.gf.getDialect(dialectName) ;

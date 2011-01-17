@@ -36,7 +36,7 @@ public class AssignedIdGenerator implements IdentifierGenerator, Configurable {
 	private Table table ;
 	private String primaryKeyPropName ;
 	
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		Object pk = mapping.getBeanWrapper().getValue(domainObject, primaryKeyPropName) ;
 		
 		if(pk == null){ //没有设置主键，抛出异常。
@@ -46,7 +46,7 @@ public class AssignedIdGenerator implements IdentifierGenerator, Configurable {
 		return (Serializable) pk ;
 	}
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		return null ;
 	}
 

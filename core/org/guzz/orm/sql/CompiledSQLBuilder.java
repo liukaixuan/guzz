@@ -16,9 +16,9 @@
  */
 package org.guzz.orm.sql;
 
+import org.guzz.connection.DBGroup;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
-import org.guzz.transaction.DBGroup;
 
 /**
  * 

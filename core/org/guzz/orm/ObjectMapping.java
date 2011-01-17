@@ -19,10 +19,10 @@ package org.guzz.orm;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.guzz.connection.DBGroup;
 import org.guzz.exception.DataTypeException;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.type.SQLDataType;
-import org.guzz.transaction.DBGroup;
 import org.guzz.util.javabean.BeanWrapper;
 
 /**

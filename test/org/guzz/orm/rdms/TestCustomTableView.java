@@ -16,10 +16,12 @@
  */
 package org.guzz.orm.rdms;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
 import org.guzz.Guzz;
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.orm.se.SearchExpression;
@@ -44,8 +46,12 @@ import org.guzz.transaction.WriteTranSession;
  */
 public class TestCustomTableView extends DBBasedTestCase {
 	
+	protected Connection H2CrossStitchConn = null ;
+	
 	protected void prepareEnv() throws Exception {
 		super.prepareEnv();
+		
+		this.H2CrossStitchConn = ((PhysicsDBGroup) this.gf.getDBGroup("cargoDB.cargo2")).getMasterDB().getDataSource().getConnection() ;
 		
 		//create special property table in H2 database.
 //		executeUpdate(H2Conn, "drop table if exists tb_cargo") ;
@@ -69,14 +75,17 @@ public class TestCustomTableView extends DBBasedTestCase {
 		//we know the rule is : return "tb_cargo_" + cargoName;
 		//cargo book:
 		executeUpdate(H2Conn, "drop table if exists tb_cargo_book") ;
+		executeUpdate(H2Conn, "drop table if exists tb_cargo_crossStitch") ;
 		executeUpdate(H2Conn, "create table tb_cargo_book(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime, statusThisWeek int(11), statusNextWeek varchar(32)" +
 				", ISBN varchar(64) not null" +
 				", author varchar(64)" +
 				", publisher varchar(64)" +
 				")") ;
+		
 		//cargo cross-stitch:
-		executeUpdate(H2Conn, "drop table if exists tb_cargo_crossStitch") ;
-		executeUpdate(H2Conn, "create table tb_cargo_crossStitch(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime, statusThisWeek int(11), statusNextWeek varchar(32)" +
+		executeUpdate(H2CrossStitchConn, "drop table if exists tb_cargo_book") ;
+		executeUpdate(H2CrossStitchConn, "drop table if exists tb_cargo_crossStitch") ;
+		executeUpdate(H2CrossStitchConn, "create table tb_cargo_crossStitch(id int not null AUTO_INCREMENT primary key , name varchar(128), description text, storeCount int(11), price double, onlineTime datetime, statusThisWeek int(11), statusNextWeek varchar(32)" +
 				", gridNum int(11) not null" +
 				", backColor varchar(64)" +
 				", size varchar(64)" +
@@ -327,7 +336,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 		
 		//test enum value changed in the database.
 		WriteTranSession write = tm.openRWTran(true) ;
-		JDBCTemplate jdbc = write.createJDBCTemplate(Cargo.class) ;
+		JDBCTemplate jdbc = write.createJDBCTemplate(Cargo.class, "crossStitch") ;
 		jdbc.executeUpdate("update tb_cargo_crossStitch set statusThisWeek = null, statusNextWeek='LIMITED'") ;
 		write.close() ;
 		
@@ -442,6 +451,12 @@ public class TestCustomTableView extends DBBasedTestCase {
 	}
 	
 	protected void setUpForOracle10G() throws Exception {
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		this.H2CrossStitchConn.close() ;
 	}
 
 }
