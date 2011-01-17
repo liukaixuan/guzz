@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.Guzz;
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.lang.NullValue;
@@ -70,6 +71,10 @@ public abstract class BindedCompiledSQL {
 	public abstract NormalCompiledSQL getCompiledSQLToRun() ;
 	
 	public abstract String getSQLToRun() ;
+	
+	public PhysicsDBGroup getPhysicsDBGroup(){
+		return getCompiledSQLToRun().getMapping().getDbGroup().getPhysicsDBGroup(getTableCondition()) ;
+	}
 	
 	protected BindedCompiledSQL(Class resultClass){
 		this.resultClass = resultClass ;
@@ -232,10 +237,18 @@ public abstract class BindedCompiledSQL {
 	}
 
 	public final Object getTableCondition() {
+		if(this.tableCondition == NullValue.instance){
+			return null ;
+		}
+		
 		return this.tableCondition != null ? this.tableCondition : Guzz.getTableCondition() ;
 	}
 
 	public final BindedCompiledSQL setTableCondition(Object tableCondition) {
+		if(tableCondition == null){
+			tableCondition = NullValue.instance ;
+		}
+		
 		this.tableCondition = tableCondition;
 		notifyTableConditionChanged() ;
 		

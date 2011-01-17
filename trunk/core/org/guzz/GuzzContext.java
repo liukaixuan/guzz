@@ -16,7 +16,11 @@
  */
 package org.guzz;
 
+import org.guzz.connection.DBGroup;
+import org.guzz.connection.PhysicsDBGroup;
+import org.guzz.connection.VirtualDBView;
 import org.guzz.dialect.Dialect;
+import org.guzz.exception.DaoException;
 import org.guzz.exception.GuzzException;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
@@ -25,7 +29,6 @@ import org.guzz.orm.rdms.ShadowTableViewManager;
 import org.guzz.pojo.ColumnDataLoaderManager;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
-import org.guzz.transaction.DBGroup;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.web.context.ExtendedBeanFactory;
 
@@ -63,7 +66,10 @@ public interface GuzzContext {
 	
 	public Business instanceNewGhost(String ghostName, String dbGroup, Class intepretClass, Class domainClass) throws ClassNotFoundException;
 	
-	public DBGroup getDBGroup(String name);
+	public DBGroup getDBGroup(String groupName) throws DaoException;
+	
+	/**Get physics DBGroup.*/
+	public PhysicsDBGroup getPhysicsDBGroup(String groupName) throws DaoException;
 	
 	public Service getService(String serviceName);
 	
@@ -76,6 +82,8 @@ public interface GuzzContext {
 	public ObjectMappingManager getObjectMappingManager() ;
 
 	public ColumnDataLoaderManager getDataLoaderManager() ;
+	
+	public void addVirtualDBView(VirtualDBView view) ;
 	
 	/**
 	 * Retrieve the Extended Bean Factory. for example: a Bean Factory linked to spring's ApplicationContext if the GuzzContext is initialized within springframework.

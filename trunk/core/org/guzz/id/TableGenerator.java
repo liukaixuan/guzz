@@ -118,7 +118,7 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 		return tableName;
 	}
 
-	public Integer nextValueInTable(WriteTranSession session){		
+	public Integer nextValueInTable(WriteTranSession session, Object tableCondition){		
 		int result;
 		int rows;
 		do {
@@ -129,9 +129,9 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 			JDBCTemplate t = null ;
 			
 			if(dbGroup == null){
-				t = session.createJDBCTemplate(domainClass) ;
+				t = session.createJDBCTemplate(domainClass, tableCondition) ;
 			}else{
-				t = session.createJDBCTemplateByDbGroup(this.dbGroup) ;
+				t = session.createJDBCTemplateByDbGroup(this.dbGroup, tableCondition) ;
 			}
 			
 			result = ((Number) t.executeQuery(query, 
@@ -152,7 +152,7 @@ public abstract class TableGenerator implements IdentifierGenerator, Configurabl
 		return new Integer(result);
 	}
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		return null ;
 	}
 

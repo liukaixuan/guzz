@@ -14,32 +14,41 @@
  * limitations under the License.
  *
  */
-package org.guzz.id;
+package org.guzz.connection;
 
-import java.io.Serializable;
 
-import org.guzz.transaction.WriteTranSession;
 
 /**
  * 
- * This id generator will do nothing. the id should be maintained by the underly database(eg: use a trigger).
- * <p/>
- * guzz won't and unable to bind the new created id to the inserted object after performing database inserting operation.
- * 
+ * Virtual Database Group. Query {@link PhysicsDBGroup} by tableCondition.
+ *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class SilentIdGenerator implements IdentifierGenerator {
-
-	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
-		return null ;
-	}
+public class VirtualDBGroup extends DBGroup {
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
-		return null ;
+	private VirtualDBView virtualDBView ;
+	
+	public VirtualDBGroup(){
 	}
 
-	public boolean insertWithPKColumn() {
+	public PhysicsDBGroup getPhysicsDBGroup(Object tableCondition) {
+		return this.virtualDBView.getDBGroup(tableCondition) ;
+	}
+
+	public String getPhysicsGroupName(Object tableCondition) {
+		return getPhysicsDBGroup(tableCondition).getGroupName() ;
+	}
+
+	public final boolean isPhysics() {
 		return false;
+	}
+
+	public VirtualDBView getVirtualDBGroupView() {
+		return virtualDBView;
+	}
+
+	public void setVirtualDBGroupView(VirtualDBView virtualDBView) {
+		this.virtualDBView = virtualDBView;
 	}
 
 }

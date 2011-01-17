@@ -35,6 +35,8 @@ public interface TranSession {
 
 	/**
 	 * create JDBCTemplate for a domain class's database group.
+	 * 
+	 * @param domainClass domain class
 	 */
 	public JDBCTemplate createJDBCTemplate(Class domainClass) ;
 	
@@ -47,6 +49,24 @@ public interface TranSession {
 	 * create JDBCTemplate for a database group.
 	 */
 	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup) ;
+
+	/**
+	 * create JDBCTemplate for a domain class's database group.
+	 * 
+	 * @param domainClass domain class
+	 * @param tableCondition tableCondition to distribute a table into different machines.
+	 */
+	public JDBCTemplate createJDBCTemplate(Class domainClass, Object tableCondition) ;
+	
+	/**
+	 * create JDBCTemplate for a business's database group.
+	 */
+	public JDBCTemplate createJDBCTemplate(String businessName, Object tableCondition) ;
+	
+	/**
+	 * create JDBCTemplate for a database group.
+	 */
+	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup, Object tableCondition) ;
 
 	/**
 	 * Close the {@link Transaction} and all {@link Connection}s, ignoring any exceptions.

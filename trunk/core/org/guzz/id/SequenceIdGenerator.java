@@ -59,13 +59,13 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 		mapping.getBeanWrapper().setValue(domainObject, pkColumn.getPropName(), value) ;
 	}
 	
-	protected Number nextSequenceValue(WriteTranSession session){
+	protected Number nextSequenceValue(WriteTranSession session, Object tableCondition){
 		JDBCTemplate t = null ;
 		
 		if(this.dbGroup == null){
-			t = session.createJDBCTemplate(domainClass) ;
+			t = session.createJDBCTemplate(domainClass, tableCondition) ;
 		}else{
-			t = session.createJDBCTemplateByDbGroup(this.dbGroup) ;
+			t = session.createJDBCTemplateByDbGroup(this.dbGroup, tableCondition) ;
 		}
 		
 		return (Number) t.executeQueryWithoutPrepare(selectSequenceClause, 
@@ -81,15 +81,15 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 		) ;
 	}
 
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
-		Serializable value = nextSequenceValue(session) ;
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
+		Serializable value = nextSequenceValue(session, tableCondition) ;
 		
 		setPrimaryKey(domainObject, value) ;
 		
 		return (Serializable) value ;
 	}
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		return null ;
 	}
 

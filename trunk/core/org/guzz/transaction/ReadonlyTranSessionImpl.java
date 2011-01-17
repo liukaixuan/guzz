@@ -19,6 +19,9 @@ package org.guzz.transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.guzz.connection.ConnectionFetcher;
+import org.guzz.connection.DBGroupManager;
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.exception.DaoException;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.sql.CompiledSQLManager;
@@ -56,7 +59,7 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 		this.allowDelay = allowDelay ;
 	}
 	
-	public Connection getConnection(DBGroup dbGroup) {
+	public Connection getConnection(PhysicsDBGroup dbGroup) {
 		if(allowDelay){
 			return openDelayReadConn(dbGroup) ;
 		}else{
@@ -64,7 +67,7 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 		}
 	}
 	
-	public Connection openDelayReadConn(DBGroup dbGroup) {
+	public Connection openDelayReadConn(PhysicsDBGroup dbGroup) {
 		DatabaseService slaveDatabaseService = dbGroup.getSlaveDB() ;
 		
 		if(slaveDatabaseService != null && slaveDatabaseService.isAvailable()){
@@ -94,7 +97,7 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 		return openNoDelayReadonlyConn(dbGroup) ;
 	}
 	
-	public Connection openNoDelayReadonlyConn(DBGroup dbGroup){
+	public Connection openNoDelayReadonlyConn(PhysicsDBGroup dbGroup){
 		DatabaseService masterDatabaseService = dbGroup.getMasterDB() ;
 		
 		if(masterDatabaseService != null && masterDatabaseService.isAvailable()){

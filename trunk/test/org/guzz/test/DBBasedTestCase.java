@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.StringUtil;
 
@@ -94,7 +95,7 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 //		Class.forName("org.h2.Driver");
 //		this.H2Conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
 		
-		this.H2Conn = this.gf.getDBGroup("default").getMasterDB().getDataSource().getConnection() ;
+		this.H2Conn = ((PhysicsDBGroup) this.gf.getDBGroup("default")).getMasterDB().getDataSource().getConnection() ;
 		
 //		Class.forName("com.mysql.jdbc.Driver");
 //		this.H2Conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true", "root", "root");
@@ -137,7 +138,7 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 //		Class.forName("oracle.jdbc.driver.OracleDriver");
 //		this.oracleConn = DriverManager.getConnection("jdbc:oracle:thin:@10.64.4.31:1521:orcl", "vote", "vote");
 		
-		this.oracleConn = this.gf.getDBGroup("oracle").getMasterDB().getDataSource().getConnection() ;
+		this.oracleConn = ((PhysicsDBGroup) this.gf.getDBGroup("oracle")).getMasterDB().getDataSource().getConnection() ;
 		
 		//创建seq
 		executeUpdateNoException(oracleConn, "drop SEQUENCE guzz_sequence") ;

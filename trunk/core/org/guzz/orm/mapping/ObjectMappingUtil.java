@@ -17,6 +17,7 @@
 package org.guzz.orm.mapping;
 
 import org.guzz.GuzzContext;
+import org.guzz.connection.DBGroup;
 import org.guzz.exception.GuzzException;
 import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ObjectMapping;
@@ -24,7 +25,6 @@ import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.rdms.SimpleTable;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
-import org.guzz.transaction.DBGroup;
 import org.guzz.util.Assert;
 import org.guzz.util.ClassUtil;
 import org.guzz.util.StringUtil;

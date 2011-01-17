@@ -42,8 +42,8 @@ public class GUIDIdGenerator implements IdentifierGenerator, Configurable {
 		mapping.getBeanWrapper().setValue(domainObject, primaryKeyPropName, value) ;
 	}
 
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
-		JDBCTemplate t = session.createJDBCTemplate(domainObject.getClass()) ;
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
+		JDBCTemplate t = session.createJDBCTemplate(domainObject.getClass(), tableCondition) ;
 		
 		String guid = (String) t.executeQueryWithoutPrepare(selectSequenceClause, 
 				new SQLQueryCallBack(){
@@ -62,7 +62,7 @@ public class GUIDIdGenerator implements IdentifierGenerator, Configurable {
 		return (Serializable) guid ;
 	}
 	
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		return null ;
 	}
 

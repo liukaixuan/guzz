@@ -20,12 +20,12 @@ import java.lang.reflect.Method;
 
 import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
+import org.guzz.connection.DBGroup;
 import org.guzz.exception.DaoException;
 import org.guzz.orm.mapping.ObjectMappingUtil;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
-import org.guzz.transaction.DBGroup;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
 import org.guzz.web.context.GuzzContextAware;

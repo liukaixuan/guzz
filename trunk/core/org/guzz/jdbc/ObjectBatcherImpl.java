@@ -20,16 +20,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.guzz.Guzz;
+import org.guzz.connection.DBGroup;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.id.IdentifierGenerator;
-import org.guzz.orm.mapping.POJOBasedObjectMapping;
+import org.guzz.lang.NullValue;
+import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLManager;
 import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.service.core.DebugService;
-import org.guzz.transaction.DBGroup;
 import org.guzz.transaction.WriteTranSessionImpl;
 import org.guzz.util.javabean.BeanWrapper;
 
@@ -95,16 +97,22 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			throw new DaoException("no defined sql found for class:[" + this.domainCls.getName() + "]. forget to register it in guzz.xml?") ;
 		}
 
+		//be carefule: createObjectBatcher first, then set tableCondition through Guzz.setTableCondition.
+		//tableCondition won't change again even if Guzz.setTableCondition() invoked again unless #clearBatch() is called.
+		if(this.tableCondition == null){
+			this.tableCondition = Guzz.getTableCondition() ;
+		}
+		
 		BindedCompiledSQL bsql = cs.bindNoParams().setTableCondition(this.tableCondition) ;
 		this.runtimeCS = bsql.getCompiledSQLToRun() ;
 		
-		POJOBasedObjectMapping mapping  = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
+		ObjectMapping mapping  = runtimeCS.getMapping() ;
 		this.bw = mapping.getBeanWrapper() ;
 		this.props = runtimeCS.getOrderedParams() ;
 		
 		DBGroup dbGroup = mapping.getDbGroup() ;
 		this.dialect = dbGroup.getDialect() ;
-		Connection conn = this.sessionImpl.getConnection(dbGroup) ;
+		Connection conn = this.sessionImpl.getConnection(dbGroup, bsql.getTableCondition()) ;
 
 		String rawSQL = bsql.getSQLToRun() ;
 		this.debugService.logSQL("batch:" + rawSQL) ;
@@ -121,19 +129,17 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			mark = 1 ;
 			preparePS(domainObject, 1) ;
 		}else if(mark != 1){
-			throw new DaoException("duplicate operations. the batch has already started for:" + markMsg[mark]) ;
+			throw new DaoException("duplicate operations. the batch has already been started for:" + markMsg[mark]) ;
 		}
 
 		if(!this.domainCls.isInstance(domainObject)){
-			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
+			throw new DaoException("duplicate domain object. the batch has already been prepared for:" + this.domainCls) ;
 		}
 
 		BindedCompiledSQL bsql = runtimeCS.bindNoParams() ;
+		IdentifierGenerator ig = runtimeCS.getMapping().getTable().getIdentifierGenerator() ;
 
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) runtimeCS.getMapping() ;
-		IdentifierGenerator ig = mapping.getTable().getIdentifierGenerator() ;
-
-		ig.preInsert(this.sessionImpl, domainObject) ;
+		ig.preInsert(this.sessionImpl, domainObject, this.tableCondition) ;
 
 		for(int i = 0 ; i < props.length ; i++){
 			Object value = bw.getValue(domainObject, props[i]) ;
@@ -160,11 +166,11 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			mark = 2 ;
 			preparePS(domainObject, 2) ;
 		}else if(mark != 2){
-			throw new DaoException("duplicate operations. the batch has already started for:" + markMsg[mark]) ;
+			throw new DaoException("duplicate operations. the batch has already been started for:" + markMsg[mark]) ;
 		}
 
 		if(!this.domainCls.isInstance(domainObject)){
-			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
+			throw new DaoException("duplicate domain object. the batch has already been prepared for:" + this.domainCls) ;
 		}
 
 		BindedCompiledSQL bsql = runtimeCS.bindNoParams() ;
@@ -187,11 +193,11 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			mark = 3 ;
 			preparePS(domainObject, 3) ;
 		}else if(mark != 3){
-			throw new DaoException("duplicate operations. the batch has already started for:" + markMsg[mark]) ;
+			throw new DaoException("duplicate operations. the batch has already been started for:" + markMsg[mark]) ;
 		}
 
 		if(!this.domainCls.isInstance(domainObject)){
-			throw new DaoException("duplicate domain object. the batch has already prepared for:" + this.domainCls) ;
+			throw new DaoException("duplicate domain object. the batch has already been prepared for:" + this.domainCls) ;
 		}
 
 		BindedCompiledSQL bsql = runtimeCS.bindNoParams() ;
@@ -250,7 +256,7 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			throw new DaoException("batch has already been started. Call setTableCondtion before invoking insert/update/delete method.") ;
 		}
 		
-		this.tableCondition = tableCondition;
+		this.tableCondition = tableCondition == null ? NullValue.instance : tableCondition;
 	}
 
 }

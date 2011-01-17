@@ -14,24 +14,21 @@
  * limitations under the License.
  *
  */
-package org.guzz.transaction;
+package org.guzz.connection;
 
 import org.guzz.dialect.Dialect;
-import org.guzz.service.core.DatabaseService;
 
 /**
  * 
- * 数据源组。同一组数据库组内所有机器必须为同构数据库。一个数据组包含主数据库和从数据库2部分。
+ * A group of databases.
  *
+ * @see PhysicsDBGroup
+ * @see VirtualDBGroup
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class DBGroup {
+public abstract class DBGroup {
 	
 	private String groupName ;
-	
-	private DatabaseService masterDB ;
-	
-	private DatabaseService slaveDB ;
 	
 	private Dialect dialect ;
 
@@ -42,6 +39,12 @@ public class DBGroup {
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
 	}
+	
+	public abstract boolean isPhysics() ;
+	
+	public abstract PhysicsDBGroup getPhysicsDBGroup(Object tableCondition) ;
+	
+	public abstract String getPhysicsGroupName(Object tableCondition) ;
 
 	public Dialect getDialect() {
 		return dialect;
@@ -49,22 +52,6 @@ public class DBGroup {
 
 	public void setDialect(Dialect dialect) {
 		this.dialect = dialect;
-	}
-
-	public DatabaseService getMasterDB() {
-		return masterDB;
-	}
-
-	public void setMasterDB(DatabaseService masterDB) {
-		this.masterDB = masterDB;
-	}
-
-	public DatabaseService getSlaveDB() {
-		return slaveDB;
-	}
-
-	public void setSlaveDB(DatabaseService slaveDB) {
-		this.slaveDB = slaveDB;
 	}
 
 }

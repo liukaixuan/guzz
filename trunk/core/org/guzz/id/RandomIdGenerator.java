@@ -69,11 +69,11 @@ public class RandomIdGenerator implements IdentifierGenerator, Configurable {
 		return true ;
 	}
 
-	public Serializable postInsert(WriteTranSession session, Object domainObject) {
+	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		return null;
 	}
 
-	public Serializable preInsert(WriteTranSession session, Object domainObject) {
+	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
 		String id = random() ;		
 		setPrimaryKey(domainObject, id) ;		
 		return id ;

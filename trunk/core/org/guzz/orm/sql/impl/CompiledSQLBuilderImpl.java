@@ -17,6 +17,7 @@
 package org.guzz.orm.sql.impl;
 
 import org.guzz.GuzzContextImpl;
+import org.guzz.connection.DBGroup;
 import org.guzz.exception.ORMException;
 import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
@@ -27,7 +28,6 @@ import org.guzz.orm.sql.CustomCompiledSQL;
 import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
-import org.guzz.transaction.DBGroup;
 
 /**
  * 

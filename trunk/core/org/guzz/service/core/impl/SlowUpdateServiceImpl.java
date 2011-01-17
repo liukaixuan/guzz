@@ -72,7 +72,7 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 			throw new ORMException("unknown property:[" + propToUpdate + "], business name:[" + businessName + "]") ;
 		}
 		
-		updateCount(mapping.getDbGroup().getGroupName(), mapping.getTable().getTableName(tableCondition), columnToUpdate, mapping.getTable().getPKColumn().getColNameForSQL(), pkValue, countToInc) ;
+		updateCount(mapping.getDbGroup().getPhysicsGroupName(tableCondition), mapping.getTable().getTableName(tableCondition), columnToUpdate, mapping.getTable().getPKColumn().getColNameForSQL(), pkValue, countToInc) ;
 	}
 	
 	public void updateCount(Class domainClass, Object tableCondtion, String propToUpdate, Serializable pkValue, int countToInc){

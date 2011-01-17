@@ -17,6 +17,12 @@
 		<dbgroup name="default" masterDBConfigName="masterDB" />
 		<dbgroup name="mysql" masterDBConfigName="mysqlDB" dialectName="mysql5dialect" />
 		<dbgroup name="oracle" masterDBConfigName="oracleDB" dialectName="oracle10gdialect" />
+		
+		<virtualdbgroup name="cargoDB" dialectName="default" shadow="org.guzz.test.shop.CargoVirtualDBView" >
+			<dbgroup name="cargoDB.cargo2" masterDBConfigName="cargo2DB" />
+		</virtualdbgroup>
+		
+		<virtualdbgroup name="other" dialectName="mysql5dialect" shadow="org.guzz.test.shop.CargoVirtualDBView" />
 	</tran>
 	
 	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
@@ -29,7 +35,7 @@
 	<a-business name="userInfo" dbgroup="oracle" class="org.guzz.test.UserInfo" />
 	<a-business name="userInfo2" dbgroup="default" class="org.guzz.test.UserInfoH2" />
 	<a-business name="comment" dbgroup="default" class="org.guzz.test.Comment"/>
-	<a-business name="cargo" class="org.guzz.test.shop.Cargo" />
+	<a-business name="cargo" dbgroup="cargoDB" class="org.guzz.test.shop.Cargo" />
 	<a-business name="sp" class="org.guzz.test.shop.SpecialProperty" />
 	
 	<sqlMap dbgroup="default">

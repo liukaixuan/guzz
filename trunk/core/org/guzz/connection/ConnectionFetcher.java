@@ -14,32 +14,19 @@
  * limitations under the License.
  *
  */
-package org.guzz.orm;
+package org.guzz.connection;
+
+import java.sql.Connection;
+
 
 /**
  * 
- * Shadow table means table partition, the table name will change on the giving condition.
- * <p>
- * Builded sqls will change when the condition changed.
- * </p>
+ * 用来获取connection。
  *
- * @author liu kaixuan(liukaixuan@gmail.com)
+ * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface ShadowTableView {
-
-	/**
-	 * Retrieve the table name on the condition
-	 * @param tableCondition shadow seed conditon
-	 */
-	public String toTableName(Object tableCondition) ;
+public interface ConnectionFetcher {
 	
-	/**
-	 * set the table name configured in the hbm.xml file. 
-	 */
-	public void setConfiguredTableName(String tableName) ;
-	
-	public void startup() ;
-	
-	public void shutdown() throws Exception ;
+	public Connection getConnection(PhysicsDBGroup dbGroup) ;
 	
 }
