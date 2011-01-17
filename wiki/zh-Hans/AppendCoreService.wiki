@@ -246,13 +246,13 @@ log4j.logger.org.guzz.service.db.impl=debug
 
  来观察输出。
 
-== 5. 日志队列服务： ==
+== 5. 数据库插入队列服务： ==
 
 *用途：* 将1个对象写入队列，另外1个后台线程将队列中的元素写入到数据库中。用于应用处理不太重要但又可能影响性能的数据库写操作。
 
-*接口：*org.guzz.service.log.LogService
+*接口：*org.guzz.service.db.InsertQueueService
 
-*注册服务名称：* 自定义，推荐logService
+*注册服务名称：* 自定义，推荐insertQueueService
 
 *guzz内部使用范围：* 内部不使用
 
@@ -261,14 +261,13 @@ log4j.logger.org.guzz.service.db.impl=debug
  guzz.xml：
 
 {{{
-<service name="logService" configName="guzzDBLogServiceClient" class="org.guzz.service.log.impl.DBLogServiceImpl" />
-
+<service name="insertQueueService" configName="guzzInsertQueueService" class="org.guzz.service.db.impl.InsertQueueServiceImpl" />
 }}}
 
  properties文件：
 
 {{{
-[guzzDBLogServiceClient]
+[guzzInsertQueueService]
 #commit size
 commitSize=2048
 
@@ -276,5 +275,5 @@ commitSize=2048
 queueSize=20480
 }}}
 
-*内部工作原理：* 与默认的slowUpdate服务相同。唯一不同的是logService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。logService处理的对象一般是应用系统自己定义的对象。
+*内部工作原理：* 与默认的slowUpdate服务相同。唯一不同的是InsertQueueService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。InsertQueueService处理的对象一般是应用系统自己定义的对象。
  

@@ -79,7 +79,7 @@ package org.guzz.pojo;
  * startup sequences:
  * <ol>
  * <li>loader = XXXClass.newInstance()</li>
- * <li>loader.configure(Table table, String propName, String columnName)</li>
+ * <li>loader.configure(ObjectMapping mapping, Table table, String propName, String columnName)</li>
  * <li>.....</li>
  * <li>injected {@link GuzzContext} based on implementing {@link GuzzContextAware} or not</li>
  * <li>loader.startup()</li> 
@@ -91,13 +91,13 @@ package org.guzz.pojo;
 public interface ColumnDataLoader {
 	
 	/**
-	 * configure the property info.
+	 * configure the loader.
 	 * 
+	 * @param mapping
 	 * @param table fetch Object stored table.
-	 * @param propName property name
-	 * @param columnName the corresponding columnName of the property.
+	 * @param tableColumn the column to be loaded. The passed tableColumn is not fully inited, the orm and dataType will not be available.
 	 */
-	public void configure(ObjectMapping mapping, Table table, String propName, String columnName) ;
+	public void configure(ObjectMapping mapping, Table table, TableColumn tableColumn) ;
 	
 	/**
 	 * load the data instancely during other properties reading from the database.

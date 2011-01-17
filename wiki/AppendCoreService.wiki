@@ -242,26 +242,26 @@ updateInterval=500
 log4j.logger.org.guzz.service.db.impl=debug
 }}}
  
-== 5. Insert Queue Service(We also call it Log Service): ==
+== 5. Insert Queue Service: ==
 
 *purpose:* Write objects into a memory queue, and another demon thread inserts the queued objects into the database.
 
-*Interface:* org.guzz.service.log.LogService
+*Interface:* org.guzz.service.db.InsertQueueService
 
-*Service name:* Anything you like. logService is suggested.
+*Service name:* Anything you like. insertQueueService is suggested.
 
 *Used inside guzz:* Guzz won't use it inside the framework.
 
 *Declare Service:* Declare in guzz.xml:
 
 {{{
-<service name="logService" configName="guzzDBLogServiceClient" class="org.guzz.service.log.impl.DBLogServiceImpl" />
+<service name="insertQueueService" configName="guzzInsertQueueService" class="org.guzz.service.db.impl.InsertQueueServiceImpl" />
 }}}
 
 *Service Parameters(configured in properties file):* 
 
 {{{
-[guzzDBLogServiceClient]
+[guzzInsertQueueService]
 #commit size
 commitSize=2048
 
@@ -271,5 +271,5 @@ queueSize=20480
 
 *Mechanism:* This service created an array sized of queueSize. All objects inserted are stored in this array in a cycle mode. The demon thread open a not-auto-commit connection, check the array, and insert the queued objects into the main database, and commit it. Each time, the demon thread commit at most commitSize objects.
 
-*Tips:* You can insert different business objects into the LogService at the same time.
+*Tips:* You can insert different business objects into the InsertQueueService at the same time.
  
