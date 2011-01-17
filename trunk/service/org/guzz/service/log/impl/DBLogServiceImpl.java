@@ -31,7 +31,7 @@ import org.guzz.web.context.GuzzContextAware;
 
 /**
  * 
- * 将日志对象写入日志数据库。{@link DBLogServiceImpl}只需要连接日志数据库主库，不需要从数据库，也不需要业务数据库任何资料。
+ * 将日志对象写入日志数据库。{@link InsertQueueServiceImpl}只需要连接日志数据库主库，不需要从数据库，也不需要业务数据库任何资料。
  * 
  *
  * @author liukaixuan(liukaixuan@gmail.com)

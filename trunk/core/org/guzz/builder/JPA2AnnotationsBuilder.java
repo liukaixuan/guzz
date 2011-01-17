@@ -558,7 +558,7 @@ public class JPA2AnnotationsBuilder {
 			}
 
 			st.setShadowTableView(sv) ;
-			gf.getShadowTableViewManager().addShadowView(sv) ;
+			gf.registerShadowTableView(sv) ;
 		}
 		
 		//构建映射属性。

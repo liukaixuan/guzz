@@ -1,3 +1,8 @@
+1.2.9 beta3
+	1. new feature: distribute a big table into many machines.
+	2. improvement: change LogService to InsertQueueService
+	3. clean codes.
+
 1.2.9 beta2
 	1. new feature: two new SearchTerms, IsNullTerm and NotNullTerm.
 	2. fix a bug in g:inc

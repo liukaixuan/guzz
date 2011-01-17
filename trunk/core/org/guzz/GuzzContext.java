@@ -24,9 +24,9 @@ import org.guzz.exception.DaoException;
 import org.guzz.exception.GuzzException;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
+import org.guzz.orm.ColumnDataLoader;
+import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.mapping.ObjectMappingManager;
-import org.guzz.orm.rdms.ShadowTableViewManager;
-import org.guzz.pojo.ColumnDataLoaderManager;
 import org.guzz.service.core.DatabaseService;
 import org.guzz.service.core.DebugService;
 import org.guzz.transaction.TransactionManager;
@@ -81,9 +81,11 @@ public interface GuzzContext {
 	
 	public ObjectMappingManager getObjectMappingManager() ;
 
-	public ColumnDataLoaderManager getDataLoaderManager() ;
+	public void registerVirtualDBView(VirtualDBView view) ;
 	
-	public void addVirtualDBView(VirtualDBView view) ;
+	public void registerColumnDataLoader(ColumnDataLoader loader) ;
+	
+	public void registerShadowTableView(ShadowTableView view) ;
 	
 	/**
 	 * Retrieve the Extended Bean Factory. for example: a Bean Factory linked to spring's ApplicationContext if the GuzzContext is initialized within springframework.
@@ -98,7 +100,5 @@ public interface GuzzContext {
 	public Object getExtendedBean(String beanName) ;
 	
 	public void shutdown() ;
-
-	public ShadowTableViewManager getShadowTableViewManager();
 
 }

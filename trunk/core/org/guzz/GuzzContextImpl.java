@@ -43,17 +43,17 @@ import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
+import org.guzz.orm.ColumnDataLoader;
 import org.guzz.orm.ObjectMapping;
+import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.interpreter.BusinessInterpreterManager;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
-import org.guzz.orm.rdms.ShadowTableViewManager;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
 import org.guzz.orm.sql.impl.CompiledSQLBuilderImpl;
 import org.guzz.orm.sql.impl.CompiledSQLManagerImpl;
-import org.guzz.pojo.ColumnDataLoaderManager;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
 import org.guzz.service.ServiceManager;
@@ -93,6 +93,9 @@ public class GuzzContextImpl implements GuzzContext{
 	
 	private List contextLifeCycles = new LinkedList() ;
 	
+	/**waiting for GuzzContext's full inited.*/
+	private List contextLifeCyclesWaitingStart = new LinkedList() ;
+	
 	ObjectMappingManager objectMappingManager ;
 	
 	CompiledSQLBuilder compiledSQLBuilder ;
@@ -110,10 +113,6 @@ public class GuzzContextImpl implements GuzzContext{
 	DebugService debugService ;
 	
 	DynamicSQLService dynamicSQLService ;
-	
-	ColumnDataLoaderManager columnDataLoaderManager ;
-	
-	ShadowTableViewManager shadowTableViewManager ;
 	
 	ProxyFactory proxyFactory ;
 	
@@ -267,8 +266,12 @@ public class GuzzContextImpl implements GuzzContext{
 		}
 		
 		//10. 通知组件开始进行初始化(startup)
-		this.columnDataLoaderManager.onGuzzFullStarted() ;
-		this.shadowTableViewManager.onGuzzFullStarted() ;
+		for(int i = 0 ; i < this.contextLifeCyclesWaitingStart.size() ; i++){
+			ContextLifeCycle c = (ContextLifeCycle) this.contextLifeCyclesWaitingStart.get(i) ;
+			
+			c.startup() ;
+		}
+		this.contextLifeCyclesWaitingStart.clear() ;
 	}
 	
 	protected void initUnOrderedService(Map services, LinkedList queuedServices, ServiceInfo serviceInfo){
@@ -378,10 +381,7 @@ public class GuzzContextImpl implements GuzzContext{
 	
 	protected void init(){
 		//初始化顺序：加载xml文件，构造数据类型，连接ConfigServer读取配置，初始化Service，初始化事务管理。
-		
 		this.proxyFactory = new CglibProxyFactory() ;//TODO: read this from config file.
-		columnDataLoaderManager = new ColumnDataLoaderManager(this) ;
-		shadowTableViewManager = new ShadowTableViewManager(this) ;
 		objectMappingManager = new ObjectMappingManager() ;
 		businessInterpreterManager = new BusinessInterpreterManager(this) ;
 		dbGroupManager = new DBGroupManager() ;
@@ -390,11 +390,19 @@ public class GuzzContextImpl implements GuzzContext{
 		compiledSQLManager = new CompiledSQLManagerImpl(compiledSQLBuilder) ;
 	}
 	
-	public void addVirtualDBView(VirtualDBView view){
+	public void registerVirtualDBView(VirtualDBView view){
 		registerContextLifeCycle(view) ;
 	}
 	
-	protected void registerContextLifeCycle(ContextLifeCycle c){
+	public void registerColumnDataLoader(ColumnDataLoader loader){
+		registerContextLifeCycle(loader) ;
+	}
+
+	public void registerShadowTableView(ShadowTableView view) {
+		registerContextLifeCycle(view) ;
+	}
+	
+	public void registerContextLifeCycle(ContextLifeCycle c){
 		this.contextLifeCycles.add(c) ;
 		
 		if(c instanceof GuzzContextAware){
@@ -403,6 +411,8 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		if(this.isFullStarted()){
 			c.startup() ;
+		}else{
+			this.contextLifeCyclesWaitingStart.add(c) ;
 		}
 		
 		if(c instanceof ExtendedBeanFactoryAware){
@@ -410,10 +420,7 @@ public class GuzzContextImpl implements GuzzContext{
 		}
 	}
 	
-	public void shutdown(){	
-		columnDataLoaderManager.shutdown() ;
-		shadowTableViewManager.shutdown() ;
-		
+	public void shutdown(){
 		for(int i = 0 ; i < this.contextLifeCycles.size() ; i++){
 			ContextLifeCycle c = (ContextLifeCycle) this.contextLifeCycles.get(i) ;
 			
@@ -544,16 +551,8 @@ public class GuzzContextImpl implements GuzzContext{
 		return fullStarted;
 	}
 
-	public ColumnDataLoaderManager getDataLoaderManager() {
-		return columnDataLoaderManager;
-	}
-
 	public ProxyFactory getProxyFactory() {
 		return proxyFactory;
-	}
-
-	public ShadowTableViewManager getShadowTableViewManager() {
-		return shadowTableViewManager;
 	}
 	
 	/**

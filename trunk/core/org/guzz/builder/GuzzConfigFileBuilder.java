@@ -205,7 +205,7 @@ public class GuzzConfigFileBuilder {
 					VirtualDBView vdv = (VirtualDBView) vv ;
 					vdv.setConfiguredVirtualDBGroup(db) ;
 					
-					this.gf.addVirtualDBView(vdv) ;
+					this.gf.registerVirtualDBView(vdv) ;
 					
 					db.setVirtualDBGroupView(vdv) ;
 				}else{

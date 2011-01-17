@@ -17,11 +17,12 @@
 package org.guzz.service.log;
 
 import org.guzz.Guzz;
+import org.guzz.service.db.InsertQueueService;
 
 /**
  * 
  * 
- *
+ * @deprecated use {@link InsertQueueService} instead.
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public interface LogService {
@@ -29,11 +30,13 @@ public interface LogService {
 	/**
 	 * 记录日志。如果存在shadow表，按照{@link Guzz#getTableCondition()}分表
 	 * @param logObject 日志对象
+	 * @deprecated use {@link InsertQueueService#insert(Object)} instead.
 	 **/
 	public void log(Object logObject) ;
 	
 	/**
 	 * 记录日志。
+	 * @deprecated use {@link InsertQueueService#insert(Object, tableCondition)} instead.
 	 * @param logObject 日志对象
 	 * @param tableCondition shadow表分表条件。如果tableCondition为null，将会使用null作为分表条件，不在读取{@link Guzz#getTableCondition()}
 	 **/

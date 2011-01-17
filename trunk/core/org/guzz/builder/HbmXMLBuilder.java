@@ -166,7 +166,7 @@ public class HbmXMLBuilder {
 						}
 
 						st.setShadowTableView(sv) ;
-						gf.getShadowTableViewManager().addShadowView(sv) ;
+						gf.registerShadowTableView(sv) ;
 					}
 					
 					//TODO: 按照实际数据库具体类型，采用更加准备的子类进行初始化。

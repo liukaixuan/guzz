@@ -16,10 +16,28 @@
  */
 package org.guzz;
 
+import org.guzz.web.context.ExtendedBeanFactory;
+import org.guzz.web.context.ExtendedBeanFactoryAware;
+import org.guzz.web.context.GuzzContextAware;
+
 
 /**
  * 
  * LifeCycle
+ * 
+ * <p/>
+ * startup sequences:
+ * <ol>
+ * <li>xxxx = XXXClass.newInstance()</li>
+ * <li>xxx.setXXX()/configure(...)</li>
+ * <li>.....</li>
+ * <li>injected {@link GuzzContext} based on implementing {@link GuzzContextAware} or not</li>
+ * <li>xxx.startup()</li>
+ * <li>...</li>
+ * <li>injected {@link ExtendedBeanFactory} based on implementing {@link ExtendedBeanFactoryAware} or not</li>
+ * <li>..running...</li>
+ * <li>xxx.shutdown() when guzz is shutdown</li>
+ * </ol>
  * 
  * @author liukaixuan(liukaixuan@gmail.com)
  */
