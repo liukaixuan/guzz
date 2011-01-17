@@ -14,25 +14,26 @@
  * limitations under the License.
  *
  */
-package org.guzz.orm;
+package org.guzz.service.db.impl;
 
-import org.guzz.ContextLifeCycle;
+import org.guzz.service.db.InsertQueueService;
+import org.guzz.service.log.impl.DBLogServiceImpl;
+import org.guzz.web.context.GuzzContextAware;
 
 /**
- * 
- * 
+ *  
+ * <a href="http://code.google.com/p/guzz/wiki/AppendCoreService">Documentation</a>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface BusinessInterpreter extends ContextLifeCycle {
-
-	/**
-	 * Translating the giving limit condition to a Search Condition guzz supported.
-	 * 
-	 * @param limitTo the condition user passed.
-	 * @return supported search condition. return null if this condition can be ignored.
-	 * @throw Exception Throw exception if the limit is not authorized.
-	 */
-	public Object explainCondition(ObjectMapping mapping, Object limitTo) throws Exception  ;
+public class InsertQueueServiceImpl extends DBLogServiceImpl implements InsertQueueService, GuzzContextAware{
+	
+	public void insert(Object obj) {
+		super.log(obj) ;
+	}
+	
+	public void insert(Object obj, Object tableCondition) {
+		super.log(obj, tableCondition) ;
+	}
 	
 }

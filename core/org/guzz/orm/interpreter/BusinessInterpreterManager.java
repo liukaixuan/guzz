@@ -19,8 +19,6 @@ package org.guzz.orm.interpreter;
 import org.guzz.GuzzContextImpl;
 import org.guzz.orm.BusinessInterpreter;
 import org.guzz.util.javabean.BeanCreator;
-import org.guzz.web.context.ExtendedBeanFactoryAware;
-import org.guzz.web.context.GuzzContextAware;
 
 /**
  * 
@@ -54,13 +52,7 @@ public class BusinessInterpreterManager {
 			bi = new SEBusinessInterpreter() ;
 		}
 		
-		if(bi instanceof GuzzContextAware){
-			gc.registerContextStartedAware((GuzzContextAware) bi) ;
-		}
-		
-		if(bi instanceof ExtendedBeanFactoryAware){
-			gc.registerExtendedBeanFactoryAware((ExtendedBeanFactoryAware) bi) ;
-		}
+		gc.registerContextLifeCycle(bi) ;
 		
 		return bi ;
 	}

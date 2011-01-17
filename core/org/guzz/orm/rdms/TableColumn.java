@@ -16,6 +16,8 @@
  */
 package org.guzz.orm.rdms;
 
+import java.sql.ResultSet;
+
 import org.guzz.dao.PersistListener;
 import org.guzz.dialect.Dialect;
 import org.guzz.orm.ColumnDataLoader;
@@ -139,10 +141,16 @@ public class TableColumn {
 		}
 	}
 
+	/**
+	 * Column name for building sqls.
+	 */
 	public String getColNameForSQL() {
 		return colNameForSQL;
 	}
 
+	/**
+	 * Column name for retrieving value from {@link ResultSet}.
+	 */
 	public String getColNameForRS() {
 		return colNameForRS;
 	}

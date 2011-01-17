@@ -14,9 +14,10 @@
  * limitations under the License.
  *
  */
-package org.guzz.orm;
+package org.guzz.service.db;
 
-import org.guzz.ContextLifeCycle;
+import org.guzz.Guzz;
+import org.guzz.service.log.LogService;
 
 /**
  * 
@@ -24,15 +25,20 @@ import org.guzz.ContextLifeCycle;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface BusinessInterpreter extends ContextLifeCycle {
-
-	/**
-	 * Translating the giving limit condition to a Search Condition guzz supported.
-	 * 
-	 * @param limitTo the condition user passed.
-	 * @return supported search condition. return null if this condition can be ignored.
-	 * @throw Exception Throw exception if the limit is not authorized.
-	 */
-	public Object explainCondition(ObjectMapping mapping, Object limitTo) throws Exception  ;
+public interface InsertQueueService extends LogService {
 	
+	/**
+	 * Inert a object.
+	 * 如果存在shadow表，按照{@link Guzz#getTableCondition()}分表
+	 * @param obj 对象
+	 **/
+	public void insert(Object ojb) ;
+	
+	/**
+	 * 记录日志。
+	 * @param obj 对象
+	 * @param tableCondition shadow表分表条件。如果tableCondition为null，将会使用null作为分表条件，不在读取{@link Guzz#getTableCondition()}
+	 **/
+	public void insert(Object obj, Object tableCondition) ;
+
 }

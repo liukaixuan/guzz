@@ -16,6 +16,8 @@
  */
 package org.guzz.orm;
 
+import org.guzz.ContextLifeCycle;
+
 /**
  * 
  * Shadow table means table partition, the table name will change on the giving condition.
@@ -25,7 +27,7 @@ package org.guzz.orm;
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface ShadowTableView {
+public interface ShadowTableView extends ContextLifeCycle {
 
 	/**
 	 * Retrieve the table name on the condition
@@ -37,9 +39,5 @@ public interface ShadowTableView {
 	 * set the table name configured in the hbm.xml file. 
 	 */
 	public void setConfiguredTableName(String tableName) ;
-	
-	public void startup() ;
-	
-	public void shutdown() throws Exception ;
 	
 }

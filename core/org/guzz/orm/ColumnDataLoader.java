@@ -19,6 +19,7 @@ package org.guzz.orm;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.guzz.ContextLifeCycle;
 import org.guzz.GuzzContext;
 import org.guzz.dao.PersistListener;
 import org.guzz.exception.DaoException;
@@ -36,9 +37,9 @@ import org.guzz.web.context.GuzzContextAware;
  * startup sequences:
  * <ol>
  * <li>loader = XXXClass.newInstance()</li>
- * <li>loader.configure(Table table, String propName, String columnName)</li>
+ * <li>loader.configure(ObjectMapping mapping, Table table, TableColumn tableColumn)</li>
  * <li>.....</li>
- * <li>injected {@link GuzzContext} based on implmenting {@link GuzzContextAware} or not</li>
+ * <li>injected {@link GuzzContext} based on implementing {@link GuzzContextAware} or not</li>
  * <li>loader.startup()</li>
  * <li>....</li>
  * <li>loader.shutdown()</li>
@@ -49,7 +50,7 @@ import org.guzz.web.context.GuzzContextAware;
  * @see PersistListener
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public interface ColumnDataLoader {
+public interface ColumnDataLoader extends ContextLifeCycle {
 	
 	/**
 	 * configure the loader.
@@ -93,9 +94,5 @@ public interface ColumnDataLoader {
 	 * @exception DaoException throw exception on @param fetchedObject doesn't exist in the database.
 	 */
 	public Object loadLazyDataForWrite(WriteTranSession tran, Object fetchedObject) throws DaoException ;
-	
-	public void startup() ;
-	
-	public void shutdown() throws Exception ;
-		
+			
 }
