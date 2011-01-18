@@ -1,14 +1,19 @@
-== 概念介绍 ==
+== What is Virtual DB? ==
 
 *Not released yet. Download it from SVN to have a try. Documentation under translation.*
 
- 分布式切表是指在（前面两章介绍的）将一张大表分切成N张小表的基础上，将这些小表分布到不同的数据库（机器）中，从而实现数据的分散存储和分散查询。
+ In the previous two chapters, we split a big table into many small ones, that great. But in some case, the big table maybe too big to store in one database. We need to split it into small tables, *and* distribute the small tables into many machines. To the developers, they don't need to know how the data is distributed, and which database they are using now. We call this VirtualDB, a logic database with many unknown backends.
+ 
+ With the VirtualDB, you can store your big table in different databases without changing the existing codes.
 
- 分布式切表以Shadow Table为基础，应用在使用前必须完成普通的表分切。
+ VirtualDB is based on [TutorialShadowTable Shadow Table]. Before using VirtualDB, you have to configure your code to support shadowing.
 
-== 配置方式 ==
 
- 配置分为2步，第一步创建虚拟数据库组并将需要分布式存储的领域对象指向此数据库组；第二步定义分切规则。虚拟数据库组的定义方式为（guzz.xml文件）：
+== How to configure? ==
+
+ To setup a Virtual database, first you have to create a virtualdbgroup, and point your business's dbgroup to it; then you have to define the rules of how to distribute your data.
+
+ For example, we define two Virtual Databases "logDB" and "other" in guzz.xml:
 
 {{{
 	<tran>
@@ -22,21 +27,27 @@
 	</tran>
 }}}
 
- 与普通dbgroup平级，在tran属性中添加virtualdbgroup。virtualdbgroup中可以继续定义dbgroup，也可以不定义。
-
- virtualdbgroup中定义的dbgroup与直接在tran下定义的dbgroup在使用上完全一样，只是为了管理起来更清晰一点。
+ Like "dbgroup", virtualdbgroup is declared under the "tran" element. You can also define "dbgroup" inside "virtualdbgroup".
  
- virtualdbgroup有三个属性，name为数据库组名称，dialectName为数据库方言，shadow为分切规则。dialectName如果不填按照"default"赋值。virtualdbgroup中的dbgroup不需要填写dialectName属性，默认继承自外部的virtualdbgroup。
+ The "dbgroup"s defined inside virtualdbgroup elements are of the same with the ones defined under "tran", except for more clear management. 
 
- virtualdbgroup我们称为 虚拟数据库组，dbgroup我们称为 实体数据库组。虚拟数据库组不能继续包含虚拟数据库组。
+ virtualdbgroup has three attributes: "name" to name the virtual dbgroup; "dialectName" to indicate the database type; "shadow" to declare the data-distributing policy.
  
- 同一个虚拟数据库组中的所有实体数据库组必须为同一种数据库，例如都是Mysql5，都是Oracle 11g等。不能混用。
+ The dbgroups declared inside virtualdbgbroup can omit attribute "dialectName", to inherit from the virtualdbgroup.
+ 
+ We call "virtualdbgroup" Virtual Database Group, and "dbgroup" the Physics Database Group. A Virtual Database Group can hold Physics Database Groups only.
+ 
+ In a virtual database group, all physics databases must be of the same provider. For example, all Mysql5, all Oracle 11g, but you cann't mix them.
+ 
+== User Case: Shopping Site ==
 
-== 案例说明：购物网站 ==
+ We continue the shopping site story in the previous chapter. Suppose our cross-stitch is getting very very hot, and we have to add a new group of databases to store it.
 
- 继续前一章的购物网站，假设我们有2组数据库存储商品信息。其中 十字绣 存储在单独的一组数据库中，其他存储在另外一组。
+ Then, we have two database groups to store our cargoes: the cross-stitch in a new group, and others in the old group. 
+ 
+ In our previous design, we only have one "Cargo" business domain class to represent the cargo, and one business maps to one dbgroup. We have no time to re-design the whole project, VirtualDB is the only choice.
 
-*1. 定义virtualdbgroup：*
+*First, Define a virtualdbgroup：*
 
 {{{
 	<tran>
@@ -54,16 +65,20 @@
 	<business name="cargo" dbgroup="cargoDB" file="classpath:org/guzz/test/shop/Cargo.hbm.xml" />
 }}}
 
- 在business声明中，我们将cargo指向了虚拟数据库组cargoDB。
+ In the "business" declaration, we point "cargo" to the virtual dbgroup "cargoDB". 
  
- 假设  十字绣 存储在“cargoDB.cargo2”中，其他商品存储在"default"数据库组中。
+ We also add a new dbgroup "cargoDB.cargo2" inside the virtualdbgroup to store cross-stitch. 
  
 
-*2. 定义分切规则：*
+*Second, Write the shadowing rules：*
 
- 虚拟数据库中，分切规则是面向数据库组的。分切规则的定义可以理解为：通过传入的tableCondition，应该使用那一组数据库。对的，条件就是tableCondition，和Shadow Table的条件是一个。
-
- 编写规则时，我们一般继承 org.guzz.connection.AbstractVirtualDBView
+ In the VirtualDB, shadowing is dbgroups oriented. 
+ 
+ You can consider the rule is: return the correct dbgroup for the given tableCondition.
+ 
+ Yes, the parameter for VirtualDB is the "tableCondition" for Shadow Table. The are not only the same name, but also the same object. The tableCondition passed to shadow a table, is just the same one will be passed to shadow the VirtualDB.
+ 
+ To write the rule, you can inherit from org.guzz.connection.AbstractVirtualDBView.
 
 {{{
 package org.guzz.test.shop;
@@ -86,15 +101,17 @@ public class CargoVirtualDBView extends AbstractVirtualDBView {
 }
 
 }}} 
+
+ In our Shopping site, the tableCondition is the cargo name, and we decide which dbgroup should be used based on it.
  
- 很简单的实现，tableCondition为商品名，根据商品名决定使用那一组数据库。
-
- 这时候，您把 十字绣商品 的表挪到cargo2DB中，并在properties文件中加上cargo2DB的连接池，其他代码不需要改动，就可以运行了。
+ After you finishing this, you can move your cross-stitch cargo table to "cargo2DB", and add the connection pool parameters in the properties file, then you can run the Shopping Site again.
  
 
-== 案例说明：VirtualDBView ==
+== Use Case: VirtualDBView ==
 
-  分布式分切规则定义接口VirtualDBView：
+ The value of the "shadow" attribute in virtualdbgroup should be a full class implementing org.guzz.connection.VirtualDBView.
+  
+ The definition of org.guzz.connection.VirtualDBView is:
 
 {{{
 public interface VirtualDBView extends ContextLifeCycle {
@@ -117,29 +134,29 @@ public interface VirtualDBView extends ContextLifeCycle {
 }
 }}}
 
- setConfiguredVirtualDBGroup(VirtualDBGroup) 在初始化时调用，传入定义的虚拟数据库组信息。
+ setConfiguredVirtualDBGroup(VirtualDBGroup) called on startup, passing the information of the virtual dbgroup.
  
- getDBGroup(Object tableCondition) 根据传入的分表条件，返回对应的 实体数据库组（就是guzz.xml通过dbgroup定义的数据库组）。
+ getDBGroup(Object tableCondition) return the physics database group by the given tableCondition.
  
-  此接口还有startup和shutdown方法，也可以通过实现GuzzContextAware接口获取GuzzContext的注入。通过这些，开发者可以在运行时动态生成和管理数据库组，以更加灵活的控制。
+ The interface also has startup and shutdown methods, and you can get the GuzzContext by declaring GuzzContextAware interface. Through this, the developers will be able to create and manage the dbgroups on their own needs, without the limit of guzz.xml.
+
+ If all the database groups you are using are already configured in guzz.xml, you can inherit from org.guzz.connection.AbstractVirtualDBView as the example above, to simplify the writing of the rule. Inherit from AbstractVirtualDBView, you only have to write one method to return the dbgroup name for the given tableCondition.
+
+
+ == Startup sequences of VirtualDBView: ==
+
+ * 1. Parse configuration file and instance the VirtualDBView class;
  
- 如果您用的数据库组都是在guzz.xml中定义的，实现规则时，可以更方便的继承org.guzz.connection.AbstractVirtualDBView，就像上面的例子一样。AbstractVirtualDBView 只需要您根据条件，返回对应的数据库组名称即可。
- 
+ * 2. call setConfiguredVirtualDBGroup(VirtualDBGroup vdb)
   
-== VirtualDBView接口中方法调用顺序 ==
-
- * 1. 解析配置文件，生成类实例
-
- * 2. 调用setConfiguredVirtualDBGroup(VirtualDBGroup vdb)
-
- * 3. 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
-
- * 4. 调用startup()
-
- * 5. 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
-
- * 6. 对外服务……
-
- * 7. guzz关闭时调用shutdown()
-
+ * 3. call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
+ 
+ * 4. call startup();
+ 
+ * 5. call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
+ 
+ * 6. running....;
+ 
+ * 7. call shutdown() when guzz exits.
+ 
  
