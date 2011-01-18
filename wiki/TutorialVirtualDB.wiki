@@ -1,6 +1,6 @@
 == 概念介绍 ==
 
- *Not released yet. Download it from SVN to have a try. Documentation under translation.*
+*Not released yet. Download it from SVN to have a try. Documentation under translation.*
 
  分布式切表是指在（前面两章介绍的）将一张大表分切成N张小表的基础上，将这些小表分布到不同的数据库（机器）中，从而实现数据的分散存储和分散查询。
 
