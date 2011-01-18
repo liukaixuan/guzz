@@ -1,8 +1,8 @@
 == What is Virtual DB? ==
 
- -*Not released yet. Download the latest code from SVN to have a try.*
+ -*Not released yet. Download the latest code from the SVN to have a try.*
 
- In the previous two chapters, we split a big table into many small ones, that great. But in some case, the big table maybe too big to store in one database. We need to split it into small tables, *and* distribute the small tables into many machines. To the developers, they don't need to know how the data is distributed, and which database they are using now. We call this VirtualDB, a logic database with many unknown backends.
+ In the previous two chapters, we split a big table into many small ones, that is great. But in some cases, the big table maybe too big to store in one database. We need to split it into small tables, *and* distribute the small tables into many machines. To the developers, they don't need to know how the data is distributed, and which database they are using now. We call this VirtualDB, a logic database with many unknown backends.
  
  With the VirtualDB, you can store your big table in different databases without changing the existing codes.
 
@@ -11,7 +11,7 @@
 
 == How to configure? ==
 
- To setup a Virtual database, first you have to create a virtualdbgroup, and point your business's dbgroup to it; then you have to define the rules of how to distribute your data.
+ To setup a Virtual database, first you have to create a virtualdbgroup, and point your business's dbgroup to it; then you have to define the rules of how to distribute the data.
 
  For example, we define two Virtual Databases "logDB" and "other" in guzz.xml:
 
@@ -31,9 +31,9 @@
  
  The "dbgroup"s defined inside virtualdbgroup elements are of the same with the ones defined under "tran", except for more clear management. 
 
- virtualdbgroup has three attributes: "name" to name the virtual dbgroup; "dialectName" to indicate the database type; "shadow" to declare the data-distributing policy.
+ virtualdbgroup has three attributes: "name" to name the (virtual) dbgroup; "dialectName" to indicate the database type; "shadow" to declare the data-distributing policy.
  
- The dbgroups declared inside virtualdbgbroup can omit attribute "dialectName", to inherit from the virtualdbgroup.
+ The dbgroups declared inside virtualdbgbroup can omit attribute "dialectName", to inherit from the parent virtualdbgroup.
  
  We call "virtualdbgroup" Virtual Database Group, and "dbgroup" the Physics Database Group. A Virtual Database Group can hold Physics Database Groups only.
  
@@ -104,7 +104,7 @@ public class CargoVirtualDBView extends AbstractVirtualDBView {
 
  In our Shopping site, the tableCondition is the cargo name, and we decide which dbgroup should be used based on it.
  
- After you finishing this, you can move your cross-stitch cargo table to "cargo2DB", and add the connection pool parameters in the properties file, then you can run the Shopping Site again.
+ After finishing this, you can move your cross-stitch cargo table to "cargo2DB", and add the connection pool parameters in the properties file, then you can run the Shopping Site again.
  
 
 == Use Case: VirtualDBView ==
@@ -134,11 +134,11 @@ public interface VirtualDBView extends ContextLifeCycle {
 }
 }}}
 
- setConfiguredVirtualDBGroup(VirtualDBGroup) called on startup, passing the information of the virtual dbgroup.
+ setConfiguredVirtualDBGroup(VirtualDBGroup) is called on startup, passing the configuration of the virtual dbgroup.
  
- getDBGroup(Object tableCondition) return the physics database group by the given tableCondition.
+ getDBGroup(Object tableCondition) returns the physics database group on the given tableCondition.
  
- The interface also has startup and shutdown methods, and you can get the GuzzContext by declaring GuzzContextAware interface. Through this, the developers will be able to create and manage the dbgroups on their own needs, without the limit of guzz.xml.
+ The interface also has startup() and shutdown() methods, and you can get the GuzzContext by declaring GuzzContextAware interface. Through this, the developers will be able to create and manage the dbgroups on their own needs, without the limit of guzz.xml.
 
  If all the database groups you are using are already configured in guzz.xml, you can inherit from org.guzz.connection.AbstractVirtualDBView as the example above, to simplify the writing of the rule. Inherit from AbstractVirtualDBView, you only have to write one method to return the dbgroup name for the given tableCondition.
 
