@@ -22,6 +22,7 @@
     * [TutorialFutureService Service2:Asynchronous Service]
     * [TutorialShadowTable Split Table(Shadow Table)]
     * [TutorialCustomTable Special fields for split tables(Custom Table)]
+    * [TutorialVirtualDB Distribute split tables in different machines]
     * [TutorialDynamicSQLService Dynamic SQL]
   * [TaglibBook JSP Taglib]
   * [http://www.guzz.org/docs/javadoc/index.html java doc]
