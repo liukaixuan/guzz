@@ -1,6 +1,6 @@
 == What is Virtual DB? ==
 
-*Not released yet. Download it from SVN to have a try. Documentation under translation.*
+ -*Not released yet. Download the latest code from SVN to have a try.*
 
  In the previous two chapters, we split a big table into many small ones, that great. But in some case, the big table maybe too big to store in one database. We need to split it into small tables, *and* distribute the small tables into many machines. To the developers, they don't need to know how the data is distributed, and which database they are using now. We call this VirtualDB, a logic database with many unknown backends.
  
