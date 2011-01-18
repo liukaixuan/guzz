@@ -21,6 +21,7 @@
    * [TutorialFutureService Service2:编写支持异步调用的服务]
    * [TutorialShadowTable 表分切（Shadow Table）]
    * [TutorialCustomTable 自定义属性表（Custom Table）]
+   * [TutorialVirtualDB 分布式切表（Virtual DB）]
    * [TutorialDynamicSQLService 动态（加载）SQL]
  * [TaglibBook JSP页面快速开发指南]
  * [http://www.guzz.org/docs/javadoc/index.html java doc]

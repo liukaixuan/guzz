@@ -1,0 +1,143 @@
+== 概念介绍 ==
+
+ 分布式切表是指在（前面两章介绍的）将一张大表分切成N张小表的基础上，将这些小表分布到不同的数据库（机器）中，从而实现数据的分散存储和分散查询。
+
+ 分布式切表以Shadow Table为基础，应用在使用前必须完成普通的表分切。
+
+== 配置方式 ==
+
+ 配置分为2步，第一步创建虚拟数据库组并将需要分布式存储的领域对象指向此数据库组；第二步定义分切规则。虚拟数据库组的定义方式为（guzz.xml文件）：
+
+{{{
+	<tran>
+		<virtualdbgroup name="logDB" dialectName="mysql5Dialect" shadow="class.name.of.the.distributing.rules" >
+			<dbgroup name="log.db1" masterDBConfigName="logDB1" />
+			<dbgroup name="log.db2" masterDBConfigName="logDB2" />
+			<dbgroup name="log.db3" masterDBConfigName="logDB3" />
+		</virtualdbgroup>
+		
+		<virtualdbgroup name="other" dialectName="h2dialect" shadow="xxxxxx" />
+	</tran>
+}}}
+
+ 与普通dbgroup平级，在tran属性中添加virtualdbgroup。virtualdbgroup中可以继续定义dbgroup，也可以不定义。
+
+ virtualdbgroup中定义的dbgroup与直接在tran下定义的dbgroup在使用上完全一样，只是为了管理起来更清晰一点。
+ 
+ virtualdbgroup有三个属性，name为数据库组名称，dialectName为数据库方言，shadow为分切规则。dialectName如果不填按照"default"赋值。virtualdbgroup中的dbgroup不需要填写dialectName属性，默认继承自外部的virtualdbgroup。
+
+ virtualdbgroup我们称为 虚拟数据库组，dbgroup我们称为 实体数据库组。虚拟数据库组不能继续包含虚拟数据库组。
+ 
+ 同一个虚拟数据库组中的所有实体数据库组必须为同一种数据库，例如都是Mysql5，都是Oracle 11g等。不能混用。
+
+== 案例说明：购物网站 ==
+
+ 继续前一章的购物网站，假设我们有2组数据库存储商品信息。其中 十字绣 存储在单独的一组数据库中，其他存储在另外一组。
+
+*1. 定义virtualdbgroup：*
+
+{{{
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB" />
+		<dbgroup name="mysql" masterDBConfigName="mysqlDB" dialectName="mysql5dialect" />
+		<dbgroup name="oracle" masterDBConfigName="oracleDB" dialectName="oracle10gdialect" />
+		
+		<virtualdbgroup name="cargoDB" dialectName="default" shadow="org.guzz.test.shop.CargoVirtualDBView" >
+			<dbgroup name="cargoDB.cargo2" masterDBConfigName="cargo2DB" />
+		</virtualdbgroup>
+		
+	</tran>
+	
+	....
+	<business name="cargo" dbgroup="cargoDB" file="classpath:org/guzz/test/shop/Cargo.hbm.xml" />
+}}}
+
+ 在business声明中，我们将cargo指向了虚拟数据库组cargoDB。
+ 
+ 假设  十字绣 存储在“cargoDB.cargo2”中，其他商品存储在"default"数据库组中。
+ 
+
+*2. 定义分切规则：*
+
+ 虚拟数据库中，分切规则是面向数据库组的。分切规则的定义可以理解为：通过传入的tableCondition，应该使用那一组数据库。对的，条件就是tableCondition，和Shadow Table的条件是一个。
+
+ 编写规则时，我们一般继承 org.guzz.connection.AbstractVirtualDBView
+
+{{{
+package org.guzz.test.shop;
+
+public class CargoVirtualDBView extends AbstractVirtualDBView {
+	
+	public String getPhysicsDBGroupName(Object tableCondition) {
+		String cargoName = (String) tableCondition ;
+		Assert.assertNotEmpty(cargoName, "tableCondition can't be null, we don't have any default db to store un-categoried cargoes.") ;
+	
+		//store crossStitch in cargo2 db.
+		if("crossStitch".equals(cargoName)){
+			return "cargoDB.cargo2" ;
+		}
+		
+		//store others in the default database.
+		return "default";
+	}
+
+}
+
+}}} 
+ 
+ 很简单的实现，tableCondition为商品名，根据商品名决定使用那一组数据库。
+
+ 这时候，您把 十字绣商品 的表挪到cargo2DB中，并在properties文件中加上cargo2DB的连接池，其他代码不需要改动，就可以运行了。
+ 
+
+== 案例说明：VirtualDBView ==
+
+  分布式分切规则定义接口VirtualDBView：
+
+{{{
+public interface VirtualDBView extends ContextLifeCycle {
+	
+	/**
+	 * Set the configured dbgroup.
+	 */
+	public void setConfiguredVirtualDBGroup(VirtualDBGroup vdb) ;
+	
+	/**
+	 * Retrieve the actually database group for the given condition.
+	 * 
+	 * <p>Guzz won't cache the returned result.</p>
+	 * 
+	 * @param tableCondition tableCondition
+	 * @exception DaoException Raise a exception when no physics database group matched.
+	 */
+	public PhysicsDBGroup getDBGroup(Object tableCondition) throws DaoException ;
+
+}
+}}}
+
+ setConfiguredVirtualDBGroup(VirtualDBGroup) 在初始化时调用，传入定义的虚拟数据库组信息。
+ 
+ getDBGroup(Object tableCondition) 根据传入的分表条件，返回对应的 实体数据库组（就是guzz.xml通过dbgroup定义的数据库组）。
+ 
+  此接口还有startup和shutdown方法，也可以通过实现GuzzContextAware接口获取GuzzContext的注入。通过这些，开发者可以在运行时动态生成和管理数据库组，以更加灵活的控制。
+ 
+ 如果您用的数据库组都是在guzz.xml中定义的，实现规则时，可以更方便的继承org.guzz.connection.AbstractVirtualDBView，就像上面的例子一样。AbstractVirtualDBView 只需要您根据条件，返回对应的数据库组名称即可。
+ 
+  
+== VirtualDBView接口中方法调用顺序 ==
+
+ * 1. 解析配置文件，生成类实例
+
+ * 2. 调用setConfiguredVirtualDBGroup(VirtualDBGroup vdb)
+
+ * 3. 如果类实现了GuzzContextAware接口，调用setGuzzContext(GuzzContex guzzContext)
+
+ * 4. 调用startup()
+
+ * 5. 如果类实现了ExtendedBeanFactoryAware，调用setExtendedBeanFactory(ExtendedBeanFactory factory)
+
+ * 6. 对外服务……
+
+ * 7. guzz关闭时调用shutdown()
+
+ 
