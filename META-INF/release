@@ -1,6 +1,7 @@
 1.2.9 beta3
 	1. new feature: distribute a big table into many machines.
 	2. improvement: change LogService to InsertQueueService
+	3. new feature: support "package" attribute in hbm.xml.
 	3. clean codes.
 
 1.2.9 beta2

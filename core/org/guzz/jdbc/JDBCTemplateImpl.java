@@ -57,8 +57,13 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 	}
 
 	public Object executeQuery(String sql, Object[] params, SQLQueryCallBack callback) {
-		this.debugService.logSQL(sql, params) ;
-
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
+		
+		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
 		try {			
@@ -77,6 +82,15 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			
 			rs = pstm.executeQuery() ;
 			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(sql, params, timeCost) ;
+			}
+			
 			return callback.iteratorResultSet(rs) ;
 		} 
 		catch (Exception e) {
@@ -88,14 +102,28 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 	}
 	
 	public Object executeQueryWithoutPrepare(String sql, SQLQueryCallBack callback){
-		this.debugService.logSQL(sql) ;
-
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
+		
 		Statement st = null ;
 		ResultSet rs = null ;
 		
 		try {
 			st = conn.createStatement() ;
 			rs = st.executeQuery(sql) ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(sql, timeCost) ;
+			}
+			
 			return callback.iteratorResultSet(rs) ;
 		} 
 		catch (Exception e) {
@@ -110,8 +138,13 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		if(isReadonly){
 			throw new DaoException("connection is readonly. sql is:" + sql) ;
 		}
+
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
-		this.debugService.logSQL(sql, params) ;
 		PreparedStatement pstm = null ;
 		
 		try {			
@@ -126,9 +159,20 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 //					SQLDataType type = this.dialect.getDataType(value.getClass().getName()) ;
 //					type.setSQLValue(pstm, i + 1, value) ;
 				}
-			}		
+			}
+
+			int affectedRows = pstm.executeUpdate() ;
 			
-			return pstm.executeUpdate() ;
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(sql, params, timeCost) ;
+			}
+			
+			return affectedRows ;
 		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
@@ -140,8 +184,13 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		if(isReadonly){
 			throw new DaoException("connection is readonly. sql is:" + sql) ;
 		}
+
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
-		this.debugService.logSQL(sql, params) ;
 		PreparedStatement pstm = null ;
 		
 		try {
@@ -150,9 +199,20 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 				for(int i = 0 ; i < params.length ; i++){					
 					pstm.setInt(i + 1, params[i]) ;
 				}
-			}		
+			}
 			
-			return pstm.executeUpdate() ;
+			int affectedRows = pstm.executeUpdate() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(sql, params, timeCost) ;
+			}
+			
+			return affectedRows ;
 		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
@@ -164,8 +224,13 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		if(isReadonly){
 			throw new DaoException("connection is readonly. sql is:" + sql) ;
 		}
+
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
-		this.debugService.logSQL(sql, params) ;
 		PreparedStatement pstm = null ;
 		
 		try {			
@@ -177,9 +242,20 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 					
 					type.setSQLValue(pstm, i + 1, value) ;
 				}
-			}		
+			}
 			
-			return pstm.executeUpdate() ;
+			int affectedRows = pstm.executeUpdate() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(sql, params, timeCost) ;
+			}
+			
+			return affectedRows ;
 		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
@@ -191,12 +267,30 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		if(isReadonly){
 			throw new DaoException("connection is readonly. sql is:" + sql) ;
 		}
+
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		Statement st = null ;
 		
 		try {
 			st = conn.createStatement() ;
-			return st.executeUpdate(sql) ;
+			
+			int affectedRows = st.executeUpdate(sql) ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(sql, timeCost) ;
+			}
+			
+			return affectedRows ;
 		} 
 		catch (Exception e) {
 			throw new DaoException(sql, e) ;

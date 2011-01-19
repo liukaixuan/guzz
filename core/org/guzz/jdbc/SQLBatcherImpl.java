@@ -24,6 +24,7 @@ import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
+import org.guzz.service.core.DebugService;
 
 /**
  * 
@@ -33,12 +34,17 @@ import org.guzz.orm.sql.CompiledSQL;
  */
 public class SQLBatcherImpl implements SQLBatcher {
 
+	private final DebugService debugService ;
 	private final PreparedStatement ps ;
 	private final Dialect dialect ;
 	private final CompiledSQL cs ;
+	private final String rawSQL ;
+	private int objectsCountInBatch ;
 	
-	public SQLBatcherImpl(PreparedStatement ps, Dialect dialect, CompiledSQL cs){
+	public SQLBatcherImpl(DebugService debugService, PreparedStatement ps, String rawSQL, Dialect dialect, CompiledSQL cs){
+		this.debugService = debugService ;
 		this.ps = ps ;
+		this.rawSQL = rawSQL ;
 		this.dialect = dialect ;
 		this.cs = cs ;
 	}
@@ -52,6 +58,8 @@ public class SQLBatcherImpl implements SQLBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error add batch params:[" + params + "]. CompiledSQL is:" + cs, e) ;
 		}
+		
+		objectsCountInBatch++ ;
 	}
 
 	public void addNewBatchParams(String paramName, int paramValue) {
@@ -63,6 +71,8 @@ public class SQLBatcherImpl implements SQLBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error add batch params:[" + paramName + "=" + paramValue + "]. CompiledSQL is:" + cs, e) ;
 		}
+		
+		objectsCountInBatch++ ;
 	}
 
 	public void addNewBatchParams(String paramName, Object paramValue) {
@@ -74,6 +84,8 @@ public class SQLBatcherImpl implements SQLBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error add batch params:[" + paramName + "=" + paramValue + "]. CompiledSQL is:" + cs, e) ;
 		}
+		
+		objectsCountInBatch++ ;
 	}
 
 	public void clearBatch() {
@@ -82,11 +94,30 @@ public class SQLBatcherImpl implements SQLBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error execute clearBatch. CompiledSQL is:" + cs, e) ;
 		}
+		
+		this.objectsCountInBatch = 0 ;
 	}
 
 	public int[] executeUpdate() {
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
+		
 		try {
-			return ps.executeBatch() ;
+			int[] affectedRows = ps.executeBatch() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logBatch(this.rawSQL, this.objectsCountInBatch, timeCost) ;
+			}
+			
+			return affectedRows ;
 		} catch (SQLException e) {
 			throw new DaoException("error execute batch update. CompiledSQL is:" + cs, e) ;
 		}

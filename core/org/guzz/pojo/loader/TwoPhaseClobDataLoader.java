@@ -109,7 +109,11 @@ public class TwoPhaseClobDataLoader extends PersistListenerAdapter implements Co
 		
 		PreparedStatement pstm = null ;
 		
-		this.debugService.logSQL(bsql) ;
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		try{
 			pstm = conn.prepareStatement(bsql.getSQLToRun()) ;
@@ -117,6 +121,15 @@ public class TwoPhaseClobDataLoader extends PersistListenerAdapter implements Co
 			pstm.setAsciiStream(1, threadSafeCharInputStream, 1) ;
 			
 			pstm.executeUpdate() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(bsql, timeCost) ;
+			}
 		}catch(SQLException e){
 			throw new DaoException(e) ;
 		}finally{

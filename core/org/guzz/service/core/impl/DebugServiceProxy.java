@@ -39,28 +39,40 @@ public class DebugServiceProxy extends ProxyService implements DebugService {
 		return debugServiceImpl.isDebugMode() ;
 	}
 
+	public boolean isLogSQL() {
+		return debugServiceImpl.isLogSQL() ;
+	}
+
+	public boolean isMeasureTime() {
+		return debugServiceImpl.isMeasureTime() ;
+	}
+
 	public boolean isLogParams() {
 		return debugServiceImpl.isLogParams() ;
 	}
 
-	public void logSQL(String sql) {
-		debugServiceImpl.logSQL(sql) ;
+	public void logSQL(String sql, long nanoTime) {
+		debugServiceImpl.logSQL(sql, nanoTime) ;
 	}
 
-	public void logSQL(String sql, Object[] params) {
-		debugServiceImpl.logSQL(sql, params) ;
+	public void logSQL(String sql, Object[] params, long nanoTime) {
+		debugServiceImpl.logSQL(sql, params, nanoTime) ;
 	}
 
-	public void logSQL(String sql, int[] params) {
-		debugServiceImpl.logSQL(sql, params) ;
+	public void logSQL(String sql, int[] params, long nanoTime) {
+		debugServiceImpl.logSQL(sql, params, nanoTime) ;
 	}
 
-	public void logSQL(BindedCompiledSQL bsql) {
-		debugServiceImpl.logSQL(bsql) ;
+	public void logSQL(BindedCompiledSQL bsql, long nanoTime) {
+		debugServiceImpl.logSQL(bsql, nanoTime) ;
 	}
 
-	public void logSQL(BindedCompiledSQL bsql, String sqlStatment) {
-		debugServiceImpl.logSQL(bsql, sqlStatment) ;
+	public void logSQL(BindedCompiledSQL bsql, String sqlStatment, long nanoTime) {
+		debugServiceImpl.logSQL(bsql, sqlStatment, nanoTime) ;
+	}
+	
+	public void logBatch(String sql, int repeatTimes, long nanoTime) {
+		debugServiceImpl.logBatch(sql, repeatTimes, nanoTime) ;
 	}
 
 	public void onErrorProcess(String msg, Exception e) {

@@ -27,6 +27,7 @@ import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.DebugService;
 import org.guzz.util.ArrayUtil;
+import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -49,9 +50,21 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 	
 	/**是否忽略后台线程执行的SQL语句*/
 	private boolean ignoreDemonThreadSQL = false ;
+	
+	private boolean measureTime = false ;
+	
+	private long onlySlowSQLInNano = 0L ;
 
 	public boolean isDebugMode() {
 		return isDebugMode;
+	}
+
+	public boolean isLogSQL() {
+		return printSQL ;
+	}
+
+	public boolean isMeasureTime() {
+		return measureTime ;
 	}
 	
 	public boolean isLogParams(){
@@ -66,69 +79,131 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		return name.startsWith(DebugService.DEMON_NAME_PREFIX) ;
 	}
 	
-	public void logSQL(String sql){
+	public void logSQL(String sql, long nanoTime){
 		if(this.ignoreDemonThreadSQL && isDemonThread()){
 			return ;
 		}
 		
-		if(printSQL){
-			logInfo("sql:[" + sql + "]") ;
+		if(printSQL && nanoTime >= this.onlySlowSQLInNano){
+			StringBuffer sb = new StringBuffer() ;
+			sb.append("sql:[")
+			  .append(sql)
+			  .append("], timeCost:[")
+			  .append(nanoTime)
+			  .append("ns]") ;
+			
+			logInfo(sb.toString()) ;
 		}
 	}
 
-	public void logSQL(String sql, Object[] params) {
+	public void logBatch(String sql, int repeatTimes, long nanoTime) {
 		if(this.ignoreDemonThreadSQL && isDemonThread()){
 			return ;
 		}
 		
-		if(printSQL){
+		if(printSQL && nanoTime >= this.onlySlowSQLInNano){
+			StringBuffer sb = new StringBuffer() ;
+			sb.append("batch sql:[")
+			  .append(sql)
+			  .append("], repeatTimes:[")
+			  .append(repeatTimes)
+			  .append("], timeCost:[")
+			  .append(nanoTime)
+			  .append("ns]") ;
+			
+			logInfo(sb.toString()) ;
+		}
+	}
+
+	public void logSQL(String sql, Object[] params, long nanoTime) {
+		if(this.ignoreDemonThreadSQL && isDemonThread()){
+			return ;
+		}
+		
+		if(printSQL && nanoTime >= this.onlySlowSQLInNano){
+			StringBuffer sb = new StringBuffer() ;
+			sb.append("sql:[")
+			  .append(sql) ;
+			
 			if(printSQLParams){
-				logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
-			}else{
-				logInfo("sql:[" + sql + "]") ;
+			  sb.append("], params is:[")
+			  .append(ArrayUtil.arrayToString(params)) ;
 			}
+			
+			sb.append("], timeCost:[")
+			  .append(nanoTime)
+			  .append("ns]") ;
+			
+			logInfo(sb.toString()) ;
 		}
 	}
 	
-	public void logSQL(String sql, int[] params) {
+	public void logSQL(String sql, int[] params, long nanoTime) {
 		if(this.ignoreDemonThreadSQL && isDemonThread()){
 			return ;
 		}
 		
-		if(printSQL){
+		if(printSQL && nanoTime >= this.onlySlowSQLInNano){
+			StringBuffer sb = new StringBuffer() ;
+			sb.append("sql:[")
+			  .append(sql) ;
+			
 			if(printSQLParams){
-				logInfo("sql:[" + sql + "], params is:[" + ArrayUtil.arrayToString(params) + "]") ;
-			}else{
-				logInfo("sql:[" + sql + "]") ;
+			  sb.append("], params is:[")
+			  .append(ArrayUtil.arrayToString(params)) ;
 			}
+			
+			sb.append("], timeCost:[")
+			  .append(nanoTime)
+			  .append("ns]") ;
+			
+			logInfo(sb.toString()) ;
 		}
 	}
 	
-	public void logSQL(BindedCompiledSQL bsql) {
+	public void logSQL(BindedCompiledSQL bsql, long nanoTime) {
 		if(this.ignoreDemonThreadSQL && isDemonThread()){
 			return ;
-		}		
+		}
 		
-		if(printSQL){
+		if(printSQL && nanoTime >= this.onlySlowSQLInNano){
+			StringBuffer sb = new StringBuffer() ;
+			sb.append("sql:[")
+			  .append(bsql.getSQLToRun()) ;
+			
 			if(printSQLParams){
-				logInfo("sql:[" + bsql.getSQLToRun() + "], params is:[" + bsql.getBindedParams() + "]") ;
-			}else{
-				logInfo("sql:[" + bsql.getSQLToRun() + "]") ;
+			  sb.append("], params is:[")
+			  .append(bsql.getBindedParams()) ;
 			}
+			
+			sb.append("], timeCost:[")
+			  .append(nanoTime)
+			  .append("ns]") ;
+			
+			logInfo(sb.toString()) ;
 		}
 	}
 	
-	public void logSQL(BindedCompiledSQL bsql, String sqlStatment){
+	public void logSQL(BindedCompiledSQL bsql, String sqlStatment, long nanoTime){
 		if(this.ignoreDemonThreadSQL && isDemonThread()){
 			return ;
 		}
 		
-		if(printSQL){
+		if(printSQL && nanoTime >= this.onlySlowSQLInNano){
+			StringBuffer sb = new StringBuffer() ;
+			sb.append("sql:[")
+			  .append(sqlStatment) ;
+			
 			if(printSQLParams){
-				logInfo("sql:[" + sqlStatment + "], params is:[" + bsql.getBindedParams() + "]") ;
-			}else{
-				logInfo("sql:[" + sqlStatment + "]") ;
+			  sb.append("], params is:[")
+			  .append(bsql.getBindedParams()) ;
 			}
+			
+			sb.append("], timeCost:[")
+			  .append(nanoTime)
+			  .append("ns]") ;
+			
+			logInfo(sb.toString()) ;
 		}
 	}
 
@@ -162,6 +237,13 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		this.printSQL = "true".equalsIgnoreCase(prop.getProperty("printSQL")) ;
 		this.printSQLParams = "true".equalsIgnoreCase(prop.getProperty("printSQLParams")) ;
 		this.ignoreDemonThreadSQL = "true".equalsIgnoreCase(prop.getProperty("ignoreDemonThreadSQL")) ;
+		this.measureTime = "true".equalsIgnoreCase(prop.getProperty("measureTime")) ;
+		
+		String ms = prop.getProperty("onlySlowSQLInMillSeconds") ;
+		
+		if(StringUtil.notEmpty(ms)){
+			this.onlySlowSQLInNano = Long.parseLong(ms) * 1000000 ;
+		}
 		
 		printGuzzDebugInfo() ;
 		
@@ -184,6 +266,8 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		result += ",haltOnError:" + this.haltOnError ;
 		result += ",printSQL:" + this.printSQL ;
 		result += ",printSQLParams:" + this.printSQLParams ;	
+		result += ",measureTime:" + this.measureTime ;
+		result += ",onlySlowSQLInNano:" + this.onlySlowSQLInNano ;
 		
 		logInfo(result) ;
 	}
@@ -194,6 +278,8 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 		logOnError = true ;
 		printSQL = false ;
 		printSQLParams = false ;
+		measureTime = false ;
+		onlySlowSQLInNano = 0L ;
 	}
 	
 	protected void logInfo(String msg){
