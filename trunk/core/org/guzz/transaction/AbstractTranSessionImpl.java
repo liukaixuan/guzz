@@ -189,7 +189,11 @@ public class AbstractTranSessionImpl {
 			rawSQL = db.getDialect().getLimitedString(rawSQL, startPos - 1, maxSize) ;
 		}
 		
-		this.debugService.logSQL(bsql, rawSQL) ;
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
@@ -201,6 +205,15 @@ public class AbstractTranSessionImpl {
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			rs = pstm.executeQuery() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(bsql, rawSQL, timeCost) ;
+			}
 			
 			//do ORM
 			LinkedList results = new LinkedList() ;
@@ -326,10 +339,13 @@ public class AbstractTranSessionImpl {
 		}
 		
 		RowDataLoader loader = bsql.getRowDataLoader() ;
-		
 		DBGroup db = m.getDbGroup() ;
-		
-		this.debugService.logSQL(bsql, rawSQL) ;
+				
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
@@ -340,6 +356,15 @@ public class AbstractTranSessionImpl {
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			rs = pstm.executeQuery() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(bsql, rawSQL, timeCost) ;
+			}
 			
 			if(rs.next()){
 				if(loader != null){
@@ -389,10 +414,13 @@ public class AbstractTranSessionImpl {
 		}
 		
 		RowDataLoader loader = bsql.getRowDataLoader() ;
-		
 		DBGroup db = m.getDbGroup() ;
 		
-		this.debugService.logSQL(bsql, rawSQL) ;
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
@@ -403,6 +431,15 @@ public class AbstractTranSessionImpl {
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			rs = pstm.executeQuery() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(bsql, rawSQL, timeCost) ;
+			}
 			
 			if(rs.next()){
 				if(loader != null){
@@ -460,7 +497,12 @@ public class AbstractTranSessionImpl {
 		
 		//TODO: check if the defaultDialect supports prepared bind in limit clause, and put the limit to compiledSQL
 		rawSQL = db.getDialect().getLimitedString(rawSQL, 0, 1) ;
-		this.debugService.logSQL(bsql, rawSQL) ;
+		
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
@@ -472,6 +514,15 @@ public class AbstractTranSessionImpl {
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			rs = pstm.executeQuery() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(bsql, rawSQL, timeCost) ;
+			}
 			
 			//do ORM		
 			if(rs.next()){

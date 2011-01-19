@@ -243,7 +243,7 @@ public class GuzzContextImpl implements GuzzContext{
 			Entry e = (Entry) i.next() ;
 			i.remove() ;
 			
-			String serviceName = (String) e.getKey() ;
+			//String serviceName = (String) e.getKey() ;
 			ServiceInfo serviceInfo = (ServiceInfo) e.getValue() ;
 			
 			initUnOrderedService(services, queuedServices, serviceInfo) ;
@@ -251,7 +251,7 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		//One Service could be depend on others. So we have to compute the dependencies, and start the services in the correct order.
 		for(int i = 0 ; i < services.size() ; i++){
-			ServiceInfo info = (ServiceInfo) services.get(i) ;
+			ServiceInfo info = (ServiceInfo) services.get(Integer.valueOf(i)) ;
 			Service s = ServiceManagerImpl.createNewService(this, configServer, info) ;
 			serviceManager.registerService(s) ;
 		}

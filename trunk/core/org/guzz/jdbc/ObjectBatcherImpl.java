@@ -59,6 +59,10 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	private Object tableCondition ;
 	
 	private NormalCompiledSQL runtimeCS ;
+	
+	private String rawSQL ;
+	
+	private int objectsCountInBatch ;
 
 	/**
 	 * add:1
@@ -114,9 +118,9 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		this.dialect = dbGroup.getDialect() ;
 		Connection conn = this.sessionImpl.getConnection(dbGroup, bsql.getTableCondition()) ;
 
-		String rawSQL = bsql.getSQLToRun() ;
-		this.debugService.logSQL("batch:" + rawSQL) ;
-
+		this.rawSQL = bsql.getSQLToRun() ;
+		this.objectsCountInBatch = 0 ;
+		
 		try {
 			this.ps = conn.prepareStatement(rawSQL) ;
 		} catch (SQLException e) {
@@ -152,6 +156,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error execute add. param type is:" + domainObject.getClass(), e) ;
 		}
+		
+		objectsCountInBatch++ ;
 
 		//POST ID is not supported
 //		if(pk == null){
@@ -186,6 +192,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error execute add. param type is:" + domainObject.getClass(), e) ;
 		}
+		
+		objectsCountInBatch++ ;
 	}
 
 	public void delete(Object domainObject) {
@@ -213,6 +221,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		} catch (SQLException e) {
 			throw new DaoException("error execute add. param type is:" + domainObject.getClass(), e) ;
 		}
+		
+		objectsCountInBatch++ ;
 	}
 
 	public void clearBatch() {
@@ -236,8 +246,25 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 			return new int[0] ;
 		}
 		
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
+		
 		try {
-			return ps.executeBatch() ;
+			int[] affectedRows = ps.executeBatch() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logBatch(this.rawSQL, this.objectsCountInBatch, timeCost) ;
+			}
+			
+			return affectedRows ;
 		} catch (SQLException e) {
 			throw new DaoException("error execute batch update. CompiledSQL is:" + runtimeCS, e) ;
 		}

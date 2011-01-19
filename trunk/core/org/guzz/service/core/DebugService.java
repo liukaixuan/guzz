@@ -30,18 +30,43 @@ public interface DebugService {
 	
 	public boolean isDebugMode() ;
 	
+	public boolean isLogSQL() ;
+	
 	public boolean isLogParams() ;
+	
+	/**
+	 * measure the time of how long a sql spent to execute.
+	 */
+	public boolean isMeasureTime() ;
 	
 	public void onErrorProcess(String msg, Exception e) ;
 
-	public void logSQL(String sql) ;
+	public void logSQL(String sql, long nanoTime) ;
 	
-	public void logSQL(String sql, Object[] params) ;
+	public void logSQL(String sql, Object[] params, long nanoTime) ;
 	
-	public void logSQL(String sql, int[] params) ;
+	public void logSQL(String sql, int[] params, long nanoTime) ;
 	
-	public void logSQL(BindedCompiledSQL bsql) ;
+	/**
+	 * log the sql to run.
+	 */
+	public void logSQL(BindedCompiledSQL bsql, long nanoTime) ;
 	
-	public void logSQL(BindedCompiledSQL bsql, String sqlStatment) ;
+	/**
+	 * log the sql to run.
+	 * 
+	 * @param bsql
+	 * @param sqlStatment raw sql statement
+	 */
+	public void logSQL(BindedCompiledSQL bsql, String sqlStatment, long nanoTime) ;
+	
+	/**
+	 * log the batch operations.
+	 * 
+	 * @param sql
+	 * @param repeatTimes batch size
+	 * @param nanoTime how long cost?
+	 */
+	public void logBatch(String sql, int repeatTimes, long nanoTime) ;
 	
 }

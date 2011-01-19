@@ -271,12 +271,14 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	 */
 	protected int executeUpdateWithPrePL(ObjectMapping mapping, BindedCompiledSQL bsql, PersistListener[] pls, Object domainObject, Serializable pk, int operation){
 		String rawSQL = bsql.getSQLToRun() ;
-		
 		DBGroup db = mapping.getDbGroup() ;
-		
-		this.debugService.logSQL(bsql) ;
-		
 		PreparedStatement pstm = null;
+		
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		try {
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
@@ -296,8 +298,19 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 					}
 				}
 			}
-		
-			return pstm.executeUpdate() ;
+			
+			int affectedRows = pstm.executeUpdate() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(bsql, timeCost) ;
+			}
+			
+			return affectedRows ;
 		}catch(SQLException e){
 			throw new DaoException(rawSQL, e) ;
 		}finally{
@@ -308,22 +321,37 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	public int executeUpdate(BindedCompiledSQL bsql){
 		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
 		String rawSQL = bsql.getSQLToRun() ;
+		
 		if(m == null){
 			throw new DaoException("ObjectMapping is null. sql is:" + rawSQL) ;
 		}
 		
 		DBGroup db = m.getDbGroup() ;
-		
-		this.debugService.logSQL(bsql) ;
-		
 		PreparedStatement pstm = null;
+		
+		boolean measureTime = this.debugService.isMeasureTime() ;
+		long startTime = 0L ;
+		if(measureTime){
+			startTime = System.nanoTime() ;
+		}
 		
 		try {
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL);			
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
-		
-			return pstm.executeUpdate() ;
+			
+			int affectedRows = pstm.executeUpdate() ;
+			
+			if(this.debugService.isLogSQL()){
+				long timeCost = 0 ;
+				if(measureTime){
+					timeCost = System.nanoTime() - startTime ;
+				}
+				
+				this.debugService.logSQL(bsql, timeCost) ;
+			}
+			
+			return affectedRows ;
 		}catch(SQLException e){
 			throw new DaoException(rawSQL, e) ;
 		}finally{
@@ -376,17 +404,14 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	
 	public SQLBatcher createCompiledSQLBatcher(CompiledSQL cs, Object tableCondition) {
 		BindedCompiledSQL bsql = cs.bindNoParams().setTableCondition(tableCondition) ;
-		
 		String rawSQL = bsql.getSQLToRun() ;
 		ObjectMapping m = bsql.getCompiledSQLToRun().getMapping() ;
+		
 		if(m == null){
 			throw new ORMException("ObjectMapping not found. sql is:" + rawSQL) ;
 		}
 		
 		DBGroup db = m.getDbGroup() ;
-		
-		this.debugService.logSQL("batch:" + rawSQL) ;
-		
 		PreparedStatement pstm = null;
 		
 		try {
@@ -403,12 +428,12 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		
 		this.psForBatch.add(pstm) ;
 		
-		SQLBatcherImpl b = new SQLBatcherImpl(pstm, db.getDialect(), bsql.getCompiledSQLToRun()) ;
+		SQLBatcherImpl b = new SQLBatcherImpl(this.debugService, pstm, rawSQL, db.getDialect(), bsql.getCompiledSQLToRun()) ;
 		
 		return b ;
 	}
 	
-	public ObjectBatcher createObjectBatcher() {		
+	public ObjectBatcher createObjectBatcher() {
 		ObjectBatcherImpl b = new ObjectBatcherImpl(compiledSQLManager, this, this.debugService) ;
 		
 		if(this.objectBatchers == null){
