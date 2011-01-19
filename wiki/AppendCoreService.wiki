@@ -38,6 +38,12 @@ printSQLParams=true
 #org.guzz.service.core.DebugService.DEMON_NAME_PREFIX = "gz_demon_t_" ;
 ignoreDemonThreadSQL=true
 
+#print out how many nano-seconds a sql takes to execute.
+measureTime=true
+
+#only print out slow sqls that takes over xxx mill-seconds to execute. 0 means print out all.
+onlySlowSQLInMillSeconds=0
+
 }}}
 
 The configuration group name must be guzzDebug.

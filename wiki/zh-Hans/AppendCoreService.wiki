@@ -28,15 +28,21 @@ runMode=debug
 #onError=halt/log/ignore
 onError=halt
 
-#print sql statements to the commons log?
+#是否打印出执行的sql语句
 printSQL=true
 
-#print sql parameters to the commons log?
+#是否打印出执行sql语句的参数
 printSQLParams=true
 
-#ignore sqls executed in guzz demon thread(thread is demon and thread name is started with gz_demon_t_).
+#打印sql时，是否忽略后台线程（线程名以gz_demon_t_开头）执行的sql。
 #org.guzz.service.core.DebugService.DEMON_NAME_PREFIX = "gz_demon_t_" ;
 ignoreDemonThreadSQL=true
+
+#打印sql时，是否打印执行sql所消耗的时间（单位：纳秒）
+measureTime=true
+
+#只打印执行速度慢于多于毫秒的sql语句。参数单位为毫秒，默认为0表示打印所有sql。
+onlySlowSQLInMillSeconds=0
 
 }}}
 
