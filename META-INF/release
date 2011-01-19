@@ -1,8 +1,9 @@
 1.2.9 beta3
 	1. new feature: distribute a big table into many machines.
-	2. improvement: change LogService to InsertQueueService
-	3. new feature: support "package" attribute in hbm.xml.
-	3. clean codes.
+	2. new feature: support recording sql executed time in nanosecond.
+	3. improvement: change LogService to InsertQueueService
+	4. new feature: support "package" attribute in hbm.xml.
+	5. clean codes.
 
 1.2.9 beta2
 	1. new feature: two new SearchTerms, IsNullTerm and NotNullTerm.
