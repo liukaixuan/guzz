@@ -19,25 +19,27 @@ Guzz's features:
 
  * Modern design, experienced on ibatis and hibernate's great favors.
  
- * Like hibernate, you can persist, mapping and query data in a object-oriented way.
+ * For simple situation, you can persist, mapping and query data in a object-oriented way like hibernate (80%).
 
- * Like ibatis, you can store complicated sqls in a xml configuration file, and let dbas involved in.
+ * For some complicated operations, you can store complicated sqls in a xml configuration file, and let dbas involved in, like ibatis (20%).
 
  * Over ibatis, you can also store and load sqls from anywhere(or any system), and use it on fly. Add/delete/test/tune sqls online without a restart. (We call this "Dynamic SQL")
- 
- * Support your system to use many database machines without extra codes, and set up master-slave between those machines.
 
- * Support your system to store different tables among different machines, and maintain a distributed transaction automatically(Shard).
+ * Better batch API. Easy use and easy control.
+ 
+ * Support your system to use many database machines without extra codes, and separate read-write between those machines.
+
+ * Support your system to store different tables in different machines, and maintain a distributed transaction automatically(Shard).
 
  * Support your system to split a big table into many small ones on your rules(Shadow), and even allow each table owns its special columns(Custom).
 
- * Support unified POJO styled usage for data with very special conjunction( over "Normal Form"), or between unstructured data( such as from other systems).
+ * Support unified POJO styled usage for data with very special conjunction( over "Normal Form"), or between unstructured data( such as from other systems). For example, you are calling book.getPrice(), and the price can actually be read from a third part system like amazon, while other properties like book name, ISBN, author are read from your own database.
 
  * Support Service-oriented architecture, help you accumulate a fundamental services system. (Yes, not build a fundamental system from scratch, but accumulate one with more and more projects.)
 
- * Object-oriented database JSP Taglib, fast view-layer's development, maintaining and deployment. (Building pages without writing java codes, very very fast!)
+ * Object-oriented database JSP Taglib, fast view-layer's development, maintaining and deployment. You can build pages without writing any java codes. Very very fast! It is also nice for building a custom-featured system on a production.
 
- * Support for Configuration System. Help you manage all configurations among different systems in a central system.
+ * Support for Configuration System. You can manage all configurations among different systems in a central system online.
 
 = Things guzz won't do: =
 
