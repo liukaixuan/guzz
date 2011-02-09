@@ -16,11 +16,13 @@
  */
 package org.guzz.orm.rdms;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import org.guzz.Guzz;
+import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.jdbc.SQLBatcher;
 import org.guzz.orm.se.SearchExpression;
@@ -31,6 +33,7 @@ import org.guzz.test.DBBasedTestCase;
 import org.guzz.test.User;
 import org.guzz.transaction.ReadonlyTranSession;
 import org.guzz.transaction.WriteTranSession;
+import org.guzz.util.StringUtil;
 
 /**
  * 
@@ -39,8 +42,25 @@ import org.guzz.transaction.WriteTranSession;
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class TestShadowTableView extends DBBasedTestCase {
+	protected Connection H2CrossStitchConn = null ;
+	
+	protected void prepareEnv() throws Exception {
+		super.prepareEnv();
 		
-	public void testInsert() throws Exception{				
+		this.H2CrossStitchConn = ((PhysicsDBGroup) this.gf.getDBGroup("cargoDB.cargo2")).getMasterDB().getDataSource().getConnection() ;
+		
+		executeUpdate(H2CrossStitchConn, "drop table if exists TB_COMMENT2") ;
+		String sql = "create table TB_COMMENT(id int not null primary key ,userId int(11), userName varchar(64), DESCRIPTION text, createdTime TIMESTAMP)" ;
+    	executeUpdateNoException(H2CrossStitchConn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT2")) ;
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		this.H2CrossStitchConn.close() ;
+	}
+	
+	public void testInsert() throws Exception{
 		WriteTranSession session = tm.openRWTran(true) ;
 		
 		for(int i = 1 ; i < 1001 ; i++){

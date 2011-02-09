@@ -18,6 +18,7 @@ package org.guzz.orm.rdms;
 
 import java.sql.Connection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.guzz.Guzz;
@@ -363,6 +364,21 @@ public class TestCustomTableView extends DBBasedTestCase {
 		Guzz.setTableCondition("book") ;
 		assertEquals(session.list(cs.bind("publisher2", "sheep"), 1, 1000).size(), 500) ;
 		assertEquals(session.list(cs.bind("publisher2", "else"), 1, 1000).size(), 0) ;
+		
+		session.close() ;
+	}
+	
+	public void testIBatisQuery() throws Exception{
+		testInsert() ;
+		ReadonlyTranSession session = tm.openDelayReadTran() ;
+		
+		HashMap params = new HashMap() ;
+		params.put("id", 100) ;
+		
+		Guzz.setTableCondition("crossStitch") ;
+		List cargoes = session.list("selectCrossSize", params) ;
+		
+		assertEquals(cargoes.size(), 900) ;
 		
 		session.close() ;
 	}

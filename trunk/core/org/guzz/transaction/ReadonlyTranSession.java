@@ -40,8 +40,6 @@ public interface ReadonlyTranSession extends TranSession{
 	 * 
 	 * @param id
 	 * @param params
-	 * @param startPos the first is 1, the second is 2...
-	 * @param maxSize
 	 **/
 	public List list(String id, Map params) ;
 	

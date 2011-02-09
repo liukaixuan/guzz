@@ -165,6 +165,21 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping{
 		return this.getClass().toString() ;
 	}
 
+	public POJOBasedObjectMapping replicate(BeanWrapper newBeanWrapper){
+		Business newBusiness = getBusiness().newCopy() ;
+		Table newTable = newBusiness.getTable().newCopy() ;
+		
+		newBusiness.setTable(newTable) ;
+		newBusiness.setConfiguredBeanWrapper(newBusiness.getConfiguredBeanWrapper()) ;
+		newBusiness.setBeanWrapper(newBeanWrapper) ;
+		
+		POJOBasedObjectMapping newMap = new POJOBasedObjectMapping((GuzzContextImpl) this.guzzContext, this.dbGroup, newTable) ;
+		newBusiness.setMapping(newMap) ;
+		newMap.setBusiness(newBusiness) ;
+		
+		return newMap ;
+	}
+
 	public Business getBusiness() {
 		return business;
 	}

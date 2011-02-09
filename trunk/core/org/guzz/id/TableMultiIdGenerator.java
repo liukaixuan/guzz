@@ -30,12 +30,12 @@ import org.guzz.util.StringUtil;
  * a hi/lo algorithm, and service for many tables. 
  * For each table, a cell distinguished by the primary value parameter pk_column_value is used for id generating.
  * 
- * <br>The hi value MUST be fetched in a seperate transaction
+ * <br>The hi value MUST be fetched in a separate transaction
  * to the <tt>Session</tt> transaction so the generator must be able to obtain
  * a new connection and commit it. Hence this implementation may not
  * be used when the user is supplying connections.
  * <br>
- * Mapping parameters supported: table, column, db_group, max_lo, pk_column_name, pk_column_value(requried, and must be a positive integer)
+ * Mapping parameters supported: table, column, db_group, max_lo, pk_column_name, pk_column_value(required, and must be a positive integer)
  *
  * @see TableHiLoGenerator
  * @see SequenceHiLoGenerator

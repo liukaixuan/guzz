@@ -67,43 +67,48 @@ public class TableHiLoGenerator extends TableGenerator {
 	}
 
 	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
-		Serializable value ;
-		
-		//open a new transaction.
-		WriteTranSession newSession = this.tm.openRWTran(true) ;
-		
-		try{
-			value = generate(newSession, tableCondition) ;
-		}finally{
-			newSession.close() ;
-		}
+		Serializable value = generate(tableCondition) ;
 		
 		setPrimaryKey(domainObject, value) ;
 		
 		return (Serializable) value ;
 	}
 	
-	public synchronized Number generate(WriteTranSession session, Object tableCondition) {
+	public synchronized Number generate(Object tableCondition) {
 		if (maxLo < 1) {
-			//keep the behavior consistent even for boundary usages
-			Integer n = super.nextValueInTable(session, tableCondition) ;
+			//open a new transaction.
+			WriteTranSession session = this.tm.openRWTran(true) ;
 			
-			if(n.intValue() == 0){
-				n = super.nextValueInTable(session, tableCondition) ;
+			try{
+				//keep the behavior consistent even for boundary usages
+				Integer n = super.nextValueInTable(session, tableCondition) ;
+				
+				if(n.intValue() == 0){
+					n = super.nextValueInTable(session, tableCondition) ;
+				}
+				
+				return IdentifierGeneratorFactory.createNumber(n.longValue(), this.returnType) ;
+			}finally{
+				session.close() ;
 			}
-			
-			return IdentifierGeneratorFactory.createNumber(n.longValue(), this.returnType) ;
 		}
 		
 		if (lo > maxLo){
-			Number n = super.nextValueInTable(session, tableCondition) ;
+			//open a new transaction.
+			WriteTranSession session = this.tm.openRWTran(true) ;
 			
-			int hival = n.intValue() ;
-			lo = (hival == 0) ? 1 : 0;
-			hi = hival * ( maxLo+1 );
-			
-			if ( log.isDebugEnabled() ){
-				log.debug("new hi value: " + hival);
+			try{
+				Number n = super.nextValueInTable(session, tableCondition) ;
+				
+				int hival = n.intValue() ;
+				lo = (hival == 0) ? 1 : 0;
+				hi = hival * ( maxLo+1 );
+				
+				if ( log.isDebugEnabled() ){
+					log.debug("new hi value: " + hival);
+				}
+			}finally{
+				session.close() ;
 			}
 		}
 		
