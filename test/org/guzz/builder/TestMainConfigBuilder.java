@@ -117,7 +117,7 @@ public class TestMainConfigBuilder extends TestCase {
 		}		
 		
 		Map sqls = b.listConfiguedCompiledSQLs() ;
-		assertEquals(sqls.size(), 5) ;
+		assertEquals(sqls.size(), 6) ;
 		
 		CompiledSQL cs = (CompiledSQL) sqls.get("selectUsers") ;
 		assertNotNull(cs) ;
@@ -215,7 +215,7 @@ public class TestMainConfigBuilder extends TestCase {
 		List gs = b.listDBGroups() ;
 		
 		assertNotNull(gs) ;
-		assertEquals(gs.size(),6) ;
+		assertEquals(gs.size(),7) ;
 		
 		//test load order
 		PhysicsDBGroup g1 = (PhysicsDBGroup) gs.get(0) ;

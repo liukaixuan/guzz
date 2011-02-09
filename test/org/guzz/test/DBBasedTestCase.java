@@ -131,7 +131,7 @@ public abstract class DBBasedTestCase extends GuzzTestCase {
 		
     	String sql = "create table TB_COMMENT(id int not null AUTO_INCREMENT primary key ,userId int(11), userName varchar(64), DESCRIPTION text, createdTime TIMESTAMP)" ;
     	executeUpdate(H2Conn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT1")) ;
-		executeUpdate(H2Conn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT2")) ;
+//		executeUpdate(H2Conn, StringUtil.replaceString(sql, "TB_COMMENT", "TB_COMMENT2")) ;
 	}
 	
 	protected void setUpForOracle10G() throws Exception {

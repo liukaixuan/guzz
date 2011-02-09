@@ -22,6 +22,8 @@
 			<dbgroup name="cargoDB.cargo2" masterDBConfigName="cargo2DB" />
 		</virtualdbgroup>
 		
+		<virtualdbgroup name="commentDB" dialectName="default" shadow="org.guzz.test.CommentVirtualDBView" />
+				
 		<virtualdbgroup name="other" dialectName="mysql5dialect" shadow="org.guzz.test.shop.CargoVirtualDBView" />
 	</tran>
 	
@@ -34,12 +36,12 @@
 	<business name="book" class="org.guzz.test.Book" file="classpath:org/guzz/test/Book.hbm.xml" />
 	<business name="userInfo" dbgroup="oracle" class="org.guzz.test.UserInfo" file="classpath:org/guzz/test/UserInfo.hbm.xml" />
 	<business name="userInfo2" dbgroup="default" file="classpath:org/guzz/test/UserInfoH2.hbm.xml" />
-	<business name="comment" dbgroup="default" file="classpath:org/guzz/test/Comment.hbm.xml" />
+	<business name="comment" dbgroup="commentDB" file="classpath:org/guzz/test/Comment.hbm.xml" />
 	<business name="cargo" dbgroup="cargoDB" file="classpath:org/guzz/test/shop/Cargo.hbm.xml" />
 	<business name="sp" dbgroup="default" file="classpath:org/guzz/test/shop/SpecialProperty.hbm.xml" />
 	
 	<sqlMap dbgroup="default">
-		<select id="selectUser" orm="user" dbgroup="default">
+		<select id="selectUser" orm="user">
 			select * from @@user
 				 where 
 				 	@id = :id
@@ -76,12 +78,18 @@
 		    <result property="vip" column="VIP_USER"/>
 		</orm>
 		
-		<orm id="commentMap" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+		<orm id="commentMap" dbgroup="commentDB" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
 			<result property="id" column="id" type="int"/>
 		    <result property="userId" column="userId" type="int"/>
 		    <result property="userName" column="userName" type="string" />
 		    <result property="createdTime" column="createdTime" type="datetime" />
 		</orm>
+	</sqlMap>
+	
+	<sqlMap dbgroup="cargoDB">
+		<select id="selectCrossSize" orm="cargo" result-class="org.guzz.orm.rdms.MyCrossStitch">
+			select name, price, gridNum, size, brand from @@cargo where id > :id
+		</select>
 	</sqlMap>
 
 </guzz-configs>

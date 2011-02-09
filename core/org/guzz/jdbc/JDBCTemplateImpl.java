@@ -63,7 +63,6 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			startTime = System.nanoTime() ;
 		}
 		
-		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
 		try {			

@@ -19,12 +19,9 @@ package org.guzz.orm;
 import java.lang.reflect.Method;
 
 import org.guzz.GuzzContext;
-import org.guzz.GuzzContextImpl;
-import org.guzz.connection.DBGroup;
 import org.guzz.exception.DaoException;
 import org.guzz.orm.mapping.ObjectMappingUtil;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
-import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
@@ -62,19 +59,7 @@ public abstract class AbstractCustomTableView extends BeanWrapper implements Cus
 	}
 	
 	public POJOBasedObjectMapping createRuntimeObjectMapping(Object tableCondition){
-		Business newBusiness = this.configuredMapping.getBusiness().newCopy() ;
-		Table newTable = newBusiness.getTable().newCopy() ;
-		
-		newBusiness.setTable(newTable) ;
-		newBusiness.setBeanWrapper(this) ;
-		newBusiness.setConfiguredBeanWrapper(basicBeanWrapper) ;
-		
-		DBGroup dbGroup = this.configuredMapping.getDbGroup() ;
-		
-		POJOBasedObjectMapping newMap = new POJOBasedObjectMapping((GuzzContextImpl) this.guzzContext, dbGroup, newTable) ;
-		newBusiness.setMapping(newMap) ;
-		newMap.setBusiness(newBusiness) ;
-		
+		POJOBasedObjectMapping newMap = this.configuredMapping.replicate(this) ;
 		initCustomTableColumn(newMap, tableCondition) ;
 		
 		return newMap ;

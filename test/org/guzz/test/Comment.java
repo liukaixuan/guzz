@@ -20,9 +20,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.TableGenerator;
 
+import org.guzz.annotations.GenericGenerator;
+import org.guzz.annotations.Parameter;
 import org.guzz.annotations.Table;
 
 /**
@@ -51,7 +52,15 @@ import org.guzz.annotations.Table;
 public class Comment {
 
 	@javax.persistence.Id
-	@GeneratedValue(generator="commentGen", strategy=GenerationType.TABLE)
+	@GeneratedValue(generator="commentGen")
+    @GenericGenerator(name="commentGen", strategy="hilo.multi", parameters={
+    		@Parameter(name="table", value="tb_id"),
+    		@Parameter(name="column", value="id_count"),
+    		@Parameter(name="pk_column_name", value="pk"),
+    		@Parameter(name="pk_column_value", value="2"),
+    		@Parameter(name="db_group", value="default"),
+    		@Parameter(name="max_lo", value="20")
+    })
 	private int id ;
 	
 	private int userId ;

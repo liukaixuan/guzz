@@ -74,13 +74,11 @@
 <!ATTLIST map propName CDATA #REQUIRED>
 <!ATTLIST select id ID #REQUIRED>
 <!ATTLIST select orm CDATA #REQUIRED>
-<!ATTLIST select dbgroup CDATA "default">
 <!ATTLIST select result-class CDATA #IMPLIED>
 
 <!ELEMENT update (#PCDATA|paramsMapping)*>
 <!ATTLIST update id ID #REQUIRED>
 <!ATTLIST update orm CDATA #REQUIRED>
-<!ATTLIST update dbgroup CDATA "default">
 
 <!ELEMENT orm (result*)>
 <!ATTLIST orm id CDATA #REQUIRED>
