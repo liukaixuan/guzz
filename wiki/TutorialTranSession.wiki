@@ -102,6 +102,78 @@ try{
 === Query by Id configured in guzz.xml: ===
 
  Similar to ibatis. [TutorialGuzzXml Read more about how to write the xml].
+ 
+ 
+  类似ibatis。[TutorialGuzzXml 查看编写格式]。
+ 
+ 1. Configure sqls and ORMs. The `<business>`s are default ORMs：
+ 
+{{{
+ 	<sqlMap dbgroup="default">
+		<select id="selectUser" orm="user">
+			select * from @@user
+				 where 
+				 	@id = :id
+		</select>
+		
+		<select id="selectUserByName" orm="user">
+			select @id, @userName, @vip, @password from @@user where @userName = :userName
+			
+			<paramsMapping>
+				<map paramName="userName" propName="userName" />
+			</paramsMapping>
+		</select>
+	
+		<update id="updateUserFavCount" orm="userObjectMap">
+			update @@user set @favCount = favCount + 1
+		</update>
+		
+		<select id="selectUsers" orm="userObjectMap">
+			select @id, @name, @vip, @favCount from @@user
+		</select>
+		
+		<select id="listCommentsByName" orm="commentMap">
+			select * from @@commentMap where @userName = :userName
+			
+			<paramsMapping>
+				<map paramName="userName" propName="userName" />
+			</paramsMapping>
+		</select>
+				
+		<orm id="userObjectMap" class="org.guzz.test.UserModel">
+			<result property="id" column="pk"/>
+		    <result property="name" column="userName"/>
+		    <result property="favCount" column="FAV_COUNT"/>
+		    <result property="vip" column="VIP_USER"/>
+		</orm>
+		
+		<orm id="commentMap" dbgroup="commentDB" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+			<result property="id" column="id" type="int"/>
+		    <result property="userId" column="userId" type="int"/>
+		    <result property="userName" column="userName" type="string" />
+		    <result property="createdTime" column="createdTime" type="datetime" />
+		</orm>
+	</sqlMap>
+	
+	<sqlMap dbgroup="cargoDB">
+		<select id="selectCrossSize" orm="cargo" result-class="org.guzz.orm.rdms.MyCrossStitch">
+			select name, price, gridNum, size, brand from @@cargo where id > :id
+		</select>
+	</sqlMap> 
+ 
+}}}
+ 
+ 2. Query "listCommentsByName" by id and parameters:
+
+{{{
+	HashMap params = new HashMap() ;
+	params.put("userName", "lily") ;
+		
+	ReadonlyTranSession session = tm.openDelayReadTran() ;
+	Guzz.setTableCondition(tableCondition) ;
+	List<Comment> comments = session.list("listCommentsByName", params, 1, 20) ;
+
+}}}
 
 == !WriteTranSession, API for write ==
 

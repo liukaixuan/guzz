@@ -53,7 +53,7 @@ On mapping the ResultSet to java Object, guzz supports both hibernate and ibatis
 || increment||√||×||It generates identifiers of type long, short or int that are unique only when no other process is inserting data into the same table. It should not the used in the clustered environment.||
 || identity||√||√||It supports identity columns in DB2, MySQL, MS SQL Server, Sybase and HypersonicSQL. The returned identifier is of type long, short or int.||
 || sequence|| √ || √ || The sequence generator uses a sequence in DB2, PostgreSQL, Oracle, SAP DB, McKoi or a generator in Interbase. The returned identifier is of type long, short or int ||
-|| hilo|| √ || √ || The hilo generator uses a hi/lo algorithm to efficiently generate identifiers of type long, short or int, given a table and column (by default guzz_unique_key and next_hi respectively) as a source of hi values. The hi/lo algorithm generates identifiers that are unique only for a particular database. Do not use this generator with connections enlisted with JTA or with a user-supplied connection. ||
+|| hilo|| √ || √ || The hilo generator uses a hi/lo algorithm to efficiently generate identifiers of type long, short or int, given a table and column (by default guzz_unique_key and next_hi respectively) as a source of hi values. The hi/lo algorithm generates identifiers that are unique only for a particular database. Do not use this generator with connections enlisted with JTA or with a user-supplied connection. Parameters supported: table, column, db_group, max_lo ||
 || seqhilo|| √ || √ || The seqhilo generator uses a hi/lo algorithm to efficiently generate identifiers of type long, short or int, given a named database sequence. ||
 || uuid || √ || √ || The uuid generator uses a 128-bit UUID algorithm to generate identifiers of type string, unique within a network (the IP address is used). The UUID is encoded as a string of hexadecimal digits of length 32. ||
 || guid || √ || √ || It uses a database-generated GUID string on MS SQL Server and MySQL. ||
@@ -96,15 +96,6 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 
 {{{
 	<sqlMap dbgroup="default">
-		<select id="selectUser" orm="user" dbgroup="default">
-			select * from @@user
-			 where 
-			 	@id = :id 
-		</select>
-		
-		<select id="selectUserByName" orm="user">
-			select @id, @userName, @vip, @password from @@user where @userName = :userName
-		</select>
 	
 		<update id="updateUserFavCount" orm="userObjectMap">
 			update @@user set @favCount = favCount + 1
@@ -114,7 +105,7 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 			select @id, @name, @vip, @favCount from @@user
 		</select>
 		
-		<select id="listCommentsByName" orm="commentMap">
+		<select id="listCommentsByName" orm="commentMap" >
 			select * from @@commentMap where @userName = :userName
 		</select>
 				
@@ -125,7 +116,7 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 		    <result property="vip" column="VIP_USER"/>
 		</orm>
 		
-		<orm id="commentMap" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
+		<orm id="commentMap" dbgroup="commentDB" class="org.guzz.test.Comment" table="TB_COMMENT" shadow="org.guzz.test.CommentShadowView">
 			<result property="id" column="id" type="int"/>
 		    <result property="userId" column="userId" type="int"/>
 		    <result property="userName" column="userName" type="string" />

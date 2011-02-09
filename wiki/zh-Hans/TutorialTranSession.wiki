@@ -92,7 +92,7 @@ try{
 
   类似ibatis。[TutorialGuzzXml 查看编写格式]。
  
- 1. 定义sql和映射，映射可以直接引用<business>：
+ 1. 定义sql和映射，映射可以直接引用`<business>`的域对象名称：
  
 {{{
  	<sqlMap dbgroup="default">

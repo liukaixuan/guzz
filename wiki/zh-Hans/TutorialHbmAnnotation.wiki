@@ -162,7 +162,7 @@ public class User implements Serializable {
 	@javax.persistence.Id
 	@Column(name="pk")
 	@GeneratedValue(generator="userIdGen")
-	@GenericGenerator(name="userIdGen", strategy="native", parameters={@Parameter(name="sequence", value="seq_user_id")}
+	@GenericGenerator(name="userIdGen", strategy="sequence", parameters={@Parameter(name="sequence", value="seq_user_id")}
 	)
 	public id getId() {
 		return id;

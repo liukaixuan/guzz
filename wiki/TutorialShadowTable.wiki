@@ -246,6 +246,10 @@ public class CommentShadowView extends AbstractShadowTableView {
 {{{
 <g:list var="m_comments" business="comment" limit="userName=lily" orderBy="id desc" pageSize="20" tableCondition="${currentUser}" />
 }}}
+
+== Join & Union Query ==
+
+ Read the next chapter.
  
  == Startup sequences of ShadowView: ==
 

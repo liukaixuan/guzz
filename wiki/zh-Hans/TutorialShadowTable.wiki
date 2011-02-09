@@ -235,6 +235,10 @@ public class CommentShadowView extends AbstractShadowTableView {
 <g:list var="m_comments" business="comment" limit="userName=lily" orderBy="id desc" pageSize="20" tableCondition="${currentUser}" />
 }}}
 
+== 多表查询 ==
+ 
+ 请阅读下一章。
+
 == 接口方法调用顺序 ==
 
  * 1. 解析配置文件，生成类实例
