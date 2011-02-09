@@ -102,10 +102,7 @@ try{
 === Query by Id configured in guzz.xml: ===
 
  Similar to ibatis. [TutorialGuzzXml Read more about how to write the xml].
- 
- 
-  类似ibatis。[TutorialGuzzXml 查看编写格式]。
- 
+  
  1. Configure sqls and ORMs. The `<business>`s are default ORMs：
  
 {{{
