@@ -56,5 +56,19 @@ public class TestRound extends TestCase{
 		
 		assertEquals(r.ngcd(new int[]{32, 64, 128}), 32) ;
 	}
+	
+	public void testCardPool(){
+		LBRound r = new LBRound() ;
+		
+		r.addToPool(1, 100) ;
+		r.addToPool(2, 100) ;
+		
+		r.applyNewPool() ;
+		
+		for(int i = 0 ; i < 1000 ; i++){
+			assertEquals(r.getCard(), 1) ;
+			assertEquals(r.getCard(), 2) ;
+		}
+	}
 
 }

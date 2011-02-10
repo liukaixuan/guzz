@@ -32,7 +32,8 @@ public class LBRound implements RoundCard{
 	private int currentPos = 0 ;
 	
 	
-	/**添加一个候选银子。
+	/**
+	 * 添加一个候选因子。
 	 * 
 	 * @param card
 	 * @param lvFactor 负载因子，越大轮询到的机率越高。最大10000，最小1.
@@ -94,18 +95,18 @@ public class LBRound implements RoundCard{
 			Object service = h.service ;
 			int fac = h.lvFactor ;
 			
-			if(i < hs.size() -1){ //不是最后一个DataSourceProvider
-				double rate = fac / baseNum ;
+			if(i < hs.size() - 1){ //不是最后一个DataSourceProvider
+				double offset = baseNum / fac ;
 				
 				for(int k = 0 ; k < fac ; k++){
-					int pos = (int) (rate * k) ;
+					int pos = (int) (offset * k) ;
 					pos += i ;
 					
-					while(lv[pos] == null && pos < fac){
+					while(lv[pos] != null && pos < baseNum){
 						pos++ ;
 					}
 					
-					if(pos < fac){ //找到了空闲的位置
+					if(pos < baseNum){ //找到了空闲的位置
 						lv[pos] = service ;
 					}
 				}
@@ -130,8 +131,8 @@ public class LBRound implements RoundCard{
 		int pos = this.currentPos++ ;
 		
 		if(pos >= maxSize){
-			pos = maxSize - 1 ;
-			this.currentPos = 0 ;
+			pos = pos % maxSize ;
+			this.currentPos = pos + 1 ;
 		}
 		
 		return card_services[pos];
