@@ -61,7 +61,9 @@
 
 *2. 定义分切规则：*
 
- 虚拟数据库中，分切规则是面向数据库组的。分切规则的定义可以理解为：通过传入的tableCondition，应该使用那一组数据库。对的，条件就是tableCondition，和Shadow Table的条件是一个。
+ 虚拟数据库中，分切规则是面向数据库组的。分切规则的定义可以理解为：通过传入的tableCondition，应该使用那一组数据库。
+ 
+ 对的，条件就是tableCondition，和Shadow Table的条件是一个对象。程序传入的tableCondition先传给ShaowTableView用于分表，然后传给这儿的VirtualDBView用于选择存储的数据库。同一个对象的同一个实例。
 
  编写规则时，我们一般继承 org.guzz.connection.AbstractVirtualDBView
 

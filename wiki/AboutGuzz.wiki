@@ -33,7 +33,9 @@ Guzz's features:
 
  * Support your system to split a big table into many small ones on your rules(Shadow), and even allow each table owns its special columns(Custom).
 
- * Support unified POJO styled usage for data with very special conjunction( over "Normal Form"), or between unstructured data( such as from other systems). For example, you are calling book.getPrice(), and the price can actually be read from a third part system like amazon, while other properties like book name, ISBN, author are read from your own database.
+ * Support the split small tables distributed in different database groups (VirtualDB).
+
+ * Support unified POJO styled usage for data with very special conjunction( over "Normal Form"), or between unstructured data( such as from other systems). For example, you invoke book.getPrice(), and the price can actually be read from a third part system like amazon, while other properties like book name, ISBN, author are read from your own database.
 
  * Support Service-oriented architecture, help you accumulate a fundamental services system. (Yes, not build a fundamental system from scratch, but accumulate one with more and more projects.)
 
