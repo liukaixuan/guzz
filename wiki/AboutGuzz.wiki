@@ -1,56 +1,6 @@
 #labels Featured
 || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans 简体中文] ||
 
-== First Impression: ==
-
-Guzz is a data-layer framework, and has many *unique* features others havn't touched or even mentioned.
-
-With guzz, you can split&store your tables among different database machines; add physic machines to improve database performance without changing a single line of code; you can split a big table into many small ones, and each small table can own its special columns for some applications like shopping site; you can store some columns in file system; you can refactor your public modules to Services; you can query databases through jsp taglib; you can manage your applications' configurations in a central system; you can choose to persist a object in hibernat's way, or ibatis's direct sql; you can load sqls from other system and secure it. In a word, cool and useful stuffs other frameworks havn't mentioned.
-
-= what is guzz? =
-
-Guzz is a framework for large-scaled system and rapid development. 
-
-According to orm, multi-datasources, shard, general data processing, object-oriented database taglib, guzz provides a full-stack solution for data-layer architecture. It can be a good complement or another choice for hibernate and ibatis.
-
-Guzz's aim is to simplify the design of large-scaled system, clearing the division of team jobs, lessen mistakes in using frameworks.
-
-Guzz's features:
-
- * Modern design, experienced on ibatis and hibernate's great favors.
- 
- * For simple situation, you can persist, mapping and query data in a object-oriented way like hibernate (80%).
-
- * For some complicated operations, you can store complicated sqls in a xml configuration file, and let dbas involved in, like ibatis (20%).
-
- * Over ibatis, you can also store and load sqls from anywhere(or any system), and use it on fly. Add/delete/test/tune sqls online without a restart. (We call this "Dynamic SQL")
-
- * Better batch API. Easy use and easy control.
- 
- * Support your system to use many database machines without extra codes, and separate read-write between those machines.
-
- * Support your system to store different tables in different machines, and maintain a distributed transaction automatically(Shard).
-
- * Support your system to split a big table into many small ones on your rules(Shadow), and even allow each table owns its special columns(Custom).
-
- * Support the split small tables distributed in different database groups (VirtualDB).
-
- * Support unified POJO styled usage for data with very special conjunction( over "Normal Form"), or between unstructured data( such as from other systems). For example, you invoke book.getPrice(), and the price can actually be read from a third part system like amazon, while other properties like book name, ISBN, author are read from your own database.
-
- * Support Service-oriented architecture, help you accumulate a fundamental services system. (Yes, not build a fundamental system from scratch, but accumulate one with more and more projects.)
-
- * Object-oriented database JSP Taglib, fast view-layer's development, maintaining and deployment. You can build pages without writing any java codes. Very very fast! It is also nice for building a custom-featured system on a production.
-
- * Support for Configuration System. You can manage all configurations among different systems in a central system online.
-
-= Things guzz won't do: =
-
- * Create or update table structures.
-
- * Synchronize data between different databases and different machines. 
-
- * Support relationships between business classes such as one-one, one-many, many-many, and so on. Join, Union and other complex sqls can only be executed in ibatis's way.
-
 == Doc & Help ==
 
  * [TutorialStart Developer Guide]
@@ -68,4 +18,12 @@ Guzz's features:
 == Feedback ==
 
  * [AboutFeedback Feedback & Suggestions]
+
+= Things guzz won't do: =
+
+ * Create or update table structures.
+
+ * Synchronize data between different databases and different machines. 
+
+ * Support relationships between business classes such as one-one, one-many, many-many, and so on. Join, Union and other complex sqls can only be executed in ibatis's way.
  
