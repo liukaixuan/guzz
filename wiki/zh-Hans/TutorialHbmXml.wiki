@@ -17,7 +17,7 @@
 每个business标签对应1个领域对象。business拥有5个属性：
 
 || *属性名* || *Required* || *作用* ||
-|| name || Required  || business name。如果填写，则覆盖注解中的businessName ||
+|| name || Required  || business name。||
 || file || Required  || hbm.xml文件位置 ||
 || dbgroup || Optional || 对象存储到的数据库组。默认为default。 ||
 || class || Optional || 如果填写，覆盖hbm.xml中定义的域对象class ||

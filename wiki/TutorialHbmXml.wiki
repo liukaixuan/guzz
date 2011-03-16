@@ -6,9 +6,34 @@ On mapping the ResultSet to java Object, guzz supports both hibernate and ibatis
 
  If you prefer hibernate's hbm.xml file, some features of guzz may tip you errors as they are not defined in hibernate's dtd definition. Don't worry, this won't affect guzz to interpret it.
 
+== Declare hbm.xml in guzz ==
+
+For each hbm.xml mapping file, insert a "business" in guzz.xml:
+
+{{{
+<business name="user" dbgroup="default" file="classpath:org/guzz/test/User.hbm.xml" />
+}}}
+
+One "business" element declares one business domain class, and owns 5 attributes:
+
+|| *attribute* || *Required* || *function* ||
+|| name || Required  || business name ||
+|| file || Required  || location of hbm.xml ||
+|| dbgroup || Optional || database group to store this domain object. The default value is "default". ||
+|| class || Optional || domain class name to override the "class" definition in hbm.xml. ||
+|| interpret || Optional || User defined Interpreter to translate custom search terms. ||
+
+*A typical example:*
+{{{
+<business name="user" dbgroup="mainDB" class="org.guzz.test.User" interpret="" file="classpath:org/guzz/test/User.hbm.xml" />
+<business name="book" class="org.guzz.test.Book" file="classpath:org/guzz/test/Book.hbm.xml" />
+}}}
+
+You can find all detailed configurations in guzz's test source codes.
+
 == Definition of guzz's own mapping ==
  
- Guzz's class-table mapping is similar to hibernate's, change the dtd header to  
+ Guzz's class-table mapping is similar to hibernate's, change the DTD header to  
 
 {{{
 <!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
