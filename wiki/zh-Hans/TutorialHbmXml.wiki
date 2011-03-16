@@ -6,6 +6,31 @@
 
  使用hibernate映射文件时，某些guzz的特性在hibernate mapping dtd中没有定义，文本编辑时不能自动提示，甚至会报错，但不影响使用。
 
+== 配置领域对象到系统中 ==
+
+对于hbm.xml配置的领域对象，每个对象在guzz.xml中增加一个business来声明：
+
+{{{
+<business name="user" dbgroup="default" file="classpath:org/guzz/test/User.hbm.xml" />
+}}}
+
+每个business标签对应1个领域对象。business拥有5个属性：
+
+|| *属性名* || *Required* || *作用* ||
+|| name || Required  || business name。如果填写，则覆盖注解中的businessName ||
+|| file || Required  || hbm.xml文件位置 ||
+|| dbgroup || Optional || 对象存储到的数据库组。默认为default。 ||
+|| class || Optional || 如果填写，覆盖hbm.xml中定义的域对象class ||
+|| interpret || Optional || 自定义查询条件解析器。 ||
+
+*一个典型的配置如下：*
+{{{
+<business name="user" dbgroup="mainDB" class="org.guzz.test.User" interpret="" file="classpath:org/guzz/test/User.hbm.xml" />
+<business name="book" class="org.guzz.test.Book" file="classpath:org/guzz/test/Book.hbm.xml" />
+}}}
+
+其中，每个领域对象的定义可以在guzz测试源代码中找到。
+
 == guzz自己的映射定义 ==
 
  将hibernate hbm.xml的dtd定义头，改成
