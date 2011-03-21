@@ -22,7 +22,7 @@
 
  * 7. 使用2组数据库（启用第3，4台数据库）
 
- * 8. 将留言板分切成小表
+ * 8. 将留言表分切成小表
 
  * 9. 分布式切表以应对超级大表
 
@@ -352,7 +352,8 @@ create table tb_message(
 根据当前传入的页码查询message，并按照id desc排序。然后我们用1个c:forEach循环，打印出结果。用m_messages.index打印出当前记录从1开始的排序位置，用g:out标签打印出允许html元素但不允许script执行的正文。最后引用通用的分页文件 /WEB-INF/jsp/include/console_flip.jsp 显示分页情况。
 
 再次访问：http://localhost:8080/guzz/messageList.jsp ，可以看到分页显示的留言列表如下：
-<img src="http://guzz.googlecode.com/svn/wiki/no-wikis/messageList.png" />
+
+<img width="500px" src="http://guzz.googlecode.com/svn/wiki/no-wikis/messageList.png" />
 
 == 实现读写分离（启用第2台数据库）==
 
@@ -427,3 +428,438 @@ onlySlowSQLInMillSeconds=0
 
 == 实现1个多用户留言板 ==
 
+为了实现多用户留言板，首先我们需要增加User域对象。User对象只有三个属性，用户编号，用户名和留言数。创建example.business.User.java:
+{{{
+package example.business;
+
+public class User implements java.io.Serializable {
+	
+	private int id ;
+
+	private String userName ;
+	
+	private int messageCount ;
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public int getMessageCount() {
+		return messageCount;
+	}
+
+	public void setMessageCount(int messageCount) {
+		this.messageCount = messageCount;
+	}
+	
+}
+}}}
+
+创建映射文件User.hbm.xml：
+{{{
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="example.business.User" table="tb_user">
+        <id name="id" type="int" column="id">
+        	<generator class="native" />
+        </id>
+        <property name="userName" type="string" column="userName" />
+        <property name="messageCount" type="int" column="messageCount" />
+    </class>
+</hibernate-mapping>
+}}}
+
+同时在Message.java，Message.hbm.xml，增加userId属性对应User对象的id属性。新的Message.java和Message.hbm.xml为：
+{{{
+package example.business;
+
+import java.util.Date;
+
+public class Message implements java.io.Serializable {
+	
+	private int id ;
+
+	private String content ;
+	
+	private int userId ;
+	
+	private Date createdTime ;
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Date getCreatedTime() {
+		return createdTime;
+	}
+
+	public void setCreatedTime(Date createdTime) {
+		this.createdTime = createdTime;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+	
+}
+}}}
+
+{{{
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="example.business.Message" table="tb_message">
+        <id name="id" type="int" column="id">
+        	<generator class="native" />
+        </id>
+        <property name="userId" type="int" column="userId" />
+        <property name="content" type="string" column="content" />
+        <property name="createdTime" type="datetime" column="createdTime" />
+    </class>
+</hibernate-mapping>
+}}}
+
+在mb_main数据库中增加tb_user表，并调整tb_message表：
+{{{
+use mb_main ;
+
+create table tb_user(
+	id int not null auto_increment primary key, 
+	userName varchar(64) not null, 
+	messageCount int(11)default 0
+)engine=Innodb ;
+
+alter table tb_message add column userId int(11) default 1 ;
+create index idx_msg_uid on tb_message(userId) ;
+
+insert into tb_user(userName) values('Lucy') ;
+insert into tb_user(userName) values('Lily') ;
+insert into tb_user(userName) values('Cathy') ;
+insert into tb_user(userName) values('Polly, The Bird') ;
+
+update tb_user set messageCount = (select count(*) from tb_message) where id = 1 ;
+
+}}}
+
+修改guzz.xml，增加User域对象声明：
+{{{
+<business dbgroup="default" name="user" file="classpath:example/business/User.hbm.xml" />
+}}}
+
+由于是多用户留言板，因此 messageList.jsp 我们需要增加一个参数来区分用户。此参数定义为userId。无论是访问留言板，还是发表留言，我们都用userId标记当前留言板所属用户。修改 messageList.jsp 增加对userId参数的支持：
+{{{
+<%@ page language="java" pageEncoding="UTF-8"%>
+<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+<g:get business="user" var="m_user" limit="id=${param.userId}" />
+
+<g:boundary>
+	<g:addLimit limit="userId=${m_user.id}" />
+	<g:page business="message" var="m_messages" tableCondition="${m_user.id}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
+</g:boundary>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>    
+    <title>${m_user.userName}'s Message List</title>
+  </head>
+  
+  <body>  	 
+  	Leave a message:<br>  	
+
+  	<form method="POST" action="./newMessage.do">
+  		<input type="hidden" name="userId" value="${m_user.id}" />
+  		
+  		<textarea name="content" cols="80" rows="10"></textarea>  		
+  		....
+}}}
+
+在新的 messageList.jsp 中，g:page增加了1个查询条件。而在form表单提交时，增加了隐藏的userId参数。
+
+修改NewMessageAction.java 增加对userId参数的支持：
+{{{
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		int userId = RequestUtil.getParameterAsInt(request, "userId", 0) ;
+		String content = request.getParameter("content") ;
+
+		Message msg = new Message() ;
+		msg.setContent(content) ;
+		msg.setCreatedTime(new java.util.Date()) ;
+		
+		//close auto-commit
+		WriteTranSession write = guzzContext.getTransactionManager().openRWTran(false) ;
+		
+		try{
+			User user = (User) write.findObjectByPK(User.class, userId) ;
+			user.setMessageCount(user.getMessageCount() + 1) ;
+			
+			msg.setUserId(userId) ;
+			
+			write.insert(msg) ;
+			write.update(user) ;
+			
+			write.commit() ;
+		}catch(Exception e){
+			write.rollback() ;
+			
+			throw e ;
+		}finally{
+			write.close() ;
+		}
+		
+		return new ModelAndView("redirect:/messageList.jsp", "userId", userId);
+	}
+}}}
+
+因为要同时更新两张表，因此我们选择手工控制事务的提交。
+
+重新部署并启动应用，访问：http://localhost:8080/guzz/messageList.jsp?userId=1 ，看到Lucy's Message List；访问 http://localhost:8080/guzz/messageList.jsp?userId=1 看到Lily's Message List。
+
+多用户留言板完成。
+
+
+== 使用2组数据库（启用第3，4台数据库） ==
+
+ 随着业务的增长我们发现mb_main数据库负载太高，需要将tb_user表挪出去，部署到另外一组数据库中。这组数据库有1台主库（第3台数据库）和1台从库（第4台数据库）。
+
+ 我们给这组新数据库取名为userDB。首先，很显然需要将现有的tb_user表导出并装载到userDB数据库组中，并建好数据库主从。假设此步骤已经完成。
+
+ 为了演示，我们在本机上创建 mb_user 数据库作为userDB。
+{{{
+create database mb_user default character set utf8 ;
+
+create table mb_user.tb_user select * from mb_main.tb_user ;
+
+alter table mb_user.tb_user modify column id int(11) not null auto_increment primary key ;
+
+drop table mb_main.tb_user ;
+
+}}}
+
+ 这时我们有2组数据库：mb_main存放tb_message, mb_user存放tb_user。
+
+ 为了让应用知道mb_user的存在，修改guzz.xml的tran，增加一个userDB dbgroup：
+ {{{<dbgroup name="userDB" masterDBConfigName="userMasterDB" slaveDBConfigName="userSlaveDB" />}}}
+
+ 修改User域对象使用userDB：
+ {{{<business dbgroup="userDB" name="user" file="classpath:example/business/User.hbm.xml" />}}}
+
+ 修改messageBoard.properties主配置文件，增加userDB对主从数据库连接池的配置信息[userMasterDB]和[userSlaveDB]:
+
+{{{
+[userMasterDB]
+guzz.identifer=userMasterDB1
+guzz.IP=localhost
+guzz.maxLoad=120
+driverClass=com.mysql.jdbc.Driver
+jdbcUrl=jdbc:mysql://localhost:3306/mb_user?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+user=root
+password=root
+acquireIncrement=10
+idleConnectionTestPeriod=60
+
+[userSlaveDB]
+guzz.identifer=userSlaveDB1
+guzz.IP=localhost
+guzz.maxLoad=80
+driverClass=com.mysql.jdbc.Driver
+jdbcUrl=jdbc:mysql://localhost:3306/mb_user?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+user=root
+password=root
+acquireIncrement=10
+idleConnectionTestPeriod=60
+}}}
+
+如果你有第3，4台独立数据库，将上面的jdbcUrl改到具体的数据库地址即可。
+
+重新部署并启动应用，这时您的应用已经开始使用4台数据库。当你发表新留言时，更新tb_user和tb_message表的操作将自动在一个分布式事务中完成。代码不需要做任何调整。
+
+== 将留言表分切成小表 ==
+
+随着业务的进一步发展，很快留言数突破千万，tb_message查询缓慢，已经成为系统的性能瓶颈。我们决定将留言表按照用户分成多张小表。
+
+分切的规则是：每个用户1张表，表名规则为tb_message_${userId}。
+
+切表的详细说明文档，请参看：[TutorialShadowTable] 。为了实现表分切，首先需要实现分切规则，创建一个新的java类example.business.MessageShadowTableView定义规则：
+{{{
+package example.business;
+
+import org.guzz.exception.GuzzException;
+import org.guzz.orm.AbstractShadowTableView;
+
+public class MessageShadowTableView extends AbstractShadowTableView {
+
+	public String toTableName(Object tableCondition) {
+		if (tableCondition == null) { // 强制要求必须设置表分切条件，避免编程时疏忽。
+			throw new GuzzException("null table conditon is not allowed.");
+		}
+
+		Integer userId = (Integer) tableCondition;
+
+		//tb_message_${userId}
+		return "tb_message_" + userId.intValue() ;
+	}
+
+}
+}}}
+
+可见，分切条件为用户编号userId。我们有4个用户，因此将tb_message分切成4张小表，分别为：tb_message_1, tb_message_2, tb_message_3, tb_message_4.
+{{{
+use mb_main ;
+
+create table tb_message_1 select * from tb_message where userId = 1 ;
+create table tb_message_2 select * from tb_message where userId = 2 ;
+create table tb_message_3 select * from tb_message where userId = 3 ;
+create table tb_message_4 select * from tb_message where userId = 4 ;
+
+alter table tb_message_1 modify column id int(11) not null auto_increment primary key ;
+alter table tb_message_2 modify column id int(11) not null auto_increment primary key ;
+alter table tb_message_3 modify column id int(11) not null auto_increment primary key ;
+alter table tb_message_4 modify column id int(11) not null auto_increment primary key ;
+
+drop table tb_message ;
+}}}
+
+为了让guzz知道表分切规则，修改Message.hbm.xml映射文件，在class元素中增加属性 shadow="example.business.MessageShadowTableView" ，同时将dtd定义改成guzz的。修改的文件为：
+{{{
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+<guzz-mapping>
+    <class name="example.business.Message" table="tb_message" shadow="example.business.MessageShadowTableView">
+        <id name="id" type="int" column="id">
+        	<generator class="native" />
+        </id>
+        <property name="userId" type="int" column="userId" />
+        <property name="content" type="string" column="content" />
+        <property name="createdTime" type="datetime" column="createdTime" />
+    </class>
+</guzz-mapping>
+}}}
+
+这是guzz已经知道Message对象需要根据 example.business.MessageShadowTableView 进行切表。在所有操作 Message 的地方，需要传入userId作为切表条件（称作：tableCondition）。
+
+对于读取的地方，修改 messageList.jsp 的g:page调用为：
+{{{<g:page business="message" var="m_messages" tableCondition="${param.userId}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />}}}
+
+通过tableCondition属性传入切表条件。
+
+修改 NewMessageAction.java的 write.insert(msg) ; 为 write.insert(msg, userId) ; 通过insert方法的第二个参数传入切表条件。
+
+重新部署并启动应用，可以看到我们的留言板已经在4个小表中工作了。
+
+
+== 分布式切表以应对超级大表 ==
+
+随着业务的更进一步发展，我们发现tb_message即使分成了小表，都存储在一台数据库中也过于庞大。在实际的应用中，可能是您的数据已经分切成了上百张表，总量比较大。我们需要将这些分切后的小表，存储到不同的数据库机器中，减少单台数据库数据量过大的问题，同时也减少表的个数。
+
+为了解决这个问题，guzz提供了分布式切表功能，称作VirtualDB。详细介绍请参看：[TutorialVirtualDB]
+
+为了演示，我们个性化的小表存储规则为：编号为1的用户，留言存储在default数据库组中不变；其他的存储到userDB中。当然在实际使用中，您可能不会这么做，并且引入第5，6，7，8甚至更多台的数据库机器。
+
+现在我们开始挪表，把tb_message_2, tb_message_3, tb_message_4从mb_main挪到mb_user中：
+{{{
+create table mb_user.tb_message_2 select * from mb_main.tb_message_2 ;
+create table mb_user.tb_message_3 select * from mb_main.tb_message_3 ;
+create table mb_user.tb_message_4 select * from mb_main.tb_message_4 ;
+
+alter table mb_user.tb_message_2 modify column id int(11) not null auto_increment primary key ;
+alter table mb_user.tb_message_3 modify column id int(11) not null auto_increment primary key ;
+alter table mb_user.tb_message_4 modify column id int(11) not null auto_increment primary key ;
+
+drop table mb_main.tb_message_2 ;
+drop table mb_main.tb_message_3 ;
+drop table mb_main.tb_message_4 ;
+}}}
+
+创建一个新的java类，定义VirtualDB的表分布规则：
+{{{
+package example.business;
+
+import org.guzz.connection.AbstractVirtualDBView;
+import org.guzz.exception.GuzzException;
+
+public class MessageVirtualDBView extends AbstractVirtualDBView {
+    
+    public String getPhysicsDBGroupName(Object tableCondition) {
+		if (tableCondition == null) {
+			throw new GuzzException("null table conditon is not allowed.");
+		}
+		
+		int userId = (Integer) tableCondition;
+		
+		if(userId == 1){
+			 //store lucy's messages in the default database.
+			return "default" ;
+		}else{
+			 //store others in the userDB database.
+			return "userDB" ;
+		}
+    }
+
+}
+}}}
+
+为了让 guzz 知道分布式切表，对于每个使用VirtualDB的表，我们需要在guzz.xml中声明一个virtualdbgroup。对于Message，修改guzz.xml，在tran元素下增加virtualdbgroup：
+{{{<virtualdbgroup name="messageDB" shadow="example.business.MessageVirtualDBView" />}}}
+
+同时，修改Message领域对象的dbgroup到新的messageDB。修改好的guzz.xml为：
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
+
+<guzz-configs>
+	
+	<dialect class="org.guzz.dialect.Mysql5Dialect" />
+	
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />
+		<dbgroup name="userDB" masterDBConfigName="userMasterDB" slaveDBConfigName="userSlaveDB" />
+		
+		<virtualdbgroup name="messageDB" shadow="example.business.MessageVirtualDBView" />
+	</tran>
+	
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resource" value="messageBoard.properties" />
+		</server>
+	</config-server>
+	
+	<!-- business starts -->
+	<business dbgroup="messageDB" name="message" file="classpath:example/business/Message.hbm.xml" />
+	<business dbgroup="userDB" name="user" file="classpath:example/business/User.hbm.xml" />
+	<!-- business ends -->
+
+</guzz-configs>
+}}}
+
+重新部署并启动应用。此时的留言板将自动将lucy的留言存储到mb_main，其他人的留言存储到mb_user库中。完成分布式切表。
