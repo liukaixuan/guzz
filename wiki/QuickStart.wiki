@@ -1,0 +1,428 @@
+== Guzz入门教程 ==
+
+ 在本教程中，我们将手把手的演示如何使用guzz，写一个可以并行使用5台甚至更多数据库的留言板系统。
+
+ 您可以跟着做，在实际的教程做，只需要1台数据库用来模拟。
+ 
+ 本教程的大致内容包括：如何创建guzz项目，如何用guzz添加数据库纪录，如何实现读写分离，如何进行多数据库之间分表，切表，分布式切表等。最后部分简单介绍 计数器队列 的使用，再拿基础服务做一个“可以手工干预，定期自动发布的排行榜，用来统计留言最多的用户”。
+
+== 教程目录大纲  ==
+
+ * 1. 什么guzz？什么时候用？
+
+ * 2. 准备环境
+
+ * 3. 创建MessageBoard工程
+
+ * 4. 配置工程，插入第1条留言
+
+ * 5. 实现读写分离（启用第2台数据库）
+
+ * 6. 实现1个多用户留言板
+
+ * 7. 使用2组数据库（启用第3，4台数据库）
+
+ * 8. 将留言板分切成小表
+
+ * 9. 分布式切表以应对超级大表
+
+ * 10. 用计数器服务实现支持投票（启用第3组，第5台数据库）
+
+ * 11. 删除留言，批量删除留言。
+
+ * 12. 留言最多的用户排行榜（云服务）
+
+== 什么guzz？什么时候用？  ==
+
+ guzz[ˈɡuzi]念做谷子。稻谷的谷，意为种子，谷物等。
+
+ guzz和hibernate，ibatis同属于数据持久层框架，在应用架构上用于代替hibernate或者ibatis。 传统的ssh（spring + struts + hibernate）程序基于guzz架构后就是ssg（spring + struts + guzz）。同时guzz可以和hibernate/ibatis并存，同时使用。
+
+ guzz适合于大型系统使用，包括访问量较大的系统和数据量较大的系统。当你的程序需要同时使用多台数据库，或者存在大表需要分切成小表时，guzz是目前通用持久层框架中最好的选择。guzz提供了面向未来的配置化分表，多库，表分切，读写分离，以及多台数据库之间透明的分布式事务支持，使得多数据库编程和普通编程一样简单，对开发者透明。
+ 
+ 同时guzz提供一些服务定义，帮助团队从零开始创建云服务计算平台。如果您计划将多个系统间的通用计算（功能）做成服务，并且还没有动手，guzz service将是个很好的起步点。
+
+== 准备环境  ==
+
+在本教程中，我们使用MyEclipse IDE做开发演示。留言板将运行在1台Mysql5.0 + 1台Tomcat6上。因此您只需要自己的开发机器就可以跟上。
+
+当然，如果你有5台或者更多数据库，会更好。
+
+虽然教程中只有1台数据库，但效果一样，guzz用多台数据库和用1台对开发者是透明的。
+
+== 创建MessageBoard工程  ==
+
+ 我们的例子使用springIOC + springMVC + guzz架构创建留言板，因此先从guzz网站下载提供的空工程a empty sample project buildxxxxxxx.zip ：[http://code.google.com/p/guzz/downloads/list]
+
+ 解压工程，并导入到Eclipse中（File -> Import -> General/Exsiting Projects into Workspace）。
+ 
+ 这时工作区中多了一个“GuzzEmpty”项目，选择项目，右键 -> Refactor -> Rename。输入MessageBoard，确定。
+
+ 从 [http://code.google.com/p/guzz/downloads/list] 下载最新版的guzz发布包，如“guzz1.2.9 buildxxxxxx.zip”，解压文件，并将guzz.jar和src.zip覆盖到刚刚创建的MessageBoard工程的 /WebRoot/WEB-INF/lib/ 下。
+
+ 修改 /WebRoot/WEB-INF/ 下的 fms.properties 为messageBoard.properties。
+
+
+== 配置工程，插入第1条留言 ==
+
+=== 配置工程 ===
+
+ 我们定义留言为Message，在src源代码目录下创建example/business/Message.java：
+ {{{
+	package example.business;
+
+	import java.util.Date;
+
+	public class Message implements java.io.Serializable {
+		
+		private int id ;
+
+		private String content ;
+		
+		private Date createdTime ;
+		
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
+
+		public String getContent() {
+			return content;
+		}
+
+		public void setContent(String content) {
+			this.content = content;
+		}
+
+		public Date getCreatedTime() {
+			return createdTime;
+		}
+
+		public void setCreatedTime(Date createdTime) {
+			this.createdTime = createdTime;
+		}
+		
+	}
+ }}}
+
+同时在 example/business/ 目录下创建映射文件 Message.hbm.xml：
+{{{
+	<?xml version="1.0"?>
+	<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	<hibernate-mapping>
+		<class name="example.business.Message" table="tb_message">
+			<id name="id" type="int" column="id">
+				<generator class="native" />
+			</id>
+			<property name="content" type="string" column="content" />
+			<property name="createdTime" type="datetime" column="createdTime" />
+		</class>
+	</hibernate-mapping>
+}}}
+
+在映射文件中，留言存储在tb_message表中。tb_message用content字段存储留言内容。
+
+启动并连上Mysql5.0，创建测试用数据库mb_main，并在其中创建表tb_message。sql语句如下：
+{{{
+create database mb_main default character set utf8 ;
+
+use mb_main ;
+
+create table tb_message(
+	id int not null auto_increment primary key, 
+	content text, 
+	createdTime datetime
+)engine=Innodb ;
+
+}}}
+
+现在我们创建连接池，让mb_main数据库和MessageBoard工程对接上。
+
+打开/WebRoot/WEB-INF/guzz.xml文件，进入源代码编辑；右键选择 /WebRoot/WEB-INF/messageBoard.properties -> Open With -> Properties File Editor（注意：不能用高级可视化编辑器打开），打开主配置文件。
+
+修改guzz.xml：删除默认配置的3组数据库组中的updateDB和logDB；修改fms.properties主配置文件名为我们的messageBoard.properties；删除2个服务；在business中增加Message域对象。修改后的guzz.xml为：
+{{{
+	<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
+
+	<guzz-configs>
+		
+		<dialect class="org.guzz.dialect.Mysql5Dialect" />
+		
+		<tran>
+			<dbgroup name="default" masterDBConfigName="masterDB" />
+		</tran>
+		
+		<config-server>
+			<server class="org.guzz.config.LocalFileConfigServer">
+				<param name="resource" value="messageBoard.properties" />
+			</server>
+		</config-server>
+		
+		<!-- business starts -->
+		<business dbgroup="default" name="message" file="classpath:example/business/Message.hbm.xml" />
+		<!-- business ends -->
+
+	</guzz-configs>
+}}}
+
+在新的guzz.xml中，留言对象使用default数据库组，default数据库组的master数据库的配置组名称为“masterDB”，没有slave数据库。修改刚刚打开的messageBoard.properties，修改[masterDB]配置组的连接池，指向我们刚才创建的数据库mb_main。其他数据库组配置删除。新的messageBoard.properties如下：
+{{{
+	#guzz app config file.
+	 
+	#master db
+	[masterDB]
+	guzz.identifer=defaultMasterDB1
+	guzz.IP=localhost
+	guzz.maxLoad=120
+	driverClass=com.mysql.jdbc.Driver
+	jdbcUrl=jdbc:mysql://localhost:3306/mb_main?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+	user=root
+	password=root
+	acquireIncrement=10
+	idleConnectionTestPeriod=60
+	 
+	#debug settings
+	[guzzDebug]
+	#runMode=debug/production
+	runMode=debug
+	#onError=halt/log/ignore
+	onError=halt
+	printSQL=true
+	printSQLParams=true
+	ignoreDemonThreadSQL=true
+	#print out how many nano-seconds a sql takes to execute.
+	measureTime=true
+	#only print out slow sqls that takes over xxx mill-seconds to execute. 0 means print out all.
+	onlySlowSQLInMillSeconds=0
+
+	############################### fundamental services #####################
+
+}}}
+
+打开 /WebRoot/WEB-INF/applicationContext.xml，删除bean:logService。
+
+部署工程到Tomcat6上，然后启动。如果没有错误，则配置已经成功。如果报错，请检查数据库是否给予了访问授权。
+
+停止tomcat6.
+
+=== 插入留言 ===
+
+下面我们开始插入第一条留言。在/WebRoot/下创建jsp文件：messagesList.jsp，内容如下：
+{{{
+	<%@ page language="java" pageEncoding="UTF-8"%>
+	<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+
+	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+	<html>
+	  <head>    
+		<title>Message List</title>
+	  </head>
+	  
+	  <body>
+		
+		Leave a message:<br>
+		
+		<form method="POST" action="./newMessage.do">
+			<textarea name="content" cols="80" rows="10"></textarea>
+			
+			<br/>
+			<input type="submit" />
+		</form>
+	  </body>
+	</html>
+}}}
+
+创建java文件：example.view.action.NewMessageAction.java，内容如下：
+{{{
+	package example.view.action;
+
+	import javax.servlet.http.HttpServletRequest;
+	import javax.servlet.http.HttpServletResponse;
+
+	import org.guzz.GuzzContext;
+	import org.guzz.transaction.WriteTranSession;
+	import org.springframework.web.servlet.ModelAndView;
+	import org.springframework.web.servlet.mvc.Controller;
+
+	import example.business.Message;
+
+	public class NewMessageAction implements Controller {
+		
+		private GuzzContext guzzContext ;
+
+		public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+			String content = request.getParameter("content") ;
+			
+			WriteTranSession write = guzzContext.getTransactionManager().openRWTran(true) ;
+			
+			Message msg = new Message() ;
+			msg.setContent(content) ;
+			msg.setCreatedTime(new java.util.Date()) ;
+			
+			try{
+				write.insert(msg) ;
+			}finally{
+				write.close() ;
+			}
+			
+			return new ModelAndView("redirect:/messageList.jsp");
+		}
+
+		public GuzzContext getGuzzContext() {
+			return guzzContext;
+		}
+
+		public void setGuzzContext(GuzzContext guzzContext) {
+			this.guzzContext = guzzContext;
+		}
+
+	}
+}}
+
+修改/WebRoot/WEB-INF/dispatcher-servlet.xml文件，增加springMVC映射bean：
+{{{	
+	<bean name="/newMessage.do" class="example.view.action.NewMessageAction">
+		<property name="guzzContext" ref="guzzContext" />
+	</bean>
+}}}
+
+部署程序，启动Tomcat6，访问：http://localhost:8080/guzz/messageList.jsp，输入留言“I am the first message. What about you?”，提交。
+
+打开数据tb_message表，可以看到1条记录已经成功插入。
+
+=== 分页列出留言 ===
+
+我们在messageList.jsp中列出所有发表的留言，每页30条，分页显示。使用guzz taglib实现。messageList.jsp 内容如下；
+{{{
+<%@ page language="java" pageEncoding="UTF-8"%>
+<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+<g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>    
+    <title>Message List</title>
+  </head>
+  
+  <body> 
+  	 
+  	Leave a message:<br>
+  	
+  	<form method="POST" action="./newMessage.do">
+  		<textarea name="content" cols="80" rows="10"></textarea>
+  		
+  		<br/>
+  		<input type="submit" />
+  	</form>
+  	
+  	<hr>
+  	<table width="96%" border="1">
+  		<tr>
+  			<th>No.</th>
+  			<th>Content</th>
+  			<th>Date</th>
+  		</tr>
+  		
+  		<c:forEach items="${m_messages.elements}" var="m_msg">
+  		<tr>
+  			<td>${m_messages.index}</td>
+  			<td><g:out value="${m_msg.content}" escapeXml="false" escapeScriptCode="true" /></td>
+  			<td>${m_msg.createdTime}</td>
+  		</tr>
+  		</c:forEach>
+  	</table>
+  	
+  	<table width="96%" border="1">
+  		<tr>
+  			<c:import url="/WEB-INF/jsp/include/console_flip.jsp" />
+  		</tr>
+  	</table>
+  	
+  </body>
+</html>
+}}}
+
+在这个jsp中，
+	{{{<g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />}}} 
+根据当前传入的页码查询message，并按照id desc排序。然后我们用1个c:forEach循环，打印出结果。用m_messages.index打印出当前记录从1开始的排序位置，用g:out标签打印出允许html元素但不允许script执行的正文。最后引用通用的分页文件 /WEB-INF/jsp/include/console_flip.jsp 显示分页情况。
+
+再次访问：http://localhost:8080/guzz/messageList.jsp，可以看到分页显示的留言列表。
+
+== 实现读写分离（启用第2台数据库）==
+
+如果你有多台数据库，创建mb_main数据库的从库（具体可参看[http://guzz.javaeye.com/blog/366508]）。修改guzz.xml的
+	{{{<dbgroup name="default" masterDBConfigName="masterDB" />}}}
+
+增加从数据库配置属性slaveDBConfigName，我们设置值为slaveDB。如下：
+	{{{<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />}}}
+
+在messageBoard.properties文件增加slaveDB配置项的具体信息，如下：
+{{{
+
+[slaveDB]
+guzz.identifer=defaultSlaveDB1
+guzz.IP=localhost
+guzz.maxLoad=80
+driverClass=com.mysql.jdbc.Driver
+jdbcUrl=jdbc:mysql://localhost:3306/mb_main?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+user=root
+password=root
+acquireIncrement=10
+idleConnectionTestPeriod=60
+
+}}}
+
+如果你有单独的从数据库，jdbcUrl处修改为从库地址即可。此时完成的messageBoard.properties文件为：
+{{{
+#guzz app config file.
+ 
+#master db
+[masterDB]
+guzz.identifer=defaultMasterDB1
+guzz.IP=localhost
+guzz.maxLoad=120
+driverClass=com.mysql.jdbc.Driver
+jdbcUrl=jdbc:mysql://localhost:3306/mb_main?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+user=root
+password=root
+acquireIncrement=10
+idleConnectionTestPeriod=60
+
+[slaveDB]
+guzz.identifer=defaultSlaveDB1
+guzz.IP=localhost
+guzz.maxLoad=80
+driverClass=com.mysql.jdbc.Driver
+jdbcUrl=jdbc:mysql://localhost:3306/mb_main?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+user=root
+password=root
+acquireIncrement=10
+idleConnectionTestPeriod=60
+ 
+#debug settings
+[guzzDebug]
+#runMode=debug/production
+runMode=debug
+#onError=halt/log/ignore
+onError=halt
+printSQL=true
+printSQLParams=true
+ignoreDemonThreadSQL=true
+#print out how many nano-seconds a sql takes to execute.
+measureTime=true
+#only print out slow sqls that takes over xxx mill-seconds to execute. 0 means print out all.
+onlySlowSQLInMillSeconds=0
+
+############################### fundamental services #####################
+ 
+}}}
+
+至此，即完成了读写分离的配置。系统启动后，将创建两个连接池，上面留言读取的g:page将自动从slave数据库连接操作。在调用guzz持久化API时，所有选择允许延迟的读操作也将从slave连接池操作。
+
+== 实现1个多用户留言板 ==
+
