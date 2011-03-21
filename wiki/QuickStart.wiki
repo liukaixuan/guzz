@@ -282,7 +282,7 @@ create table tb_message(
 		}
 
 	}
-}}
+}}}
 
 修改/WebRoot/WEB-INF/dispatcher-servlet.xml文件，增加springMVC映射bean：
 {{{	
