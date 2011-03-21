@@ -291,7 +291,7 @@ create table tb_message(
 	</bean>
 }}}
 
-部署程序，启动Tomcat6，访问：http://localhost:8080/guzz/messageList.jsp，输入留言“I am the first message. What about you?”，提交。
+部署程序，启动Tomcat6，访问：http://localhost:8080/guzz/messageList.jsp ，输入留言“I am the first message. What about you?”，提交。
 
 打开数据tb_message表，可以看到1条记录已经成功插入。
 
@@ -351,7 +351,8 @@ create table tb_message(
 	{{{<g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />}}} 
 根据当前传入的页码查询message，并按照id desc排序。然后我们用1个c:forEach循环，打印出结果。用m_messages.index打印出当前记录从1开始的排序位置，用g:out标签打印出允许html元素但不允许script执行的正文。最后引用通用的分页文件 /WEB-INF/jsp/include/console_flip.jsp 显示分页情况。
 
-再次访问：http://localhost:8080/guzz/messageList.jsp，可以看到分页显示的留言列表。
+再次访问：http://localhost:8080/guzz/messageList.jsp ，可以看到分页显示的留言列表如下：
+<img src="http://guzz.googlecode.com/svn/wiki/no-wikis/messageList.png" />
 
 == 实现读写分离（启用第2台数据库）==
 
