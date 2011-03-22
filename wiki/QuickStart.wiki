@@ -8,7 +8,7 @@
 
 == 教程目录大纲  ==
 
- * 1. 什么guzz？什么时候用？
+ * 1. 什么是guzz？什么时候用？
 
  * 2. 准备环境
 
@@ -32,11 +32,11 @@
 
  * 12. 留言最多的用户排行榜（云服务）
 
-== 什么guzz？什么时候用？  ==
+== 什么是guzz？什么时候用？  ==
 
  guzz[ˈɡuzi]念做谷子。稻谷的谷，意为种子，谷物等。
 
- guzz和hibernate，ibatis同属于数据持久层框架，在应用架构上用于代替hibernate或者ibatis。 传统的ssh（spring + struts + hibernate）程序基于guzz架构后就是ssg（spring + struts + guzz）。同时guzz可以和hibernate/ibatis并存，同时使用。
+ guzz和hibernate，ibatis同属于数据持久层框架，在应用架构上用于代替hibernate或者ibatis。 传统的ssh（spring + struts + hibernate）程序基于guzz架构后就是ssg（spring + struts + guzz）。同时guzz也可以和hibernate/ibatis并存，同时使用。
 
  guzz适合于大型系统使用，包括访问量较大的系统和数据量较大的系统。当你的程序需要同时使用多台数据库，或者存在大表需要分切成小表时，guzz是目前通用持久层框架中最好的选择。guzz提供了面向未来的配置化分表，多库，表分切，读写分离，以及多台数据库之间透明的分布式事务支持，使得多数据库编程和普通编程一样简单，对开发者透明。
  
@@ -750,7 +750,7 @@ alter table tb_message_4 modify column id int(11) not null auto_increment primar
 drop table tb_message ;
 }}}
 
-为了让guzz知道表分切规则，修改Message.hbm.xml映射文件，在class元素中增加属性 shadow="example.business.MessageShadowTableView" ，同时将dtd定义改成guzz的。修改的文件为：
+为了让guzz知道表分切规则，修改Message.hbm.xml映射文件，在class元素中增加属性 shadow="example.business.MessageShadowTableView" ，同时将dtd定义改成guzz的。修改后的文件为：
 {{{
 <?xml version="1.0"?>
 <!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
@@ -863,3 +863,610 @@ public class MessageVirtualDBView extends AbstractVirtualDBView {
 }}}
 
 重新部署并启动应用。此时的留言板将自动将lucy的留言存储到mb_main，其他人的留言存储到mb_user库中。完成分布式切表。
+
+*注意：* 1. 上面的留言切表后没有为小表创建索引，真实环境下注意创建。2. 上面例子中的sql语句通过db.table的方式操作数据库，mysql主从复制可能会忽略这类操作的复制，如果从库没有执行，需要手工在从库执行sql。下同。
+
+== 用计数器服务实现支持投票（启用第3组，第5台数据库） ==
+ 
+ === 实现投票功能 ===
+
+ 随着留言板应用的深入，用户希望能够对留言进行投票，像digg一样支持优秀的留言。我们需要给留言增加vote功能。Vote分为支持和反对，支持增加10分，反对减少8分。在Message中增加一个voteScore记录得票的总分数。我们给Message.java对象和对应的hbm.xml文件增加3个int类型属性：
+ {{{
+	
+	private int voteYes ;
+	
+	private int voteNo ;
+	
+	private int voteScore ;
+
+ }}}
+
+调整数据库表结构，增加3个字段：
+{{{
+alter table mb_main.tb_message_1 add column voteYes int(11) default 0 ;
+alter table mb_main.tb_message_1 add column voteNo int(11) default 0 ;
+alter table mb_main.tb_message_1 add column voteScore int(11) default 0 ;
+
+alter table mb_user.tb_message_2 add column voteYes int(11) default 0 ;
+alter table mb_user.tb_message_2 add column voteNo int(11) default 0 ;
+alter table mb_user.tb_message_2 add column voteScore int(11) default 0 ;
+
+alter table mb_user.tb_message_3 add column voteYes int(11) default 0 ;
+alter table mb_user.tb_message_3 add column voteNo int(11) default 0 ;
+alter table mb_user.tb_message_3 add column voteScore int(11) default 0 ;
+
+alter table mb_user.tb_message_4 add column voteYes int(11) default 0 ;
+alter table mb_user.tb_message_4 add column voteNo int(11) default 0 ;
+alter table mb_user.tb_message_4 add column voteScore int(11) default 0 ;
+}}}
+
+我们增加一个action处理投票操作，example.view.action.VoteMessageAction.java：
+{{{
+package example.view.action;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.guzz.Guzz;
+import org.guzz.GuzzContext;
+import org.guzz.transaction.WriteTranSession;
+import org.guzz.util.Assert;
+import org.guzz.util.RequestUtil;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import example.business.Message;
+
+public class VoteMessageAction implements Controller {
+	
+	private GuzzContext guzzContext ;
+
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		int userId = RequestUtil.getParameterAsInt(request, "userId", 0) ;
+		int msgId = RequestUtil.getParameterAsInt(request, "msgId", 0) ;
+		String type = request.getParameter("type") ;
+
+		//auto-commit
+		WriteTranSession write = guzzContext.getTransactionManager().openRWTran(true) ;
+		
+		try{
+			//set tableCondition
+			Guzz.setTableCondition(userId) ;
+			Message msg = (Message) write.findObjectByPK(Message.class, msgId) ;
+			Assert.assertNotNull(msg, "msg not found!") ;
+			
+			if("yes".equals(type)){
+				msg.setVoteYes(msg.getVoteYes() + 1) ;
+				msg.setVoteScore(msg.getVoteScore() + 10) ;
+			}else{
+				msg.setVoteNo(msg.getVoteNo() + 1) ;
+				msg.setVoteScore(msg.getVoteScore() - 8) ;
+			}
+			
+			write.update(msg) ;
+		}finally{
+			write.close() ;
+		}
+		
+		return new ModelAndView("redirect:/messageList.jsp", "userId", userId);
+	}
+
+	public GuzzContext getGuzzContext() {
+		return guzzContext;
+	}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		this.guzzContext = guzzContext;
+	}
+
+}
+}}}
+
+在这个Action中，我们通过 Guzz.setTableCondition(userId) 设置当前线程所有数据库操作默认的分表条件，然后获取要投票的留言，增加计数后更新。
+
+将这个Action的配置添加到dispatcher-servlet.xml中：
+{{{	
+	<bean name="/voteMessage.do" class="example.view.action.VoteMessageAction">
+		<property name="guzzContext" ref="guzzContext" />
+	</bean>
+}}}
+
+修改 messageList.jsp ，列出投票数和投票地址。
+{{{
+<%@ page language="java" pageEncoding="UTF-8"%>
+<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+
+<g:get business="user" var="m_user" limit="id=${param.userId}" />
+
+<g:boundary>
+	<g:addLimit limit="userId=${m_user.id}" />
+	<g:page business="message" var="m_messages" tableCondition="${m_user.id}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
+</g:boundary>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>    
+    <title>${m_user.userName}'s Message List</title>
+  </head>
+  
+  <body>  	 
+  	Leave a message:<br>
+  	
+  	<form method="POST" action="./newMessage.do">
+  		<input type="hidden" name="userId" value="${m_user.id}" />
+  		
+  		<textarea name="content" cols="80" rows="10"></textarea>
+  		
+  		<br/>
+  		<input type="submit" />
+  	</form>
+  	
+  	<hr>
+  	<table width="96%" border="1">
+  		<tr>
+  			<th>No.</th>
+  			<th>Vote</th>
+  			<th>Content</th>
+  			<th>Date</th>
+  		</tr>
+  		
+  		<c:forEach items="${m_messages.elements}" var="m_msg">
+  		<tr>
+  			<td>${m_messages.index}</td>
+  			<td>
+  				voteYes: <a href="./voteMessage.do?type=yes&userId=${m_msg.userId}&msgId=${m_msg.id}">${m_msg.voteYes}</a><br>
+  				voteNo: <a href="./voteMessage.do?type=no&userId=${m_msg.userId}&msgId=${m_msg.id}">${m_msg.voteNo}</a><br>
+  				voteScore: ${m_msg.voteScore}
+  			</td>
+  			<td>vote<g:out value="${m_msg.content}" escapeXml="false" escapeScriptCode="true" /></td>
+  			<td>${m_msg.createdTime}</td>
+  		</tr>
+  		</c:forEach>
+  	</table>
+  	
+  	<table width="96%" border="1">
+  		<tr>
+  			<c:import url="/WEB-INF/jsp/include/console_flip.jsp" />
+  		</tr>
+  	</table>
+  	
+  </body>
+</html>
+}}}
+
+重新并重启应用，现在投票功能就可以使用了。
+
+=== SlowUpdateService（使用第5台数据库） ===
+
+虽然投票功能有了，但刚上线就发现了另外一个问题：投票的量太多。每次投票都需要进行一次数据库update操作，频繁的update操作对数据库的消耗太大。
+
+我们希望将投票操作队列化，最好能够合并对同1条记录的多个update操作，然后用批操作的方式写入数据库，最大程度的减少数据库消耗。而不要每次都单独update。
+
+这种场景出现的比较多，因此guzz内置了SlowUpdateService服务来完成这种队列化计数更新操作。详细的配置参数和工作原理，请参看：[AppendCoreService]
+
+下面我们开始配置。为了减少对主库的影响，计数对列我们存储在第5台临时数据库中。创建数据库mb_temp，并创建计数队列存储的表tb_guzz_su：
+{{{
+create database mb_temp default character set utf8 ;
+
+use mb_temp ;
+
+create table tb_guzz_su(
+	gu_id bigint not null auto_increment primary key, 
+	gu_db_group varchar(32) not null, 
+	gu_tab_name varchar(64) not null, 
+	gu_inc_col varchar(64) not null ,
+	gu_tab_pk_col varchar(64) not null,
+	gu_tab_pk_val varchar(64) not null ,
+	gu_inc_count int(11) not null
+)engine=Innodb ;
+}}}
+
+在guzz.xml中增加mb_temp对应的数据库组tempDB，并增加临时表对应域对象的定义：
+{{{
+<tran>
+		....
+		<dbgroup name="tempDB" masterDBConfigName="tempMasterDB" />
+		....
+</tran>
+
+<business dbgroup="tempDB" name="guzzSlowUpdate" file="classpath:example/business/IncUpdateBusiness.hbm.xml" />
+}}}
+
+将工程src中的 fms/business/IncUpdateBusiness.hbm.xml 挪到 example/business/ 下。fms/business目录可以删掉。
+
+默认的 SlowUpdateService 服务为guzz内置服务。guzz在启动时会自动创建此服务，名为guzzSlowUpdate，配置组的名称也为guzzSlowUpdate。修改messageBoard.properties主配置文件，增加此服务配置信息，同时增加tempDB数据库组主数据库的连接池配置：
+{{{
+[tempMasterDB]
+guzz.identifer=tempMasterDB1
+guzz.IP=localhost
+guzz.maxLoad=120
+driverClass=com.mysql.jdbc.Driver
+jdbcUrl=jdbc:mysql://localhost:3306/mb_temp?useUnicode=true&amp;characterEncoding=UTF-8&amp;useServerPrepStmts=true
+user=root
+password=root
+acquireIncrement=10
+idleConnectionTestPeriod=60
+
+[guzzSlowUpdate]
+#max size of cached queue
+queueSize=20480
+
+#batch size for updating to the temporary database.
+batchSize=2048
+}}}
+
+至此，计数队列的配置完成。为了方便spring使用，我们将此服务导出为spring bean，在applicationContext.xml中添加bean：
+{{{
+    <bean id="guzzSlowUpdateService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean"> 
+        <property name="serviceName" value="guzzSlowUpdate" /> 
+    </bean>
+}}}
+
+修改 VoteMessageAction.java 使用计数器服务：
+{{{
+package example.view.action;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.guzz.service.core.SlowUpdateService;
+import org.guzz.util.RequestUtil;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import example.business.Message;
+
+public class VoteMessageAction implements Controller {
+	
+	private SlowUpdateService slowUpdateService ;
+
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		int userId = RequestUtil.getParameterAsInt(request, "userId", 0) ;
+		int msgId = RequestUtil.getParameterAsInt(request, "msgId", 0) ;
+		String type = request.getParameter("type") ;
+
+		if("yes".equals(type)){
+			//public void updateCount(Class domainClass, Object tableCondition, String propToUpdate, Serializable pkValue, int countToInc) ;
+			this.slowUpdateService.updateCount(Message.class, userId, "voteYes", msgId, 1) ;
+			this.slowUpdateService.updateCount(Message.class, userId, "voteScore", msgId, 10) ;
+		}else{
+			this.slowUpdateService.updateCount(Message.class, userId, "voteNo", msgId, 1) ;
+			this.slowUpdateService.updateCount(Message.class, userId, "voteScore", msgId, -8) ;
+		}
+		
+		return new ModelAndView("redirect:/messageList.jsp", "userId", userId);
+	}
+
+	public SlowUpdateService getSlowUpdateService() {
+		return slowUpdateService;
+	}
+
+	public void setSlowUpdateService(SlowUpdateService slowUpdateService) {
+		this.slowUpdateService = slowUpdateService;
+	}
+
+}
+}}}
+
+在新的Action中，不在直接操作数据库，而是调用updateCount将计数操作写入队列。
+
+修改 dispatcher-servlet.xml ，在bean：/voteMessage.do 中注入guzzSlowUpdateService：
+{{{
+<bean name="/voteMessage.do" class="example.view.action.VoteMessageAction">
+	<property name="slowUpdateService" ref="guzzSlowUpdateService" />
+</bean>
+}}}
+
+重新部署并启动应用。投票。此时票数没有变化，没有关系，打开mb_temp数据库的tb_guzz_su表，可以看到计数操作已经成功写入到了队列中。
+
+=== SlowUpdateServerService ===
+
+为了将计数队列的数据写回各个表对应的主库，还需要启动计数队列服务的服务器端。修改guzz.xml文件，添加服务器端服务：
+{{{<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />}}}
+
+修改messageBoard.properties文件，添加slowUpdateServer服务的详细配置信息：
+{{{
+[guzzSlowUpdateServer]
+#batch size for updating the main database
+batchSize=50
+
+#page size for reading from the temporary table
+pageSize=40
+
+#how many pages to read from the temporary table for one loop updating
+combinePageCount=10
+
+#millseconds to wait for the next round of updates checking
+updateInterval=500
+}}}
+
+重新部署并启动应用。查看tb_guzz_su表，队列已经被处理，访问：http://localhost:8080/guzz/messageList.jsp?userId=1 ，看到计数已经正确更新了。
+
+
+== 删除留言，批量删除留言 ==
+
+=== 单条留言删除 ===
+
+创建删除留言的Action：example.view.action.DeleteMessageAction.java：
+{{{
+package example.view.action;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.guzz.Guzz;
+import org.guzz.GuzzContext;
+import org.guzz.service.core.SlowUpdateService;
+import org.guzz.transaction.WriteTranSession;
+import org.guzz.util.RequestUtil;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import example.business.Message;
+import example.business.User;
+
+public class DeleteMessageAction implements Controller {
+	
+	private GuzzContext guzzContext ;
+	
+	private SlowUpdateService slowUpdateService ;
+
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		int userId = RequestUtil.getParameterAsInt(request, "userId", 0) ;
+		int msgId = RequestUtil.getParameterAsInt(request, "msgId", 0) ;
+		
+		//auto-commit
+		WriteTranSession write = guzzContext.getTransactionManager().openRWTran(true) ;
+		
+		try{
+			Guzz.setTableCondition(userId) ;
+			Message msg = (Message) write.findObjectByPK(Message.class, msgId) ;
+			
+			if(msg != null){
+				write.delete(msg) ;
+				
+				//dec the message count
+				this.slowUpdateService.updateCount(User.class, null, "messageCount", userId, -1) ;
+			}
+		}finally{
+			write.close() ;
+		}
+		
+		return new ModelAndView("redirect:/messageList.jsp", "userId", userId);
+	}
+
+	public GuzzContext getGuzzContext() {
+		return guzzContext;
+	}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		this.guzzContext = guzzContext;
+	}
+
+	public SlowUpdateService getSlowUpdateService() {
+		return slowUpdateService;
+	}
+
+	public void setSlowUpdateService(SlowUpdateService slowUpdateService) {
+		this.slowUpdateService = slowUpdateService;
+	}
+
+}
+}}}
+
+配置到 dispatcher-servlet.xml 中：
+{{{
+<bean name="/deleteMessage.do" class="example.view.action.DeleteMessageAction">
+	<property name="guzzContext" ref="guzzContext" />
+	<property name="slowUpdateService" ref="guzzSlowUpdateService" />
+</bean>
+}}}
+
+修改 messageList.jsp，增加delete链接到 ./deleteMessage.do?userId=${m_msg.userId}&msgId=${m_msg.id} 即可删除消息。在消息删除时，我们同时用slowUpdateService减少用户的留言数。
+
+=== 批量删除 === 
+
+我们在 messageList.jsp 中增加一个Form表单，提交表单时提交所有选择的留言编号，服务器端根据编号批量删除。messageList.jsp:
+{{{
+<%@ page language="java" pageEncoding="UTF-8"%>
+<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+
+<g:get business="user" var="m_user" limit="id=${param.userId}" />
+
+<g:boundary>
+	<g:addLimit limit="userId=${m_user.id}" />
+	<g:page business="message" var="m_messages" tableCondition="${m_user.id}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
+</g:boundary>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>    
+    <title>${m_user.userName}'s Message List</title>
+  </head>
+  
+  <body>  	  
+  	Leave a message:<br>
+  	
+  	<form method="POST" action="./newMessage.do">
+  		<input type="hidden" name="userId" value="${m_user.id}" />
+  		
+  		<textarea name="content" cols="80" rows="10"></textarea>
+  		
+  		<br/>
+  		<input type="submit" />
+  	</form>
+  	
+  	<hr>
+  	<form method="POST" action="./deleteMessage.do">
+  		<input type="hidden" name="userId" value="${m_user.id}" />
+  		
+	  	<table width="96%" border="1">
+	  		<tr>
+	  			<th>No.</th>
+	  			<th>Vote</th>
+	  			<th>Content</th>
+	  			<th>Date</th>
+	  			<th>OP</th>
+	  		</tr>
+	  		
+	  		<c:forEach items="${m_messages.elements}" var="m_msg">
+	  		<tr>
+	  			<td><input type="checkbox" name="ids" value="${m_msg.id}" />${m_messages.index}</td>
+	  			<td>
+	  				voteYes: <a href="./voteMessage.do?type=yes&userId=${m_msg.userId}&msgId=${m_msg.id}">${m_msg.voteYes}</a><br>
+	  				voteNo: <a href="./voteMessage.do?type=no&userId=${m_msg.userId}&msgId=${m_msg.id}">${m_msg.voteNo}</a><br>
+	  				voteScore: ${m_msg.voteScore}
+	  			</td>
+	  			<td>vote<g:out value="${m_msg.content}" escapeXml="false" escapeScriptCode="true" /></td>
+	  			<td>${m_msg.createdTime}</td>
+	  			<td><a href="./deleteMessage.do?userId=${m_msg.userId}&msgId=${m_msg.id}">Delete</a></td>
+	  		</tr>
+	  		</c:forEach>
+	  	</table>	  	
+	  	<table width="96%" border="1">
+	  		<tr>
+	  			<c:import url="/WEB-INF/jsp/include/console_flip.jsp" />
+	  		</tr>
+	  	</table>
+	  	
+	  	<table width="96%" border="1">
+	  		<tr>
+	  			<td><input type="submit" value="Delete All Selected Messages" /></td>
+	  		</tr>
+	  	</table>	
+  	</form>
+  	
+  </body>
+</html>
+}}}
+
+批量删除我们依然提交到 deleteMessage.do 中，只是采用POST方法提交。修改 DeleteMessageAction.java 以支持批量操作：
+{{{
+package example.view.action;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.guzz.Guzz;
+import org.guzz.GuzzContext;
+import org.guzz.jdbc.ObjectBatcher;
+import org.guzz.orm.se.SearchExpression;
+import org.guzz.orm.se.Terms;
+import org.guzz.service.core.SlowUpdateService;
+import org.guzz.transaction.ReadonlyTranSession;
+import org.guzz.transaction.WriteTranSession;
+import org.guzz.util.RequestUtil;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import example.business.Message;
+import example.business.User;
+
+public class DeleteMessageAction implements Controller {
+	
+	private GuzzContext guzzContext ;
+	
+	private SlowUpdateService slowUpdateService ;
+
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		int userId = RequestUtil.getParameterAsInt(request, "userId", 0) ;
+		
+		if("POST".equals(request.getMethod())){//Batch delete
+			int[] ids = RequestUtil.getParameterAsIntArray(request, "ids", 0) ;
+			
+			if(ids.length == 0){
+				return new ModelAndView("redirect:/messageList.jsp", "userId", userId);
+			}
+
+			List<Message> msgs = null ;
+			
+			//load the Messages to delete.
+			SearchExpression se = SearchExpression.forLoadAll(Message.class) ;
+			se.setTableCondition(userId) ;
+			se.and(Terms.in("id", ids)) ;
+			
+			//read from slave db.
+			ReadonlyTranSession read = guzzContext.getTransactionManager().openDelayReadTran() ;
+			try{
+				msgs = read.list(se) ;
+			}finally{
+				read.close() ;
+			}
+			
+			//Open write connections to the master db.
+			WriteTranSession write = guzzContext.getTransactionManager().openRWTran(false) ;
+			try{
+				//Perform Batch operation.
+				ObjectBatcher batcher = write.createObjectBatcher() ;
+				batcher.setTableCondition(userId) ;
+			
+				for(Message msg : msgs){
+					batcher.delete(msg) ;					
+				}
+				
+				batcher.executeUpdate() ;
+				
+				write.commit() ;
+			}catch(Exception e){
+				write.rollback() ;
+				
+				throw e ;
+			}finally{
+				write.close() ;
+			}
+			
+			//dec the message count
+			this.slowUpdateService.updateCount(User.class, null, "messageCount", userId, -msgs.size()) ;
+		}else{
+			//Delete one message
+			int msgId = RequestUtil.getParameterAsInt(request, "msgId", 0) ;
+			
+			//auto-commit
+			WriteTranSession write = guzzContext.getTransactionManager().openRWTran(true) ;
+			
+			try{
+				Guzz.setTableCondition(userId) ;
+				Message msg = (Message) write.findObjectByPK(Message.class, msgId) ;
+				
+				if(msg != null){
+					write.delete(msg) ;
+					
+					//dec the message count
+					this.slowUpdateService.updateCount(User.class, null, "messageCount", userId, -1) ;
+				}
+			}finally{
+				write.close() ;
+			}
+		}
+		
+		return new ModelAndView("redirect:/messageList.jsp", "userId", userId);
+	}
+
+	public GuzzContext getGuzzContext() {
+		return guzzContext;
+	}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		this.guzzContext = guzzContext;
+	}
+
+	public SlowUpdateService getSlowUpdateService() {
+		return slowUpdateService;
+	}
+
+	public void setSlowUpdateService(SlowUpdateService slowUpdateService) {
+		this.slowUpdateService = slowUpdateService;
+	}
+
+}
+}}}
+
+对于POST提交的批量操作，我们获取所有提交的消息编号数组，通过 SearchExpression 查询符合的留言，创建批操作一次删除。guzz提供了两种批操作API，一种为基于对象化操作的 ObjectBatcher ，一种为基于直接SQL语句的SQLBatcher。本例子使用的是 ObjectBatcher 。
+
+
+== 留言最多的用户排行榜（云服务） ==
+
+继续ing……
+
