@@ -9,7 +9,7 @@
 
 = 教程目录大纲  =
 
-<wiki:toc max_depth="3" />
+<wiki:toc max_depth="2" />
 
 
 = 什么是guzz？什么时候用？  =
@@ -1026,7 +1026,7 @@ public class VoteMessageAction implements Controller {
 
 重新并重启应用，现在投票功能就可以使用了。
 
-== SlowUpdateService（使用第5台数据库） ==
+== !SlowUpdateService（使用第5台数据库） ==
 
 虽然投票功能有了，但刚上线就发现了另外一个问题：投票的量太多。每次投票都需要进行一次数据库update操作，频繁的update操作对数据库的消耗太大。
 
@@ -1149,7 +1149,7 @@ public class VoteMessageAction implements Controller {
 
 重新部署并启动应用。投票。此时票数没有变化，没有关系，打开mb_temp数据库的tb_guzz_su表，可以看到计数操作已经成功写入到了队列中。
 
-== SlowUpdateServerService ==
+== !SlowUpdateServerService ==
 
 为了将计数队列的数据写回各个表对应的主库，还需要启动计数队列服务的服务器端。修改guzz.xml文件，添加服务器端服务：
 {{{<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />}}}
