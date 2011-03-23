@@ -4,6 +4,7 @@
 
 您可以一边看一边跟着做。在实际的教程做，只需要1台数据库用来模拟。
 
+
 本教程将教会你：如何创建guzz项目，如何用guzz添加数据库记录，如何实现读写分离，如何进行多数据库之间分表、切表、分布式切表等，并对“服务”有个概念。
 
 
@@ -188,7 +189,7 @@ onlySlowSQLInMillSeconds=0
 
 }}}
 
-打开 /WebRoot/WEB-INF/applicationContext.xml，删除bean:logService。
+打开 /WebRoot/WEB-INF/applicationContext.xml，删除bean:insertQueueService 。
 
 部署工程到Tomcat6上，然后启动。如果没有错误，则配置已经成功。如果报错，请检查数据库是否给予了访问授权等。
 
@@ -200,7 +201,7 @@ onlySlowSQLInMillSeconds=0
 
 在/WebRoot/下创建jsp文件：messagesList.jsp，用于显示留言填写表单，内容如下：
 {{{
-<%@ page language="java" pageEncoding="UTF-8"%>
+<%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -285,7 +286,7 @@ public class NewMessageAction implements Controller {
 
 我们在messageList.jsp中列出所有发表的留言，每页30条，分页显示。对于数据库简单的读操作，我们使用guzz taglib实现。新的 messageList.jsp 内容如下；
 {{{
-<%@ page language="java" pageEncoding="UTF-8"%>
+<%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
 <g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
 
@@ -334,7 +335,9 @@ public class NewMessageAction implements Controller {
 }}}
 
 在这个jsp中，
-{{{<g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />}}} 
+{{{
+<g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
+}}} 
 根据当前传入的页码查询message，并按照id desc排序。然后我们用1个c:forEach循环，打印出结果。用m_messages.index打印出当前记录从1开始的排序位置，用g:out标签打印出允许html元素但不允许script执行的正文。最后引用通用的分页文件 /WEB-INF/jsp/include/console_flip.jsp 显示分页情况。
 
 再次访问：http://localhost:8080/guzz/messageList.jsp ，可以看到分页显示的留言列表了：
@@ -344,10 +347,14 @@ public class NewMessageAction implements Controller {
 = 实现读写分离（启用第2台数据库）=
 
 如果你有多台数据库，创建mb_main数据库的从库（具体可参看[http://guzz.javaeye.com/blog/366508]）。修改guzz.xml的
-{{{<dbgroup name="default" masterDBConfigName="masterDB" />}}}
+{{{
+<dbgroup name="default" masterDBConfigName="masterDB" />
+}}}
 
 增加从数据库配置属性slaveDBConfigName，我们设置值为slaveDB。如下：
-{{{<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />}}}
+{{{
+<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />
+}}}
 
 在messageBoard.properties文件增加slaveDB配置项的具体信息，如下：
 {{{
@@ -567,7 +574,7 @@ update tb_user set messageCount = (select count(*) from tb_message) where id = 1
 
 由于是多用户留言板，因此 messageList.jsp 中我们需要增加一个参数用来区分用户。此参数定义为userId。无论是访问留言板，还是发表留言，我们都用userId标记当前留言板所属用户。修改 messageList.jsp 增加对userId参数的支持：
 {{{
-<%@ page language="java" pageEncoding="UTF-8"%>
+<%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
 <g:get business="user" var="m_user" limit="id=${param.userId}" />
 
@@ -963,7 +970,7 @@ public class VoteMessageAction implements Controller {
 
 修改 messageList.jsp ，列出投票数和投票地址：
 {{{
-<%@ page language="java" pageEncoding="UTF-8"%>
+<%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
 
 <g:get business="user" var="m_user" limit="id=${param.userId}" />
@@ -1454,3 +1461,9 @@ public class DeleteMessageAction implements Controller {
 }}}
 
 对于POST提交的批量操作，我们获取所有提交的消息编号数组，通过 SearchExpression 查询符合的留言，创建批操作一次删除。guzz提供了两种批操作API，一种为基于对象化操作的 ObjectBatcher ，一种为基于直接SQL语句的SQLBatcher。本例子使用的是 ObjectBatcher 。
+
+= 附录与代码 =
+
+最终完成的工程代码：[http://guzz.googlecode.com/svn/wiki/no-wikis/MessageBoard.zip]（大小：31K）
+
+工程代码中不包含/WebRoot/WEB-INF/lib/下所依赖的jar包。
