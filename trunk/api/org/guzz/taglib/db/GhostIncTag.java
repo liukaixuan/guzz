@@ -45,7 +45,7 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 	
 	private String updatePropName ;
 		
-	private Serializable pkValue ;
+	private Object pkValue ;
 	
 	protected GuzzContext guzzContext ;
 	
@@ -78,7 +78,7 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 //			throw new JspException("unknown property:[" + updatePropName + "], business name:[" + ghostName + "]") ;
 //		}
 		
-		this.slowUpdateService.updateCount(ghostName, getTableCondition(), updatePropName, pkValue, count) ;
+		this.slowUpdateService.updateCount(ghostName, getTableCondition(), updatePropName, pkValue.toString(), count) ;
 		
 //		this.slowUpdateService.updateCount(mapping.getTable(), columnToUpdate, pkValue, count) ;
 		
@@ -129,11 +129,11 @@ public class GhostIncTag extends TagSupport implements TryCatchFinally{
 		}
 	}
 
-	public Serializable getPkValue() {
+	public Object getPkValue() {
 		return pkValue;
 	}
 
-	public void setPkValue(Serializable pkValue) {
+	public void setPkValue(Object pkValue) {
 		this.pkValue = pkValue;
 	}
 

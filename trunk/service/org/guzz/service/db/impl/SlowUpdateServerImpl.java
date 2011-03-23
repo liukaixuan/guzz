@@ -161,6 +161,7 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 		protected boolean doWithTheQueue() throws SQLException{
 			if(updateExceptionHandlerService != null && !((Service) updateExceptionHandlerService).isAvailable() ){
 				//updateExceptionHandlerService is defined, but not available. wait for it.
+				log.warn("updateExceptionHandlerService is not available yet.") ;
 				return false ;
 			}
 			
