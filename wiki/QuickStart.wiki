@@ -1,4 +1,4 @@
-== Guzz入门教程 ==
+= Guzz入门教程 =
 
 在本教程中，我们将手把手的演示如何使用guzz，编写一个可以并行使用5台甚至更多数据库的留言板系统。
 
@@ -7,45 +7,25 @@
 本教程将教会你：如何创建guzz项目，如何用guzz添加数据库记录，如何实现读写分离，如何进行多数据库之间分表、切表、分布式切表等，并对“服务”有个概念。
 
 
-== 教程目录大纲  ==
+= 教程目录大纲  =
 
- * 1. 什么是guzz？什么时候用？
-
- * 2. 准备开发环境
-
- * 3. 创建MessageBoard工程
-
- * 4. 配置工程，插入第1条留言
-
- * 5. 实现读写分离（启用第2台数据库）
-
- * 6. 实现1个多用户留言板
-
- * 7. 使用第2组数据库（启用第3、4台数据库）
-
- * 8. 将留言表分切成小表
-
- * 9. 分布式切表以应对超级大表
-
- * 10. 让留言可以投票（启用第3组，第5台数据库）
-
- * 11. 删除留言，批量删除留言。
+<wiki:toc max_depth="3" />
 
 
-== 什么是guzz？什么时候用？  ==
+= 什么是guzz？什么时候用？  =
 
 guzz[ˈɡuzi]念做谷子。稻谷的谷，意为种子、谷物等。
 
 guzz和hibernate，ibatis同属于数据持久层框架，在应用架构上用于代替hibernate或者ibatis。使用guzz后，传统的ssh（spring + struts + hibernate）程序就变成了ssg（spring + struts + guzz）。同时guzz也可以和hibernate/ibatis并存，同时使用。
 
 guzz适合于大型系统使用，包括访问量较大的系统和数据量较大的系统。当你的程序需要同时使用多台数据库，或者存在大表需要分切成小表时，guzz是目前通用持久层框架中最好的选择。guzz提供了面向未来的配置化分表、多库、表分切、读写分离，以及多台数据库之间透明的分布式事务支持等特性，使得多数据库编程和普通编程一样简单，对开发者透明。
- 
+
 同时guzz提供一些服务定义，帮助团队从零开始创建云服务计算平台。如果您计划将多个系统间的通用计算（功能）做成服务，并且还没有动手，guzz service将是个很好的起步点。
 
 guzz框架免费开源，项目地址：[http://code.google.com/p/guzz/]
 
 
-== 准备开发环境  ==
+= 准备开发环境  =
 
 在本教程中，我们使用MyEclipse IDE做开发演示。留言板将运行在1台Mysql5.0 + 1台Tomcat6上。因此您只需要自己的开发机器就可以跟上。
 
@@ -54,7 +34,7 @@ guzz框架免费开源，项目地址：[http://code.google.com/p/guzz/]
 虽然教程中只有1台数据库，但效果一样。你可以更清楚的看到，guzz使用多台数据库还是只用1台数据库，对开发者基本透明。
 
 
-== 创建MessageBoard工程  ==
+= 创建MessageBoard工程  =
 
 我们基于 springIOC + springMVC + guzz 架构创建留言板，因此先从guzz网站下载提供的空工程 a empty sample project buildxxxxxxx.zip ：[http://code.google.com/p/guzz/downloads/list]
 
@@ -67,9 +47,9 @@ guzz框架免费开源，项目地址：[http://code.google.com/p/guzz/]
 修改 /WebRoot/WEB-INF/ 下的 fms.properties 为 messageBoard.properties ，这个为我们的主配置文件。
 
 
-== 配置工程，插入第1条留言 ==
+= 配置工程，插入第1条留言 =
 
-==== 配置工程 ====
+== 配置工程 ==
 
 我们定义留言为Message，在src源代码目录下创建域对象example/business/Message.java：
 {{{
@@ -214,7 +194,7 @@ onlySlowSQLInMillSeconds=0
 
 停止tomcat6.
 
-==== 插入留言 ====
+== 插入留言 ==
 
 下面我们开始插入第一条留言。
 
@@ -301,7 +281,7 @@ public class NewMessageAction implements Controller {
 
 打开数据tb_message表，可以看到1条记录已经成功插入。
 
-==== 分页列出发表的留言 ====
+== 分页列出发表的留言 ==
 
 我们在messageList.jsp中列出所有发表的留言，每页30条，分页显示。对于数据库简单的读操作，我们使用guzz taglib实现。新的 messageList.jsp 内容如下；
 {{{
@@ -361,7 +341,7 @@ public class NewMessageAction implements Controller {
 
 <img width="700px" src="http://guzz.googlecode.com/svn/wiki/no-wikis/messageList.png" />
 
-== 实现读写分离（启用第2台数据库）==
+= 实现读写分离（启用第2台数据库）=
 
 如果你有多台数据库，创建mb_main数据库的从库（具体可参看[http://guzz.javaeye.com/blog/366508]）。修改guzz.xml的
 {{{<dbgroup name="default" masterDBConfigName="masterDB" />}}}
@@ -434,7 +414,7 @@ onlySlowSQLInMillSeconds=0
 
 至此，即完成了读写分离的配置。系统启动后，将创建两个连接池，上面留言读取的g:page将自动从slave数据库连接操作。在调用guzz持久化API时，所有选择允许延迟的读操作也将从slave连接池操作。
 
-== 实现1个多用户留言板 ==
+= 实现1个多用户留言板 =
 
 为了实现多用户留言板，首先我们需要增加User域对象。User对象只有三个属性，用户编号、用户名和留言数。创建example.business.User.java:
 {{{
@@ -656,7 +636,7 @@ update tb_user set messageCount = (select count(*) from tb_message) where id = 1
 多用户留言板完成。
 
 
-== 使用2组数据库（启用第3、4台数据库） ==
+= 使用2组数据库（启用第3、4台数据库） =
 
 随着业务的增长我们发现mb_main数据库负载太高，需要将tb_user表挪出去，部署到另外一组数据库中。这组数据库有1台主库（第3台数据库）和1台从库（第4台数据库）。
 
@@ -715,7 +695,7 @@ idleConnectionTestPeriod=60
 *注意：* 1. 通过create table ..select..的方式，索引将不复存在，真实环境下注意重新创建索引。2. 上面例子中的sql语句通过db.table的方式操作数据库，mysql主从复制可能会忽略这类操作的复制；如果从库没有执行，需要手工在从库执行sql。下同。
 
 
-== 将留言表分切成小表 ==
+= 将留言表分切成小表 =
 
 随着业务的进一步发展，很快留言数突破千万，tb_message查询缓慢，已经成为系统的性能瓶颈。我们决定将留言表按照用户分成多张小表。
 
@@ -733,7 +713,7 @@ import org.guzz.orm.AbstractShadowTableView;
 public class MessageShadowTableView extends AbstractShadowTableView {
 
 	public String toTableName(Object tableCondition) {
-		if (tableCondition == null) { // 强制要求必须设置表分切条件，避免编程时疏忽。
+		if (tableCondition = null) { // 强制要求必须设置表分切条件，避免编程时疏忽。
 			throw new GuzzException("null table conditon is not allowed.");
 		}
 
@@ -791,13 +771,13 @@ drop table tb_message ;
 重新部署并启动应用，可以看到我们的留言板已经在4个小表中工作了。
 
 
-== 分布式切表以应对超级大表 ==
+= 分布式切表以应对超级大表 =
 
 随着业务的更进一步发展，我们发现tb_message即使分成了小表，都存储在一台数据库中也过于庞大。在实际的应用中，可能是您的数据已经分切成了上百张表，总量非常大。现在，我们需要将这些分切后的小表，存储到不同的数据库机器中，减少单台数据库数据量过大的问题，同时也减少1台数据库上表的总个数。
 
 为了解决这个问题，guzz提供了分布式切表功能，称作VirtualDB。详细介绍请参看：[TutorialVirtualDB]
 
-为了演示，我们个性化的小表存储规则为：编号为1的用户，留言继续存储在default数据库组中不变（mb_main库中）；其他的存储到userDB中（mb_user库中）。当然在实际系统中，您可能不会这么切分，更可能引入第5、6、7、8甚至更多台的数据库机器。我们只是演示灵活的切分规则。
+为了演示，我们个性化的小表存储规则为：编号为1的用户，留言继续存储在default数据库组中不变（mb_main库中）；其他的存储到userDB中（mb_user库中）。当然在实际系统中，您可能不会这么切分，更可能引入第5、6、7、8甚至更多台的数据库机器。这里只是演示灵活的切分规则。
 
 现在我们开始挪表，把tb_message_2, tb_message_3, tb_message_4从mb_main挪到mb_user中：
 {{{
@@ -824,13 +804,13 @@ import org.guzz.exception.GuzzException;
 public class MessageVirtualDBView extends AbstractVirtualDBView {
     
     public String getPhysicsDBGroupName(Object tableCondition) {
-		if (tableCondition == null) {
+		if (tableCondition = null) {
 			throw new GuzzException("null table conditon is not allowed.");
 		}
 		
 		int userId = (Integer) tableCondition;
 		
-		if(userId == 1){
+		if(userId = 1){
 			 //store lucy's messages in the default database.
 			return "default" ;
 		}else{
@@ -842,7 +822,7 @@ public class MessageVirtualDBView extends AbstractVirtualDBView {
 }
 }}}
 
-为了让 guzz 知道分布式切表，对于每个使用VirtualDB的表，我们需要在guzz.xml中声明一个virtualdbgroup。对于Message，修改guzz.xml，在tran元素下增加virtualdbgroup：
+为了让 guzz 知道分布式切表，对于每个使用VirtualDB的领域对象，我们需要在guzz.xml中声明一个virtualdbgroup。对于Message，修改guzz.xml，在tran元素下增加virtualdbgroup：
 {{{<virtualdbgroup name="messageDB" shadow="example.business.MessageVirtualDBView" />}}}
 
 同时，修改Message领域对象的dbgroup到新的messageDB。修改好的guzz.xml为：
@@ -878,22 +858,20 @@ public class MessageVirtualDBView extends AbstractVirtualDBView {
 重新部署并启动应用。此时的留言板将自动将lucy的留言存储到mb_main，其他人的留言存储到mb_user库中。完成分布式切表。
 
 
-== 用计数器服务实现支持投票（启用第3组，第5台数据库） ==
+= 用计数器服务实现支持投票（启用第3组，第5台数据库） =
  
- === 实现投票功能 ===
+== 实现投票功能 ==
 
- 随着留言板应用的深入，用户希望能够对留言进行投票，像digg一样支持优秀的留言。我们需要给留言增加vote功能。Vote分为支持和反对，支持增加10分，反对减少8分。在Message中增加一个voteScore记录得票的总分数。我们给Message.java对象和对应的hbm.xml文件增加3个int类型属性：
- {{{
-	
-	private int voteYes ;
-	
-	private int voteNo ;
-	
-	private int voteScore ;
+随着留言板应用的深入，用户希望能够对留言进行投票，像digg一样支持优秀的留言。我们需要给留言增加vote功能。Vote分为支持和反对，支持增加10分，反对减少8分。在Message中增加一个voteScore记录得票的总分数。我们给Message.java对象和对应的Message.hbm.xml文件增加3个int类型属性：
+{{{
+private int voteYes ;
 
- }}}
+private int voteNo ;
 
-调整数据库表结构，增加3个字段：
+private int voteScore ;
+}}}
+
+调整数据库表结构，增加这3个字段：
 {{{
 alter table mb_main.tb_message_1 add column voteYes int(11) default 0 ;
 alter table mb_main.tb_message_1 add column voteNo int(11) default 0 ;
@@ -912,7 +890,7 @@ alter table mb_user.tb_message_4 add column voteNo int(11) default 0 ;
 alter table mb_user.tb_message_4 add column voteScore int(11) default 0 ;
 }}}
 
-我们增加一个action处理投票操作，example.view.action.VoteMessageAction.java：
+为支持用户投票，增加一个action处理此操作，example.view.action.VoteMessageAction.java：
 {{{
 package example.view.action;
 
@@ -978,12 +956,12 @@ public class VoteMessageAction implements Controller {
 
 将这个Action的配置添加到dispatcher-servlet.xml中：
 {{{	
-	<bean name="/voteMessage.do" class="example.view.action.VoteMessageAction">
-		<property name="guzzContext" ref="guzzContext" />
-	</bean>
+<bean name="/voteMessage.do" class="example.view.action.VoteMessageAction">
+	<property name="guzzContext" ref="guzzContext" />
+</bean>
 }}}
 
-修改 messageList.jsp ，列出投票数和投票地址。
+修改 messageList.jsp ，列出投票数和投票地址：
 {{{
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -1048,13 +1026,13 @@ public class VoteMessageAction implements Controller {
 
 重新并重启应用，现在投票功能就可以使用了。
 
-=== SlowUpdateService（使用第5台数据库） ===
+== SlowUpdateService（使用第5台数据库） ==
 
 虽然投票功能有了，但刚上线就发现了另外一个问题：投票的量太多。每次投票都需要进行一次数据库update操作，频繁的update操作对数据库的消耗太大。
 
-我们希望将投票操作队列化，最好能够合并对同1条记录的多个update操作，然后用批操作的方式写入数据库，最大程度的减少数据库消耗。而不要每次都单独update。
+我们希望将投票操作队列化，最好能够合并对同1条记录的多个update操作，然后用批操作的方式写入数据库，最大程度的减少数据库消耗，而不要每次都单独update。
 
-这种场景出现的比较多，因此guzz内置了SlowUpdateService服务来完成这种队列化计数更新操作。详细的配置参数和工作原理，请参看：[AppendCoreService]
+这种场景出现的比较多，因此guzz内置了 SlowUpdateService 服务来完成这种队列化计数更新操作。详细的配置参数和工作原理，请参看：[AppendCoreService]
 
 下面我们开始配置。为了减少对主库的影响，计数对列我们存储在第5台临时数据库中。创建数据库mb_temp，并创建计数队列存储的表tb_guzz_su：
 {{{
@@ -1073,7 +1051,7 @@ create table tb_guzz_su(
 )engine=Innodb ;
 }}}
 
-在guzz.xml中增加mb_temp对应的数据库组tempDB，并增加临时表对应域对象的定义：
+在guzz.xml中增加mb_temp对应的数据库组tempDB，并增加临时表对应域对象的声明：
 {{{
 <tran>
 		....
@@ -1084,9 +1062,9 @@ create table tb_guzz_su(
 <business dbgroup="tempDB" name="guzzSlowUpdate" file="classpath:example/business/IncUpdateBusiness.hbm.xml" />
 }}}
 
-将工程src中的 fms/business/IncUpdateBusiness.hbm.xml 挪到 example/business/ 下。fms/business目录可以删掉。
+将工程src中的 fms/business/IncUpdateBusiness.hbm.xml 挪到 example/business/ 下。fms/business目录可以删掉了。
 
-默认的 SlowUpdateService 服务为guzz内置服务。guzz在启动时会自动创建此服务，名为guzzSlowUpdate，配置组的名称也为guzzSlowUpdate。修改messageBoard.properties主配置文件，增加此服务配置信息，同时增加tempDB数据库组主数据库的连接池配置：
+默认的 SlowUpdateService 服务为guzz内置服务。guzz在启动时会自动创建此服务，名称为guzzSlowUpdate，配置组的名称也为guzzSlowUpdate。修改messageBoard.properties主配置文件，增加此服务配置信息，同时增加tempDB数据库组主数据库的连接池配置：
 {{{
 [tempMasterDB]
 guzz.identifer=tempMasterDB1
@@ -1171,7 +1149,7 @@ public class VoteMessageAction implements Controller {
 
 重新部署并启动应用。投票。此时票数没有变化，没有关系，打开mb_temp数据库的tb_guzz_su表，可以看到计数操作已经成功写入到了队列中。
 
-=== SlowUpdateServerService ===
+== SlowUpdateServerService ==
 
 为了将计数队列的数据写回各个表对应的主库，还需要启动计数队列服务的服务器端。修改guzz.xml文件，添加服务器端服务：
 {{{<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />}}}
@@ -1195,9 +1173,9 @@ updateInterval=500
 重新部署并启动应用。查看tb_guzz_su表，队列已经被处理，访问：http://localhost:8080/guzz/messageList.jsp?userId=1 ，看到计数已经正确更新了。
 
 
-== 删除留言，批量删除留言 ==
+= 删除留言，批量删除留言 =
 
-=== 单条留言删除 ===
+== 单条留言删除 ==
 
 创建删除留言的Action：example.view.action.DeleteMessageAction.java：
 {{{
@@ -1276,7 +1254,7 @@ public class DeleteMessageAction implements Controller {
 
 修改 messageList.jsp，增加delete链接到 ./deleteMessage.do?userId=${m_msg.userId}&msgId=${m_msg.id} 即可删除消息。在消息删除时，我们同时用slowUpdateService减少用户的留言数。
 
-=== 批量删除 === 
+== 批量删除 ==
 
 我们在 messageList.jsp 中增加一个Form表单，提交表单时提交所有选择的留言编号，服务器端根据编号批量删除。messageList.jsp:
 {{{
@@ -1388,7 +1366,7 @@ public class DeleteMessageAction implements Controller {
 		if("POST".equals(request.getMethod())){//Batch delete
 			int[] ids = RequestUtil.getParameterAsIntArray(request, "ids", 0) ;
 			
-			if(ids.length == 0){
+			if(ids.length = 0){
 				return new ModelAndView("redirect:/messageList.jsp", "userId", userId);
 			}
 
