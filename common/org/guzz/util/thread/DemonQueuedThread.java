@@ -92,7 +92,7 @@ public class DemonQueuedThread  extends Thread{
 			try{
 				shouldSleep = !doWithTheQueue() ;
 				
-			}catch(Exception e){
+			}catch(Throwable e){
 				shouldSleep = true ;
 				//ignore all errors
 				log.error("error occured whiling processing the queue of thread: " + this.threadName, e) ;
@@ -104,7 +104,7 @@ public class DemonQueuedThread  extends Thread{
 						isSleepNow = true ;
 						this.wait(getMillSecondsToSleep()) ;
 					}
-				}catch(Exception e){
+				}catch(Throwable e){
 					//ignore all errors
 				}
 			}

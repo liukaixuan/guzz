@@ -221,7 +221,7 @@ public class HbmXMLBuilder {
 		//读取generator信息
 		List generator = root.selectNodes("//class/id/generator") ;
 		if(generator.size() != 1){
-			throw new GuzzException("id generator is not found.") ;
+			throw new GuzzException("id generator is not found for resource: " + r) ;
 		}
 		
 		Element ge = (Element) generator.get(0) ;

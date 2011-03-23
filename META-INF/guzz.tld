@@ -648,7 +648,6 @@
         <name>pkValue</name>
         <required>true</required>
         <rtexprvalue>true</rtexprvalue>
-		<type>java.io.Serializable</type>
     </attribute>
   </tag>
   
