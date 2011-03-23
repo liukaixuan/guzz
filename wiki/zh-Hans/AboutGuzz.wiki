@@ -2,6 +2,7 @@
 
 || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans 简体中文] ||
 
+
 == 文档与帮助 ==
 
  * [Lesson120 Guzz入门教程《手把手，教你编写1个可以并行使用5台数据库的留言板》] 
@@ -11,14 +12,25 @@
  * [TaglibBook JSP页面开发帮助]
 
  * [AboutFAQ 常见问题FAQ]
+ 
 
 == 示例代码 ==
 
  * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip 基于spring IOC + springMVC的空工程（新项目可以以此为基础搭建）]
 
  * [DemoExamplesVote 示例工程1]
- 
+  
 
 == 反馈与建议 ==
 
  * [AboutFeedback 反馈与建议]
+ 
+ 
+== guzz不做的事情 ==
+
+ * 自动创建数据库表或者自动调整表结构，需DBA手工维护
+
+ * 自动同步多台数据库之间的数据，需数据库自身配置，必要时DBA手工分切数据
+
+ * 不支持领域对象之间相互关联的映射，如一对多，多对一，多对多等。对于join, union等复杂查询，必须通过类似ibatis的直接sql模式执行。
+ 
