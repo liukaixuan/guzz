@@ -769,7 +769,9 @@ drop table tb_message ;
 这时guzz已经知道Message对象需要根据 example.business.MessageShadowTableView 进行切表。在所有操作 Message 的地方，需要传入userId作为切表条件（称作：tableCondition）。
 
 对于留言读取的地方，修改 messageList.jsp 的g:page调用为：
-{{{<g:page business="message" var="m_messages" tableCondition="${param.userId}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />}}}
+{{{
+<g:page business="message" var="m_messages" tableCondition="${param.userId}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
+}}}
 
 通过tableCondition属性传入切表条件。
 
@@ -830,7 +832,9 @@ public class MessageVirtualDBView extends AbstractVirtualDBView {
 }}}
 
 为了让 guzz 知道分布式切表，对于每个使用VirtualDB的领域对象，我们需要在guzz.xml中声明一个virtualdbgroup。对于Message，修改guzz.xml，在tran元素下增加virtualdbgroup：
-{{{<virtualdbgroup name="messageDB" shadow="example.business.MessageVirtualDBView" />}}}
+{{{
+<virtualdbgroup name="messageDB" shadow="example.business.MessageVirtualDBView" />
+}}}
 
 同时，修改Message领域对象的dbgroup到新的messageDB。修改好的guzz.xml为：
 {{{
@@ -1159,7 +1163,9 @@ public class VoteMessageAction implements Controller {
 == !SlowUpdateServerService ==
 
 为了将计数队列的数据写回各个表对应的主库，还需要启动计数队列服务的服务器端。修改guzz.xml文件，添加服务器端服务：
-{{{<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />}}}
+{{{
+<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
+}}}
 
 修改messageBoard.properties文件，添加slowUpdateServer服务的详细配置信息：
 {{{
