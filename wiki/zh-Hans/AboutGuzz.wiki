@@ -11,6 +11,8 @@
 
  * [TaglibBook JSP页面开发帮助]
 
+ * [ArchitectureMMVC 基于声明数据的MMVC架构]
+
  * [AboutFAQ 常见问题FAQ]
  
 

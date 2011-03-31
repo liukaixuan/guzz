@@ -3,9 +3,13 @@
 
 == Doc & Help ==
 
+ * [Lesson120 Getting Start: write a Message-Board system running on 5 database machines]
+ 
  * [TutorialStart Developer Guide]
 
  * [TaglibBook Manual for Guzz JSP Taglib]
+
+ * [ArchitectureMMVC Why design taglib?]
 
  * [AboutFAQ User FAQ]
 
