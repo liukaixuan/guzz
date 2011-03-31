@@ -1,58 +1,58 @@
-= Guzz入门教程 =
+= Getting Start Lesson =
 
-在本教程中，我们将手把手的演示如何使用guzz，编写一个可以并行使用5台甚至更多数据库的留言板系统。
+In this lesson, we will guide you to write a Message-Board system running on 5 database machines, hand by hand.
 
-您可以一边看一边跟着做。在实际的教程做，只需要1台数据库用来模拟。
+You are suggested to write it yourself during the lesson. Don't be panic, only 1 database is required to simulate it.
 
+In this lesson, you will learn: How to create a guzz project, how to add record into database, how to separate database read and write, how to split tables and distribute them among several machines. You will also understand the concept of "Service".
 
-本教程将教会你：如何创建guzz项目，如何用guzz添加数据库记录，如何实现读写分离，如何进行多数据库之间分表、切表、分布式切表等，并对“服务”有个概念。
-
-
-= 教程目录大纲  =
+= Chapters  =
 
 <wiki:toc max_depth="2" />
 
 
-= 什么是guzz？什么时候用？  =
+= What's guzz? Where to use?  =
 
-guzz[ˈɡuzi]念做谷子。稻谷的谷，意为种子、谷物等。
+guzz[ˈɡuzi], means seeds or crops in Chinese language.
 
-guzz和hibernate，ibatis同属于数据持久层框架，在应用架构上用于代替hibernate或者ibatis。使用guzz后，传统的ssh（spring + struts + hibernate）程序就变成了ssg（spring + struts + guzz）。同时guzz也可以和hibernate/ibatis并存，同时使用。
+guzz is a persist layer framework similar to hibernate and ibatis. It is designed to replace the later two in your system. After introducing guzz, your traditional ssh(spring + struts + hibernate) architecture will turn into ssg(spring + struts + guzz). In the meantime, guzz can work together with hibernate and ibatis to solve only the database neck-bottle modules without changing other codes.
 
-guzz适合于大型系统使用，包括访问量较大的系统和数据量较大的系统。当你的程序需要同时使用多台数据库，或者存在大表需要分切成小表时，guzz是目前通用持久层框架中最好的选择。guzz提供了面向未来的配置化分表、多库、表分切、读写分离，以及多台数据库之间透明的分布式事务支持等特性，使得多数据库编程和普通编程一样简单，对开发者透明。
+guzz is suitable to large-scale system with huge clicks or huge amount of data, or both. When multiple databases are required, or some tables should be cut into small ones in your system, guzz is the best choice in all available framework.
 
-同时guzz提供一些服务定义，帮助团队从零开始创建云服务计算平台。如果您计划将多个系统间的通用计算（功能）做成服务，并且还没有动手，guzz service将是个很好的起步点。
+guzz provides table distributing, multiple databases supporting, table shard, read-write separation, and distributed transaction features bases on a simple configuration file, to ease the complication of programming and upgrading in the future. You will find it as simple as regular programming. It's transparent and future-upgrading oriented to the developers.
 
-guzz框架免费开源，项目地址：[http://code.google.com/p/guzz/]
+guzz also provides some definitions of Service to help your team building a Cloud Platform from scratch. If you are planning to combine common features and general computing together from a few projects, guzz service is a good choice to getting start. 
 
-
-= 准备开发环境  =
-
-在本教程中，我们使用MyEclipse IDE做开发演示。留言板将运行在1台Mysql5.0 + 1台Tomcat6上。因此您只需要自己的开发机器就可以跟上。
-
-当然，如果你有5台或者更多数据库，会更好。
-
-虽然教程中只有1台数据库，但效果一样。你可以更清楚的看到，guzz使用多台数据库还是只用1台数据库，对开发者基本透明。
+guzz is a free and open source project located in Google Code: [http://code.google.com/p/guzz/]
 
 
-= 创建MessageBoard工程  =
+= Prepare to start the lesson  =
 
-我们基于 springIOC + springMVC + guzz 架构创建留言板，因此先从guzz网站下载提供的空工程 a empty sample project buildxxxxxxx.zip ：[http://code.google.com/p/guzz/downloads/list]
+In this lesson, we use MyEclipse IDE to demonstrate. Our Message-Board will run on 1 Mysql5.0 and 1 Tomcat6. So, What you need is your developing machine.
 
-解压工程，并导入到Eclipse中（File -> Import -> General/Exsiting Projects into Workspace）。
- 
-这时工作区中多了一个名为“GuzzEmpty”的项目。选择项目，右键 -> Refactor -> Rename。输入MessageBoard，确定。
+Of course, that will better if you have 5 or more databases.
 
-从 [http://code.google.com/p/guzz/downloads/list] 下载最新版的guzz发布包，如“guzz1.2.9 buildxxxxxx.zip”，解压文件，将最新的guzz.jar覆盖到刚刚创建的MessageBoard工程的 /WebRoot/WEB-INF/lib/ 下。
-
-修改 /WebRoot/WEB-INF/ 下的 fms.properties 为 messageBoard.properties ，这个为我们的主配置文件。
+One Database is enough for this lesson, it's transparent to guzz how many database machines you actually used.
 
 
-= 配置工程，插入第1条留言 =
+= Create Project: MessageBoard  =
 
-== 配置工程 ==
+Our Message-Board is based on the architecture of springIOC + springMVC + guzz, so just download the empty project to get start. The empty project is something like "a empty sample project buildxxxxxxx.zip" listed in ：[http://code.google.com/p/guzz/downloads/list]
 
-我们定义留言为Message，在src源代码目录下创建域对象example/business/Message.java：
+Extract the zip file, import the project into Eclipse(File -> Import -> General/Existing Projects into Workspace).
+
+Choose the new project "GuzzEmpty" in the workspace, Right Click -> Refactor -> Rename, type "MessageBoard", and confirm the dialog.
+
+Download the latest guzz release(something like "guzz1.x.x buildxxxxxx.zip") from [http://code.google.com/p/guzz/downloads/list], extract the zip file, and override guzz.jar under our new MessageBoard project's "/WebRoot/WEB-INF/lib/". 
+
+Rename fms.properties to messageBoard.properties under the project's /WebRoot/WEB-INF/ folder . Remember, this file is our main configuration file.
+
+
+= Configure the project, insert a Message =
+
+== Configure the project ==
+
+We define our message as "Message", and create its domain class "example/business/Message.java" under src source folder:
 {{{
 package example.business;
 
@@ -93,7 +93,7 @@ public class Message implements java.io.Serializable {
 }
 }}}
 
-同时在 example/business/ 目录下创建域对象的映射文件 Message.hbm.xml：
+In the meantime, create its mapping file Message.hbm.xml under the same folder "example/business/" :
 {{{
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
@@ -109,9 +109,9 @@ public class Message implements java.io.Serializable {
 </hibernate-mapping>
 }}}
 
-在映射文件中，留言存储在tb_message表中。tb_message用content字段存储留言内容。
+In the mapping file, we store our Message(s) in the table named tb_message. tb_message has one column content to store the message content.
 
-启动并连上Mysql5.0，创建测试用数据库mb_main，并在其中创建表tb_message。sql语句如下：
+Start and connect to our Mysql5.0, create a database mb_main and the table tb_message. SQL:
 {{{
 create database mb_main default character set utf8 ;
 
@@ -125,11 +125,11 @@ create table tb_message(
 
 }}}
 
-好啦，现在需要配置数据库连接池，让mb_main数据库和MessageBoard工程对接上。
+Now, configure the database connection pool to link the mb_main database with MessageBoard system:
 
-打开 /WebRoot/WEB-INF/guzz.xml 文件，选择源代码模式编辑。右键选择 /WebRoot/WEB-INF/messageBoard.properties -> Open With -> Properties File Editor（注意：不能用高级可视化编辑器打开），打开主配置文件。
+Open /WebRoot/WEB-INF/guzz.xml, turn to source edit mode. Right click /WebRoot/WEB-INF/messageBoard.properties -> Open With -> Properties File Editor to open the main configuration file. (Caution: Don't use the Advanced Properties Editor.)
 
-修改guzz.xml：删除默认配置的3组数据库组中的updateDB和logDB；删除2个service服务；在business中增加Message域对象声明。修改后的guzz.xml为：
+Edit guzz.xml: Delete the dbgroups of updateDB and logDB; delete the two services; add the business declaration of Message. The final guzz.xml should be:
 {{{
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
@@ -155,7 +155,7 @@ create table tb_message(
 </guzz-configs>
 }}}
 
-在新的guzz.xml中，留言对象使用default数据库组，default数据库组的master数据库的配置组名称为“masterDB”，没有slave数据库。修改刚刚打开的messageBoard.properties，修改[masterDB]配置组的连接池，指向我们刚才创建的数据库mb_main。其他数据库组配置删除。新的messageBoard.properties内容如下：
+In the new guzz.xml, Message uses the "default" database group. The "default" database group's master(write) database's configuration group name is "masterDB", the database group has no slave(read-only) database(s). Edit the opened messageBoard.properties file, change the pool configurations in [masterDB] to link our mb_main database, and drop other pools's configurations. The final messageBoard.properties is:
 {{{
 #guzz app config file.
  
@@ -189,17 +189,17 @@ onlySlowSQLInMillSeconds=0
 
 }}}
 
-打开 /WebRoot/WEB-INF/applicationContext.xml，删除bean:insertQueueService 。
+Open /WebRoot/WEB-INF/applicationContext.xml，delete bean:insertQueueService 。
 
-部署工程到Tomcat6上，然后启动。如果没有错误，则配置已经成功。如果报错，请检查数据库是否给予了访问授权等。
+Deploy the project to Tomcat6, start it. You configure it successful if no exceptions raised, or check the permission Mysql granted.
 
-停止tomcat6.
+Stop the tomcat6.
 
-== 插入留言 ==
+== Insert a message ==
 
-下面我们开始插入第一条留言。
+In the below we will insert our first Message.
 
-在/WebRoot/下创建jsp文件：messagesList.jsp，用于显示留言填写表单，内容如下：
+Create a jsp file "messagesList.jsp" under /WebRoot/ for the user to fill the Message form. messagesList.jsp:
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -224,7 +224,7 @@ onlySlowSQLInMillSeconds=0
 </html>
 }}}
 
-创建java文件 example.view.action.NewMessageAction.java 用于处理添加新留言的Form表单提交，内容如下：
+Create a springMVC controller "example.view.action.NewMessageAction.java" to handle the submit of the Message Form：
 {{{
 package example.view.action;
 
@@ -271,20 +271,20 @@ public class NewMessageAction implements Controller {
 }
 }}}
 
-修改/WebRoot/WEB-INF/dispatcher-servlet.xml文件，增加NewMessageAction的映射bean：
+Edit "/WebRoot/WEB-INF/dispatcher-servlet.xml", add NewMessageAction's mapping bean:
 {{{	
 <bean name="/newMessage.do" class="example.view.action.NewMessageAction">
 	<property name="guzzContext" ref="guzzContext" />
 </bean>
 }}}
 
-部署程序，启动Tomcat6，访问：http://localhost:8080/guzz/messageList.jsp ，输入留言“I am the first message. What about you?”，提交。
+Deploy the project, start Tomcat6, visit http://localhost:8080/guzz/messageList.jsp, Type the message "I am the first message. What about you?", Submit.
 
-打开数据tb_message表，可以看到1条记录已经成功插入。
+Open table tb_message, The first message is there.
 
-== 分页列出发表的留言 ==
+== List Messages with pagination ==
 
-我们在messageList.jsp中列出所有发表的留言，每页30条，分页显示。对于数据库简单的读操作，我们使用guzz taglib实现。新的 messageList.jsp 内容如下；
+We also use "messageList.jsp" to list the submitted Messages. 30 messages in a page. To query messages from tb_message, we use guzz taglib. New messageList.jsp :
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -334,29 +334,32 @@ public class NewMessageAction implements Controller {
 </html>
 }}}
 
-在这个jsp中，
+In this jsp, 
 {{{
 <g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
-}}} 
-根据当前传入的页码查询message，并按照id desc排序。然后我们用1个c:forEach循环，打印出结果。用m_messages.index打印出当前记录从1开始的排序位置，用g:out标签打印出允许html元素但不允许script执行的正文。最后引用通用的分页文件 /WEB-INF/jsp/include/console_flip.jsp 显示分页情况。
+}}}
 
-再次访问：http://localhost:8080/guzz/messageList.jsp ，可以看到分页显示的留言列表了：
+query and load messages by the passed pageNo, order it by "id desc" in database, then print it with a c:forEach loop. In the loop, m_messages.index prints out the current index of all matched records starting from 1, g:out prints out the msg content that accepts HTML code but transferred javascript. 
+
+In the end, we import "/WEB-INF/jsp/include/console_flip.jsp" to do the general pagination.
+
+Visit: http://localhost:8080/guzz/messageList.jsp again, we can see the messages' list now:
 
 <img width="700px" src="http://guzz.googlecode.com/svn/wiki/no-wikis/messageList.png" />
 
-= 实现读写分离（启用第2台数据库）=
+= Separate database read and write(Active the second DB) =
 
-如果你有多台数据库，创建mb_main数据库的从库（具体可参看[http://guzz.javaeye.com/blog/366508]）。修改guzz.xml的
+If you have more database, first setup mb_main database's slave database ([http://dev.mysql.com/doc/refman/5.0/en/replication-howto.html How to Set Up Replication in Mysql.com]). Edit guzz.xml:
 {{{
 <dbgroup name="default" masterDBConfigName="masterDB" />
 }}}
 
-增加从数据库配置属性slaveDBConfigName，我们设置值为slaveDB。如下：
+add the dbgroup's slaveDBConfigName attribute. We set it to "slaveDB" :
 {{{
 <dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />
 }}}
 
-在messageBoard.properties文件增加slaveDB配置项的具体信息，如下：
+add the db pool configurations of slaveDB in messageBoard.properties:
 {{{
 
 [slaveDB]
@@ -372,9 +375,9 @@ idleConnectionTestPeriod=60
 
 }}}
 
-当然，如果你有单独的从数据库，jdbcUrl处修改为从库地址。
+Of course, the above configuration's jdbcUrl should be pointed to your standalone slave database machine if you have one.
 
-此时完成的 messageBoard.properties 文件内容为：
+The final messageBoard.properties would be:
 {{{
 #guzz app config file.
  
@@ -419,11 +422,11 @@ onlySlowSQLInMillSeconds=0
  
 }}}
 
-至此，即完成了读写分离的配置。系统启动后，将创建两个连接池，上面留言读取的g:page将自动从slave数据库连接操作。在调用guzz持久化API时，所有选择允许延迟的读操作也将从slave连接池操作。
+OK, now you have finished db read-write separation. Start up the MessageBoard, it will create two database pools. The above g:page will execute queries from the slave database pool automatically. If you call guzz's persist API directly in the future, all read operations with delay opinion will be executed in the slave connections.
 
-= 实现1个多用户留言板 =
+= A Mulit-User MessageBoard =
 
-为了实现多用户留言板，首先我们需要增加User域对象。User对象只有三个属性，用户编号、用户名和留言数。创建example.business.User.java:
+To implement a Mulit-User MessageBoard(A message board you can leave messages to different people), first we have to add a new domain class "User". The "User" has three properties: id, name, and message count. Create example.business.User.java:
 {{{
 package example.business;
 
@@ -462,7 +465,7 @@ public class User implements java.io.Serializable {
 }
 }}}
 
-创建映射文件User.hbm.xml：
+Create the mapping file User.hbm.xml：
 {{{
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
@@ -478,7 +481,7 @@ public class User implements java.io.Serializable {
 </hibernate-mapping>
 }}}
 
-同时在Message.java、Message.hbm.xml 中增加userId属性对应User对象的id属性。新的Message.java和Message.hbm.xml为：
+Add a new property "userId" in Message.java and Message.hbm.xml "foreign key" to "User"'s id. The new Message.java and Message.hbm.xml:
 {{{
 package example.business;
 
@@ -545,7 +548,7 @@ public class Message implements java.io.Serializable {
 </hibernate-mapping>
 }}}
 
-在mb_main数据库中增加tb_user表，并调整tb_message表：
+create tb_user in mb_main database, and alter tb_table:
 {{{
 use mb_main ;
 
@@ -567,12 +570,13 @@ update tb_user set messageCount = (select count(*) from tb_message) where id = 1
 
 }}}
 
-修改guzz.xml，增加User域对象的声明：
+Add the declaration of User in guzz.xml:
 {{{
 <business dbgroup="default" name="user" file="classpath:example/business/User.hbm.xml" />
 }}}
 
-由于是多用户留言板，因此 messageList.jsp 中我们需要增加一个参数用来区分用户。此参数定义为userId。无论是访问留言板，还是发表留言，我们都用userId标记当前留言板所属用户。修改 messageList.jsp 增加对userId参数的支持：
+As this is a mulit-user MessageBoard, we add a new parameter "userId"(reference to User's id) to distinguish User in all web requests.
+Edit messageList.jsp to support userId:
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -599,9 +603,9 @@ update tb_user set messageCount = (select count(*) from tb_message) where id = 1
   		....
 }}}
 
-在新的 messageList.jsp 中，g:page增加了1个查询条件。而在form表单提交时，增加了隐藏的userId参数。
+In the new messageList.jsp, g:page add a query condition. In the form, "userId" will be submitted as a hidden parameter.
 
-修改 NewMessageAction.java 增加对userId参数的支持：
+Edit NewMessageAction.java to receive userId:
 {{{
 	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		int userId = RequestUtil.getParameterAsInt(request, "userId", 0) ;
@@ -636,20 +640,22 @@ update tb_user set messageCount = (select count(*) from tb_message) where id = 1
 	}
 }}}
 
-因为要同时更新两张表，因此我们选择手工控制事务的提交。
+We choose to handle the transcation manual as we have to update two tables.
 
-重新部署并启动应用，访问：http://localhost:8080/guzz/messageList.jsp?userId=1 ，看到Lucy's Message List；访问 http://localhost:8080/guzz/messageList.jsp?userId=1 看到Lily's Message List。
+Deploy and restart the application, visit: http://localhost:8080/guzz/messageList.jsp?userId=1 you are reading Lucy's Messages; visit: http://localhost:8080/guzz/messageList.jsp?userId=1 you are reading Lily's Messages.
 
-多用户留言板完成。
+Mulit_User MessageBoard is done.
 
 
-= 使用2组数据库（启用第3、4台数据库） =
+= Use two db groups(Active the third and fourth databases) =
 
-随着业务的增长我们发现mb_main数据库负载太高，需要将tb_user表挪出去，部署到另外一组数据库中。这组数据库有1台主库（第3台数据库）和1台从库（第4台数据库）。
+Our MessageBoard is so popular that we find mb_main database is too busy. It's almost crashed now, and we have to move tb_user to another database group.
 
-我们给这组新数据库取名为userDB。首先，很显然需要将现有的tb_user表导出并装载到userDB数据库组中，并建好数据库主从。假设此步骤已经完成。
+We name this dbgroup to be "userDB". It has a master db and a slave db(our third and fourth database machines).
 
-为了演示，我们在本机上创建 mb_user 数据库作为userDB。
+First, intall the two database machines, setup replications, and export/import tb_user from mb_main db.
+
+For demonstration, we create a new database mb_user in our local mysql for "userDB". It's in the same database instance with mb_main. SQL:
 {{{
 create database mb_user default character set utf8 ;
 
@@ -661,15 +667,16 @@ drop table mb_main.tb_user ;
 
 }}}
 
-这时我们有2组数据库：mb_main存放tb_message, mb_user存放tb_user。
 
-为了让应用知道mb_user库的存在，修改guzz.xml的tran，增加一个userDB dbgroup：
+So far, we have two database groups: mb_main to store tb_message, mb_user to store tb_user.
+
+Edit guzz.xml, add the new userDB dbgroup inside element "tran" :
 {{{<dbgroup name="userDB" masterDBConfigName="userMasterDB" slaveDBConfigName="userSlaveDB" />}}}
 
-修改User域对象使用userDB：
+Edit the business declaration of User to use "userDB":
 {{{<business dbgroup="userDB" name="user" file="classpath:example/business/User.hbm.xml" />}}}
 
-修改messageBoard.properties主配置文件，增加userDB主从数据库连接池的配置信息[userMasterDB]和[userSlaveDB]:
+Edit messageBoard.properties, add userDB's detailed db connection pool configurations [userMasterDB] and [userSlaveDB]:
 
 {{{
 [userMasterDB]
@@ -695,22 +702,21 @@ acquireIncrement=10
 idleConnectionTestPeriod=60
 }}}
 
-如果你有第3、4台独立数据库，将上面的jdbcUrl改到具体的数据库地址即可。
+If you the third and fourth DB machines, change the jdbcUrl above to your standalone DBs.
 
-重新部署并启动应用，这时您的应用已经开始使用4台数据库。当你发表新留言时，更新tb_user和tb_message表的操作将自动在一个分布式事务中完成。代码不需要做任何调整。
+Deploy and start the application. Your Message-Board is now running on 4 databases. Post a new Message, the updates of tb_user and tb_message will be be completed in a distributed transcation automatically. Not a single line of your exsiting code is required to change.
 
-*注意：* 1. 通过create table ..select..的方式，索引将不复存在，真实环境下注意重新创建索引。2. 上面例子中的sql语句通过db.table的方式操作数据库，mysql主从复制可能会忽略这类操作的复制；如果从库没有执行，需要手工在从库执行sql。下同。
+*Caution:* 1. The index won't be re-created by "create table ..select..", so remeber to create the index again in production. 2. Some sqls above manupilate tables by "db.table", this may be ignored in replications in Mysql. Execute it again in your slave db. We won't warn this any more.
 
+= Split Message table into small ones =
 
-= 将留言表分切成小表 =
+Our Message-Board achives a increditable success! Now, we have received over 10 million messages in tb_message to make the system very slow. It's a bottle-neck now, and we decide to split this big tb_message table into many small ones to improve the suituation. 
 
-随着业务的进一步发展，很快留言数突破千万，tb_message查询缓慢，已经成为系统的性能瓶颈。我们决定将留言表按照用户分成多张小表。
+Our split rule is: one user's messages, stored in one single small table; the table name for each person is tb_message_${userId}
 
-分切的规则是：每个用户1张表，表名规则为tb_message_${userId}。
+For detailed documentation, please read: [TutorialShadowTable].
 
-切表的详细说明文档，请参看：[TutorialShadowTable] 。
-
-为了实现表分切，首先需要实现分切规则，创建一个新的java类 example.business.MessageShadowTableView 定义规则：
+To split a table, first you have to define the rules. Create a new java class "example.business.MessageShadowTableView":
 {{{
 package example.business;
 
@@ -720,7 +726,7 @@ import org.guzz.orm.AbstractShadowTableView;
 public class MessageShadowTableView extends AbstractShadowTableView {
 
 	public String toTableName(Object tableCondition) {
-		if (tableCondition = null) { // 强制要求必须设置表分切条件，避免编程时疏忽。
+		if (tableCondition = null) { //Check condition
 			throw new GuzzException("null table conditon is not allowed.");
 		}
 
@@ -733,7 +739,7 @@ public class MessageShadowTableView extends AbstractShadowTableView {
 }
 }}}
 
-可见，分切条件为用户编号userId。我们有4个用户，因此将tb_message分切成4张小表，分别为：tb_message_1, tb_message_2, tb_message_3, tb_message_4.
+In MessageShadowTableView we know that the shadow/split condition/parameter is "userId". We have four users, so we have to split the tb_message into four small tables: tb_message_1, tb_message_2, tb_message_3, tb_message_4.
 {{{
 use mb_main ;
 
@@ -750,7 +756,7 @@ alter table tb_message_4 modify column id int(11) not null auto_increment primar
 drop table tb_message ;
 }}}
 
-为了让guzz知道表分切规则，修改Message.hbm.xml映射文件，在class元素中增加属性 shadow="example.business.MessageShadowTableView" ，同时将dtd定义改成guzz的。修改后的文件为：
+Edit Message.hbm.xml, add a new attribute shadow="example.business.MessageShadowTableView" in "class" element to tell guzz the shadow/split rules. Change the dtd head to guzz's to avoid the errors our IDE has detected. Message.hbm.xml:
 {{{
 <?xml version="1.0"?>
 <!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
@@ -766,27 +772,29 @@ drop table tb_message ;
 </guzz-mapping>
 }}}
 
-这时guzz已经知道Message对象需要根据 example.business.MessageShadowTableView 进行切表。在所有操作 Message 的地方，需要传入userId作为切表条件（称作：tableCondition）。
+Now, guzz knows that all persist operations to "Message" should be passed to example.business.MessageShadowTableView to compute the runtime split table name. And when you need to operate "Message", you have to pass "userId" as split parameter(we also call it tableCondition).
 
-对于留言读取的地方，修改 messageList.jsp 的g:page调用为：
+Edit messageList.jsp's, pass "userId" tableCondition to g:page:
 {{{<g:page business="message" var="m_messages" tableCondition="${param.userId}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />}}}
 
-通过tableCondition属性传入切表条件。
+Edit NewMessageAction.java, change write.insert(msg) to write.insert(msg, userId) to pass the tableCondition through the second parameter.
 
-修改 NewMessageAction.java的 write.insert(msg) 为 write.insert(msg, userId) 通过insert方法的第二个参数传入切表条件。
-
-重新部署并启动应用，可以看到我们的留言板已经在4个小表中工作了。
+Deploy and Restart Tomcat. Now our messages are distributed in 4 small tables.
 
 
-= 分布式切表以应对超级大表 =
+= Distribute the split small tables =
 
-随着业务的更进一步发展，我们发现tb_message即使分成了小表，都存储在一台数据库中也过于庞大。在实际的应用中，可能是您的数据已经分切成了上百张表，总量非常大。现在，我们需要将这些分切后的小表，存储到不同的数据库机器中，减少单台数据库数据量过大的问题，同时也减少1台数据库上表的总个数。
+One year later, we find the main_db database is too big. Yes, we have split the big table into small ones to improve the performance, and it worked. But they are still stored in one DB machine together. It is huge in total.
 
-为了解决这个问题，guzz提供了分布式切表功能，称作VirtualDB。详细介绍请参看：[TutorialVirtualDB]
+In a real application, you may have split your tables into hundreds of small tables. They take too much resources in total, or they are too many to manage, or there are still too many queries. 
 
-为了演示，我们个性化的小表存储规则为：编号为1的用户，留言继续存储在default数据库组中不变（mb_main库中）；其他的存储到userDB中（mb_user库中）。当然在实际系统中，您可能不会这么切分，更可能引入第5、6、7、8甚至更多台的数据库机器。这里只是演示灵活的切分规则。
+To slove this problem, we need to distribute the split small tables into different DB groups(different machines).
 
-现在我们开始挪表，把tb_message_2, tb_message_3, tb_message_4从mb_main挪到mb_user中：
+Guzz introduce "VirtualDB" for this feature. Read more about VirtualDB: [TutorialVirtualDB]
+
+To show you the flexibility of VirtualDB's rules, our distribution rule for tb_message_x tables is: Leave user 1's message in the default dbgroup(mb_main DB), others in the userDB dbgroup(mb_user Db). In your real application, you may distribute data by timeline, and introduce the 5th,6th,7th,8th or even more database machines to store new data. 
+
+Now, move tb_message_2, tb_message_3, tb_message_4 from mb_main to mb_user:
 {{{
 create table mb_user.tb_message_2 select * from mb_main.tb_message_2 ;
 create table mb_user.tb_message_3 select * from mb_main.tb_message_3 ;
@@ -801,7 +809,7 @@ drop table mb_main.tb_message_3 ;
 drop table mb_main.tb_message_4 ;
 }}}
 
-创建一个新的java类，定义VirtualDB的表分布规则：
+Create a new java class to define the rules of Message's VirtualDB: 
 {{{
 package example.business;
 
@@ -829,10 +837,12 @@ public class MessageVirtualDBView extends AbstractVirtualDBView {
 }
 }}}
 
-为了让 guzz 知道分布式切表，对于每个使用VirtualDB的领域对象，我们需要在guzz.xml中声明一个virtualdbgroup。对于Message，修改guzz.xml，在tran元素下增加virtualdbgroup：
+For each domain class required the VirtualDB feature, you have to add a virtualdbgroup in guzz.xml to tell guzz the rules.
+
+For our Message, edit guzz.xml, add a new virtualdbgroup under tran:
 {{{<virtualdbgroup name="messageDB" shadow="example.business.MessageVirtualDBView" />}}}
 
-同时，修改Message领域对象的dbgroup到新的messageDB。修改好的guzz.xml为：
+and change the dbgroup of Message's business declaration to "messageDB". The final guzz.xml is: 
 {{{
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
@@ -862,14 +872,14 @@ public class MessageVirtualDBView extends AbstractVirtualDBView {
 </guzz-configs>
 }}}
 
-重新部署并启动应用。此时的留言板将自动将lucy的留言存储到mb_main，其他人的留言存储到mb_user库中。完成分布式切表。
+Deploy and restart Tomcat6. All lucy's messages will be stored in mb_main, and others in mb_user. Distributed table shadow/split is done!
 
 
-= 用计数器服务实现支持投票（启用第3组，第5台数据库） =
+= Vote a message with SlowUpdateService(Active the 3rd dbgroup, the 5th database machine) =
  
-== 实现投票功能 ==
+== Vote a message ==
 
-随着留言板应用的深入，用户希望能够对留言进行投票，像digg一样支持优秀的留言。我们需要给留言增加vote功能。Vote分为支持和反对，支持增加10分，反对减少8分。在Message中增加一个voteScore记录得票的总分数。我们给Message.java对象和对应的Message.hbm.xml文件增加3个int类型属性：
+People asked whether they can vote for good messages like digg did. We said yes! We record good vote, bad vote, and compute a score of that. A good vote adds 10 points to the score while a bad one minus 8 points. Edit Message.java and Message.hbm.xml to add the three new properties:
 {{{
 private int voteYes ;
 
@@ -878,7 +888,7 @@ private int voteNo ;
 private int voteScore ;
 }}}
 
-调整数据库表结构，增加这3个字段：
+Change the databases:
 {{{
 alter table mb_main.tb_message_1 add column voteYes int(11) default 0 ;
 alter table mb_main.tb_message_1 add column voteNo int(11) default 0 ;
@@ -897,7 +907,7 @@ alter table mb_user.tb_message_4 add column voteNo int(11) default 0 ;
 alter table mb_user.tb_message_4 add column voteScore int(11) default 0 ;
 }}}
 
-为支持用户投票，增加一个action处理此操作，example.view.action.VoteMessageAction.java：
+Add a new Action to handle the vote request, example.view.action.VoteMessageAction.java：
 {{{
 package example.view.action;
 
@@ -959,16 +969,16 @@ public class VoteMessageAction implements Controller {
 }
 }}}
 
-在这个Action中，我们通过 Guzz.setTableCondition(userId) 设置当前线程所有数据库操作默认的分表条件，然后获取要投票的留言，增加计数后更新。
+In this Action, we call Guzz.setTableCondition(userId) to set the value of userId as the default tableCondition for all persist operations in this thread, then read the Message, inc/dec the count, and update it.
 
-将这个Action的配置添加到dispatcher-servlet.xml中：
+Add the mapping of this Action in dispatcher-servlet.xml:
 {{{	
 <bean name="/voteMessage.do" class="example.view.action.VoteMessageAction">
 	<property name="guzzContext" ref="guzzContext" />
 </bean>
 }}}
 
-修改 messageList.jsp ，列出投票数和投票地址：
+Edit messageList.jsp , list votes and the href to vote:
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -1031,17 +1041,19 @@ public class VoteMessageAction implements Controller {
 </html>
 }}}
 
-重新并重启应用，现在投票功能就可以使用了。
+Deploy and restart, now we can vote for a message.
 
-== !SlowUpdateService（使用第5台数据库） ==
+== !SlowUpdateService(Active the 5th database machine) ==
 
-虽然投票功能有了，但刚上线就发现了另外一个问题：投票的量太多。每次投票都需要进行一次数据库update操作，频繁的update操作对数据库的消耗太大。
+Soon after deploying vote feature to our production system, a critical problem raised: People Love It! Millions of votes every day! Every time a vote comes, we load the message and update it back, and the database cann't hold it anymore. It's too much queries.
 
-我们希望将投票操作队列化，最好能够合并对同1条记录的多个update操作，然后用批操作的方式写入数据库，最大程度的减少数据库消耗，而不要每次都单独update。
+To improve this, we hope to queue the vote operations, combing updates for the same row's same column, and write back to the database in a batch way to reduce the cost.
 
-这种场景出现的比较多，因此guzz内置了 SlowUpdateService 服务来完成这种队列化计数更新操作。详细的配置参数和工作原理，请参看：[AppendCoreService]
+Fortunally, we don't have to write this ourself, guzz shipped with SlowUpdateService to handle this suitation as a core Service. How it works: [AppendCoreService]
 
-下面我们开始配置。为了减少对主库的影响，计数对列我们存储在第5台临时数据库中。创建数据库mb_temp，并创建计数队列存储的表tb_guzz_su：
+To reduce the compact to the main databases, we active a new temp database machine to record the vote operations.
+
+Create database mb_temp, and table tb_guzz_su:
 {{{
 create database mb_temp default character set utf8 ;
 
@@ -1058,7 +1070,7 @@ create table tb_guzz_su(
 )engine=Innodb ;
 }}}
 
-在guzz.xml中增加mb_temp对应的数据库组tempDB，并增加临时表对应域对象的声明：
+Add a new dbgroup "tempDB" for mb_temp database, and add tb_guzz_su's business declaration:
 {{{
 <tran>
 		....
@@ -1069,9 +1081,11 @@ create table tb_guzz_su(
 <business dbgroup="tempDB" name="guzzSlowUpdate" file="classpath:example/business/IncUpdateBusiness.hbm.xml" />
 }}}
 
-将工程src中的 fms/business/IncUpdateBusiness.hbm.xml 挪到 example/business/ 下。fms/business目录可以删掉了。
+Move fms/business/IncUpdateBusiness.hbm.xml to example/business/ under src . Delete the folder:src/fms/.
 
-默认的 SlowUpdateService 服务为guzz内置服务。guzz在启动时会自动创建此服务，名称为guzzSlowUpdate，配置组的名称也为guzzSlowUpdate。修改messageBoard.properties主配置文件，增加此服务配置信息，同时增加tempDB数据库组主数据库的连接池配置：
+The default SlowUpdateService is started when guzz starts, named "guzzSlowUpdate". The configuration name for this Sevice is also "guzzSlowUpdate"
+
+Edit messageBoard.properties, add the pool configuration for tempDB, and guzzSlowUpdate Service.
 {{{
 [tempMasterDB]
 guzz.identifer=tempMasterDB1
@@ -1092,14 +1106,14 @@ queueSize=20480
 batchSize=2048
 }}}
 
-至此，计数队列的配置完成。为了方便spring使用，我们将此服务导出为spring bean，在applicationContext.xml中添加bean：
+Edit applicationContext.xml, add a new bean to export the service as a spring bean:
 {{{
     <bean id="guzzSlowUpdateService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean"> 
         <property name="serviceName" value="guzzSlowUpdate" /> 
     </bean>
 }}}
 
-修改 VoteMessageAction.java 使用计数器服务：
+Change VoteMessageAction.java to use this service:
 {{{
 package example.view.action;
 
@@ -1145,23 +1159,26 @@ public class VoteMessageAction implements Controller {
 }
 }}}
 
-在新的Action中，不在直接操作数据库，而是调用updateCount将计数操作写入队列。
+In the new Action, we call updateCount to write the operation to the queue instead of database.
 
-修改 dispatcher-servlet.xml ，在bean：/voteMessage.do 中注入guzzSlowUpdateService：
+Edit dispatcher-servlet.xml to inject guzzSlowUpdateService for the bean /voteMessage.do :
 {{{
 <bean name="/voteMessage.do" class="example.view.action.VoteMessageAction">
 	<property name="slowUpdateService" ref="guzzSlowUpdateService" />
 </bean>
 }}}
 
-重新部署并启动应用。投票。此时票数没有变化，没有关系，打开mb_temp数据库的tb_guzz_su表，可以看到计数操作已经成功写入到了队列中。
+Deploy and restart the application. Vote. The vote count does't change. It is Ok. Open the table tb_guzz_su in mb_temp, the vote operation is already written in the queue.
 
 == !SlowUpdateServerService ==
 
 为了将计数队列的数据写回各个表对应的主库，还需要启动计数队列服务的服务器端。修改guzz.xml文件，添加服务器端服务：
+To write operations in tb_guzz_su back to the main db, we need to configure the server-part of SlowUpdateService: SlowUpdateServerService.
+
+Edit guzz.xml, declare the SlowUpdateServerService:
 {{{<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />}}}
 
-修改messageBoard.properties文件，添加slowUpdateServer服务的详细配置信息：
+Edit messageBoard.properties, add Service slowUpdateServer's detailed configurations:
 {{{
 [guzzSlowUpdateServer]
 #batch size for updating the main database
@@ -1177,7 +1194,7 @@ combinePageCount=10
 updateInterval=500
 }}}
 
-重新部署并启动应用。查看tb_guzz_su表，队列已经被处理，访问：http://localhost:8080/guzz/messageList.jsp?userId=1 ，看到计数已经正确更新了。
+Deploy and restart the system. Check tb_guzz-su, the queue is consumed. Visit http://localhost:8080/guzz/messageList.jsp?userId=1 , the count worked again.
 
 
 = 删除留言，批量删除留言 =
