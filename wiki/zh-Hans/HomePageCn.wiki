@@ -1,4 +1,4 @@
-|| [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [HomePageCn 简体中文] ||
+|| [http://code.google.com/p/guzz/ English] || [HomePageCn 简体中文] ||
 
 = 什么是guzz？ =
 
@@ -47,7 +47,7 @@ guzz的目标是使得大型化网站设计更加简单，团队分工更加明�
 
 *综述：*guzz并不仅仅是提供一种ORM映射，而是提供一套完整的数据层架构，用于解决项目中可能遇到的各种数据类型和数据处理策略，统一数据接口，简化项目架构设计。guzz提供的可配置的多数据源管理方式，一般大型系统都有自己的实现策略；guzz抽象出这些，对于新项目就不用再摸索了，尤其是多数据库组和主从分离完全可以为系统提供面相未来的支持。
 
-*更多介绍与使用文档参看wiki：* http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans
+*开始guzz教程：* http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans
 
 = roadmap =
 
