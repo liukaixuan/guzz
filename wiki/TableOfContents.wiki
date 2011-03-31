@@ -3,6 +3,7 @@
     * [AboutFAQ FAQ]
     * [AboutFeedback Feedback & Suggestions]
     * [AboutJoinUs Join Us]
+  * [Lesson120 Getting Start]
   * Architecture
     * [ArchitectureMMVC Why design taglib?]
   * [TutorialStart Developer Guide]
