@@ -2,9 +2,9 @@
 
 In this lesson, we will guide you to write a Message-Board system running on 5 database machines, hand by hand.
 
-You are suggested to write it yourself during the lesson. Don't be panic, only 1 database is required to simulate it.
+You are suggested to write it yourself during the lesson. Don't be panic, only 1 database is required to simulate this.
 
-In this lesson, you will learn: How to create a guzz project, how to add record into database, how to separate database read and write, how to split tables and distribute them among several machines. You will also understand the concept of "Service".
+In this lesson, you will learn: How to create a guzz project, how to add record into database, how to separate database read and write, how to split tables and distribute them among several machines, and how to use "Service" in guzz.
 
 = Chapters  =
 
@@ -15,22 +15,22 @@ In this lesson, you will learn: How to create a guzz project, how to add record 
 
 guzz[ˈɡuzi], means seeds or crops in Chinese language.
 
-guzz is a persist layer framework similar to hibernate and ibatis. It is designed to replace the later two in your system. After introducing guzz, your traditional ssh(spring + struts + hibernate) architecture will turn into ssg(spring + struts + guzz). In the meantime, guzz can work together with hibernate and ibatis to solve only the database neck-bottle modules without changing other codes.
+guzz is a persist layer framework similar to hibernate and ibatis. It is designed to replace the later two in your system. After introducing guzz, your traditional ssh(spring + struts + hibernate) architecture will be turned into ssg(spring + struts + guzz). In the meantime, guzz can work together with hibernate and ibatis to solve only the database bottle-neck modules without changing other codes.
 
-guzz is suitable to large-scale system with huge clicks or huge amount of data, or both. When multiple databases are required, or some tables should be cut into small ones in your system, guzz is the best choice in all available framework.
+guzz is suitable to large-scaled system with huge clicks or huge amount of data, or both. When multiple databases are required, or some tables should be cutted into small ones in your application, guzz is the best choice in all available general purpose framework around the world.
 
-guzz provides table distributing, multiple databases supporting, table shard, read-write separation, and distributed transaction features bases on a simple configuration file, to ease the complication of programming and upgrading in the future. You will find it as simple as regular programming. It's transparent and future-upgrading oriented to the developers.
+guzz provides table distributing, multiple databases supporting, table shard, read-write separation, and distributed transaction features bases on a simple configuration file, to ease the complication of large system programming and upgrading in the future. You will find it as simple as regular programming. It's transparent and future-upgrading oriented to the developers.
 
-guzz also provides some definitions of Service to help your team building a Cloud Platform from scratch. If you are planning to combine common features and general computing together from a few projects, guzz service is a good choice to getting start. 
+guzz also provides some definitions of Service to help your team building a Cloud Platform from scratch. If you are planning to combine common features and general computing together from some projects, guzz service is a good choice to getting start. 
 
 guzz is a free and open source project located in Google Code: [http://code.google.com/p/guzz/]
 
 
 = Prepare to start the lesson  =
 
-In this lesson, we use MyEclipse IDE to demonstrate. Our Message-Board will run on 1 Mysql5.0 and 1 Tomcat6. So, What you need is your developing machine.
+In this lesson, MyEclipse IDE is used to demonstrate the coding, and 1 Mysql5.0 + 1 Tomcat6 is required to run the Message-Board. So, What you need is your developing machine.
 
-Of course, that will better if you have 5 or more databases.
+Of course, it will even better if you have five or more databases.
 
 One Database is enough for this lesson, it's transparent to guzz how many database machines you actually used.
 
@@ -43,16 +43,16 @@ Extract the zip file, import the project into Eclipse(File -> Import -> General/
 
 Choose the new project "GuzzEmpty" in the workspace, Right Click -> Refactor -> Rename, type "MessageBoard", and confirm the dialog.
 
-Download the latest guzz release(something like "guzz1.x.x buildxxxxxx.zip") from [http://code.google.com/p/guzz/downloads/list], extract the zip file, and override guzz.jar under our new MessageBoard project's "/WebRoot/WEB-INF/lib/". 
+Download the latest guzz release package(something like "guzz1.x.x buildxxxxxx.zip") from [http://code.google.com/p/guzz/downloads/list], extract the zip file, and override guzz.jar under MessageBoard project's "/WebRoot/WEB-INF/lib/". 
 
-Rename fms.properties to messageBoard.properties under the project's /WebRoot/WEB-INF/ folder . Remember, this file is our main configuration file.
+Rename fms.properties to messageBoard.properties under the project's /WebRoot/WEB-INF/ folder. Remember, this file is our main configuration file.
 
 
 = Configure the project, insert a Message =
 
 == Configure the project ==
 
-We define our message as "Message", and create its domain class "example/business/Message.java" under src source folder:
+We define our message as "Message", create its domain class "example/business/Message.java" under src source folder:
 {{{
 package example.business;
 
@@ -93,7 +93,7 @@ public class Message implements java.io.Serializable {
 }
 }}}
 
-In the meantime, create its mapping file Message.hbm.xml under the same folder "example/business/" :
+In the meantime, create Message.java's mapping file Message.hbm.xml under the same folder "example/business/" :
 {{{
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
@@ -109,9 +109,9 @@ In the meantime, create its mapping file Message.hbm.xml under the same folder "
 </hibernate-mapping>
 }}}
 
-In the mapping file, we store our Message(s) in the table named tb_message. tb_message has one column content to store the message content.
+In the mapping file, we know that our Message(s) will be stored in the table tb_message. tb_message has one column "content" to store the message content.
 
-Start and connect to our Mysql5.0, create a database mb_main and the table tb_message. SQL:
+Start our Mysql5.0 and connect to it, create a database mb_main and the table "tb_message". SQL:
 {{{
 create database mb_main default character set utf8 ;
 
@@ -129,7 +129,7 @@ Now, configure the database connection pool to link the mb_main database with Me
 
 Open /WebRoot/WEB-INF/guzz.xml, turn to source edit mode. Right click /WebRoot/WEB-INF/messageBoard.properties -> Open With -> Properties File Editor to open the main configuration file. (Caution: Don't use the Advanced Properties Editor.)
 
-Edit guzz.xml: Delete the dbgroups of updateDB and logDB; delete the two services; add the business declaration of Message. The final guzz.xml should be:
+Edit guzz.xml: delete the dbgroups of updateDB and logDB; delete the two services; add business declaration of Message. The final guzz.xml should be:
 {{{
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
@@ -155,7 +155,7 @@ Edit guzz.xml: Delete the dbgroups of updateDB and logDB; delete the two service
 </guzz-configs>
 }}}
 
-In the new guzz.xml, Message uses the "default" database group. The "default" database group's master(write) database's configuration group name is "masterDB", the database group has no slave(read-only) database(s). Edit the opened messageBoard.properties file, change the pool configurations in [masterDB] to link our mb_main database, and drop other pools's configurations. The final messageBoard.properties is:
+In the new guzz.xml, Message uses the "default" database group. The "default" database group's master(write) database's configuration group name is "masterDB", the database group has no slave(read-only) database(s). Edit the opened messageBoard.properties file, change the pool configurations in [masterDB] to link our mb_main database, and drop other pools's configurations. The final messageBoard.properties should be something like:
 {{{
 #guzz app config file.
  
@@ -189,9 +189,9 @@ onlySlowSQLInMillSeconds=0
 
 }}}
 
-Open /WebRoot/WEB-INF/applicationContext.xml，delete bean:insertQueueService 。
+Open /WebRoot/WEB-INF/applicationContext.xml，delete bean:insertQueueService.
 
-Deploy the project to Tomcat6, start it. You configure it successful if no exceptions raised, or check the permission Mysql granted.
+Deploy the project to Tomcat6, start it. You configure it successful if no exception raised, or check the permission Mysql granted.
 
 Stop the tomcat6.
 
@@ -199,7 +199,7 @@ Stop the tomcat6.
 
 In the below we will insert our first Message.
 
-Create a jsp file "messagesList.jsp" under /WebRoot/ for the user to fill the Message form. messagesList.jsp:
+Create a jsp file "messagesList.jsp" under /WebRoot/ for visitors to fill the Message form. messagesList.jsp:
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -224,7 +224,7 @@ Create a jsp file "messagesList.jsp" under /WebRoot/ for the user to fill the Me
 </html>
 }}}
 
-Create a springMVC controller "example.view.action.NewMessageAction.java" to handle the submit of the Message Form：
+Create a springMVC controller "example.view.action.NewMessageAction.java" to handle the submission of the Message Form：
 {{{
 package example.view.action;
 
@@ -278,13 +278,13 @@ Edit "/WebRoot/WEB-INF/dispatcher-servlet.xml", add NewMessageAction's mapping b
 </bean>
 }}}
 
-Deploy the project, start Tomcat6, visit http://localhost:8080/guzz/messageList.jsp, Type the message "I am the first message. What about you?", Submit.
+Deploy the project, start Tomcat6, visit http://localhost:8080/guzz/messageList.jsp, Type a message "I am the first message. What about you?", Submit.
 
-Open table tb_message, The first message is there.
+Open table tb_message, the first message is there.
 
 == List Messages with pagination ==
 
-We also use "messageList.jsp" to list the submitted Messages. 30 messages in a page. To query messages from tb_message, we use guzz taglib. New messageList.jsp :
+We also use "messageList.jsp" to list the posted messages. 30 messages one page. To query messages from tb_message, we use guzz db taglib. New messageList.jsp :
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -339,27 +339,27 @@ In this jsp,
 <g:page business="message" var="m_messages" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />
 }}}
 
-query and load messages by the passed pageNo, order it by "id desc" in database, then print it with a c:forEach loop. In the loop, m_messages.index prints out the current index of all matched records starting from 1, g:out prints out the msg content that accepts HTML code but transferred javascript. 
+query and load messages by the passed pageNo, order it by "id desc" in database, then print it with a c:forEach loop later. In the loop, m_messages.index prints out the current index in all matched records starting from 1, g:out prints out the msg's content that accepts HTML code but transferred javascript. 
 
 In the end, we import "/WEB-INF/jsp/include/console_flip.jsp" to do the general pagination.
 
-Visit: http://localhost:8080/guzz/messageList.jsp again, we can see the messages' list now:
+Visit: http://localhost:8080/guzz/messageList.jsp again, you can see the messages' list now:
 
 <img width="700px" src="http://guzz.googlecode.com/svn/wiki/no-wikis/messageList.png" />
 
-= Separate database read and write(Active the second DB) =
+= Separate database read and write(active the 2rd DB) =
 
 If you have more database, first setup mb_main database's slave database ([http://dev.mysql.com/doc/refman/5.0/en/replication-howto.html How to Set Up Replication in Mysql.com]). Edit guzz.xml:
 {{{
 <dbgroup name="default" masterDBConfigName="masterDB" />
 }}}
 
-add the dbgroup's slaveDBConfigName attribute. We set it to "slaveDB" :
+add the dbgroup's slaveDBConfigName attribute, set it to "slaveDB" :
 {{{
 <dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />
 }}}
 
-add the db pool configurations of slaveDB in messageBoard.properties:
+add the db pool configurations of the slaveDB in messageBoard.properties:
 {{{
 
 [slaveDB]
@@ -422,11 +422,11 @@ onlySlowSQLInMillSeconds=0
  
 }}}
 
-OK, now you have finished db read-write separation. Start up the MessageBoard, it will create two database pools. The above g:page will execute queries from the slave database pool automatically. If you call guzz's persist API directly in the future, all read operations with delay opinion will be executed in the slave connections.
+OK, now you have finished the db read-write separation. Start up the MessageBoard, it will create two database pools. The above g:page will execute queries from the slave database pool automatically. If you call guzz's persist API directly in the future, all read operations with delay opinion will be executed in the slave connections.
 
 = A Mulit-User MessageBoard =
 
-To implement a Mulit-User MessageBoard(A message board you can leave messages to different people), first we have to add a new domain class "User". The "User" has three properties: id, name, and message count. Create example.business.User.java:
+To implement a Mulit-User MessageBoard(A message board you can leave messages to different people), first we have to add a new domain class "User". The "User" has three properties: id, userName, and message count. Create example.business.User.java:
 {{{
 package example.business;
 
@@ -465,7 +465,7 @@ public class User implements java.io.Serializable {
 }
 }}}
 
-Create the mapping file User.hbm.xml：
+Create its mapping file User.hbm.xml：
 {{{
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
@@ -548,7 +548,7 @@ public class Message implements java.io.Serializable {
 </hibernate-mapping>
 }}}
 
-create tb_user in mb_main database, and alter tb_table:
+create tb_user in the mb_main database, and alter tb_message to add "userId":
 {{{
 use mb_main ;
 
@@ -570,12 +570,13 @@ update tb_user set messageCount = (select count(*) from tb_message) where id = 1
 
 }}}
 
-Add the declaration of User in guzz.xml:
+Add the business declaration of User in guzz.xml:
 {{{
 <business dbgroup="default" name="user" file="classpath:example/business/User.hbm.xml" />
 }}}
 
-As this is a mulit-user MessageBoard, we add a new parameter "userId"(reference to User's id) to distinguish User in all web requests.
+As this is a mulit-user Message-Board, we define a new parameter "userId"(reference to User's id) to distinguish whose messages in all web requests.
+
 Edit messageList.jsp to support userId:
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
@@ -603,7 +604,7 @@ Edit messageList.jsp to support userId:
   		....
 }}}
 
-In the new messageList.jsp, g:page add a query condition. In the form, "userId" will be submitted as a hidden parameter.
+In the new messageList.jsp, g:page add a query condition. In the form, "userId" is submitted as a hidden parameter.
 
 Edit NewMessageAction.java to receive userId:
 {{{
@@ -644,16 +645,16 @@ We choose to handle the transcation manual as we have to update two tables.
 
 Deploy and restart the application, visit: http://localhost:8080/guzz/messageList.jsp?userId=1 you are reading Lucy's Messages; visit: http://localhost:8080/guzz/messageList.jsp?userId=1 you are reading Lily's Messages.
 
-Mulit_User MessageBoard is done.
+Mulit_User Message-Board is done.
 
 
-= Use two db groups(Active the third and fourth databases) =
+= Use two db groups(active the 3rd and 4th databases) =
 
-Our MessageBoard is so popular that we find mb_main database is too busy. It's almost crashed now, and we have to move tb_user to another database group.
+Our Message-Board is so popular that we find mb_main database is too busy. It's almost crashed now, and we have to move tb_user to another database group.
 
 We name this dbgroup to be "userDB". It has a master db and a slave db(our third and fourth database machines).
 
-First, intall the two database machines, setup replications, and export/import tb_user from mb_main db.
+First, intall the two database machines, setup replications, and export/import tb_user from mb_main database.
 
 For demonstration, we create a new database mb_user in our local mysql for "userDB". It's in the same database instance with mb_main. SQL:
 {{{
@@ -673,11 +674,10 @@ So far, we have two database groups: mb_main to store tb_message, mb_user to sto
 Edit guzz.xml, add the new userDB dbgroup inside element "tran" :
 {{{<dbgroup name="userDB" masterDBConfigName="userMasterDB" slaveDBConfigName="userSlaveDB" />}}}
 
-Edit the business declaration of User to use "userDB":
+Edit the business declaration of User to use "userDB" dbgroup:
 {{{<business dbgroup="userDB" name="user" file="classpath:example/business/User.hbm.xml" />}}}
 
 Edit messageBoard.properties, add userDB's detailed db connection pool configurations [userMasterDB] and [userSlaveDB]:
-
 {{{
 [userMasterDB]
 guzz.identifer=userMasterDB1
@@ -706,17 +706,17 @@ If you the third and fourth DB machines, change the jdbcUrl above to your standa
 
 Deploy and start the application. Your Message-Board is now running on 4 databases. Post a new Message, the updates of tb_user and tb_message will be be completed in a distributed transcation automatically. Not a single line of your exsiting code is required to change.
 
-*Caution:* 1. The index won't be re-created by "create table ..select..", so remeber to create the index again in production. 2. Some sqls above manupilate tables by "db.table", this may be ignored in replications in Mysql. Execute it again in your slave db. We won't warn this any more.
+*Caution:* 1. The index won't be re-created by "create table ..select..", so remeber to create the index again in production. 2. Some sqls above manupilate tables by "db.table", this may be ignored in replications in Mysql. Execute the sqls again in your slave db. We won't warn this any more.
 
 = Split Message table into small ones =
 
-Our Message-Board achives a increditable success! Now, we have received over 10 million messages in tb_message to make the system very slow. It's a bottle-neck now, and we decide to split this big tb_message table into many small ones to improve the suituation. 
+Our Message-Board achives a increditable success! Now, we have received over 10 million messages in tb_message to make the system very very slow. The big tb_message table is a bottle-neck now, and we decide to split it into many small ones to improve the suituation. 
 
 Our split rule is: one user's messages, stored in one single small table; the table name for each person is tb_message_${userId}
 
 For detailed documentation, please read: [TutorialShadowTable].
 
-To split a table, first you have to define the rules. Create a new java class "example.business.MessageShadowTableView":
+To split a table, first you have to define the rules. Create a new java class "example.business.MessageShadowTableView" to do this job:
 {{{
 package example.business;
 
@@ -756,7 +756,7 @@ alter table tb_message_4 modify column id int(11) not null auto_increment primar
 drop table tb_message ;
 }}}
 
-Edit Message.hbm.xml, add a new attribute shadow="example.business.MessageShadowTableView" in "class" element to tell guzz the shadow/split rules. Change the dtd head to guzz's to avoid the errors our IDE has detected. Message.hbm.xml:
+Edit Message.hbm.xml, add a new attribute shadow="example.business.MessageShadowTableView" in "class" element to tell guzz the shadow/split rules. Change the dtd head to guzz's to avoid the errors IDE would report. Message.hbm.xml:
 {{{
 <?xml version="1.0"?>
 <!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
@@ -772,7 +772,7 @@ Edit Message.hbm.xml, add a new attribute shadow="example.business.MessageShadow
 </guzz-mapping>
 }}}
 
-Now, guzz knows that all persist operations to "Message" should be passed to example.business.MessageShadowTableView to compute the runtime split table name. And when you need to operate "Message", you have to pass "userId" as split parameter(we also call it tableCondition).
+Now, guzz knows that all persist operations to "Message" should be passed to example.business.MessageShadowTableView to compute the runtime split table name. And when you need to operate "Message", you have to pass "userId" as the split parameter(we also call it tableCondition).
 
 Edit messageList.jsp's, pass "userId" tableCondition to g:page:
 {{{<g:page business="message" var="m_messages" tableCondition="${param.userId}" pageNo="${param.pageNo}" pageSize="30" orderBy="id desc" scope="request" />}}}
@@ -782,17 +782,17 @@ Edit NewMessageAction.java, change write.insert(msg) to write.insert(msg, userId
 Deploy and Restart Tomcat. Now our messages are distributed in 4 small tables.
 
 
-= Distribute the split small tables =
+= Distribute the split small tables into different DB machines =
 
-One year later, we find the main_db database is too big. Yes, we have split the big table into small ones to improve the performance, and it worked. But they are still stored in one DB machine together. It is huge in total.
+One year later, we find the main_db database is too big. Yes, we have split the big table into small ones to improve the performance, and it worked. But they are still stored in one DB machine together. The data is huge in total.
 
-In a real application, you may have split your tables into hundreds of small tables. They take too much resources in total, or they are too many to manage, or there are still too many queries. 
+In a real application, you may have split your tables into hundreds of small tables. They may take too much resources in total for a single db; or there is too many tables to manage; or the performance is just not enough for a single db. Anything with huge data.
 
 To slove this problem, we need to distribute the split small tables into different DB groups(different machines).
 
 Guzz introduce "VirtualDB" for this feature. Read more about VirtualDB: [TutorialVirtualDB]
 
-To show you the flexibility of VirtualDB's rules, our distribution rule for tb_message_x tables is: Leave user 1's message in the default dbgroup(mb_main DB), others in the userDB dbgroup(mb_user Db). In your real application, you may distribute data by timeline, and introduce the 5th,6th,7th,8th or even more database machines to store new data. 
+To show you the flexibility of VirtualDB, our distribution rule for tb_message_x tables is: Leave user 1's messages in the default dbgroup(mb_main DB), others in the userDB dbgroup(mb_user DB). In your real application, you may distribute data by timeline, and introduce the 5th,6th,7th,8th or even more database machines to store new data. 
 
 Now, move tb_message_2, tb_message_3, tb_message_4 from mb_main to mb_user:
 {{{
@@ -875,11 +875,11 @@ and change the dbgroup of Message's business declaration to "messageDB". The fin
 Deploy and restart Tomcat6. All lucy's messages will be stored in mb_main, and others in mb_user. Distributed table shadow/split is done!
 
 
-= Vote a message with SlowUpdateService(Active the 3rd dbgroup, the 5th database machine) =
+= Vote a message with SlowUpdateService(active the 3rd dbgroup, the 5th db machine) =
  
 == Vote a message ==
 
-People asked whether they can vote for good messages like digg did. We said yes! We record good vote, bad vote, and compute a score of that. A good vote adds 10 points to the score while a bad one minus 8 points. Edit Message.java and Message.hbm.xml to add the three new properties:
+People asked whether they can vote for good messages like digg did. We said yes! We record good vote, bad vote, and compute a score out of that. A good vote adds 10 points to the score while a bad one minus 8 points. Edit Message.java and Message.hbm.xml to add the three new properties:
 {{{
 private int voteYes ;
 
@@ -978,7 +978,7 @@ Add the mapping of this Action in dispatcher-servlet.xml:
 </bean>
 }}}
 
-Edit messageList.jsp , list votes and the href to vote:
+Edit messageList.jsp , list votes and the link to vote:
 {{{
 <%@ page language="java" pageEncoding="UTF-8" errorPage="/WEB-INF/jsp/include/defaultException.jsp"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -1045,15 +1045,15 @@ Deploy and restart, now we can vote for a message.
 
 == !SlowUpdateService(Active the 5th database machine) ==
 
-Soon after deploying vote feature to our production system, a critical problem raised: People Love It! Millions of votes every day! Every time a vote comes, we load the message and update it back, and the database cann't hold it anymore. It's too much queries.
+Soon after deploying vote feature to our production system, a critical problem raised: People Love It! Millions of votes every day! Every time a vote comes, we load the message and update it back, but the database cann't hold it anymore. There are too much queries.
 
 To improve this, we hope to queue the vote operations, combing updates for the same row's same column, and write back to the database in a batch way to reduce the cost.
 
-Fortunally, we don't have to write this ourself, guzz shipped with SlowUpdateService to handle this suitation as a core Service. How it works: [AppendCoreService]
+fortunately, we don't have to write this ourself, guzz shipped with SlowUpdateService to handle this suitation as a core Service. Read how it works: [AppendCoreService]
 
 To reduce the compact to the main databases, we active a new temp database machine to record the vote operations.
 
-Create database mb_temp, and table tb_guzz_su:
+Create database mb_temp, and table tb_guzz_su in it:
 {{{
 create database mb_temp default character set utf8 ;
 
@@ -1081,11 +1081,11 @@ Add a new dbgroup "tempDB" for mb_temp database, and add tb_guzz_su's business d
 <business dbgroup="tempDB" name="guzzSlowUpdate" file="classpath:example/business/IncUpdateBusiness.hbm.xml" />
 }}}
 
-Move fms/business/IncUpdateBusiness.hbm.xml to example/business/ under src . Delete the folder:src/fms/.
+Move fms/business/IncUpdateBusiness.hbm.xml to example/business/ under src . Delete the folder: src/fms/.
 
-The default SlowUpdateService is started when guzz starts, named "guzzSlowUpdate". The configuration name for this Sevice is also "guzzSlowUpdate"
+The default SlowUpdateService is started when guzz starts, named "guzzSlowUpdate". The configuration name for this Sevice is also "guzzSlowUpdate".
 
-Edit messageBoard.properties, add the pool configuration for tempDB, and guzzSlowUpdate Service.
+Edit messageBoard.properties, add the pool configuration for tempDB, and configurations for guzzSlowUpdate Service.
 {{{
 [tempMasterDB]
 guzz.identifer=tempMasterDB1
@@ -1113,7 +1113,7 @@ Edit applicationContext.xml, add a new bean to export the service as a spring be
     </bean>
 }}}
 
-Change VoteMessageAction.java to use this service:
+Change VoteMessageAction.java to use the guzzSlowUpdate service:
 {{{
 package example.view.action;
 
@@ -1172,7 +1172,7 @@ Deploy and restart the application. Vote. The vote count does't change. It is Ok
 
 == !SlowUpdateServerService ==
 
-To write operations in tb_guzz_su back to the main db, we need to configure the server-part of SlowUpdateService: SlowUpdateServerService.
+To write operations in tb_guzz_su back to the main db, we need to configure the serverside-part of SlowUpdateService: SlowUpdateServerService.
 
 Edit guzz.xml, declare the SlowUpdateServerService:
 {{{<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />}}}
@@ -1193,7 +1193,7 @@ combinePageCount=10
 updateInterval=500
 }}}
 
-Deploy and restart the system. Check tb_guzz-su, the queue is consumed. Visit http://localhost:8080/guzz/messageList.jsp?userId=1 , the count worked again.
+Deploy and restart the system. Check tb_guzz-su, the queue is consumed. Visit http://localhost:8080/guzz/messageList.jsp?userId=1 , the count works again.
 
 
 = Delete a message, Batch Delete =
@@ -1275,11 +1275,11 @@ add it to dispatcher-servlet.xml :
 </bean>
 }}}
 
-Edit messageList.jsp, add the "delete" link to "./deleteMessage.do?userId=${m_msg.userId}&msgId=${m_msg.id}". Click the link, you are deleting a message. When a message is deleted, we also use slowUpdateService to dec user's message count.
+Edit messageList.jsp, add a "delete" link to "./deleteMessage.do?userId=${m_msg.userId}&msgId=${m_msg.id}". Click the link, you are deleting a message. When a message is deleted, we also use slowUpdateService to dec user's message count.
 
 == Batch Delete ==
 
-Add a new Form in messageList.jsp. When submit the form, post all selected messages' ids to the server-side Action to perform the deleting in a batch. The new messageList.jsp: 
+Add a new Form in messageList.jsp. When submit the form, post all selected messages' ids to the server-side Action to perform the deleting in batch. The new messageList.jsp: 
 {{{
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -1353,7 +1353,7 @@ Add a new Form in messageList.jsp. When submit the form, post all selected messa
 </html>
 }}}
 
-Edit DeleteMessageAction.java to accept POST batch deleting:
+Edit DeleteMessageAction.java to accept POST batch delete:
 {{{
 package example.view.action;
 
@@ -1476,9 +1476,9 @@ public class DeleteMessageAction implements Controller {
 }
 }}}
 
-If the requested method is "POST", we read the passed "ids" parameters to a int[], and find all matched Messages with SearchExpression query. Then, create a batcher, and delete them.
+When the requested method is "POST", we read the passed "ids" parameters to a int[], and find all matched Messages with SearchExpression query. Then, create a batcher, and delete them.
 
-Guzz provides two batch APIs, one is based on Object operation called "ObjectBatcher", the other is based on directly SQL statment called "SQLBatcher". In this example, we use ObjectBatcher.
+Guzz provides two kinds of batch APIs, one is based on Object operations called "ObjectBatcher", the other is based on directly SQL statement called "SQLBatcher". In this example, we use ObjectBatcher.
 
 
 = Appendix & Downloads =
