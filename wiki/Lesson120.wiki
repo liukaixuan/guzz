@@ -1,4 +1,4 @@
-= Getting Start Lesson =
+= Getting Start =
 
 In this lesson, we will guide you to write a Message-Board system running on 5 database machines, hand by hand.
 
@@ -35,7 +35,7 @@ Of course, that will better if you have 5 or more databases.
 One Database is enough for this lesson, it's transparent to guzz how many database machines you actually used.
 
 
-= Create Project: MessageBoard  =
+= Create Project: !MessageBoard  =
 
 Our Message-Board is based on the architecture of springIOC + springMVC + guzz, so just download the empty project to get start. The empty project is something like "a empty sample project buildxxxxxxx.zip" listed in ：[http://code.google.com/p/guzz/downloads/list]
 
