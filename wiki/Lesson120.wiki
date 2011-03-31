@@ -1172,7 +1172,6 @@ Deploy and restart the application. Vote. The vote count does't change. It is Ok
 
 == !SlowUpdateServerService ==
 
-为了将计数队列的数据写回各个表对应的主库，还需要启动计数队列服务的服务器端。修改guzz.xml文件，添加服务器端服务：
 To write operations in tb_guzz_su back to the main db, we need to configure the server-part of SlowUpdateService: SlowUpdateServerService.
 
 Edit guzz.xml, declare the SlowUpdateServerService:
@@ -1197,11 +1196,11 @@ updateInterval=500
 Deploy and restart the system. Check tb_guzz-su, the queue is consumed. Visit http://localhost:8080/guzz/messageList.jsp?userId=1 , the count worked again.
 
 
-= 删除留言，批量删除留言 =
+= Delete a message, Batch Delete =
 
-== 单条留言删除 ==
+== Delete a message ==
 
-创建删除留言的Action：example.view.action.DeleteMessageAction.java：
+Create a new Action to handle Message Delete: example.view.action.DeleteMessageAction.java:
 {{{
 package example.view.action;
 
@@ -1268,7 +1267,7 @@ public class DeleteMessageAction implements Controller {
 }
 }}}
 
-配置到 dispatcher-servlet.xml 中：
+add it to dispatcher-servlet.xml :
 {{{
 <bean name="/deleteMessage.do" class="example.view.action.DeleteMessageAction">
 	<property name="guzzContext" ref="guzzContext" />
@@ -1276,11 +1275,11 @@ public class DeleteMessageAction implements Controller {
 </bean>
 }}}
 
-修改 messageList.jsp，增加delete链接到 ./deleteMessage.do?userId=${m_msg.userId}&msgId=${m_msg.id} 即可删除消息。在消息删除时，我们同时用slowUpdateService减少用户的留言数。
+Edit messageList.jsp, add the "delete" link to "./deleteMessage.do?userId=${m_msg.userId}&msgId=${m_msg.id}". Click the link, you are deleting a message. When a message is deleted, we also use slowUpdateService to dec user's message count.
 
-== 批量删除 ==
+== Batch Delete ==
 
-我们在 messageList.jsp 中增加一个Form表单，提交表单时提交所有选择的留言编号，服务器端根据编号批量删除。messageList.jsp:
+Add a new Form in messageList.jsp. When submit the form, post all selected messages' ids to the server-side Action to perform the deleting in a batch. The new messageList.jsp: 
 {{{
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/jsp/include/tags.jsp"%>
@@ -1354,7 +1353,7 @@ public class DeleteMessageAction implements Controller {
 </html>
 }}}
 
-批量删除我们依然提交到 deleteMessage.do 中，只是采用POST方法提交。修改 DeleteMessageAction.java 以支持批量操作：
+Edit DeleteMessageAction.java to accept POST batch deleting:
 {{{
 package example.view.action;
 
@@ -1477,10 +1476,14 @@ public class DeleteMessageAction implements Controller {
 }
 }}}
 
-对于POST提交的批量操作，我们获取所有提交的消息编号数组，通过 SearchExpression 查询符合的留言，创建批操作一次删除。guzz提供了两种批操作API，一种为基于对象化操作的 ObjectBatcher ，一种为基于直接SQL语句的SQLBatcher。本例子使用的是 ObjectBatcher 。
+If the requested method is "POST", we read the passed "ids" parameters to a int[], and find all matched Messages with SearchExpression query. Then, create a batcher, and delete them.
 
-= 附录与代码 =
+Guzz provides two batch APIs, one is based on Object operation called "ObjectBatcher", the other is based on directly SQL statment called "SQLBatcher". In this example, we use ObjectBatcher.
 
-最终完成的工程代码：[http://guzz.googlecode.com/svn/wiki/no-wikis/MessageBoard.zip]（大小：31K）
 
-工程代码中不包含/WebRoot/WEB-INF/lib/下所依赖的jar包。
+= Appendix & Downloads =
+
+The final fininshed project code: [http://guzz.googlecode.com/svn/wiki/no-wikis/MessageBoard.zip] (size: 31K)
+
+The code doesn't contain any depended jars under /WebRoot/WEB-INF/lib/ .
+
