@@ -126,6 +126,8 @@ public class LBRound implements RoundCard{
 		int maxSize = card_services.length ;
 		if(maxSize == 0){
 			return null ;
+		}else if(maxSize == 1){
+			return card_services[0] ;
 		}
 		
 		int pos = this.currentPos++ ;
@@ -163,8 +165,6 @@ public class LBRound implements RoundCard{
 		}
 		return gcd(a[n - 1], _ngcd(a, n - 1));
 	}
-	
-	
 
 	static class _Holder{
 		public Object service ;
