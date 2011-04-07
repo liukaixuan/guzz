@@ -131,9 +131,25 @@ public class StringUtil {
             }else{
                 //汉字
                 String hexS = Integer.toHexString(c & 0xffff) ;
-                sb.append("\\u").append(hexS.toLowerCase()) ;
+                sb.append("\\u") ;
+                
+                if(hexS.length() < 4){
+                	switch(hexS.length()){
+	                	case 1:
+	                		sb.append("000") ;
+	                		break ;
+	                	case 2:
+	                		sb.append("00") ;
+	                		break ;
+	                	case 3:
+	                		sb.append('0') ;
+                	}
+                }
+                
+                sb.append(hexS.toLowerCase()) ;
             }
         }
+            
         return sb.toString() ;
 	}
 
