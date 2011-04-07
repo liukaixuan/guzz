@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.guzz.pojo.DynamicUpdatable;
 import org.guzz.test.Article;
+import org.guzz.util.StringUtil;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -13,6 +14,11 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 public class EnchancerTest extends TestCase{
+	
+	public void testUnicode(){
+		System.out.println(StringUtil.native2ascii("翻译")) ;
+		assertEquals(StringUtil.native2ascii("·"), "\\u00b7") ;
+	}
 	
 	public void testMe(){
 		Article a = (Article) Enhancer.create(Article.class, new Class[]{DynamicUpdatable.class}, null, new Callback[]{
