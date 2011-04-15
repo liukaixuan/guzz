@@ -45,7 +45,7 @@
 
  "orm": The OR-mapping name. It can be a business name, a global orm name defined in guzz.xml, or a orm defined in this file. The orm defined in this file will override the global one with the same name.
 
- "result-class": The mapped java object returned to the user. It can be any javabean class, or a implementation of java.util.Map. For javabean class, FileDynamicSQLServiceImpl stores the ResultSet by setXXX() methods; for a Map, FileDynamicSQLServiceImpl stores it by put(key, value). If the "orm" attribute is set, the key of the Map would be the mapped property name. Example: orm="java.util.HashMap"
+ "result-class": The mapped java object returned to the user. It can be any javabean class, or a implementation of java.util.Map. For javabean class, FileDynamicSQLServiceImpl stores the ResultSet by setXXX() methods; for a Map, FileDynamicSQLServiceImpl stores it by put(key, value). If the "orm" attribute is set, the key of the Map would be the mapped property name. Example: result-class="java.util.HashMap"
 
  "paramsMapping": Set the propNames that the parameters in the sql are binding for. This segment is optional, but important. It helps guzz to determine how to transform the passed parameters' values to their correct types JDBC required.
 
