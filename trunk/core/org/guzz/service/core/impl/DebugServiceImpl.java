@@ -73,10 +73,13 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 	
 	protected boolean isDemonThread(){
 		Thread t = Thread.currentThread() ;
-		String name =t.getName() ;
-		if(name == null) return false ;
 		
-		return name.startsWith(DebugService.DEMON_NAME_PREFIX) ;
+		return t.isDaemon() ;
+		
+//		String name =t.getName() ;
+//		if(name == null) return false ;
+//		
+//		return name.startsWith(DebugService.DEMON_NAME_PREFIX) ;
 	}
 	
 	public void logSQL(String sql, long nanoTime){
