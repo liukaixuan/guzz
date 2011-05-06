@@ -210,3 +210,24 @@ If(!fixedLifeCountService.incCountIfLess(userId, 1,10, 600)){
 	throw new Exception("Have a little rest, please!") ;
 }
 }}}
+ 
+ == Startup sequences of Service: ==
+
+ * 1. Class.forName(service class name).newInstance() to instance the service;
+ 
+ * 2. Inject depended services
+ 
+ * 3. call setGuzzContext(GuzzContex guzzContext) if the GuzzContextAware interface is declared;
+ 
+ * 4. call {@link #configure(ServiceConfig[])} to start the initialization
+ 
+ * 5. call startup();
+ 
+ * 6. register the service to guzz's {@link ServiceManager} (where you can query the service by name).
+ 
+ * 7. call setExtendedBeanFactory(ExtendedBeanFactory factory) if the ExtendedBeanFactoryAware interface is declared;
+ 
+ * 8. running....;
+ 
+ * 9. call shutdown() when guzz exits. 
+ 
