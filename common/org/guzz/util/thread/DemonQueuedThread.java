@@ -27,7 +27,7 @@ import org.guzz.service.core.DebugService;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class DemonQueuedThread  extends Thread{
+public class DemonQueuedThread extends Thread{
 	private transient final Log log = LogFactory.getLog(getClass()) ;
 	
 	private boolean keepRunning = true ;

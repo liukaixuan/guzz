@@ -33,6 +33,7 @@ import org.guzz.web.context.GuzzContextAware;
  * Service bootstrap sequence：
  * <ol>
  * <li> Class.forName(service class name).newInstance()</li>
+ * <li> Inject depended services</li>
  * <li> set {@link GuzzContext} if the service implements {@link GuzzContextAware}</li>
  * <li> call {@link #configure(ServiceConfig[])} to start the initialization</li>
  * <li> call {@link #startup()}</li>

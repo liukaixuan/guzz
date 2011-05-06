@@ -383,6 +383,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 		session.close() ;
 	}
 	
+	//与VirtualDB的数据库结构冲突，把VirtualDB关掉，此测试才能通过。
 	public void testQueryThroughTables() throws Exception{
 		testInsert() ;
 		

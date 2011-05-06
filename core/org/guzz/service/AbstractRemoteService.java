@@ -50,12 +50,17 @@ public abstract class AbstractRemoteService<ServiceReturnType> extends AbstractS
 		return true ;
 	}
 	
+	/**
+	 * @deprecated Inject the {@link ExecutorService} with {@link org.guzz.service.core.impl.JDK5ExecutorServiceImpl}
+	 */
 	protected ThreadFactory createThreadFactory(Properties config){
 		return Executors.defaultThreadFactory() ;
 	}
 	
 	/**
 	 * 默认使用ArrayBlockingQueue
+	 * 
+	 * @deprecated Inject the {@link ExecutorService} with {@link org.guzz.service.core.impl.JDK5ExecutorServiceImpl}
 	 */
 	protected BlockingQueue<Runnable> createBlockingQueue(Properties config){
 		int queueSize = StringUtil.toInt((String) config.remove("remote.queueSize"), 2048) ;
@@ -63,6 +68,9 @@ public abstract class AbstractRemoteService<ServiceReturnType> extends AbstractS
 		return new ArrayBlockingQueue<Runnable>(queueSize) ;
 	}
 	
+	/**
+	 * @deprecated Inject the {@link ExecutorService} with {@link org.guzz.service.core.impl.JDK5ExecutorServiceImpl}
+	 */
 	protected ExecutorService createExecutorService(Properties config){
 		int corePoolSize = StringUtil.toInt((String) config.remove("remote.corePoolSize"), 5) ;
 		int maximumPoolSize = StringUtil.toInt((String) config.remove("remote.maxPoolSize"), 50) ;
@@ -77,15 +85,15 @@ public abstract class AbstractRemoteService<ServiceReturnType> extends AbstractS
 	 * 创建一个新的任务
 	 */
 	public FutureResult<ServiceReturnType> sumbitTask(FutureDataFetcher<ServiceReturnType> fetcher){
-		return new FutureResult<ServiceReturnType>(executorService, fetcher) ;
+		return new FutureResult<ServiceReturnType>(getExecutorService(), fetcher) ;
 	}
 
 	public void startup() {
-		this.executorService = createExecutorService(config) ;
+		
 	}
 
 	public boolean isAvailable() {
-		return executorService != null ;
+		return true ;
 	}
 
 	public void shutdown() {
@@ -93,6 +101,22 @@ public abstract class AbstractRemoteService<ServiceReturnType> extends AbstractS
 			executorService.shutdown() ;
 			executorService = null ;
 		}
+	}
+
+	public ExecutorService getExecutorService() {
+		//ExecutorService is not injected, create a new one.
+		if(this.executorService == null){
+			log.warn("ExecutorService should be injected with org.guzz.service.core.impl.JDK5ExecutorServiceImpl") ;
+			
+			this.executorService = createExecutorService(config) ;
+		}
+		
+		return executorService;
+	}
+
+	//inject is suggested.
+	public void setExecutorService(ExecutorService executorService) {
+		this.executorService = executorService;
 	}
 
 }

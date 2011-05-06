@@ -16,12 +16,11 @@
  */
 package org.guzz.service.log.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.guzz.Guzz;
 import org.guzz.GuzzContext;
 import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
+import org.guzz.service.db.impl.InsertQueueServiceImpl;
 import org.guzz.service.log.LogService;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
@@ -37,7 +36,6 @@ import org.guzz.web.context.GuzzContextAware;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class DBLogServiceImpl extends AbstractService implements LogService, GuzzContextAware{
-	private static transient final Log log = LogFactory.getLog(DBLogServiceImpl.class) ;
 		
 	protected GuzzContext guzzContext ;
 	
@@ -50,7 +48,7 @@ public class DBLogServiceImpl extends AbstractService implements LogService, Guz
 	private int updateInterval ;
 
 	public boolean configure(ServiceConfig[] scs) {
-		if(scs != null || scs.length > 0){
+		if(scs != null && scs.length > 0){
 			ServiceConfig sc = scs[0] ;
 			
 			String m_commitSize = (String) sc.getProps().get("commitSize") ;

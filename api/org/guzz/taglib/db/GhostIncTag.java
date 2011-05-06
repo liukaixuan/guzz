@@ -16,8 +16,6 @@
  */
 package org.guzz.taglib.db;
 
-import java.io.Serializable;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
