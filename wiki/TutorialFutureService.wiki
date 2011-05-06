@@ -16,7 +16,7 @@
 public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
 }}}
 
- This method returns a FutureResult to you. FutureResult is a asynchronous interface to your result, call its methods when you need to use the result later.
+ This method returns a FutureResult. FutureResult is a asynchronous interface to your result, call its methods when you need to use the result later.
 
  The interface of FutureDataFetcher is:
 
@@ -34,24 +34,32 @@ FutureDataFetcher has two methods:
 
  public T getDefaultData() ; The default value to return when the task is canceled or failed, and you are reading result ignoring any exceptions.
 
-AbstractRemoteService builds a thread pool by JDK concurrent package inside, you can tune this thread pool with the below parameters in config file.
+AbstractRemoteService use JDK5's ExecutorService to perform the asynchronous call. Injected the ExecutorService with service "org.guzz.service.core.impl.JDK5ExecutorServiceImpl", eg:
 
 {{{
-#min threads
-remote.corePoolSize=5
+<service name="executorService" configName="jdk5ExecutorService" class="org.guzz.service.core.impl.JDK5ExecutorServiceImpl" />	
 
-#max threads
-remote.maxPoolSize=50
-
-#max idle time(million seconds). The idle thread will be killed, until the total number of threads is dropped to remote.corePoolSize.
-remote.keepAliveMilSeconds=60000
-
-#max queue size if there is no idle thread.
-remote.queueSize=2048
-
+<service name="yourService" dependsOn="executorService" configName="yourServiceConf" class="your service's class name" />	
 }}}
 
- The sample config shows you the default parameters for the thread pool, it is optional.
+And tune the ExecutorService's thread pool with the below parameters in the config file:
+
+{{{
+[jdk5ExecutorService]
+#min threads
+corePoolSize=5
+
+#max threads
+maxPoolSize=50
+
+#max idle time(million seconds). The idle thread will be killed, until the total number of threads is dropped to corePoolSize.
+keepAliveMilSeconds=60000
+
+#max queue size if there is no idle thread.
+queueSize=2048
+}}}
+
+ The sample config shows the default parameters for the thread pool, it is optional.
 
 *TIPS*: AbstractRemoteService is just a service providing asynchronous base methods. It can be a *remote* network call, or a *local* JVM call! AbstractRemoteService doesn't reply on network at all!
 

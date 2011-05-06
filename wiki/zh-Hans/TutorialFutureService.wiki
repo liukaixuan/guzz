@@ -46,25 +46,34 @@ FutureDataFetcher有2个方法：
 
  public T getDefaultData() ; 在调用出错、或者任务取消时返回给调用者的默认值。有时候调用者希望忽略异常（避免烦人的try catch），使用默认值代替真正的结果，或使用默认值确定调用是否出错时使用。
 
-AbstractRemoteService内部通过JDK concurrent包建立线程池，可以通过guzz服务配置的以下属性对线程池进行调节：
+AbstractRemoteService内部通过JDK concurrent包的ExecutorService执行异步调用，使用的服务需要注入org.guzz.service.core.impl.JDK5ExecutorServiceImpl来设置ExecutorService。如：
 
 {{{
+<service name="executorService" configName="jdk5ExecutorService" class="org.guzz.service.core.impl.JDK5ExecutorServiceImpl" />	
+
+<service name="yourService" dependsOn="executorService" configName="yourServiceConf" class="your service's class name" />	
+}}}
+
+ 然后可以通过以下参数调整ExecutorService的线程池参数：
+ 
+{{{
+[jdk5ExecutorService]
 #最少线程数
-remote.corePoolSize=5
+corePoolSize=5
 
 #最大线程数
-remote.maxPoolSize=50
+maxPoolSize=50
 
 #线程空闲最大时间（单位：毫秒），超出空闲时间的线程将被停掉，直到总线程数降到corePoolSize为止。
-remote.keepAliveMilSeconds=60000
+keepAliveMilSeconds=60000
 
 #没有空闲线程时，任务排队队列最大程度
-remote.queueSize=2048
-
+queueSize=2048
 }}}
 
  上面属性给的值为不配置时的默认值。
 
+ 多个异步服务可以共用一个ExecutorService。
 
 *TIPS*：AbstractRemoteService虽然名字上有Remote，但和“远程”调用无关；AbstractRemoteService本身并不依赖网络，可以用于本地需要异步执行的操作。
 
