@@ -34,8 +34,7 @@ printSQL=true
 #print sql parameters to the commons log?
 printSQLParams=true
 
-#ignore sqls executed in guzz demon thread(thread is demon and thread name is started with gz_demon_t_).
-#org.guzz.service.core.DebugService.DEMON_NAME_PREFIX = "gz_demon_t_" ;
+#ignore sqls executed in guzz demon thread(Thread.isDemon() == true).
 ignoreDemonThreadSQL=true
 
 #print out how many nano-seconds a sql takes to execute.
