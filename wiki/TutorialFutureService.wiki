@@ -61,7 +61,7 @@ queueSize=2048
 
  The sample config shows the default parameters for the thread pool, it is optional.
 
-*TIPS*: AbstractRemoteService is just a service providing asynchronous base methods. It can be a *remote* network call, or a *local* JVM call! AbstractRemoteService doesn't reply on network at all!
+*TIPS*: AbstractRemoteService is just a abstract service providing some asynchronous methods. The asynchronous calls can be a "remote" one, or a local JVM one, AbstractRemoteService doesn't rely on network.
 
 === RPC Service ===
 
@@ -93,4 +93,3 @@ public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
 || hessian  || hessian        || rpc.url the service url<br>Any properties can be called by setXXX in com.caucho.hessian.client.HessianProxyFactory(the parameter name is:rpc.xXX).<br>eg: rpc.user, rpc.password, rpc.connectionFactoryName, rpc.debug, rpc.overloadEnabled, rpc.chunkedPost, rpc.readTimeout, rpc.hessian2Request. || http://hessian.caucho.com/ ||
 || burlap  || burlap  || rpc.url the service url<br>Any properties can be called by setXXX in com.caucho.burlap.client.BurlapProxyFactory(the parameter name is:rpc.xXX).<br>eg: rpc.user, rpc.password, rpc.overloadEnabled. || http://hessian.caucho.com/doc/burlap.xtp ||
 || PHPRPC   || phprpc         || rpc.serviceURL the service url<br>Any properties can be called by setXXX in org.phprpc.PHPRPC_Client(the parameter name is:rpc.xXX). || http://www.phprpc.org/ ||
-
