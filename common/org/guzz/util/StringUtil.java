@@ -104,6 +104,11 @@ public class StringUtil {
 		for(int i = 0 ; i < string.length() ; i++){
 			char c = string.charAt(i) ;
 			
+			if(c == '\n' || c == '\r'){
+				sb.append(' ') ;
+				continue ;
+			}
+			
 			if(c == '\'' || c == '\"' || c == '\\'){
 				sb.append("\\") ;
 			}
