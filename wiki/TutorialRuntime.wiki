@@ -6,8 +6,69 @@
 
  Servlet 2.4 is required when running under Web Container.
 
- Guzz depends on dom4J and commons-log which can be found under the download page.
+ Guzz depends on dom4J, cglib and commons-log which can be found under the download page.
+
+== Maven： ==
+
+ maven server:
+{{{
+    <?xml version="1.0" encoding="UTF-8"?>  
+    <project xsi:schemaLocation=" http://maven.apache.org/POM/4.0.0  http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns=" http://maven.apache.org/POM/4.0.0"  
+        xmlns:xsi=" http://www.w3.org/2001/XMLSchema-instance">  
+      <modelVersion>4.0.0</modelVersion>  
+      <groupId>org.guzz</groupId>  
+      <artifactId>guzz</artifactId>  
+      <version>1.2.9</version>  
+      <description>A full stack data-layer solution framework with many unique features.</description>
+      <url>http://code.google.com/p/guzz/</url>
+      <licenses>
+	     <license>
+	      <name>The Apache Software License, Version 2.0</name>
+	      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	      <distribution>repo</distribution>
+	    </license>
+	  </licenses>
+	  
+      <dependencies>
+        <dependency>  
+            <groupId>cglib</groupId>  
+            <artifactId>cglib-nodep</artifactId>  
+            <version>2.2</version>  
+        </dependency>
+        <dependency>  
+            <groupId>dom4j</groupId>  
+            <artifactId>dom4j</artifactId>  
+            <version>1.6.1</version>  
+        </dependency>
+        <dependency>  
+            <groupId>jaxen</groupId>  
+            <artifactId>jaxen</artifactId>  
+            <version>1.1.1</version>  
+        </dependency>
+        <dependency>  
+            <groupId>saxpath</groupId>  
+            <artifactId>saxpath</artifactId>  
+            <version>1.0-FCS</version>  
+        </dependency>
+        <dependency>  
+            <groupId>c3p0</groupId>  
+            <artifactId>c3p0</artifactId>  
+            <version>0.9.1</version>  
+        </dependency>
+      </dependencies>  
+    </project>
+}}}
+
+ maven client:
+{{{
+	<dependency>  
+    	<groupId>org.guzz</groupId>  
+    	<artifactId>guzz</artifactId>  
+    	<version>1.2.9</version>  
+	</dependency>
+}}}
 
 == How to create a guzz project? ==
  
  We suggest that you download the empty project of Guzz, and import it into Eclipse/MyEclipse to have the start. 
+ 
