@@ -71,7 +71,7 @@ queueSize=2048
  
  AbstractRPCService is derived from AbstractRemoteService, so the FutureResult and thread pool parameters are still valid here.
 
- AbstractRPCService use a standard way to initialize the RPC proxy on startup, so you can change the RPC provider in the future when needed without having to change a line of code. The RPC provider is declared by the rpc.protocol parameter in the config file. The rpc.protocal value is the proxy's name or the full class name of the proxy factory(a class implements org.guzz.service.remote.RemoteRPCProxy). For example:
+ AbstractRPCService use a standard way to initialize the RPC proxy on startup, so you can change the RPC provider in the future when needed without changing any codes. The RPC provider is declared by the rpc.protocol parameter in the config file. The rpc.protocal value is the proxy's name or the full class name of the proxy implementation(a class implements org.guzz.service.remote.RemoteRPCProxy). For example:
 
 {{{
 #set the RPC provider to phprpc
@@ -81,11 +81,12 @@ rpc.protocol=phprpc
 rpc.serviceURL=http://services.guzz.org/service/IPService
 }}}
 
- In the implementation of a service, whether asynchronous or not, is decided by the developers. If you don't need asynchronous, call and return the result directly; If you need it, call the parent's method and return the FutureResult as:
-
+ In the implementation of a service, whether asynchronous or not, is decided by the developers. If you don't need asynchronous, call and return the result directly; If you need it, call the parent's method:
 {{{
 public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
 }}}
+
+and return the FutureResult.
 
 === RPC providers guzz supported now: ===
 
