@@ -87,7 +87,7 @@ rpc.serviceURL=http://services.guzz.org/service/IPService
 public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
 }}}
 
-=== RPC providers guzz supported yet ===
+=== RPC providers guzz supported now: ===
 
 || RPC Provider || rpc.protocol || Parameters || More ||
 || hessian  || hessian        || rpc.url the service url<br>Any properties can be called by setXXX in com.caucho.hessian.client.HessianProxyFactory(the parameter name is:rpc.xXX).<br>eg: rpc.user, rpc.password, rpc.connectionFactoryName, rpc.debug, rpc.overloadEnabled, rpc.chunkedPost, rpc.readTimeout, rpc.hessian2Request. || http://hessian.caucho.com/ ||
