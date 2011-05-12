@@ -247,8 +247,8 @@ updateInterval=500
 log4j.logger.org.guzz.service.db.impl=debug
 }}}
 
-*Callback on "affected 0 rows while updating the count"*
- 
+*Callback on "affected 0 rows while updating the count":*
+
 Sometimes, you would like or have to store the count columns in a separate table. 
 
 slowUpdateServer provides a callback service for handling the record synchronization between the main table and the count table.
