@@ -246,7 +246,81 @@ updateInterval=500
 {{{
 log4j.logger.org.guzz.service.db.impl=debug
 }}}
+
+*Callback on "affected 0 rows while updating the count"*
  
+Sometimes, you would like or have to store the count columns in a separate table. 
+
+slowUpdateServer provides a callback service for handling the record synchronization between the main table and the count table.
+
+When slowUpdateServer executes a update sql, and finds out "0 rows affected" returned, the callback service would be called and you can sync the count record there.
+
+To active this feature, you have to write a service implements org.guzz.service.db.impl.UpdateExceptionHandlerService, and inject it into slowUpdateServer.
+
+Sample Code:
+{{{
+public class BlogUpdateExceptionHandlerServiceImpl extends AbstractService implements UpdateExceptionHandlerService {
+		
+	public void exceptionCaught(Exception e) throws Exception {
+		//ignore any exceptions
+		if(log.isDebugEnabled()){
+			log.error(e, e) ;
+		}
+	}
+
+	public boolean recordNotFoundInMainDB(WriteTranSession writeSession, JDBCTemplate jdbcTemplate, IncUpdateBusiness obj) {
+		String tableName = obj.getTableName() ;
+				
+		if(tableName.startsWith("tb_user_info")){
+			UserInfo user = new UserInfo() ;
+			user.setUserName(obj.getPkValue()) ;
+			user.setCreatedTime(new java.util.Date()) ;
+			
+			writeSession.insert(user) ;
+		}else if(tableName.startsWith("tb_user_actions_count")){
+			UserActionsCount count = new UserActionsCount() ;
+			count.setUserName(obj.getPkValue()) ;
+			count.setCreatedTime(new Date()) ;
+			
+			writeSession.insert(count) ;
+		}else{
+			//ignore and pass the record
+			return false ;
+		}
+		
+		//re-execute
+		return true;
+	}
+
+	public boolean configure(ServiceConfig[] scs) {
+		return true ;
+	}
+
+	public boolean isAvailable() {
+		return true ;
+	}
+
+	public void shutdown() {
+	}
+	
+	public void startup() {
+	}
+
+}
+
+}}}
+
+In this sample, a new record would be inserted according to its table name if it is not exist.
+
+Inject it into slowUpdateServer:
+
+{{{
+<service name="blogUpdateExceptionHandlerService" class="xxx.BlogUpdateExceptionHandlerServiceImpl"/>
+
+<service name="slowUpdateServer" dependsOn="feedUpdateExceptionHandlerService" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
+
+}}}
+  
 == 5. Insert Queue Service: ==
 
 *purpose:* Write objects into a memory queue, and another demon thread inserts the queued objects into the database.
