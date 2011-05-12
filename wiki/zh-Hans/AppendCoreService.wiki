@@ -250,6 +250,74 @@ log4j.logger.org.guzz.service.db.impl=debug
 }}}
 
  来观察输出。
+ 
+*自动增加计数项：*
+ 
+ 有时候我们将计数器单独存放在一张表中，这时候就需要维护“主表数据增加时，同步增加计数表”，否则计数的update语句只能“影响0行”。这将增加程序的复杂度，同时可能增加计数表的大小（如果某些记录永远不会有计数。例如博客用户按月归档：对于一年前的文章，我们按月归档显示，需要记录用户每个月的文章数并忽略没有文章的月。实时计算成本太高，一般就需要发表文章时，把这个月的文章数增加1，而大部分月并没有新文章）。
+ 
+ slowUpdateServer提供了一个回调服务，用于解决这个问题。在计数更新发现要更新的记录不存在，或者操作抛出异常时，回调提供的接口服务，使得开发者可以“在某条记录第一次计数时，临时增加计数记录”。
+ 
+ 为了使用这一特性，开发者需要实现1个org.guzz.service.db.impl.UpdateExceptionHandlerService服务，并注入给slowUpdateServer. 实现例子：
+{{{
+public class BlogUpdateExceptionHandlerServiceImpl extends AbstractService implements UpdateExceptionHandlerService {
+		
+	public void exceptionCaught(Exception e) throws Exception {
+		//ignore any exceptions
+		if(log.isDebugEnabled()){
+			log.error(e, e) ;
+		}
+	}
+
+	public boolean recordNotFoundInMainDB(WriteTranSession writeSession, JDBCTemplate jdbcTemplate, IncUpdateBusiness obj) {
+		String tableName = obj.getTableName() ;
+				
+		if(tableName.startsWith("tb_user_info")){
+			UserInfo user = new UserInfo() ;
+			user.setUserName(obj.getPkValue()) ;
+			user.setCreatedTime(new java.util.Date()) ;
+			
+			writeSession.insert(user) ;
+		}else if(tableName.startsWith("tb_user_actions_count")){
+			UserActionsCount count = new UserActionsCount() ;
+			count.setUserName(obj.getPkValue()) ;
+			count.setCreatedTime(new Date()) ;
+			
+			writeSession.insert(count) ;
+		}else{
+			//ignore and pass the record
+			return false ;
+		}
+		
+		//re-execute
+		return true;
+	}
+
+	public boolean configure(ServiceConfig[] scs) {
+		return true ;
+	}
+
+	public boolean isAvailable() {
+		return true ;
+	}
+
+	public void shutdown() {
+	}
+	
+	public void startup() {
+	}
+
+}
+
+}}} 
+
+当记录不存在时，判断要更新的表名是什么；根据表名，临时增加记录。
+
+然后将此服务注入给 slowUpdateServer 即可使用：
+{{{
+<service name="blogUpdateExceptionHandlerService" class="xxx.BlogUpdateExceptionHandlerServiceImpl"/>
+<service name="slowUpdateServer" dependsOn="feedUpdateExceptionHandlerService" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
+}}}
+ 
 
 == 5. 数据库插入队列服务： ==
 
