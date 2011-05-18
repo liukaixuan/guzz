@@ -23,7 +23,7 @@ Guzz can work with hibernate and ibatis, and can also work alone. If a system me
 
 Guzz also has some features for easing programming and maintaining. For example: Different API for trading between programming efficiency and low-lever resource controlling, Service extension, Central Configuration Extension support, Database oriented Taglib, and so on.
 
-Don’t be afraid. Guzz is a small framework took only 792KB with source code sealed in the jar, and 506KB without source code.
+Guzz is a small framework.
 
 == Doc & Help ==
 
