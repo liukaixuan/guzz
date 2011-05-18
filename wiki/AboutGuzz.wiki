@@ -5,9 +5,9 @@
 
  Guzz is a data-layer framework designed for busy and large systems running in REAL world (not just demos) with relation-database as a storage.
 
- For database solution, guzz has 6 features: 
+ For database solution, guzz has 6 features:
 
- 1.	You have too many tables in a database, or they took too much resource for one machine. Distribute them in different database machines with dbgroup in chapeter 3:  http://code.google.com/p/guzz/wiki/TutorialGuzzXml
+ 1. You have too many tables in a database, or they took too much resource for one machine. Distribute them in different database machines with dbgroup in chapeter 3:  http://code.google.com/p/guzz/wiki/TutorialGuzzXml
 
  2.	Some table is too big. Spit them into small ones with ShadowTable in chapter 15: http://code.google.com/p/guzz/wiki/TutorialShadowTable
 
@@ -19,7 +19,7 @@
 
  6.	The system is really very very busy, a single database is absolutely impossible to achieve your mission. Ok, deploy more READ machines with the native read-write separation support in guzz.
 
- Guzz can work with hibernate and ibatis, and can also work alone. If a system meets something of lacking database-scale ability, deploy more database machines and introduce guzz to upgrade database-scale related modules. 
+ Guzz can work with hibernate and ibatis, and can also work alone. If your system meets something of lacking database-scale ability, deploy more database machines and introduce guzz to upgrade database-scale related modules. 
 
  Guzz also has some features for easing programming and maintaining. For example: Different API for trading between programming efficiency and low-lever resource controlling, Service extension, Central Configuration Extension support, Database oriented Taglib, and so on.
 
