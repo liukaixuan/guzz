@@ -5,13 +5,13 @@
 
  Guzz is a data-layer framework designed for busy and large systems running in REAL world (not just demos) with relation-database as a storage.
 
- For database solution, guzz has 6 features:
+	*For database solution, guzz has 6 features:*
 
- * 1.	You have too many tables in a database, or they took too much resource for one machine. Distribute them in different database machines with dbgroup in chapeter 3:  http://code.google.com/p/guzz/wiki/TutorialGuzzXml
+ * 1.	You have too many tables in a database, or they took too much resource for one machine. Distribute them in different database machines with dbgroup in chapeter 3: [TutorialGuzzXml]
 
  * 2.	Some table is too big. Spit them into small ones with ShadowTable in chapter 15: [TutorialShadowTable]
 
- * 3.	Your business is special, for example a shopping site; each table may/should own its special columns. Ok, split them with CustomTable in chapter 16:  [TutorialCustomTable]
+ * 3.	Your business is special, for example a shopping site; each table may/should own its special columns. Ok, split them with CustomTable in chapter 16: [TutorialCustomTable]
 
  * 4.	Big tables are split, but the split small tables are too many or too big in total to store together. Distribute the small tables in different database machines with VirtualDB in chapter 17: [TutorialVirtualDB]
 
