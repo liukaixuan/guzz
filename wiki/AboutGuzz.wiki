@@ -1,11 +1,11 @@
 #labels Featured
 || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=en English] || [http://code.google.com/p/guzz/wiki/AboutGuzz?wl=zh-Hans 简体中文] ||
 
-== Overview Again ==
+== Overview ==
 
  Guzz is a data-layer framework designed for busy and large systems running in REAL world (not just demos) with relation-database as a storage.
 
-	*For database solution, guzz has 6 features:*
+*For database solution, guzz has 6 features:*
 
  * 1.	You have too many tables in a database, or they took too much resource for one machine. Distribute them in different database machines with dbgroup in chapeter 3: [TutorialGuzzXml]
 
