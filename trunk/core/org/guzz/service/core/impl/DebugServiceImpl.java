@@ -262,17 +262,19 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 	}
 	
 	protected void printGuzzDebugInfo(){
-		String result = "guzz debug info:" ;
-		
-		result += "debugMode:" + this.isDebugMode ;
-		result += ",logOnError:" + this.logOnError ;
-		result += ",haltOnError:" + this.haltOnError ;
-		result += ",printSQL:" + this.printSQL ;
-		result += ",printSQLParams:" + this.printSQLParams ;	
-		result += ",measureTime:" + this.measureTime ;
-		result += ",onlySlowSQLInNano:" + this.onlySlowSQLInNano ;
-		
-		logInfo(result) ;
+		if(log.isInfoEnabled()){
+			String result = "guzz debug info:" ;
+			
+			result += "debugMode:" + this.isDebugMode ;
+			result += ",logOnError:" + this.logOnError ;
+			result += ",haltOnError:" + this.haltOnError ;
+			result += ",printSQL:" + this.printSQL ;
+			result += ",printSQLParams:" + this.printSQLParams ;	
+			result += ",measureTime:" + this.measureTime ;
+			result += ",onlySlowSQLInNano:" + this.onlySlowSQLInNano ;
+			
+			log.info(result) ;
+		}
 	}
 	
 	protected void resetToDefaultConfig(){
@@ -288,11 +290,8 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 	protected void logInfo(String msg){
 		if(log.isInfoEnabled()){
 			log.info(msg) ;
-		}else if(log.isErrorEnabled()){
-			log.error(msg) ;
-		}else if(log.isFatalEnabled()){
-			log.fatal(msg) ;
 		}else{
+			//如果log4j info级别无法输出，直接按照System.out输出，不在自动调高级别按warning，error等打印。避免引起维护人员对程序出错的误判。
 			System.out.println(msg);
 		}
 	}
@@ -300,11 +299,9 @@ public class DebugServiceImpl extends AbstractService implements DebugService, S
 	protected void logInfo(String msg, Throwable e){
 		if(log.isInfoEnabled()){
 			log.info(msg, e) ;
-		}else if(log.isErrorEnabled()){
-			log.error(msg, e) ;
-		}else if(log.isFatalEnabled()){
-			log.fatal(msg, e) ;
 		}else{
+			//如果log4j info级别无法输出，直接按照System.out输出，不在自动调高级别按warning，error等打印。避免引起维护人员对程序出错的误判。
+			
 			System.err.println(msg);
 			e.printStackTrace(System.err) ;
 		}
