@@ -210,17 +210,17 @@ public class GuzzBaseDao {
 	}
 	
 	/**
-	 * 从slave数据库读取列表。
+	 * List from slave database.
 	 * 
 	 * @param bsql BindedCompiledSQL
-	 * @param startPos 从 1 开始
+	 * @param startPos start from 1
 	 * @param maxSize
 	 */
 	public List list(BindedCompiledSQL bsql, int startPos, int maxSize){
 		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
 		
 		try{
-			return session.list(bsql, 1, 2) ;
+			return session.list(bsql, startPos, maxSize) ;
 		}finally{
 			session.close() ;
 		}
