@@ -28,6 +28,6 @@
   * [http://www.guzz.org/docs/tlddocs/index.html taglib doc]
   * Appendix
     * [AppendCoreService Services inside guzz]
-    * [AppendSpringBean Fetch spring beans in guzz]
+    * [AppendSpringBean API between spring and guzz]
     * [AppendJPAAnnotation Guzz JPA Annotation Reference]
-    * [AppendTestCoverage Testcase Coverage]
+    * [AppendTestCoverage TestCase Coverage]

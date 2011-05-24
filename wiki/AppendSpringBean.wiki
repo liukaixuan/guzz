@@ -53,7 +53,7 @@ org.guzz.web.context.ExtendedBeanFactoryAware
  
  One bean, one service.
 
-== How to get guzz's DataSource in spring? == 
+== How to get guzz's !DataSource in spring? == 
 
  Sample:
 {{{
@@ -64,7 +64,7 @@ org.guzz.web.context.ExtendedBeanFactoryAware
 
  Define a spring bean for org.guzz.web.context.spring.GuzzDataSourceFactoryBean with the following 4 properties:
 
-|| *property* || *note* || 
+|| *Property* || *Note* || 
 || dbGroup || dbgroup name in guzz. ||
 || tableCondition || The tableCondition for VirtualDB. ||
 || masterDB || Select the master database's DataSource? true or false ||
