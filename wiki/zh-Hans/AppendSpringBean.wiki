@@ -2,7 +2,7 @@
 
  必须按照先前文档的介绍在spring中配置。
 
-== 获取方法 ==
+== 在guzz中获取spring定义的bean ==
 
 *自动注入：*
 
@@ -39,3 +39,47 @@ org.guzz.web.context.ExtendedBeanFactoryAware
 }}}
 
  是所有guzz可能执行的主动回调中最后的一个，甚至在startup()之后才能调用（如果有类似的启动方法）。使用时需要特别注意。
+ 
+== 在spring中获取guzz服务 == 
+
+例子： 
+{{{
+<bean id="slowUpdateService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean">
+   	<property name="serviceName" value="guzzSlowUpdate" />
+</bean>
+}}}
+
+定义一个bean，class为org.guzz.web.context.spring.GuzzServiceFactoryBean, serviceName的值为服务名称即可。一个bean对应一个服务实例。
+
+== 在spring中获取guzz数据源 == 
+
+例子： 
+{{{
+<bean id="dataSource" class="org.guzz.web.context.spring.GuzzDataSourceFactoryBean">
+	<property name="masterDB" value="true" />
+</bean>
+}}}
+
+定义一个bean，class为org.guzz.web.context.spring.GuzzDataSourceFactoryBean，有4个可选属性：
+
+|| *属性* || *取值* || *含义* || 
+|| dbGroup || 数据库分组，默认为default ||
+|| tableCondition || 如果数据库库为VirtualDB，传入定位到需要数据源的分库条件 ||
+|| masterDB || true或者false。获取主库数据源。与下面的slaveDB属性选择1个。 ||
+|| slaveDB || true或者false。获取1台从库的数据源 ||
+
+
+ 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
