@@ -49,7 +49,7 @@ org.guzz.web.context.ExtendedBeanFactoryAware
 </bean>
 }}}
 
-定义一个bean，class为org.guzz.web.context.spring.GuzzServiceFactoryBean, serviceName的值为服务名称即可。一个bean对应一个服务实例。
+定义一个bean，class为org.guzz.web.context.spring.GuzzServiceFactoryBean, serviceName的值为服务名称即可。一个bean对应一个服务。
 
 == 在spring中获取guzz数据源 == 
 
@@ -62,24 +62,10 @@ org.guzz.web.context.ExtendedBeanFactoryAware
 
 定义一个bean，class为org.guzz.web.context.spring.GuzzDataSourceFactoryBean，有4个可选属性：
 
-|| *属性* || *取值* || *含义* || 
-|| dbGroup || 数据库分组，默认为default ||
-|| tableCondition || 如果数据库库为VirtualDB，传入定位到需要数据源的分库条件 ||
+|| *属性* || *取值* || 
+|| dbGroup || 数据库分组，默认为default。 ||
+|| tableCondition || 如果数据库库为VirtualDB，传入定位到需要数据源的分库条件。 ||
 || masterDB || true或者false。获取主库数据源。与下面的slaveDB属性选择1个。 ||
-|| slaveDB || true或者false。获取1台从库的数据源 ||
+|| slaveDB || true或者false。获取1台从库的数据源。 ||
 
-
- 
-  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
  

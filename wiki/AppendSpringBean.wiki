@@ -2,7 +2,7 @@
 
 You *MUST* configure guzz for spring in [TutorialConfig#Web_Application_with_Spring_IOC_support: TutorialConfig]'s way. 
 
-== How to get the spring bean? ==
+== How to get the spring bean in guzz? ==
 
 *By Injection：*
 
@@ -39,5 +39,37 @@ org.guzz.web.context.ExtendedBeanFactoryAware
 }}}
 
  is the last method that would be called by guzz. It is later even than the startup() methods in your user-defined components. Be very very careful!
+
+== How to get guzz's service in spring? == 
+
+ Sample:
+{{{
+<bean id="slowUpdateService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean">
+   	<property name="serviceName" value="guzzSlowUpdate" />
+</bean>
+}}}
+
+ Define a spring bean for org.guzz.web.context.spring.GuzzServiceFactoryBean, and set the serviceName property to guzz's service name.
  
+ One bean, one service.
+
+== How to get guzz's DataSource in spring? == 
+
+ Sample:
+{{{
+<bean id="dataSource" class="org.guzz.web.context.spring.GuzzDataSourceFactoryBean">
+	<property name="masterDB" value="true" />
+</bean>
+}}}
+
+ Define a spring bean for org.guzz.web.context.spring.GuzzDataSourceFactoryBean with the following 4 properties:
+
+|| *property* || *note* || 
+|| dbGroup || dbgroup name in guzz. ||
+|| tableCondition || The tableCondition for VirtualDB. ||
+|| masterDB || Select the master database's DataSource? true or false ||
+|| slaveDB || Select the slave database's DataSource? true or false. ||
+
+ 
+  
   
