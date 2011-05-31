@@ -48,7 +48,7 @@
 		</select>
 		
 		<select id="selectUserByName" orm="user">
-			select @id, @userName, @vip, @password from @@user where @userName = :userName
+			select id, userName, vip, password from tb_user where userName = :userName
 		</select>
 	
 		<update id="updateUserFavCount" orm="userObjectMap">
@@ -60,7 +60,7 @@
 		</select>
 		
 		<select id="listCommentsByName" orm="commentMap">
-			select-* from @@commentMap where @userName = :userName
+			select * from @@commentMap where @userName = :userName
 		</select>
 				
 		<orm id="userObjectMap" class="org.guzz.test.UserModel">
@@ -99,7 +99,7 @@
 
 *sqlMap：*定义sql语句以及sql映射，类似于ibatis。sqlMap可以指定dbgroup属性标记此sqlMap下所有查询对应的数据库组，默认为default数据库组。
 
-*sqlMap/select|update：*定义sql查询和更新|删除语句，通过id指定名称（在程序中使用的名称），通过orm 属性指定要Mapping的配置。sql语句为可在数据库中执行的标准sql语句。在编写sql语句时，可以@@businessName或者@@full-class-name的方式代替数据库表名，用@java属性名称或者@orm/result/property 名称代替对应的数据库字段，guzz在执行时会完成自动替换。
+*sqlMap/select|update：*定义sql查询和更新|删除语句，通过id指定名称（在程序中使用的名称），通过orm 属性指定要Mapping的配置。sql语句为可在数据库中执行的标准sql语句。在编写sql语句时，为了方便记忆，可以用@@businessName或者@@full-class-name的方式代替数据库表名，用@java属性名称或者@orm/result/property 名称代替对应的数据库字段，guzz在执行时会完成自动替换；当然也可以不用。
 
  如果sql中包含参数，使用“冒号+参数名称”代替，如“:userName”，在程序中执行时通过java.util.Map传入"userName"->value对进行调用，guzz将完成命名参数的参数设置（PreparedStatement方式）。
 

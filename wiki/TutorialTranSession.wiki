@@ -81,7 +81,7 @@ try{
 {{{
 TransactionManager tm = super.getTransactionManager() ;
 
-String sql = "select count(*) as count, company from mycompany join xxx... where group by company having @salary = :salary " ;
+String sql = "select count(*) as count, company from mycompany join xxx... where group by company having salary = :salary " ;
 
 CompiledSQL cs = builder.buildCompiledSQL(Company.class, sql) ;
 
@@ -114,7 +114,7 @@ try{
 		</select>
 		
 		<select id="selectUserByName" orm="user">
-			select @id, @userName, @vip, @password from @@user where @userName = :userName
+			select id, userName, vip, password from tb_user where userName = :userName
 			
 			<paramsMapping>
 				<map paramName="userName" propName="userName" />
