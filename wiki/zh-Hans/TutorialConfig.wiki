@@ -78,9 +78,9 @@ gc.shutdown() ;
  * 4. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
  
  
- == 在web应用中获取GuzzContext： === 
+=== 在web应用中获取GuzzContext： === 
  
- 按照普通web或者spring web方式配置的guzz，可以在java代码和JSP中，通过如下获取到GuzzContext：
+按照普通web或者spring web方式配置的guzz，可以在java代码和JSP中，通过如下获取到GuzzContext：
 
 {{{
 import org.guzz.GuzzContext;

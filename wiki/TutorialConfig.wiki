@@ -85,7 +85,7 @@ Most of the time, you should add another "BaseDao" bean for making up your own D
 
 === fetch !GuzzContext in Web Application: ===
 
- In servlet or JSP:
+In servlet or JSP:
 
 {{{
 
