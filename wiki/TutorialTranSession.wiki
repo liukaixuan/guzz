@@ -1,5 +1,5 @@
 
- !TranSession is guzz's persist API. It is divided into 2 sub interfaces, !ReadonlyTranSession for read and !WriteTranSession for write.
+ !TranSession is guzz's persist API divided into 2 sub interfaces, !ReadonlyTranSession for read and !WriteTranSession for write.
 
  A !TranSession manages a transaction, all operations in a un-auto-commit !TranSession acts in a single transaction cycle until you commit or rollback it.
 
