@@ -37,17 +37,7 @@ gc.shutdown() ;
 }}}
 
  此时在jsp页面中就可以使用guzz的taglib进行数据库操作。
-
- java程序可以通过如下代码获取到GuzzContext，进行更多操作：
-
-{{{
-
-import org.guzz.web.context.GuzzWebApplicationContextUtil;
-import org.guzz.GuzzContext;
-
-GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServletContext()) ;
-}}}
-
+ 
  GuzzContext 将会在web app退出时，由容器通知关闭。
 
 === 使用Spring IOC的web应用程序： ===
@@ -86,3 +76,19 @@ GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServlet
 }}}
 
  * 4. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
+ 
+ 
+ == 在web应用中获取GuzzContext： === 
+ 
+ 按照普通web或者spring web方式配置的guzz，可以在java代码和JSP中，通过如下获取到GuzzContext：
+
+{{{
+import org.guzz.GuzzContext;
+
+//session is HttpSession
+//or pass ServletContext
+GuzzContext gc = org.guzz.web.context.GuzzWebApplicationContextUtil.getGuzzContext(session.getServletContext()) ;
+}}}
+ 
+ 
+ 

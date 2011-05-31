@@ -38,15 +38,7 @@ Add the following code to web.xml:
 
 then, guzz is ready for you.
 
-You can use guzz's database taglib in jsp pages or fetch GuzzContext to do more.
-
-{{{
-
-import org.guzz.web.context.GuzzWebApplicationContextUtil;
-import org.guzz.GuzzContext;
-
-GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServletContext()) ;
-}}}
+You can use guzz's database taglib in jsp pages.
 
  GuzzContext will be shutdown when the web-app quits.
 
@@ -89,4 +81,22 @@ Most of the time, you should add another "BaseDao" bean for making up your own D
 }}}
 
  * 4. Now, guzz will work with spring IOC. You can fetch guzzContext through the spring bean or GuzzWebApplicationContextUtil as above。
+
+
+=== fetch !GuzzContext in Web Application: ===
+
+ In servlet or JSP:
+
+{{{
+
+import org.guzz.web.context.GuzzWebApplicationContextUtil;
+import org.guzz.GuzzContext;
+
+//session is HttpSession
+//or pass ServletContext
+GuzzContext gc = GuzzWebApplicationContextUtil.getGuzzContext(session.getServletContext()) ;
+
+}}}
+
+ 
  
