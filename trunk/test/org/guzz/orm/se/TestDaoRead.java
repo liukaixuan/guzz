@@ -18,6 +18,7 @@ package org.guzz.orm.se;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.guzz.dao.PageFlip;
 import org.guzz.test.Article;
@@ -78,6 +79,30 @@ public class TestDaoRead extends DBBasedTestCase {
 		List users = session.list("selectUsers", null, 1, 10) ;
 		assertNotNull(users) ;
 		assertEquals(users.size(), 10) ;
+		
+		int totalCount = (Integer) session.findCell00("getCount", null, "int") ;
+		assertEquals(totalCount, 30) ;
+		
+		HashMap params = new HashMap() ;
+		params.put("userName", "name 1") ;
+		
+		List users2 = session.list("selectUserByName2", params, 1, 10) ;
+		assertNotNull(users2) ;
+		assertEquals(users2.size(), 1) ;
+		assertEquals(users2.get(0).getClass(), java.util.HashMap.class) ;
+		
+		//The Map's key is the property name in the User javabean
+		java.util.Map u = (Map) users2.get(0) ;
+		assertTrue(u.containsKey("favCount")) ;
+		assertTrue(u.containsKey("vip")) ;
+		assertTrue(u.containsKey("id")) ;
+		assertTrue(u.containsKey("password")) ;
+		assertFalse(u.containsKey("pk")) ;
+		assertFalse(u.containsKey("VIP_USER")) ;
+		assertFalse(u.containsKey("MyPSW")) ;
+		assertFalse(u.containsKey("FAV_COUNT")) ;
+		
+		assertFalse(u.containsKey("createdTime")) ;//not in the select clause
 	}
 	
 	public void testFindListBySE() throws Exception{

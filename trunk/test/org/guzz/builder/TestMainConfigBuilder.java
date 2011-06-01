@@ -117,7 +117,7 @@ public class TestMainConfigBuilder extends TestCase {
 		}		
 		
 		Map sqls = b.listConfiguedCompiledSQLs() ;
-		assertEquals(sqls.size(), 6) ;
+		assertEquals(sqls.size(), 8) ;
 		
 		CompiledSQL cs = (CompiledSQL) sqls.get("selectUsers") ;
 		assertNotNull(cs) ;

@@ -93,6 +93,8 @@ public interface ReadonlyTranSession extends TranSession{
 	/**
 	 * Return the value of first column in the first row.
 	 * 
+	 * <p>Guzz won't add pagination to the query, so write the sql only returns one row yourself.</p>
+	 * 
 	 * @param id Sql id defined in guzz.xml or {@link DynamicSQLService}
 	 * @param params Named parameters
 	 * @param returnType The data type of the result to return. eg: int, long, float...
@@ -101,6 +103,8 @@ public interface ReadonlyTranSession extends TranSession{
 	
 	/**
 	 * Return the value of first column in the first row.
+	 * 
+	 * <p>Guzz won't add pagination to the query, so write the sql only returns one row yourself.</p>
 	 * 
 	 * @param bsql BindedCompiledSQL to execute.
 	 * @param returnType The data type of the result to return. eg: int, long, float...
