@@ -54,6 +54,14 @@
 		<update id="updateUserFavCount" orm="userObjectMap">
 			update @@user set @favCount = favCount + 1
 		</update>
+	
+		<select id="getCount" orm="user">
+			select 30 as totalCount
+		</select>
+		
+		<select id="selectUserByName2" orm="user" result-class="java.util.HashMap">
+			select pk, userName, VIP_USER, MyPSW, FAV_COUNT from TB_USER where userName = :userName
+		</select>
 		
 		<select id="selectUsers" orm="userObjectMap">
 			select @id, @name, @vip, @favCount from @@user
