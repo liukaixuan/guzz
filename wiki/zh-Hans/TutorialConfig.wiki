@@ -80,7 +80,7 @@ gc.shutdown() ;
  
 === 在web应用中获取GuzzContext： === 
  
-按照普通web或者spring web方式配置的guzz，可以在java代码和JSP中，通过如下获取到GuzzContext：
+按照普通web或者spring web方式配置的guzz，可以在servlet和JSP中，通过如下方式获取到GuzzContext：
 
 {{{
 import org.guzz.GuzzContext;

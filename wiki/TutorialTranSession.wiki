@@ -124,6 +124,14 @@ try{
 		<update id="updateUserFavCount" orm="userObjectMap">
 			update @@user set @favCount = favCount + 1
 		</update>
+	
+		<select id="getCount" orm="user">
+			select 30 as totalCount
+		</select>
+		
+		<select id="selectUserByName2" orm="user" result-class="java.util.HashMap">
+			select pk, userName, VIP_USER, MyPSW, FAV_COUNT from TB_USER where userName = :userName
+		</select>
 		
 		<select id="selectUsers" orm="userObjectMap">
 			select @id, @name, @vip, @favCount from @@user
@@ -160,9 +168,11 @@ try{
  
 }}}
  
- 2. Query "listCommentsByName" by id and parameters:
+ 2. Query with id and parameters:
 
+ example 1: listCommentsByName：
 {{{
+
 	HashMap params = new HashMap() ;
 	params.put("userName", "lily") ;
 		
@@ -170,7 +180,35 @@ try{
 	Guzz.setTableCondition(tableCondition) ;
 	List<Comment> comments = session.list("listCommentsByName", params, 1, 20) ;
 
+}}} 
+
+ example 2: getCount：
+{{{		
+
+	ReadonlyTranSession session = tm.openDelayReadTran() ;
+	int totalCount = (Integer) session.findCell00("getCount", null, "int") ;
+	assertEquals(totalCount, 30) ;
+	
+}}} 
+
+ example 3: selectUserByName2：
+{{{
+	HashMap params = new HashMap() ;
+	params.put("userName", "name 1") ;
+	
+	ReadonlyTranSession session = tm.openDelayReadTran() ;
+	List users2 = session.list("selectUserByName2", params, 1, 10) ;
+	
+	assertNotNull(users2) ;
+	assertEquals(users2.size(), 1) ;
+	assertEquals(users2.get(0).getClass(), java.util.HashMap.class) ;
+		
+	//The Map's key is the property name in the User javabean
+	java.util.Map u = (Map) users2.get(0) ;
+	assertTrue(u.containsKey("favCount")) ;
+
 }}}
+
 
 == !WriteTranSession, API for write ==
 

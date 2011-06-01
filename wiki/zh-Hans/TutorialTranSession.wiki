@@ -115,6 +115,14 @@ try{
 		<update id="updateUserFavCount" orm="userObjectMap">
 			update @@user set @favCount = favCount + 1
 		</update>
+	
+		<select id="getCount" orm="user">
+			select 30 as totalCount
+		</select>
+		
+		<select id="selectUserByName2" orm="user" result-class="java.util.HashMap">
+			select pk, userName, VIP_USER, MyPSW, FAV_COUNT from TB_USER where userName = :userName
+		</select>
 		
 		<select id="selectUsers" orm="userObjectMap">
 			select @id, @name, @vip, @favCount from @@user
@@ -151,15 +159,44 @@ try{
  
 }}}
 
- 2. 按照id和参数查询，假设调用listCommentsByName：
-
+ 2. 按照id和参数查询. 
+ 
+ 调用例子1：listCommentsByName：
 {{{
+
 	HashMap params = new HashMap() ;
 	params.put("userName", "lily") ;
 		
 	ReadonlyTranSession session = tm.openDelayReadTran() ;
 	Guzz.setTableCondition(tableCondition) ;
 	List<Comment> comments = session.list("listCommentsByName", params, 1, 20) ;
+
+}}} 
+
+ 调用例子2：getCount：
+{{{		
+
+	ReadonlyTranSession session = tm.openDelayReadTran() ;
+	int totalCount = (Integer) session.findCell00("getCount", null, "int") ;
+	assertEquals(totalCount, 30) ;
+	
+}}} 
+
+ 调用例子3：selectUserByName2：
+{{{
+	HashMap params = new HashMap() ;
+	params.put("userName", "name 1") ;
+	
+	ReadonlyTranSession session = tm.openDelayReadTran() ;
+	List users2 = session.list("selectUserByName2", params, 1, 10) ;
+	
+	assertNotNull(users2) ;
+	assertEquals(users2.size(), 1) ;
+	assertEquals(users2.get(0).getClass(), java.util.HashMap.class) ;
+		
+	//由于orm="user"的作用，结果HashMap的key为User javabean对象中的属性名，而不是数据库字段名。
+	java.util.Map u = (Map) users2.get(0) ;
+	assertTrue(u.containsKey("favCount")) ;
 
 }}} 
 
