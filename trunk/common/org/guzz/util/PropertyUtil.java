@@ -37,7 +37,7 @@ import org.guzz.io.Resource;
  */
 public class PropertyUtil {
 
-	private static transient final Log logger = LogFactory.getLog(Properties.class) ;
+	private static transient final Log log = LogFactory.getLog(Properties.class) ;
     
     /** Prefix for property placeholders: "${" */
 	public static final String PLACEHOLDER_PREFIX = "${";
@@ -74,7 +74,7 @@ public class PropertyUtil {
             fis = new FileInputStream(f);
             props.load(fis);
         } catch (Exception e) {
-            logger.error("erron on load file: " + f, e);
+        	log.error("erron on load file: " + f, e);
         } finally {
             CloseUtil.close(fis);
         }
@@ -113,30 +113,23 @@ public class PropertyUtil {
         Properties props = new Properties();
         URL resUrl = clazz.getResource(resName);
         if (resUrl == null) {
-            logger.warn("resUrl=null! resName=" + resName);
+            log.warn("resUrl=null! resName=" + resName);
             return props;
         }
+        
         InputStream fis = null;
-        try {
-            fis = resUrl.openStream();
-        } catch (IOException e) {
-            logger.error("erron on url.openStream(), url=" + resUrl, e);
-        }
         
         try {
+        	fis = resUrl.openStream();
             props.load(fis);
-        } catch (Exception e) {
-            logger.error("erron on load resource: " + resName + ", url=" + resUrl, e);
+        }catch (IOException e) {
+            log.error("erron on url.openStream(), url=" + resUrl, e);
+        }catch (Exception e) {
+            log.error("erron on load resource: " + resName + ", url=" + resUrl, e);
         } finally {
-            // [ls@2005-02-05] The JDK doesn't close the inputstream, so we must close it.
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e1) {
-                    logger.error("erron on close resource: " + resName + ", url=" + resUrl, e1);
-                }
-            }
+            CloseUtil.close(fis) ;
         }
+        
         return props;
     }
 
@@ -172,8 +165,7 @@ public class PropertyUtil {
      * @param defaultValue 给定的默认值
      * @return Properties对象中的指定项的取值
      */
-    public static int getPropertyAsInt(Properties props, String key,
-            int defaultValue) {
+    public static int getPropertyAsInt(Properties props, String key, int defaultValue) {
         if (props == null) {
             return defaultValue;
         }
@@ -181,6 +173,7 @@ public class PropertyUtil {
         if (strValue == null) {
             return defaultValue;
         }
+        
         try {
             return Integer.parseInt(strValue.trim());
         } catch (Exception e) {
@@ -188,42 +181,6 @@ public class PropertyUtil {
         }
     }
 
-    /**
-     * 以GBK编码的字符串值返回给定的Properties对象中的指定项的取值. <BR>
-     * 如果Properties对象为null或是Properties对象中找不到该key, 则返回空串("").
-     * 该方法用于处理从Properties文件中获取中文值的问题.
-     * @param props 给定的Properties对象
-     * @param key 指定项
-     * @return Properties对象中的指定项的取值
-     */
-    public static String getPropertyAsGBK(Properties props, String key) {
-        return getPropertyAsGBK(props, key, "");
-    }
-    
-    /**
-     * 以GBK编码的字符串值返回给定的Properties对象中的指定项的取值. <BR>
-     * 如果Properties对象为null或是Properties对象中找不到该key, 则返回给定的默认值.
-     * 该方法用于处理从Properties文件中获取中文值的问题.
-     * @param props 给定的Properties对象
-     * @param key 指定项
-     * @param defaultValue 给定的默认值
-     * @return Properties对象中的指定项的取值
-     */
-    public static String getPropertyAsGBK(Properties props, String key, String defaultValue) {
-        if (props == null) {
-            return defaultValue;
-        }
-        String strValue = props.getProperty(key);
-        if (strValue == null) {
-            return defaultValue;
-        }
-        try {
-            return new String(strValue.getBytes("ISO-8859-1"), "GBK");
-        } catch (Exception e) {
-            return defaultValue;
-        }
-    }
-    
     /**
      * 返回给定的Properties对象中的指定项的字符串取值, 并作trim()处理. <BR>
      * The method return defaultValue on one of these conditions:
@@ -283,7 +240,7 @@ public class PropertyUtil {
 					startIndex = buf.toString().indexOf(PLACEHOLDER_PREFIX, startIndex + propVal.length());
 				}
 				else {
-					logger.warn("Could not resolve placeholder '" + placeholder + "' in [" + text + "]");
+					log.warn("Could not resolve placeholder '" + placeholder + "' in [" + text + "]");
 					startIndex = buf.toString().indexOf(PLACEHOLDER_PREFIX, endIndex + PLACEHOLDER_SUFFIX.length());
 				}
 			}
@@ -323,7 +280,7 @@ public class PropertyUtil {
 					startIndex = buf.indexOf(PLACEHOLDER_PREFIX, startIndex + propVal.length());
 				}
 				else {
-					logger.warn("Could not resolve placeholder '" + placeholder + "' in [" + text + "]");
+					log.warn("Could not resolve placeholder '" + placeholder + "' in [" + text + "]");
 					startIndex = buf.indexOf(PLACEHOLDER_PREFIX, endIndex + PLACEHOLDER_SUFFIX.length());
 				}
 			}
@@ -517,13 +474,13 @@ public class PropertyUtil {
 					props = new Properties() ;
 				}else{ //组内的一个属性
 					if(groupName == null){
-						logger.warn("ignore ungrouped config property:" + line) ;
+						log.warn("ignore ungrouped config property:" + line) ;
 					}else{
 						int pos = line.indexOf('=') ;
 						
 						if(pos < 1){
 							props.put(line, "") ;
-							logger.warn("loading special config property:" + line) ;
+							log.warn("loading special config property:" + line) ;
 						}else{
 							String key = line.substring(0, pos).trim() ;
 							String value = line.substring(pos + 1, length).trim() ;
@@ -534,7 +491,7 @@ public class PropertyUtil {
 				}
 			}
 		}catch(Exception e){
-			logger.error(resource.toString(), e) ;
+			log.error(resource, e) ;
 			return null ;
 		}finally{
 			CloseUtil.close(lnr) ;
