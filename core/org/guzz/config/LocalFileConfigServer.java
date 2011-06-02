@@ -80,16 +80,52 @@ public class LocalFileConfigServer implements ConfigServer {
 	
 	//serviceName vs SeriviceConfig[]
 	private Map configs = new HashMap() ;
-	
-	public LocalFileConfigServer(){
 		
+	public void setResource(Resource r){
+		this.addResource(r, true) ;
+	}
+		
+	public void setResource1(Resource r){
+		this.addResource(r, true) ;
+	}
+		
+	public void setResource2(Resource r){
+		this.addResource(r, true) ;
+	}
+		
+	public void setResource3(Resource r){
+		this.addResource(r, true) ;
 	}
 	
-	public void setResource(Resource r){
+	/**
+	 * Extra resource. The resource can be unavailable.
+	 */
+	public void setExtraResource(Resource r){
+		this.addResource(r, false) ;
+	}
+	
+	public void setExtraResource1(Resource r){
+		this.addResource(r, false) ;
+	}
+	
+	public void setExtraResource2(Resource r){
+		this.addResource(r, false) ;
+	}
+	
+	public void setExtraResource3(Resource r){
+		this.addResource(r, false) ;
+	}
+	
+	protected void addResource(Resource r, boolean resourceMustBeValid){
 		Map props = PropertyUtil.loadGroupedProps(r) ;
 		
 		if(props == null){
-			throw new GuzzException("cann't load resource:" + r.toString()) ;
+			if(resourceMustBeValid){
+				throw new GuzzException("cann't load resource:" + r) ;
+			}else{
+				log.info("extra resource not found[ignore it]. resource is [" + r + ']') ;
+				return ;
+			}
 		}
 		
 		Iterator keys = props.entrySet().iterator() ;
@@ -128,9 +164,13 @@ public class LocalFileConfigServer implements ConfigServer {
 				sc.setProps(p) ;
 			}
 			
+			if(this.configs.containsKey(configGroupName)){
+				log.warn("config:[" + configGroupName + "] overrided with resource :" + r) ;
+			}
+			
 			configs.put(configGroupName, scs) ;
 		}
-	}	
+	}
 
 	public ServiceConfig[] queryConfig(String configName) throws IOException {
 		ServiceConfig[] scs = (ServiceConfig[]) configs.get(configName) ;
