@@ -98,21 +98,21 @@ public class LocalFileConfigServer implements ConfigServer {
 	}
 	
 	/**
-	 * Extra resource. The resource can be unavailable.
+	 * Optional resource. The resource can be available or not.
 	 */
-	public void setExtraResource(Resource r){
+	public void setOptionalResource(Resource r){
 		this.addResource(r, false) ;
 	}
 	
-	public void setExtraResource1(Resource r){
+	public void setOptionalResource1(Resource r){
 		this.addResource(r, false) ;
 	}
 	
-	public void setExtraResource2(Resource r){
+	public void setOptionalResource2(Resource r){
 		this.addResource(r, false) ;
 	}
 	
-	public void setExtraResource3(Resource r){
+	public void setOptionalResource3(Resource r){
 		this.addResource(r, false) ;
 	}
 	
@@ -123,7 +123,7 @@ public class LocalFileConfigServer implements ConfigServer {
 			if(resourceMustBeValid){
 				throw new GuzzException("cann't load resource:" + r) ;
 			}else{
-				log.info("extra resource not found[ignore it]. resource is [" + r + ']') ;
+				log.info("optional resource not found[ignore it]. resource is [" + r + ']') ;
 				return ;
 			}
 		}

@@ -6,7 +6,7 @@
 	<config-server>
 		<server class="org.guzz.config.LocalFileConfigServer">
 			<param name="resource" value="guzz_test2.properties" />
-			<param name="extraResource" value="additional.properties" />
+			<param name="optionalResource" value="additional.properties" />
 		</server>
 	</config-server>
 	
