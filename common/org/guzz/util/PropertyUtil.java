@@ -18,7 +18,6 @@ package org.guzz.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -46,39 +45,44 @@ public class PropertyUtil {
 	public static final String PLACEHOLDER_SUFFIX = "}";
 
     /**
-     * 从指定文件名的文件中获取属性. <BR>
-     * 文件名参数说明: by converting the given pathname string into an abstract
-     * pathname.
-     * @param fileName 给定的文件名
-     * @return 参见 {@link #loadProperties(File)}方法.
+     * Load a Properties.
+     * @param fileName 
+     * @return return null if failed.
      */
     public static Properties loadProperties(String fileName) {
         if (fileName == null) {
-            return new Properties();
+            return null ;
         }
+        
         return loadProperties(new File(fileName));
     }
 
     /**
-     * 从给定文件中获取属性.
-     * @param f 给定的文件
-     * @return 给定的文件中获取到的属性. 如果有异常发生, 则返回一个empty的属性.
+     * Load a Properties.
+     * @param f file to load 
+     * @return return null if failed.
      */
     public static Properties loadProperties(File f) {
-        Properties props = new Properties();
-        if (f == null || false == f.isFile()) {
-            return props;
+        if (f == null || !f.isFile() || !f.exists()) {
+            return null ;
         }
+        
         InputStream fis = null;
         try {
+            Properties props = new Properties();
             fis = new FileInputStream(f);
             props.load(fis);
+            
+            return props ;
         } catch (Exception e) {
-        	log.error("erron on load file: " + f, e);
+        	if(log.isDebugEnabled()){
+        		log.debug("erron on load file: [" + f + "], msg:" + e);
+        	}
+        	
+        	return null ;
         } finally {
             CloseUtil.close(fis);
         }
-        return props;
     }
 
     /**
@@ -90,71 +94,50 @@ public class PropertyUtil {
      */
     public static String loadProperty(File f, String key, String defaultValue) {
         Properties props = loadProperties(f);
+        if(props == null) return defaultValue ;
+        
         return props.getProperty(key, defaultValue);
     }
     
     /**
-     * 从给定的资源文件获取属性. <BR>
-     * 资源文件是指位于classpath中的文件.
-     * @param resName 给定的资源文件
-     * @return 给定的资源文件中获取到的属性. 如果有异常发生, 则返回一个empty的属性.
+     * Load properties from classpath.
+     * @param resName resource file name
+     * @return return null if failed.
      */
     public static Properties loadFromResource(String resName) {
         return loadFromResource(PropertyUtil.class, resName);
     }
 
     /**
-     * 从给定的资源文件获取属性. <BR>
-     * 资源文件是指位于classpath中的文件.
-     * @param resName 给定的资源文件
-     * @return 给定的资源文件中获取到的属性. 如果有异常发生, 则返回一个empty的属性.
+     * Load properties from classpath.
+     * @param clazz relative class
+     * @param resName resource file name
+     * @return return null if failed.
      */
     public static Properties loadFromResource(Class clazz, String resName) {
-        Properties props = new Properties();
         URL resUrl = clazz.getResource(resName);
+        
         if (resUrl == null) {
-            log.warn("resUrl=null! resName=" + resName);
-            return props;
+            log.debug("resource not available! resName: " + resName);
+            return null ;
         }
         
         InputStream fis = null;
         
         try {
         	fis = resUrl.openStream();
+            Properties props = new Properties();
             props.load(fis);
-        }catch (IOException e) {
-            log.error("erron on url.openStream(), url=" + resUrl, e);
+            return props ;
         }catch (Exception e) {
-            log.error("erron on load resource: " + resName + ", url=" + resUrl, e);
+        	if(log.isDebugEnabled()){
+        		log.error("erron on load resource, url:[" + resUrl + "], msg:" + e);
+        	}
         } finally {
             CloseUtil.close(fis) ;
         }
         
-        return props;
-    }
-
-    /**
-     * 从给定的资源文件获取以指定前缀开始的配置项的取值属性集合. <BR>
-     * 资源文件是指位于classpath中的文件.
-     * @param resName 给定的资源文件
-     * @return 给定的资源文件中获取到的所有以指定前缀开始的配置项的属性. 如果有异常发生, 则返回一个empty的属性.
-     */
-    public static Properties loadFromResource(Class clazz, String resName,
-            String keyPrefix) {
-        Properties props = loadFromResource(clazz, resName);
-        Properties result = new Properties();
-        synchronized (props) {
-            int max = props.size() - 1;
-            Iterator it = props.entrySet().iterator();
-            for (int i = 0; i <= max; i++) {
-                Map.Entry e = (Map.Entry) (it.next());
-                String key = (String) e.getKey();
-                if (key.startsWith(keyPrefix)) {
-                    result.put(key, e.getValue());
-                }
-            }
-        }
-        return result;
+        return null;
     }
 
     /**
@@ -169,16 +152,13 @@ public class PropertyUtil {
         if (props == null) {
             return defaultValue;
         }
+        
         String strValue = props.getProperty(key);
         if (strValue == null) {
             return defaultValue;
         }
         
-        try {
-            return Integer.parseInt(strValue.trim());
-        } catch (Exception e) {
-            return defaultValue;
-        }
+        return StringUtil.toInt(strValue, defaultValue) ;
     }
 
     /**
@@ -309,6 +289,7 @@ public class PropertyUtil {
         if (strValue == null) {
             return defaultValue;
         }
+        
         try {
             return Long.parseLong(strValue.trim());
         } catch (Exception e) {
@@ -326,17 +307,24 @@ public class PropertyUtil {
      * @param defaultValue 给定的默认值
      * @return Properties对象中的指定项的取值. 当且仅当表示布尔值的字符串为"true"时(忽略大小写), 返回true.
      */
-    public static boolean getPropertyAsBool(Properties props, String key,
-            boolean defaultValue) {
+    public static boolean getPropertyAsBool(Properties props, String key, boolean defaultValue) {
         if (props == null) {
             return defaultValue;
         }
+        
         String strValue = props.getProperty(key);
-        if (strValue == null || "".equals(strValue)) {
+        if (strValue == null) {
             return defaultValue;
         }
+        
+        strValue= strValue.trim() ;
+        
+        if (strValue.length() == 0) {
+            return defaultValue;
+        }
+        
         try {
-            return strValue.trim().equalsIgnoreCase("true");
+            return strValue.equalsIgnoreCase("true");
         } catch (Exception e) {
             return defaultValue;
         }
@@ -491,7 +479,10 @@ public class PropertyUtil {
 				}
 			}
 		}catch(Exception e){
-			log.error(resource, e) ;
+			if(log.isDebugEnabled()){
+				log.debug("load resource failed. resouce:[" + resource + "], msg:" + e.getMessage()) ;
+			}
+			
 			return null ;
 		}finally{
 			CloseUtil.close(lnr) ;
@@ -506,8 +497,8 @@ public class PropertyUtil {
 				resources.put(groupName, new Properties[]{props}) ;
 			}else{
 				resources.put(groupName, ArrayUtil.addToArray(p, props)) ;
-			}		
-		}		
+			}
+		}
 	
     	return resources ;
     	
