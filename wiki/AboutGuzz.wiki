@@ -3,11 +3,11 @@
 
 == Overview ==
 
- Guzz is a data-layer framework designed for busy and large systems running in REAL world (not just demos) with relation-database as a storage.
+ Guzz is a data-layer framework designed for busy and large systems running in REAL world (not just demos) with many relational-databases as storages.
 
-*For database solution, guzz has 6 features:*
+*For database solution, guzz provides 6 features:*
 
- * 1.	You have too many tables in a database, or they took too much resource for one machine. Distribute them in different database machines with dbgroup in chapeter 3: [TutorialGuzzXml]
+ * 1.	You have too many tables in a database, or they took too much resource for one machine. Distribute them in different database machines with dbgroup in chapter 3: [TutorialGuzzXml]
 
  * 2.	Some table is too big. Spit them into small ones with ShadowTable in chapter 15: [TutorialShadowTable]
 
@@ -24,6 +24,8 @@
  Guzz also has some features for easing programming and maintaining. For example: Different API for trading between programming efficiency and low-lever resource controlling, Service extension, Central Configuration Extension support, Database oriented Taglib, and so on.
 
  Guzz is a small framework.
+ 
+ If you can't find information here, join our [https://lists.sourceforge.net/lists/listinfo/guzz-mail-users mailing list] and ask us. 
 
 == Doc & Help ==
 
