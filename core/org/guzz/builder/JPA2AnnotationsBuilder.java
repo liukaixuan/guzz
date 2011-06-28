@@ -498,7 +498,7 @@ public class JPA2AnnotationsBuilder {
 	public static POJOBasedObjectMapping parseDomainClass(final GuzzContextImpl gf, String dbGroupName, String businessName, Class domainCls) throws ClassNotFoundException{
 		javax.persistence.Entity pe = (javax.persistence.Entity) domainCls.getAnnotation(javax.persistence.Entity.class) ;
 		if(pe == null){
-			throw new PersistenceException("no @javax.persistence.Entity annotation found for class:[" + domainCls + "]") ;
+			throw new PersistenceException("no @javax.persistence.Entity annotation found in class:[" + domainCls + "]") ;
 		}
 		
 		DomainInfo info = new DomainInfo() ;
@@ -517,7 +517,7 @@ public class JPA2AnnotationsBuilder {
 		}	
 		
 		//The Business name must be defined either in annotation or guzz.xml, or both.
-		Assert.assertNotEmpty(m_businessName, "business name must be defined. you can define it either with org.guzz.annotations.Entity annotation in domain class or a-bussiness's attribute in guzz.xml") ;
+		Assert.assertNotEmpty(m_businessName, "business name must be defined. You can declare it either with org.guzz.annotations.Entity annotation in domain class or a-bussiness's attribute in guzz.xml") ;
 		Business business = gf.instanceNewGhost(m_businessName, m_dbGroupName, info.interpreter, domainCls) ;
 		
 		DBGroup dbGroup = gf.getDBGroup(business.getDbGroup()) ;
@@ -565,7 +565,7 @@ public class JPA2AnnotationsBuilder {
 		parseClassForAttributes(gf, map, business, dbGroup, st, domainCls) ;
 		
 		//check that the class must own a @Id.
-		Assert.assertNotNull(st.getIdentifierGenerator(), "no @javax.persistence.Id annotation found for class:[" + domainCls + "]") ;
+		Assert.assertNotNull(st.getIdentifierGenerator(), "no @javax.persistence.Id annotation found in class:[" + domainCls + "]") ;
 		
 		return map ;
 	}
