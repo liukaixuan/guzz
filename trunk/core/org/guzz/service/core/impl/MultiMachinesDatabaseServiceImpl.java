@@ -83,7 +83,7 @@ public class MultiMachinesDatabaseServiceImpl extends AbstractService implements
 				int maxLoad = sc.getMaxLoad() ;
 				
 				//如果没有指定，或者超过1000，按照500算。
-				if(maxLoad > 100 || maxLoad < 1){
+				if(maxLoad > 1000 || maxLoad < 1){
 					maxLoad = 500 ;
 					sc.setMaxLoad(maxLoad) ;
 				}
