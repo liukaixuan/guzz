@@ -1,6 +1,6 @@
-== 异步服务示例 ==
+== 远程服务编写与配置示例 ==
 
- 假设我们提供一个管理员身份验证的远程rpc服务，用于检查管理员帐号是否正确，以及其所拥有的权限。
+ 假设我们提供一个管理员身份验证的远程RPC服务，用于检查管理员帐号是否正确，以及其所拥有的权限。
  
  对外暴露的接口如下：
 {{{
@@ -121,7 +121,7 @@ public class AdminUserStubImpl implements AdminUserStub {
 
 }}}
 
-在spring的dispatch-servlet.xml中，将 adminUserService 以HTTP请求的方式暴露出去。
+在spring的dispatch-servlet.xml中，将 adminUserService 远程服务以HTTP请求的方式暴露出去。
 
 {{{
 
@@ -132,15 +132,16 @@ public class AdminUserStubImpl implements AdminUserStub {
 
 }}}
 
-这里以PHPRPC协议方式暴露，如果用其他协议参看spring文档： [http://static.springsource.org/spring/docs/2.0.x/reference/remoting.html] 。
+这里以PHPRPC协议方式暴露，如果用其他协议请参看spring文档： [http://static.springsource.org/spring/docs/2.0.x/reference/remoting.html] 。
 
 例如使用hessian，就是把上面的class属性值换成“org.springframework.remoting.caucho.HessianServiceExporter” 等。
 
 启动服务器端，假设 /adminUserService 的外部访问地址为： http://myhost.com/services/adminUserService
 
-== 客户端使用服务的编写 ==
+== （通用模式）客户端的编写 ==
 
-编写客户端调用类：
+编写客户端服务，调用远程的phprpc协议暴露的服务：
+
 {{{
 public class AdminUserServiceClientImpl extends AbstractRPCService implements AdminUserService {
 	
@@ -187,13 +188,13 @@ public interface AdminUserStub {
 
 }}}
 
-配置到客户端服务到 guzz.xml 到：
+配置到客户端服务到 guzz.xml 中：
 
 {{{
 <service name="adminUserService" configName="fundAdminUserServiceClient" class="org.guzz.service.user.impl.AdminUserServiceClientImpl" />
 }}}
 
-在properties文件增加服务的详细配置：
+在properties文件增加此服务的详细配置：
 {{{
 [fundAdminUserServiceClient]
 rpc.protocol=phprpc
@@ -212,4 +213,42 @@ rpc.serviceURL= http://myhost.com/services/adminUserService
 
 这时，在spring中，就可以用名称为 adminUserService，类型为“public interface AdminUserService ” 的bean进行操作了。
 
+
+== 使用自动代理，实现客户端 ==
+
+对于一般的远程RPC调用，guzz内置了自动代理方式封装远程调用的接口。
+ 
+例如对于上面的例子，首先在 guzz.xml 中声明服务：
+
+{{{
+
+<service name="adminUserService" configName="fundAdminUserServiceClient" class="org.guzz.service.core.impl.RPCServiceImpl" />
+
+}}}
+
+注意service的class已经换成了guzz内置的实现类：org.guzz.service.core.impl.RPCServiceImpl
+
+修改properties文件，增加详细配置：
+{{{
+
+[fundAdminUserServiceClient]
+rpc.protocol=phprpc
+rpc.serviceInterface=org.guzz.service.user.AdminUserService
+rpc.serviceURL=http://services.guzz.org/service/adminUserService
+
+}}}
+
+与上面的通用方式对比，增加一个新的配置项 rpc.serviceInterface，用于指定要自动代理的服务接口。
+
+至此，就完成了org.guzz.service.user.AdminUserService 服务的配置。如果使用spring，可以用下面的方式把此服务导出为bean来使用：
+
+{{{
+
+<bean id="adminUserService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean"> 
+	<property name="serviceName" value="adminUserService" /> 
+</bean>
+
+}}}
+
+导出的 adminUserService bean 的java类型为 rpc.serviceInterface 参数指定的 org.guzz.service.user.AdminUserService。
 
