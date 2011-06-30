@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.BigVote" table="tb_big_vote">
+        <id name="id" type="int" column="vote_id">
+        	<generator class="native" />
+        </id>
+        <property name="channelId" type="int" column="vote_channelId" />
+        <property name="name" type="string" column="vote_name" />
+        <property name="territoryPolicy" type="string" column="vote_territoryPolicy" />
+        <property name="maxItemsPerVote" type="int" column="maxItemsPerVote" />
+        <property name="votePeople" type="int" update="false" column="vote_people" />
+        <property name="voteNum" type="int" update="false" column="vote_num" />
+        <property name="addedVoteNum" type="int" column="vote_addedNum" />
+        <property name="status" type="int" column="vote_status" />
+        <property name="beginTime" type="datetime" column="vote_beginTime" />    
+        <property name="endTime" type="datetime" column="vote_endTime" />    
+        <property name="createdTime" type="datetime" column="vote_createdTime" />        
+    </class>
+</hibernate-mapping>
+<!--
+mysql:
+create table tb_big_vote(
+	vote_id int(11) not null auto_increment primary key, 
+	vote_channelId int(11) not null,
+	vote_name varchar(128) not null, 
+	vote_territoryPolicy varchar(32) default 'city',
+	maxItemsPerVote int(11) default 0,
+	vote_people int(11) default 0,
+	vote_num int(11) default 0,
+	vote_addedNum int(11) default 0,
+	vote_status int(11) default 0,
+	vote_beginTime timestamp null default null,
+	vote_endTime timestamp null default null,
+	vote_createdTime timestamp
+)engine=Innodb ;
+-->
+ 

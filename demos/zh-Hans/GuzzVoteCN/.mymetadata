@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="GuzzVoteCN"
+  id="myeclipse.1253515305871"
+  context-root="/vote"
+  j2ee-spec="1.4"
+  archive="GuzzVoteCN.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

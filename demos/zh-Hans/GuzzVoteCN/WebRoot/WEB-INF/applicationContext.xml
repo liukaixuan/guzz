@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    
+    <!-- guzzframework -->
+    <bean id="guzzContext" class="org.guzz.web.context.spring.GuzzContextBeanFactory" factory-method="createGuzzContext">
+    	<constructor-arg><value>/WEB-INF/guzz.xml</value></constructor-arg>
+    </bean>
+    
+    <bean id="abstractGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
+    	<property name="guzzContext" ref="guzzContext" />
+    </bean>
+    
+    <bean id="bigVoteManager" class="org.guzz.sample.vote.manager.impl.BigVoteManagerImpl" parent="abstractGuzzDao" init-method="startup" destroy-method="shutdown">
+    	<property name="voteExtraPropertyManager" ref="voteExtraPropertyManager" />
+    	<property name="antiCheatPolicyManager" ref="antiCheatPolicyManager" />
+    </bean>
+    
+    <bean id="voteItemGroupManager" class="org.guzz.sample.vote.manager.impl.VoteItemGroupManagerImpl" parent="abstractGuzzDao">
+    </bean>
+    
+    <bean id="channelManager" class="org.guzz.sample.vote.manager.impl.ChannelManagerImpl" parent="abstractGuzzDao">
+    </bean>
+    
+    <bean id="antiCheatPolicyManager" class="org.guzz.sample.vote.manager.impl.AntiCheatPolicyManagerImpl" parent="abstractGuzzDao" init-method="startup">
+    </bean>
+    
+    <bean id="voteExtraPropertyManager" class="org.guzz.sample.vote.manager.impl.VoteExtraPropertyManagerImpl" parent="abstractGuzzDao">
+    	<property name="userInputValidators">
+    		<list>
+    			<bean class="org.guzz.sample.vote.manager.validator.CellPhoneValidator" />
+    			<bean class="org.guzz.sample.vote.manager.validator.ZipCodeValidator" />
+    		</list>
+    	</property>
+    </bean>
+    
+     <!--  异常处理  -->
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="defaultErrorView" value="include/defaultException"/>
+	</bean>
+    
+    
+            
+</beans>

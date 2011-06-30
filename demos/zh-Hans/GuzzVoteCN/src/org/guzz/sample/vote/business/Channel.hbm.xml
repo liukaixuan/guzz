@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.Channel" table="tb_vote_channel">
+        <id name="id" type="int" column="channel_id">
+        	<generator class="native" />
+        </id>
+        <property name="parentId" type="int" column="parent_id" />
+        <property name="name" type="string" column="channel_name" />
+        <property name="authGroup" type="string" column="channel_authGroup" />
+        <property name="createdTime" type="datetime" column="channel_createdTime" />
+    </class>
+</hibernate-mapping>
+<!--
+mysql:
+create table tb_vote_channel(
+	channel_id int(11) auto_increment not null primary key, 
+	parent_id int(11) default 0,
+	channel_name varchar(255) not null,
+	channel_authGroup varchar(32) not null,
+	channel_createdTime timestamp
+)engine=Innodb ;
+-->

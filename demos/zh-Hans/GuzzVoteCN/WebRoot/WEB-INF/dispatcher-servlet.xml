@@ -1,0 +1,101 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<!-- ========================= VIEW DEFINITIONS ========================= -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.JstlView</value>
+		</property>
+		<property name="prefix">
+			<value>/WEB-INF/jsp/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+		<property name="contentType">
+			<value>text/html;charset=UTF8</value>
+		</property>
+	</bean>	
+
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>104857600</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+	
+	<bean name="/makeVoteAction.do" class="org.guzz.sample.vote.action.open.MakeVoteAction">
+		<property name="bigVoteManager" ref="bigVoteManager" />
+		<property name="successView" value="open/voteResult" />
+	</bean>	
+	
+	<bean name="/viewVoteAction.do" class="org.guzz.sample.vote.action.open.ViewVoteAction">
+		<property name="bigVoteManager" ref="bigVoteManager" />
+		<property name="successView" value="open/viewVote" />
+	</bean>	
+	
+	<bean name="/viewVoteCountAction.do" class="org.guzz.sample.vote.action.open.ViewVoteCount">
+		<property name="bigVoteManager" ref="bigVoteManager" />
+	</bean>
+	
+	<!-- console -->
+	<bean name="/console/bigVoteAction.do" class="org.guzz.sample.vote.action.console.BigVoteAction">
+		<property name="bigVoteManager" ref="bigVoteManager" />
+		<property name="formView" value="/console/bigVoteForm" />
+		<property name="successView" value="redirect:/console/listBigVotes.jsp" />
+	</bean>	
+	
+	<bean name="/console/voteItemAction.do" class="org.guzz.sample.vote.action.console.VoteItemAction">
+		<property name="bigVoteManager" ref="bigVoteManager" />
+		<property name="formView" value="/console/voteItemForm" />
+		<property name="successView" value="redirect:/console/listVoteItems.jsp" />
+	</bean>	
+	
+	<bean name="/console/voteCityAction.do" class="org.guzz.sample.vote.action.console.VoteTerritoryAction">
+		<property name="bigVoteManager" ref="bigVoteManager" />
+		<property name="formView" value="/console/voteCityForm" />
+		<property name="successView" value="redirect:/console/listVoteCities.jsp" />
+	</bean>	
+	
+	<bean name="/console/voteExtraPropertyAction.do" class="org.guzz.sample.vote.action.console.VoteExtraPropertyAction">
+		<property name="voteExtraPropertyManager" ref="voteExtraPropertyManager" />
+		<property name="formView" value="/console/voteExtraPropertyForm" />
+		<property name="successView" value="redirect:/console/listVoteExtraProperties.jsp" />
+	</bean>	
+	
+	<bean name="/console/voteItemGroupAction.do" class="org.guzz.sample.vote.action.console.VoteItemGroupAction">
+		<property name="voteItemGroupManager" ref="voteItemGroupManager" />
+		<property name="formView" value="/console/voteItemGroupForm" />
+		<property name="successView" value="redirect:/console/listVoteItemGroups.jsp" />
+	</bean>	
+	
+	<bean name="/console/antiCheatPolicyAction.do" class="org.guzz.sample.vote.action.console.AntiCheatPolicyAction">
+		<property name="antiCheatPolicyManager" ref="antiCheatPolicyManager" />
+		<property name="formView" value="/console/antiCheatPolicyForm" />
+		<property name="successView" value="redirect:/console/listAntiCheatPolicies.jsp" />
+	</bean>
+	
+	<bean name="/console/channelAction.do" class="org.guzz.sample.vote.action.console.ChannelAction">
+		<property name="channelManager" ref="channelManager" />
+		<property name="guzzContext" ref="guzzContext" />
+		<property name="formView" value="/console/channelForm" />
+		<property name="successView" value="redirect:/console/listChannels.jsp" />
+	</bean>
+	
+	
+	<!-- extends Multi Action -->
+	<bean id="methodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName">
+			<value>action</value>
+		</property>
+	</bean>
+	
+	<bean name="/console/extendAntiCheatPolicyAction.do" class="org.guzz.sample.vote.action.console.multi.AntiCheatPolicyExtendAction">
+		<property name="antiCheatPolicyManager" ref="antiCheatPolicyManager" />
+		<property name="methodNameResolver" ref="methodNameResolver" />
+		<property name="listView" value="redirect:/console/listAntiCheatPolicies.jsp" />
+	</bean>	
+    
+</beans>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.VoteExtraProperty" table="tb_vote_extra_property">
+        <id name="id" type="int" column="prop_id">
+        	<generator class="native" />
+        </id>
+        <property name="voteId" type="int" column="vote_id" />
+        <property name="paramName" type="string" column="prop_paramName" />
+        <property name="showName" type="string" column="prop_showName" />
+        <property name="mustProp" type="boolean" column="prop_mustProp" />
+        <property name="validValues" type="string" column="prop_validValues" />
+        <property name="defaultValue" type="string" column="prop_defaultValue" />
+        <property name="validRuleName" type="string" column="prop_validRuleName" />
+        <property name="ruleParamValue" type="string" column="prop_ruleParamValue" />
+    </class>
+</hibernate-mapping>
+	
+<!--
+mysql:
+
+create table tb_vote_extra_property(
+	prop_id int(11) auto_increment not null primary key,
+	vote_id int(11) not null,
+	prop_paramName varchar(16) not null,
+	prop_showName varchar(16) not null,
+	prop_mustProp bit(1),
+	prop_validValues varchar(255),
+	prop_defaultValue varchar(32),
+	prop_validRuleName varchar(32),
+	prop_ruleParamValue varchar(255)
+)engine=Innodb ;
+
+create index idx_vote_ep_voteId on tb_vote_extra_property(vote_id) ;
+
+-->
+	

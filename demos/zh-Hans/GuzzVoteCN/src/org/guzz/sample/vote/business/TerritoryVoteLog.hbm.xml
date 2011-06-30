@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.TerritoryVoteLog" table="tb_territory_vote_log">
+        <id name="id" type="string" column="territory_vote_id">
+        	<generator class="assigned" />
+        </id>
+        <property name="voteId" type="int" column="vote_id" />
+        <property name="itemId" type="int" column="item_id" />  
+        <property name="territoryId" type="int" column="territory_id" />  
+        <property name="voteNum" type="int" update="false" column="vote_num" />  
+    </class>
+</hibernate-mapping>
+<!--
+mysql:
+create table tb_territory_vote_log(
+	territory_vote_id varchar(64) not null primary key, 
+	vote_id int(11) not null,
+	item_id int(11) not null,
+	territory_id int(11) not null,
+	vote_num int(11) default 0
+)engine=Innodb ;
+-->
