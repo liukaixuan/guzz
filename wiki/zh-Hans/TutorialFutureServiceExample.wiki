@@ -1,0 +1,215 @@
+== 异步服务示例 ==
+
+ 假设我们提供一个管理员身份验证的远程rpc服务，用于检查管理员帐号是否正确，以及其所拥有的权限。
+ 
+ 对外暴露的接口如下：
+{{{
+
+public interface AdminUserService {
+
+	/**检查用户名和密码是否匹配*/
+	public boolean checkAdminUser(String userName, String password) ;
+	
+	/**根据用户名获取管理员对象*/
+	public AdminUser getUser(String userName) ;
+	
+	public List getAvailableAuthGroups() ;
+	
+}
+
+/**
+ * 管理员对象。
+ */
+public class AdminUser implements Serializable {
+	
+	private String userName ;
+	
+	private String nickName ;
+		
+	private String email ;
+	
+	private String[] authGroups ;
+
+	.....
+}
+}}}
+
+ 
+== 服务器端实现 ==
+
+ 在服务器端实现此接口，读取数据库等完成实际操作。
+
+{{{
+
+public class AdminUserStubImpl implements AdminUserStub {
+	
+	private IUserAdminManager userAdminManager ;
+	
+	private IUserAuthGroupManager userAuthGroupManager ;
+
+	public boolean checkAdminUser(String userName, String password) {
+		if(StringUtil.isEmpty(password)){
+			return false ;
+		}
+		
+		UserAdmin admin = this.userAdminManager.getUserAdmin(userName) ;
+		if(admin == null){
+			return false ;
+		}
+		
+		return password.equals(admin.getPassword());
+	}
+
+	public AdminUser getUser(String userName) {
+		UserAdmin admin = this.userAdminManager.getUserAdmin(userName) ;
+		if(admin == null){
+			return null ;
+		}
+		
+		AdminUser user = new AdminUser() ;
+		user.setAuthGroups(new String[]{admin.getAuthGroup()}) ;
+		user.setEmail(admin.getEmail()) ;
+		user.setNickName(admin.getNickName()) ;
+		user.setUserName(admin.getUserName()) ;
+		
+		return user ;
+	}
+	
+	public List getAvailableAuthGroups(){
+		List<UserAuthGroup> gs = this.userAuthGroupManager.listAllUserAuthGroups() ;
+		
+		LinkedList list = new LinkedList() ;
+		
+		for(UserAuthGroup g: gs){
+			AdminAuth aa = new AdminAuth() ;
+			aa.setAuthName(g.getAuthName()) ;
+			aa.setShowName(g.getShowName()) ;
+			
+			list.addLast(aa) ;
+		}
+		
+		return list ;
+	}
+
+	public IUserAdminManager getUserAdminManager() {
+		return userAdminManager;
+	}
+
+	public void setUserAdminManager(IUserAdminManager userAdminManager) {
+		this.userAdminManager = userAdminManager;
+	}
+
+	public IUserAuthGroupManager getUserAuthGroupManager() {
+		return userAuthGroupManager;
+	}
+
+	public void setUserAuthGroupManager(IUserAuthGroupManager userAuthGroupManager) {
+		this.userAuthGroupManager = userAuthGroupManager;
+	}
+
+}
+
+}}} 
+
+配置到spring的applicationContext.xml中，注入需要的持久层bean等。
+{{{
+
+<bean id="adminUserService" class="org.guzz.service.user.server.AdminUserStubImpl">
+    	<property name="userAdminManager" ref="userAdminManager" />
+    	<property name="userAuthGroupManager" ref="userAuthGroupManager" />
+</bean>
+
+}}}
+
+在spring的dispatch-servlet.xml中，将 adminUserService 以HTTP请求的方式暴露出去。
+
+{{{
+
+<bean name="/adminUserService" class="org.phprpc.spring.remoting.PHPRPC_Exporter">
+	  <property name="service" ref="adminUserService"/>
+	  <property name="serviceInterface" value="org.guzz.service.user.impl.AdminUserStub"/>
+</bean>
+
+}}}
+
+这里以PHPRPC协议方式暴露，如果用其他协议参看spring文档： [http://static.springsource.org/spring/docs/2.0.x/reference/remoting.html] 。
+
+例如使用hessian，就是把上面的class属性值换成“org.springframework.remoting.caucho.HessianServiceExporter” 等。
+
+启动服务器端，假设 /adminUserService 的外部访问地址为： http://myhost.com/services/adminUserService
+
+== 客户端使用服务的编写 ==
+
+编写客户端调用类：
+{{{
+public class AdminUserServiceClientImpl extends AbstractRPCService implements AdminUserService {
+	
+	private AdminUserStub stub ;
+
+	public boolean checkAdminUser(String userName, String password) {
+		return stub.checkAdminUser(userName, password) ;
+	}
+
+	public AdminUser getUser(String userName) {
+		return stub.getUser(userName) ;
+	}
+	
+	public List getAvailableAuthGroups(){
+		return stub.getAvailableAuthGroups() ;
+	}
+
+	public boolean configure(ServiceConfig[] scs) {		
+		if(super.configure(scs)){
+			stub = (AdminUserStub) remoteRPCProxy.getRemoteStub(AdminUserStub.class) ;
+			return true ;
+		}else {
+			log.warn("AdminUserService is not started. no configuration found.") ;
+			return false ;
+		}
+	}
+
+	public boolean isAvailable() {
+		return super.isAvailable() && stub != null ;
+	}
+}
+
+public interface AdminUserStub {
+
+	/**检查用户名和密码是否匹配*/
+	public boolean checkAdminUser(String userName, String password) ;
+	
+	/**根据用户名获取管理员对象*/
+	public AdminUser getUser(String userName) ;
+	
+	public List getAvailableAuthGroups() ;
+	
+}
+
+}}}
+
+配置到客户端服务到 guzz.xml 到：
+
+{{{
+<service name="adminUserService" configName="fundAdminUserServiceClient" class="org.guzz.service.user.impl.AdminUserServiceClientImpl" />
+}}}
+
+在properties文件增加服务的详细配置：
+{{{
+[fundAdminUserServiceClient]
+rpc.protocol=phprpc
+rpc.serviceURL= http://myhost.com/services/adminUserService
+}}}
+
+服务已经配置完毕，在applicationContext.xml中将服务导出为spring的bean，方便spring进行注入：
+
+{{{
+
+<bean id="adminUserService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean"> 
+	<property name="serviceName" value="adminUserService" /> 
+</bean>
+
+}}}
+
+这时，在spring中，就可以用名称为 adminUserService，类型为“public interface AdminUserService ” 的bean进行操作了。
+
+
