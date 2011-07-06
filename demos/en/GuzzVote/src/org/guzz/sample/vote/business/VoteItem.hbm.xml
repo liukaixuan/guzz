@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.VoteItem" table="tb_vote_item">
+        <id name="id" type="int" column="item_id">
+        	<generator class="native" />
+        </id>
+        <property name="voteId" type="int" column="vote_id" />
+        <property name="groupId" type="int" column="group_id" />
+        <property name="voteNum" type="int" update="false" column="vote_num" /> 
+        <property name="addedVoteNum" type="int" column="vote_addedNum" />   
+        <property name="name" type="string" column="item_name" />
+        <property name="showName" type="string" column="item_showName" />
+    </class>
+</hibernate-mapping>
+<!--
+mysql:
+create table tb_vote_item(
+	item_id int(11) auto_increment not null primary key, 
+	vote_id int(11) not null,
+	group_id int(11) default 0,
+	vote_num int(11) default 0,
+	vote_addedNum int(11) default 0,
+	item_name varchar(64) not null,	
+	item_showName varchar(255)
+)engine=Innodb ;
+
+#item_showName可能包含html装饰代码
+
+-->
+	

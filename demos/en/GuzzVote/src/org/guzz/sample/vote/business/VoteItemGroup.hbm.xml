@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.VoteItemGroup" table="tb_vote_item_group">
+        <id name="id" type="int" column="group_id">
+        	<generator class="native" />
+        </id>
+        <property name="voteId" type="int" column="vote_id" />
+        <property name="name" type="string" column="group_name" />
+        <property name="createdTime" type="datetime" column="group_createdTime" />        
+    </class>
+</hibernate-mapping>
+<!--
+mysql:
+create table tb_vote_item_group(
+	group_id int(11) auto_increment not null primary key, 
+	vote_id int(11) not null,
+	group_name varchar(64) not null,	
+	group_createdTime timestamp
+)engine=Innodb ;
+
+create index idx_vig_voteId on tb_vote_item_group(vote_id) ;
+
+-->
+	

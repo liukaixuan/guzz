@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.VoteLog" table="tb_vote_log">
+        <id name="id" type="int" column="vote_log_id">
+        	<generator class="native" />
+        </id>
+        <property name="voteId" type="int" column="vote_id" />
+        <property name="itemName" type="string" column="item_name" />  
+        <property name="territoryName" type="string" column="territory_name" />
+        <property name="IP" type="string" column="voter_IP" />
+        <property name="createdTime" type="datetime" column="vote_createdTime" />
+        <property name="extraPropsXML" type="string" column="voter_extraPropsXML" />
+    </class>
+</hibernate-mapping>
+<!--
+mysql:
+create table tb_vote_log(
+	vote_log_id int(11) auto_increment not null primary key, 
+	vote_id int(11) not null,
+	item_name varchar(64) not null,
+	territory_name varchar(64) not null,
+	voter_IP varchar(32),
+	vote_createdTime timestamp,
+	voter_extraPropsXML text
+)engine=Innodb ;
+-->

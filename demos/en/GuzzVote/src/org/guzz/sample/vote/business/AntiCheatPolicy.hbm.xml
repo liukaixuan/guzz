@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.sample.vote.business.AntiCheatPolicy" table="tb_anti_cheat_policy">
+        <id name="id" type="int" column="ac_id">
+        	<generator class="native" />
+        </id>
+        <property name="voteId" type="int" column="vote_id" />
+        <property name="maxLife" type="int" column="ac_maxLife" />
+        <property name="allowedCount" type="int" column="ac_allowedCount" />
+        <property name="name" type="string" column="ac_Name" />
+        <property name="policyImpl" type="string" column="ac_policyImpl" />
+        <property name="limitedField" type="string" column="ac_limitedField" />
+        <property name="createdTime" type="datetime" column="ac_createdTime" />
+    </class>
+</hibernate-mapping>
+<!--
+mysql:
+create table tb_anti_cheat_policy(
+	ac_id int(11) auto_increment not null primary key, 
+	vote_id int(11) not null,
+	ac_maxLife int(11) default 600,
+	ac_allowedCount int(11) default 1,
+	ac_Name varchar(64) not null,	
+	ac_policyImpl varchar(64) not null,	
+	ac_limitedField varchar(64) default '',
+	ac_createdTime timestamp default now()
+)engine=Innodb ;
+
+-->
+	
