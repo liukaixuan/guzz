@@ -31,6 +31,7 @@ import org.guzz.Service;
 import org.guzz.config.ConfigServer;
 import org.guzz.exception.GuzzException;
 import org.guzz.exception.InvalidConfigurationException;
+import org.guzz.service.FactoryService;
 import org.guzz.service.ProxyService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
@@ -72,6 +73,10 @@ public class ServiceManagerImpl implements ServiceManager {
 	}
 	
 	public void registerService(Service service){
+		if(service instanceof FactoryService){
+			service = ((FactoryService) service).createService() ;
+		}
+		
 		String serviceName = service.getServiceInfo().getServiceName() ;
 		
 		if(log.isInfoEnabled()){
