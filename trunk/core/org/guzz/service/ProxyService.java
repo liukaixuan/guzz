@@ -20,18 +20,17 @@ import org.guzz.Service;
 
 /**
  * 
- * In guzz, when you register a new service with the same name of a old one, the old service is overrided in the registion map.
- * Any newly required Service is returned with the new service, in the meantime some components in your system maybe cached a old one and don't
- * know it is time to update it. This will cause inconsistent.
+ * In guzz, when you register a new service with the same name of a old one, the old service is overrided in the registration map.
+ * Any newly required Service of that name returns the new service instance, but in the meantime,  some components in your system may have cached the old instance and never got the chance to update it. This would cause inconsistent.
  * 
  * <p>
- * To solve this, we need service to be replaced in the inner implementation without change the reference(pointer). 
- * {@link ProxyService} is just come out to handle this.
+ * To solve this problem, we need a service to be replaced in the inner implementation without the reference(pointer) changed. 
+ * {@link ProxyService} is just the key to handle this.
  * </p>
  * 
  * <p>
- * If the old service is a subclass of {@link ProxyService}, and the new one is not. 
- * In the registration, guzz will call {@link ProxyService#setServiceImpl(newService)} to replace the implementation of the old one with the new one without change the old reference.
+ * If the old service is a subclass of {@link ProxyService}, and the new one is not, 
+ * guzz will call the old service's {@link ProxyService#setServiceImpl(newService)} to replace the implementation with the new one without changing references during the registration.
  * </p>
  * 
  * @author liu kaixuan(liukaixuan@gmail.com)
