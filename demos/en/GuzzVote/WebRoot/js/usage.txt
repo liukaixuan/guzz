@@ -1,0 +1,10 @@
+<script language="javascript" type="text/javascript" src="/js/Calendar_Obj.js"></script>
+<script language="javascript" type="text/javascript" src="/js/MyCalendar.js"></script>
+<script language="javascript" type="text/javascript" src="/js/calendar_lang/cn_utf8.js"></script>
+<style type="text/css"> @import url("/js/calendar_lang/calendar-blue.css"); </style>
+
+
+
+<script language="JavaScript" type="text/javascript">			
+	JSCalendar.drawCalendar('stime', "<c:out value='${stime}' default='' />", '%Y-%m-%d %H:%M', '24', true, true, "width:150px");
+</script>
