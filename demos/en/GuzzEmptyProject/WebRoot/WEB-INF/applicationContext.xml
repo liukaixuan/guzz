@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    
+    <!-- guzzframework -->
+    <bean id="guzzContext" class="org.guzz.web.context.spring.GuzzContextBeanFactory" factory-method="createGuzzContext">
+    	<constructor-arg><value>/WEB-INF/guzz.xml</value></constructor-arg>
+    </bean>
+    
+    <bean id="abstractGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
+    	<property name="guzzContext" ref="guzzContext" />
+    </bean>
+    
+    <!-- export org.guzz.service.log.InsertQueueService -->
+    <bean id="insertQueueService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean">
+    	<property name="serviceName" value="insertQueueService" />
+    </bean>
+    
+     <!--  异常处理  -->
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="defaultErrorView" value="include/defaultException"/>
+	</bean>
+
+</beans>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
+
+<guzz-configs>
+	
+	<dialect class="org.guzz.dialect.Mysql5Dialect" />
+	
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />
+		<dbgroup name="updateDB" masterDBConfigName="updateMasterDB" />
+		<dbgroup name="logDB" masterDBConfigName="logMasterDB" />
+	</tran>
+	
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resource" value="fms.properties" />
+		</server>
+	</config-server>
+	
+	<service name="insertQueueService" configName="guzzInsertQueueService" class="org.guzz.service.db.impl.InsertQueueServiceImpl" />
+	<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
+		
+	<!-- business starts -->
+	<business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:fms/business/IncUpdateBusiness.hbm.xml" />
+	<!-- business ends -->
+
+</guzz-configs>
