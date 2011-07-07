@@ -41,9 +41,7 @@
 
 == Samples ==
 
- * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip A Empty Project based on spring IOC and springMVC. (New Projects are nice to start from here)]
-
- * [DemoExamplesVote Example 1: Vote System]
+ * [DemosList List of demos]
 
 == Feedback ==
 

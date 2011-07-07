@@ -1,5 +1,6 @@
   * About Guzz
     * [AboutGuzz About Guzz]
+    * [DemosList Demos]
     * [AboutFAQ FAQ]
     * [AboutFeedback Feedback & Suggestions]
     * [AboutJoinUs Join Us]

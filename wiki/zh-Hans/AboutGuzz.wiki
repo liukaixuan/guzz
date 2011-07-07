@@ -44,9 +44,7 @@
 
 == 示例代码 ==
 
- * [http://guzz.googlecode.com/files/a%20empty%20sample%20project.zip 基于spring IOC + springMVC的空工程（新项目可以以此为基础搭建）]
-
- * [DemoExamplesVote 示例工程1]
+ * [DemosList 示例工程列表]
   
 
 == 反馈与建议 ==

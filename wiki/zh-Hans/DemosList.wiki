@@ -1,0 +1,17 @@
+
+== guzz空工程: ==
+
+基于spring IOC + springMVC + guzz配置好的的空工程。新的工程建议在这个基础上开始。
+
+下载工程：
+
+{{{
+
+svn checkout http://guzz.googlecode.com/svn/demos/en/GuzzEmptyProject GuzzEmptyProject
+
+}}}
+
+== 例子1：投票系统 ==
+
+[DemoExamplesVote 基于spring IOC + springMVC + guzz + mysql + guzz服务 的通用投票系统]
+
