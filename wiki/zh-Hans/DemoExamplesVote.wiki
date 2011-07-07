@@ -10,11 +10,17 @@
 
 本例子没有演示通过guzz.xml配置sql查询与映射。
 
-*下载地址：*[http://code.google.com/p/guzz/downloads/list http://guzz.googlecode.com/files/GuzzVote_cn.zip]
+下载工程：
 
-下载后的代码为MyEclipse工程，可以直接导入。工程的doc/vote.sql 为数据库创建脚本，创建2组数据库和相应的表结构。
+{{{
 
-创建完成后，修改/WEB-INF/bigVote.properties文件中相应的数据库连接参数【连接中使用c3p0和dbcp两套连接池】。
+svn checkout http://guzz.googlecode.com/svn/demos/zh-Hans/GuzzVoteCN GuzzVote
+
+}}}
+
+下载后的代码为MyEclipse工程，可以直接导入。工程的doc/vote.sql 为数据库创建脚本，创建2组数库和相应的表结构。
+
+创建完成后，修改/WEB-INF/bigVote.properties文件中相应的数据库连接参数【连接中同时使用c3p0和DBCP两套连接池】。
 
 {{{
 注意：此properties文件 不 要使用 MyEclipse Properties Editor 打开，MyEclipse Properties Editor会错误的合并参数项。可以使用Eclipse自带的Properties Editor。
@@ -43,3 +49,4 @@ java.sql.SQLException: No suitable driver
 重新从压缩包中取出bigVote.properties文件放入工程，用普通的Properties File Editor打开编辑。
 
 千万不要使用MyEclipse默认的高级Properties编辑器。出现这个错误的原因就是MyEclipse的高级编辑器自动合并了“重复的配置项”。由于我们的properties存在分组，名称相同的配置项是不能合并的。
+
