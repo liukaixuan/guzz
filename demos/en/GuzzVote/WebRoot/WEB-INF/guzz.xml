@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
+
+<guzz-configs>
+	
+	<dialect class="org.guzz.dialect.Mysql5Dialect" />
+	
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />
+		<dbgroup name="updateDB" masterDBConfigName="updateMasterDB" />
+		<dbgroup name="logDB" masterDBConfigName="logMasterDB" />
+	</tran>
+	
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resource" value="bigVote.properties" />
+		</server>
+	</config-server>
+	
+	<service name="logService" configName="guzzDBLogServiceClient" class="org.guzz.service.log.impl.DBLogServiceImpl" />
+	
+	<!-- override the default implementation -->
+	<service name="slowUpdate" configName="guzzSuperSlowUpdate" class="org.guzz.service.core.impl.SuperSlowUpdateServiceImpl" />
+	
+	<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
+	
+ 	<service name="IPService" configName="fundIPServiceClient" class="org.guzz.service.dir.impl.IPLocationServiceClientImpl" />	 
+	<service name="fixedLifeCountService" configName="fundFixedLifeCountServiceClient" class="org.guzz.service.cache.impl.FixedLifeCountServiceClientImpl" />
+	<service name="adminUserService" configName="fundAdminUserServiceClient" class="org.guzz.service.user.impl.AdminUserServiceClientImpl" />
+	
+	<!-- business starts -->
+	<business name="bigVote" interpret="org.guzz.sample.vote.business.BigVoteInterpreter" file="classpath:org/guzz/sample/vote/business/BigVote.hbm.xml" />
+	<business name="territoryVoteLog" file="classpath:org/guzz/sample/vote/business/TerritoryVoteLog.hbm.xml" />
+	<business name="voteItem" file="classpath:org/guzz/sample/vote/business/VoteItem.hbm.xml" />
+	<business name="voteItemGroup" file="classpath:org/guzz/sample/vote/business/VoteItemGroup.hbm.xml" />
+	<business name="voteTerritory" file="classpath:org/guzz/sample/vote/business/VoteTerritory.hbm.xml" />
+	<business name="voteExtraProperty" file="classpath:org/guzz/sample/vote/business/VoteExtraProperty.hbm.xml" />
+	<business name="antiCheatPolicy" file="classpath:org/guzz/sample/vote/business/AntiCheatPolicy.hbm.xml" />
+	<business name="channel" file="classpath:org/guzz/sample/vote/business/Channel.hbm.xml" />
+	
+	<business dbgroup="updateDB" name="guzzSlowUpdate" file="classpath:org/guzz/sample/vote/business/IncUpdateBusiness.hbm.xml" />
+	<business dbgroup="logDB" name="voteLog" file="classpath:org/guzz/sample/vote/business/VoteLog.hbm.xml" />
+	<!-- business ends -->
+
+</guzz-configs>
