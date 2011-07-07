@@ -16,8 +16,6 @@ svn checkout http://guzz.googlecode.com/svn/demos/en/GuzzVote GuzzVote
 
 }}}
 
-*[http://code.google.com/p/guzz/downloads/list http://guzz.googlecode.com/files/GuzzVote.zip]
-
 The downloaded project is a MyEclipse project, so import it directly. doc/vote.sql in the project is used to create the database schemas.
 
 After creating the databases and tables, edit /WEB-INF/bigVote.properties to modify database connections' parameters(We use both c3po and DBCP connection pools in this example).
