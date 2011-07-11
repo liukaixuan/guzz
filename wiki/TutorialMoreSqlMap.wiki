@@ -30,6 +30,7 @@ if用来控制条件判断，如：
 choose用来控制if/else if/else if.../else语句。
 
 where和set用来解决 and 逗号 where等关键词因为条件是否成立的变化引起的sql语句不完整问题。拼装过sql的人肯定能够明白。方式上IBatis已经挺好了。如：
+
 {{{
 ....
 	SELECT * FROM BLOG
@@ -69,7 +70,7 @@ where和set用来解决 and 逗号 where等关键词因为条件是否成立的�
 		<if test=”state != null”>
 			state = #{state}
 		</if>
-}}
+}}}
 
 如果state是一个int类型，我希望写成：
 {{{
