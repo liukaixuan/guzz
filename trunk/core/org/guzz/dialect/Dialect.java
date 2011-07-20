@@ -78,5 +78,10 @@ public interface Dialect {
 	 */
 	public boolean useStreamToInsertLob() ;
 	
+	/**
+	 * Recommended batch size for this database.
+	 */
+	public int getDefaultBatchSize() ;
+	
 	
 }

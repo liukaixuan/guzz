@@ -19,18 +19,21 @@ package org.guzz.dialect;
 
 /**
  * 
- * A dialect for Oracle 10g databases.
+ * A dialect for Oracle 11g databases.
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
-public class Oracle10gDialect extends Oracle9iDialect {
-	//same as 9i
+public class Oracle11gDialect extends Oracle9iDialect {
+	//same as 10g
 	
 	/**
-	 * @return 15
+	 * 
+	 * Oracle recommends you to keep the batch sizes in the general range of 50 to 100.
+	 * 
+	 * @return 64
 	 */
 	public int getDefaultBatchSize(){
-		return 15 ;
+		return 64 ;
 	}
 	
 }

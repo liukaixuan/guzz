@@ -118,4 +118,12 @@ public class Oracle8iDialect extends AbstractDialect {
 	public String getEscapedColunmName(String columnName) {
 		return '"' + columnName + '"' ;
 	}
+	
+	/**
+	 * @return 10
+	 */
+	public int getDefaultBatchSize(){
+		return 10 ;
+	}
+	
 }

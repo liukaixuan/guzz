@@ -54,27 +54,24 @@ public class TestObjectBatcher extends DBBasedTestCase {
 	public void testInsert() throws Exception{
 		WriteTranSession session = tm.openRWTran(false) ;
 		ObjectBatcher batcher = session.createObjectBatcher() ;
+		batcher.setBatchSize(98) ;
 		
-		int newCount = 98 ;
 		int count = countUser(tm) ;
 		
-		for(int loop = 0 ; loop < 10 ; loop++){
-			for(int i = 0 ; i < newCount; i++){
-				User user = new User() ;
-				user.setUserName("hello un " + i) ;
+		for(int loop = 0 ; loop < 980 ; loop++){
+			User user = new User() ;
+			user.setUserName("hello un " + loop) ;
 				
-				batcher.insert(user) ;
-			}
-			
-			batcher.executeUpdate() ;
+			batcher.insert(user) ;
 		}
+		
+		batcher.executeBatch() ;
 
 		session.commit() ;
-
 		session.close() ;
 		
 		int count2 = countUser(tm) ;
-		assertEquals(count2, newCount * 10 + count) ;
+		assertEquals(count2, 980 + count) ;
 	}
 	
 	public void testUpdate() throws Exception{
@@ -87,13 +84,15 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		List users = read.list(se) ;
 		
 		ObjectBatcher batcher = session.createObjectBatcher() ;
+		batcher.setBatchSize(20) ;
+		
 		for(int i = 0 ; i < users.size() ; i++){
 			User u = (User) users.get(i) ;
 			u.setFavCount(3849021) ;
 			batcher.update(u) ;
 		}
 		
-		batcher.executeUpdate() ;
+		batcher.executeBatch() ;
 		session.commit() ;
 		session.close() ;
 		
@@ -109,10 +108,12 @@ public class TestObjectBatcher extends DBBasedTestCase {
 	}
 	
 	public void testDelete() throws Exception{
-		WriteTranSession session = tm.openRWTran(false) ;
+		WriteTranSession session = tm.openRWTran(true) ;
 		ObjectBatcher batcher = session.createObjectBatcher() ;
-		
+
 		int dropCount = 19 ;
+		batcher.setBatchSize(dropCount) ;
+		
 		int count = countUser(tm) ;
 		
 		for(int loop = 0 ; loop < 10 ; loop++){
@@ -129,8 +130,7 @@ public class TestObjectBatcher extends DBBasedTestCase {
 				batcher.delete(user) ;
 			}
 			
-			batcher.executeUpdate() ;
-			session.commit() ;
+			batcher.executeBatch() ;
 			
 			int countAfter = countUser(tm) ;
 			assertEquals(countAfter, countBefore - dropCount) ;

@@ -94,5 +94,12 @@ public class H2Dialect extends AbstractDialect {
 	public String getEscapedColunmName(String columnName) {
 		return '`' + columnName + '`' ;
 	}
+	
+	/**
+	 * @return 128
+	 */
+	public int getDefaultBatchSize(){
+		return 128 ;
+	}
 
 }

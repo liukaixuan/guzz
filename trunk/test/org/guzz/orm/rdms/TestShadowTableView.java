@@ -183,7 +183,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 			batcher.insert(c) ;
 		}
 		
-		batcher.executeUpdate() ;
+		batcher.executeBatch() ;
 		session.commit() ;
 		
 		session.close() ;
@@ -226,7 +226,7 @@ public class TestShadowTableView extends DBBasedTestCase {
 			batcher.addNewBatchParams(params) ;
 		}
 		
-		batcher.executeUpdate() ;
+		batcher.executeBatch() ;
 		session.commit() ;
 		
 		session.close() ;

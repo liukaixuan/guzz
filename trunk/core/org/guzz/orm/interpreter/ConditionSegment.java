@@ -138,7 +138,7 @@ public class ConditionSegment /*implements Comparable*/{
 	}
 	
 	/**	
-	 * 通过形如：abc=2的语法条件，创建一个ConditionSegment。如果传入的conditoin不识别，如为wellknown条件，返回null.
+	 * 通过形如：abc=2的语法条件，创建一个ConditionSegment。如果传入的condition不识别，如为well-known条件，返回null.
 	 * @param mapping
 	 * @param condition
 	 */

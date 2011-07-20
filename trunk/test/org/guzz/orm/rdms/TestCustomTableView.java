@@ -453,7 +453,7 @@ public class TestCustomTableView extends DBBasedTestCase {
 			batcher.insert(book) ;
 		}
 		
-		batcher.executeUpdate() ;
+		batcher.executeBatch() ;
 		session.commit() ;
 		
 		session.close() ;

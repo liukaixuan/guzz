@@ -265,7 +265,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 					addedCount++ ;
 					
 					if(addedCount >= batchSize){
-						batcher.executeUpdate() ;
+						batcher.executeBatch() ;
 						tran.commit() ;
 						
 						addedCount = 0 ;
@@ -273,7 +273,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 				}
 				
 				if(addedCount > 0){
-					batcher.executeUpdate() ;
+					batcher.executeBatch() ;
 					tran.commit() ;
 				}
 			}catch(Exception e){
@@ -288,7 +288,7 @@ public class SuperSlowUpdateServiceImpl extends AbstractService implements GuzzC
 			oldOperations.clear() ;
 			oldOperations = null ;
 			
-			//force sleep to reduce confict.
+			//force sleep to reduce conflict.
 			return false ;
 		}
 
