@@ -78,4 +78,14 @@ public class Mysql5Dialect extends AbstractDialect {
 	public String getEscapedColunmName(String columnName) {
 		return '`' + columnName + '`' ;
 	}
+	
+	/**
+	 * Tested in Mysql5 on Windows.
+	 * 
+	 * @return 1024
+	 */
+	public int getDefaultBatchSize(){
+		return 1024 ;
+	}
+	
 }

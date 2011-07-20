@@ -29,10 +29,31 @@ public interface Batcher {
 	
 	/**
 	 * @see PreparedStatement#executeBatch()
+	 * @deprecated Use {@link #executeBatch()} instead
 	 */
 	public int[] executeUpdate() ;
+
+	/**
+	 * @see PreparedStatement#executeBatch()
+	 */
+	public int[] executeBatch() ;
 	
 	/**@see PreparedStatement#clearBatch()*/
 	public void clearBatch() ;
+	
+	/**
+	 * Execute {@link #executeUpdate()} and {@link #clearBatch()} when the amount of the updates 
+	 * reaches the limit of {@link #getBatchSize()}.
+	 * 
+	 * @param auto turn on the auto execute or not
+	 * @see #setBatchSize(int)
+	 */
+	public void setAutoExecuteUpdate(boolean auto) ;
+	
+	public void setBatchSize(int batchSize) ;
+	
+	public boolean isAutoExecuteUpdate() ;
+	
+	public int getBatchSize() ;
 		
 }

@@ -32,7 +32,7 @@ import org.guzz.service.core.DebugService;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class SQLBatcherImpl implements SQLBatcher {
+public class SQLBatcherImpl extends AbstractBatcher implements SQLBatcher {
 
 	private final DebugService debugService ;
 	private final PreparedStatement ps ;
@@ -42,6 +42,8 @@ public class SQLBatcherImpl implements SQLBatcher {
 	private int objectsCountInBatch ;
 	
 	public SQLBatcherImpl(DebugService debugService, PreparedStatement ps, String rawSQL, Dialect dialect, CompiledSQL cs){
+		super(dialect.getDefaultBatchSize()) ;
+		
 		this.debugService = debugService ;
 		this.ps = ps ;
 		this.rawSQL = rawSQL ;
@@ -50,6 +52,8 @@ public class SQLBatcherImpl implements SQLBatcher {
 	}
 	
 	public void addNewBatchParams(Map params) {
+		checkAndAutoExecuteBatch(this.objectsCountInBatch) ;
+		
 		BindedCompiledSQL bsql = cs.bind(params) ;
 		try {
 			bsql.prepareNamedParams(dialect, ps) ;
@@ -63,6 +67,8 @@ public class SQLBatcherImpl implements SQLBatcher {
 	}
 
 	public void addNewBatchParams(String paramName, int paramValue) {
+		checkAndAutoExecuteBatch(this.objectsCountInBatch) ;
+		
 		BindedCompiledSQL bsql = cs.bind(paramName, paramValue) ;
 		try {
 			bsql.prepareNamedParams(dialect, ps) ;
@@ -76,6 +82,8 @@ public class SQLBatcherImpl implements SQLBatcher {
 	}
 
 	public void addNewBatchParams(String paramName, Object paramValue) {
+		checkAndAutoExecuteBatch(this.objectsCountInBatch) ;
+		
 		BindedCompiledSQL bsql = cs.bind(paramName, paramValue) ;
 		try {
 			bsql.prepareNamedParams(dialect, ps) ;
@@ -98,7 +106,9 @@ public class SQLBatcherImpl implements SQLBatcher {
 		this.objectsCountInBatch = 0 ;
 	}
 
-	public int[] executeUpdate() {
+	public int[] executeBatch() {
+		if(this.objectsCountInBatch == 0) return new int[0] ;
+		
 		boolean measureTime = this.debugService.isMeasureTime() ;
 		long startTime = 0L ;
 		if(measureTime){

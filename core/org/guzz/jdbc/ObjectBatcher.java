@@ -25,7 +25,7 @@ import org.guzz.id.IdentifierGenerator;
  * <p/>例如已经调用了add(...)方法后，update和delete便不允许再调用。
  * 
  * <p>
- * one ObjectBatcher works only for one table. If the object is shadow, every real table should apply a ObjectBatcher separately.
+ * One ObjectBatcher works only for one table. If the object is shadow, each real table should use a separate ObjectBatcher.
  * <p>
  *
  * @author liukaixuan(liukaixuan@gmail.com)
@@ -35,8 +35,9 @@ public interface ObjectBatcher extends Batcher {
 	/**
 	 * add a object to the insert batch.
 	 * <p>
-	 * <b>WARNING:</b> batch update does not support binding postCreated primary key. the domainObject you passed may not gain any pk.
-	 * <br>To avoid this problem, the domainObject's primary key should be auto_increment or a seqence(pk fetched before domainObject inserted)
+	 * <b>WARNING:</b> batch update does not support binding postCreated primary key. The domainObject you passed may not gain any primary key.
+	 * <br>To avoid this problem, the domainObject's primary key should be auto_increment 
+	 * or a sequence(pk fetched before domainObject inserted). Or you cann't get the primary key of the inserted object right after the batch.
 	 * 
 	 * </p>
 	 * IdentifierGenerator#preInsert(org.guzz.transaction.WriteTranSession, Object) will be invoked before batchUpdate.

@@ -42,7 +42,7 @@ import org.guzz.util.javabean.BeanWrapper;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ObjectBatcherImpl implements ObjectBatcher {
+public class ObjectBatcherImpl extends AbstractBatcher implements ObjectBatcher {
 	protected CompiledSQLManager compiledSQLManager ;
 	private WriteTranSessionImpl sessionImpl ;
 	private DebugService debugService ;
@@ -62,18 +62,20 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	
 	private String rawSQL ;
 	
-	private int objectsCountInBatch ;
+	private volatile int objectsCountInBatch ;
 
 	/**
 	 * add:1
 	 * update:2
-	 * delelte:3
+	 * delete:3
 	 */
 	private int mark = 0 ;
 
 	private String[] markMsg = new String[]{"", "add", "update", "delete"} ;
 
 	public ObjectBatcherImpl(CompiledSQLManager compiledSQLManager, WriteTranSessionImpl sessionImpl, DebugService debugService){
+		super(64) ;
+		
 		this.compiledSQLManager = compiledSQLManager ;
 		this.sessionImpl = sessionImpl ;
 		this.debugService = debugService ;
@@ -116,6 +118,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		
 		DBGroup dbGroup = mapping.getDbGroup() ;
 		this.dialect = dbGroup.getDialect() ;
+		this.setDefaultBatchSize(this.dialect.getDefaultBatchSize()) ;
+		
 		Connection conn = this.sessionImpl.getConnection(dbGroup, bsql.getTableCondition()) ;
 
 		this.rawSQL = bsql.getSQLToRun() ;
@@ -129,6 +133,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	}
 
 	public void insert(Object domainObject) {
+		checkAndAutoExecuteBatch(this.objectsCountInBatch) ;
+		
 		if(mark == 0){
 			mark = 1 ;
 			preparePS(domainObject, 1) ;
@@ -168,6 +174,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	}
 
 	public void update(Object domainObject) {
+		checkAndAutoExecuteBatch(this.objectsCountInBatch) ;
+		
 		if(mark == 0){
 			mark = 2 ;
 			preparePS(domainObject, 2) ;
@@ -197,6 +205,8 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 	}
 
 	public void delete(Object domainObject) {
+		checkAndAutoExecuteBatch(this.objectsCountInBatch) ;
+		
 		if(mark == 0){
 			mark = 3 ;
 			preparePS(domainObject, 3) ;
@@ -238,11 +248,18 @@ public class ObjectBatcherImpl implements ObjectBatcher {
 		}
 		
 		this.mark = 0 ;
+		this.objectsCountInBatch = 0 ;
 	}
 
-	public int[] executeUpdate() {
-		//not initialized.
-		if(mark == 0){
+	public int[] executeBatch() {
+//comments out on 2011-7-18. This is not correct since autoExecuteUpdate feature.
+//		//not initialized.
+//		if(mark == 0){
+//			return new int[0] ;
+//		}
+		
+		//not sql.
+		if(objectsCountInBatch == 0){
 			return new int[0] ;
 		}
 		

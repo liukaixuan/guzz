@@ -181,7 +181,7 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 					addedCount++ ;
 					
 					if(addedCount >= batchSize){
-						batcher.executeUpdate() ;
+						batcher.executeBatch() ;
 						tran.commit() ;
 						
 						addedCount = 0 ;
@@ -189,7 +189,7 @@ public class SlowUpdateServiceImpl extends AbstractService implements GuzzContex
 				}
 				
 				if(addedCount > 0){
-					batcher.executeUpdate() ;
+					batcher.executeBatch() ;
 					tran.commit() ;
 				}
 			}catch(Exception e){

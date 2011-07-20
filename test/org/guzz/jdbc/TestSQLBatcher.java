@@ -55,6 +55,7 @@ public class TestSQLBatcher extends DBBasedTestCase {
 	
 	public void testUpdate() throws Exception{
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(User.class, "update @@" + User.class.getName() + " set @favCount = 3849021 where @id = :id") ;
+		cs.addParamPropMapping("id", "id") ;
 		
 		WriteTranSession session = tm.openRWTran(false) ;
 		ReadonlyTranSession read = tm.openNoDelayReadonlyTran() ;
@@ -65,6 +66,7 @@ public class TestSQLBatcher extends DBBasedTestCase {
 		List users = read.list(se) ;
 		
 		SQLBatcher batcher = session.createCompiledSQLBatcher(cs) ;
+		batcher.setBatchSize(5) ;
 		
 		for(int i = 0 ; i < users.size() ; i++){
 			User user = (User) users.get(i) ;
@@ -75,7 +77,7 @@ public class TestSQLBatcher extends DBBasedTestCase {
 			batcher.addNewBatchParams(params) ;
 		}
 		
-		batcher.executeUpdate() ;
+		batcher.executeBatch() ;
 		session.commit() ;
 		session.close() ;
 		
@@ -92,38 +94,32 @@ public class TestSQLBatcher extends DBBasedTestCase {
 	
 	public void testDelete() throws Exception{
 		CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(User.class, "delete from @@" + User.class.getName() + " where @id = :id") ;
+		cs.addParamPropMapping("id", "id") ;
 		
 		WriteTranSession session = tm.openRWTran(false) ;
 		SQLBatcher batcher = session.createCompiledSQLBatcher(cs) ;
+		batcher.setBatchSize(19) ;
 		
-		int dropCount = 19 ;
 		int count = countUser(tm) ;
 		
-		for(int loop = 0 ; loop < 10 ; loop++){
-			int countBefore = countUser(tm) ;
+		ReadonlyTranSession read = tm.openNoDelayReadonlyTran() ;
+		SearchExpression se = SearchExpression.forClass(User.class, 1, 345) ;
+		List users = read.list(se) ;
+		read.close() ;
+		
+		for(int i = 0 ; i < users.size(); i++){
+			User user = (User) users.get(i) ;
 			
-			ReadonlyTranSession read = tm.openNoDelayReadonlyTran() ;
-			SearchExpression se = SearchExpression.forClass(User.class, 1, 345) ;
-			List users = read.list(se) ;
-			read.close() ;
-			
-			for(int i = 0 ; i < dropCount; i++){
-				User user = (User) users.get(i) ;
-				
-				batcher.addNewBatchParams("id", user.getId()) ;
-			}
-			
-			batcher.executeUpdate() ;
-			session.commit() ;
-			
-			int countAfter = countUser(tm) ;
-			assertEquals(countAfter, countBefore - dropCount) ;
+			batcher.addNewBatchParams("id", user.getId()) ;
 		}
 
+		batcher.executeBatch() ;
+		session.commit() ;
+		
 		session.close() ;
 		
 		int count2 = countUser(tm) ;
-		assertEquals(count2, count - 10 * dropCount) ;
+		assertEquals(count2, count - users.size()) ;
 	}
 
 }

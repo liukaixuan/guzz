@@ -77,5 +77,16 @@ public class MSSQLDialect extends AbstractDialect {
 	public String getEscapedColunmName(String columnName) {
 		return '[' + columnName + ']' ;
 	}
+	
+	/**
+	 * http://social.msdn.microsoft.com/Forums/en-US/adodotnetdataproviders/thread/082bd7e7-f9bf-4548-8d4c-e771a6704fce
+	 * <p/>
+	 * http://stackoverflow.com/questions/779690/what-is-the-recommended-batch-size-for-sqlbulkcopy
+	 * 
+	 * @return 500
+	 */
+	public int getDefaultBatchSize(){
+		return 500 ;
+	}
 
 }
