@@ -44,6 +44,7 @@ import org.guzz.orm.type.ShortSQLDataType;
 import org.guzz.orm.type.StringSQLDataType;
 import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
+import org.guzz.service.core.LeaderService;
 import org.guzz.service.core.impl.IncUpdateBusiness;
 import org.guzz.service.db.SlowUpdateServer;
 import org.guzz.transaction.ReadonlyTranSession;
@@ -86,8 +87,10 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 	
 	private UpdateExceptionHandlerService updateExceptionHandlerService ;
 	
+	private LeaderService leaderService ;
+	
 	public int getLatency() {
-		//FIXME: implmemet this
+		//FIXME: implemement this
 		return 0;
 	}
 
@@ -162,6 +165,11 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 			if(updateExceptionHandlerService != null && !((Service) updateExceptionHandlerService).isAvailable() ){
 				//updateExceptionHandlerService is defined, but not available. wait for it.
 				log.warn("updateExceptionHandlerService is not available yet.") ;
+				return false ;
+			}
+			
+			//Leader Service is available, job transfered to the leader machine.
+			if(leaderService != null && !leaderService.amILeader()){
 				return false ;
 			}
 			
@@ -357,6 +365,14 @@ public class SlowUpdateServerImpl extends AbstractService implements SlowUpdateS
 		
 		public String sqlToUpdate ;		
 		
+	}
+
+	public LeaderService getLeaderService() {
+		return leaderService;
+	}
+
+	public void setLeaderService(LeaderService leaderService) {
+		this.leaderService = leaderService;
 	}
 
 }
