@@ -4,7 +4,7 @@
 
  JDK: 1.4+ (Recompling the code yourself when required. The RCP and annotation will be invalid.)
 
- Servlet 2.4 is required when running under Web Container.
+ Servlet 2.4 is required under Web Containers.
 
  Guzz depends on dom4J, cglib and commons-log which can be found under the download page.
 
