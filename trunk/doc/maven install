@@ -1,0 +1,4 @@
+mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.1.0 -Dpackaging=jar -Dfile=D:/coding/test_ws/guzz/dev-lib/ojdbc14.jar
+
+mvn install:install-file -DgroupId=org.phprpc -DartifactId=phprpc-client -Dversion=1.0 -Dpackaging=jar -Dfile=D:/coding/test_ws/guzz/dev-lib/phprpc_client.jar
+
