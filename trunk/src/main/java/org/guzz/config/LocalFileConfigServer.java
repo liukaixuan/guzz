@@ -182,7 +182,14 @@ public class LocalFileConfigServer implements ConfigServer {
 			}
 		}
 		
-		return scs ;
+		//Must return a cloned copy to support duplicated queries.
+		ServiceConfig[] newscs = new ServiceConfig[scs.length] ;
+		for(int i = 0 ; i < scs.length ; i++){
+			ServiceConfig ns = (ServiceConfig) scs[i].clone() ;
+			newscs[i] = ns ;
+		}
+		
+		return newscs ;
 	}
 
 	public void registerService(String configName, Service service) {
