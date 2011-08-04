@@ -24,7 +24,7 @@ import java.util.Properties;
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ServiceConfig implements java.io.Serializable {
+public class ServiceConfig implements java.io.Serializable, Cloneable {
 		
 	/**ServiceConfig的唯一标识，多个ServiceConfig之间不允许重复。*/
 	private String uniqueIdentifer ;
@@ -85,6 +85,19 @@ public class ServiceConfig implements java.io.Serializable {
 
 	public void setUniqueIdentifer(String uniqueIdentifer) {
 		this.uniqueIdentifer = uniqueIdentifer;
+	}
+
+	public Object clone() {
+		ServiceConfig sc = new ServiceConfig() ;
+		
+		sc.appName = this.appName ;
+		sc.configName = this.configName ;
+		sc.IP = this.IP ;
+		sc.maxLoad = this.maxLoad ;
+		sc.props = (Properties) this.props.clone() ;
+		sc.uniqueIdentifer = this.uniqueIdentifer ;
+		
+		return sc ;
 	}
 	
 }
