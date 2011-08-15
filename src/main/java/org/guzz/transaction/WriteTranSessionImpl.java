@@ -45,9 +45,12 @@ import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
+import org.guzz.orm.se.SearchExpression;
+import org.guzz.orm.se.SearchParams;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLManager;
+import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.orm.sql.NormalCompiledSQL;
 import org.guzz.pojo.DynamicUpdatable;
 import org.guzz.service.core.DatabaseService;
@@ -257,6 +260,26 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		}
 		
 		return executeUpdate(cs.bind(params)) ;
+	}
+	
+
+	public int delete(SearchExpression se) {
+		if(se.isEmptyQuery()){
+			//must resulted in no results.
+			return 0 ;
+		}
+		
+		ObjectMapping m = omm.getObjectMapping(se.getFrom(), se.getTableCondition()) ;
+		
+		if(m == null){
+			throw new ORMException("unknown business:" + se.getFrom()) ;
+		}
+		
+		SearchParams sp = new SearchParams() ;
+		MarkedSQL ms = se.toDeleteRecordString((POJOBasedObjectMapping) m, sp) ;
+		CompiledSQL sql = this.compiledSQLBuilder.buildCompiledSQL(ms).setParamPropMapping(sp.getParamPropMapping()) ;
+		
+		return this.executeUpdate(se.prepareHits(sql.bind(sp.getSearchParams()))) ;
 	}
 	
 	/**

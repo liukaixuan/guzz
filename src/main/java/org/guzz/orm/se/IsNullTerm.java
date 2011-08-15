@@ -48,4 +48,8 @@ public class IsNullTerm implements SearchTerm {
 		return sb.toString() ;
 	}
 
+	public boolean isEmptyQuery() {
+		return false;
+	}
+
 }

@@ -236,6 +236,11 @@ public class AbstractTranSessionImpl {
 	}
 	
 	public List list(SearchExpression se) {
+		if(se.isEmptyQuery()){
+			//must resulted in no results.
+			return new LinkedList() ;
+		}
+		
 		ObjectMapping m = omm.getObjectMapping(se.getFrom(), se.getTableCondition()) ;
 		
 		if(m == null){
@@ -251,6 +256,11 @@ public class AbstractTranSessionImpl {
 	}
 	
 	public long count(SearchExpression se) {
+		if(se.isEmptyQuery()){
+			//must resulted in no results.
+			return 0L ;
+		}
+		
 		ObjectMapping m = omm.getObjectMapping(se.getFrom(), se.getTableCondition()) ;
 		
 		if(m == null){
@@ -273,6 +283,22 @@ public class AbstractTranSessionImpl {
 	}
 	
 	public PageFlip page(SearchExpression se) {
+		if(se.isEmptyQuery()){
+			Class m_flip = se.getPageFlipClass() ;
+			
+			PageFlip pf = null ;
+			if(m_flip == null){
+				pf = new PageFlip() ;
+			}else{
+				pf = (PageFlip) BeanCreator.newBeanInstance(m_flip) ;
+			}
+			
+			//must resulted in no results.
+			pf.setResult(0, se.getPageNo(), se.getPageSize(), new LinkedList()) ;
+			
+			return pf;
+		}
+		
 		ObjectMapping m = omm.getObjectMapping(se.getFrom(), se.getTableCondition()) ;
 		
 		if(m == null){

@@ -28,6 +28,11 @@ public interface SearchTerm {
 	
 	public String toExpression(SearchExpression se, ObjectMapping mapping, SearchParams params) ;
 	
+	/**
+	 * 查询的结果是否注定为空。如含有互斥条件，in查询传入的数组为空等。
+	 */
+	public boolean isEmptyQuery() ;
+	
 	/**获取检索表达式的参数，如果没有参数返回null*/
 //	public Map getParameters() ;
 	
