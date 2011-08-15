@@ -56,4 +56,10 @@ public class WhereTerm implements SearchTerm {
 		this.condition = condition;
 	}
 
+	public boolean isEmptyQuery() {
+		if(condition == null) return false ;
+		
+		return condition.isEmptyQuery();
+	}
+
 }

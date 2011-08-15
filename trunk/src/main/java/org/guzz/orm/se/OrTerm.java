@@ -65,4 +65,12 @@ public class OrTerm extends AbstractConcatTerm {
 		}
 	}
 
+	public boolean isEmptyQuery() {
+		if(this.leftTerm == null && this.rightTerm == null) return false ;
+		if(this.leftTerm == null) return this.rightTerm.isEmptyQuery() ;
+		if(this.rightTerm == null) return this.leftTerm.isEmptyQuery() ;
+		
+		return this.leftTerm.isEmptyQuery() && this.rightTerm.isEmptyQuery() ;
+	}
+
 }

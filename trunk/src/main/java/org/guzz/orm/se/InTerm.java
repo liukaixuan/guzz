@@ -97,4 +97,14 @@ public class InTerm implements SearchTerm {
 		return sb.toString() ;
 	}
 
+	public boolean isEmptyQuery() {
+		if(values != null && !values.isEmpty()){
+			return false ;
+		}else if(i_values != null && i_values.length > 0){
+			return false ;
+		}
+		
+		return true ;
+	}
+
 }

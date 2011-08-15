@@ -106,6 +106,10 @@ public class OrderByTerm implements SearchTerm {
 		
 		return sb.toString() ;
 	}
+
+	public boolean isEmptyQuery() {
+		return false;
+	}
 	
 	static class _OrderBy{		
 		public String propName ;

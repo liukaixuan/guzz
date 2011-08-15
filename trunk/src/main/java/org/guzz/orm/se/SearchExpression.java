@@ -125,11 +125,7 @@ public abstract class SearchExpression {
 	 */
 	public SearchExpression and(SearchTerm term){
 		conditionTerm = new AndTerm(conditionTerm, term) ;
-//		Map m_params = term.getParameters() ;
-//		
-//		if(m_params != null){
-//			this.params.putAll(m_params) ;
-//		}
+		
 		return this ;
 	}
 	
@@ -151,13 +147,17 @@ public abstract class SearchExpression {
 	 */
 	public SearchExpression or(SearchTerm term){
 		conditionTerm = new OrTerm(conditionTerm, term) ;
-//		Map m_params = term.getParameters() ;
-//		
-//		if(m_params != null){
-//			this.params.putAll(m_params) ;
-//		}
 		
 		return this ;
+	}
+	
+	/**
+	 * 查询的结果是否注定为空。如含有互斥条件，in查询传入的数组为空等。
+	 */
+	public boolean isEmptyQuery() {
+		if(this.conditionTerm == null) return false ;
+		
+		return this.conditionTerm.isEmptyQuery() ;
 	}
 	
 	public MarkedSQL toLoadRecordsMarkedSQL(POJOBasedObjectMapping mapping, SearchParams params){
@@ -200,29 +200,6 @@ public abstract class SearchExpression {
         
         return sql ;
 	}
-	
-//	public String toLoadRecordsSQL(POJOBasedObjectMapping mapping, SearchParams params){
-//		StringBuffer sb = new StringBuffer(128) ;
-//		
-//		if(selectTerm != null){
-//        	sb.append("select ").append(selectTerm.toExpression(this, mapping, params)).append(" ") ;
-//        }else{
-//        	sb.append("select * ") ;
-//        }
-//		
-//		String tableName = mapping.getTable().getTableName() ;		
-//		sb.append("from ").append(tableName) ;
-//              
-//        if (conditionTerm != null) {
-//        	sb.append(' ').append(new WhereTerm(conditionTerm).toExpression(this, mapping, params)) ;
-//        }     
-//        
-//        if (orderByTerm != null) {
-//    		sb.append(orderByTerm.toExpression(this, mapping, params));
-//        }
-//        
-//        return sb.toString() ;
-//	}
 	
 	public MarkedSQL toComputeRecordNumberSQL(POJOBasedObjectMapping mapping, SearchParams params){
 		StringBuffer sb = new StringBuffer(128) ;

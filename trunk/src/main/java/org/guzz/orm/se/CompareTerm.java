@@ -61,4 +61,8 @@ public class CompareTerm implements SearchTerm {
 		return colName + " " + operator + " :" + propMark ;
 	}
 
+	public boolean isEmptyQuery() {
+		return false;
+	}
+
 }

@@ -48,7 +48,8 @@ public class PropsSelectTerm implements SearchTerm {
 	}
 
 	public String toExpression(SearchExpression se, ObjectMapping mapping, SearchParams params) {
-		if(props.isEmpty()) return "" ;
+		//没有设置props，应该是个错误！返回*查询所有。
+		if(props.isEmpty()) return "*" ;
 		
 		StringBuffer sb = new StringBuffer(16) ;
 		
@@ -72,6 +73,10 @@ public class PropsSelectTerm implements SearchTerm {
 		}
 		
 		return sb.toString() ;
+	}
+
+	public boolean isEmptyQuery() {
+		return false;
 	}
 
 }

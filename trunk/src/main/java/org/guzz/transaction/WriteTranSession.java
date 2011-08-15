@@ -24,6 +24,7 @@ import org.guzz.exception.DaoException;
 import org.guzz.jdbc.ObjectBatcher;
 import org.guzz.jdbc.SQLBatcher;
 import org.guzz.orm.ColumnDataLoader;
+import org.guzz.orm.se.SearchExpression;
 import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.orm.sql.CompiledSQL;
 
@@ -117,6 +118,13 @@ public interface WriteTranSession extends TranSession{
 	public int executeUpdate(String id, Map params) ;
 	
 	public int executeUpdate(BindedCompiledSQL bsql) ;
+	
+	/**
+	 * 按照 {@link SearchExpression} 的查询条件进行删除。
+	 * @param se {@link SearchExpression}
+	 * @return rows affected.
+	 */
+	public int delete(SearchExpression se) ;
 	
 	/**
 	 * 读取lazy属性的值。读取时，使用本tran的事务进行控制，并从主库读取数据。
