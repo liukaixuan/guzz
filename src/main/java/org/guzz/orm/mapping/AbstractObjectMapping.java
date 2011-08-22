@@ -67,10 +67,6 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 			}
 			
 			SQLDataType type = dialect.getDataType(dataType2) ;
-			if(StringUtil.notEmpty(tc.getNullValue())){
-				Object value = type.getFromString(tc.getNullValue()) ;
-				type.setNullToValue(value) ;
-			}
 			
 			o = new ColumnORM(tc, type) ;
 		}else{
@@ -79,6 +75,7 @@ public abstract class AbstractObjectMapping implements ObjectMapping {
 		}
 		
 		tc.setOrm(o) ;
+		tc.setNullValue(tc.getNullValue()) ;
 	}
 	
 //	public SQLDataType getSQLDataTypeOfColumn(String colName){

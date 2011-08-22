@@ -62,6 +62,11 @@ public class BlobSQLDataType implements SQLDataType, DialectAware {
 			value = getFromString((String) value) ;
 		}
 		
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.BLOB) ;
+			return ;
+		}
+		
 		boolean useStream = false ;
 		Blob blob = (Blob) value ;
 		
@@ -81,6 +86,8 @@ public class BlobSQLDataType implements SQLDataType, DialectAware {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return null ;
+		
 		return Guzz.createBlob(value.getBytes()) ;
 	}
 

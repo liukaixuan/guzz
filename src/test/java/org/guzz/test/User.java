@@ -53,7 +53,8 @@ public class User {
 	private boolean vip ;
 	
 	@Column(name="FAV_COUNT")
-	private int favCount ;
+	@org.guzz.annotations.Column(nullValue="999")
+	private Integer favCount ;
 	
 	private Date createdTime ;
 	
@@ -95,11 +96,11 @@ public class User {
 		this.vip = vip;
 	}
 
-	public int getFavCount() {
+	public Integer getFavCount() {
 		return favCount;
 	}
 
-	public void setFavCount(int favCount) {
+	public void setFavCount(Integer favCount) {
 		this.favCount = favCount;
 	}
 

@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * 
- * 
+ * primary type: int
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -73,6 +73,8 @@ public class IntegerSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return Integer.valueOf(0) ;
+		
 		return Integer.valueOf(value) ;
 	}
 

@@ -45,8 +45,13 @@ public final class ResultMapBasedObjectMapping extends AbstractObjectMapping {
 		super(dbGroup, table) ;
 		this.id = id ;
 		this.domainClass = domainClass ;
-		beanWrapper = BeanWrapper.createPOJOWrapper(domainClass) ;
-	}	
+		
+		if(domainClass != null){
+			beanWrapper = BeanWrapper.createPOJOWrapper(domainClass) ;
+		}else{
+			beanWrapper = null ;
+		}
+	}
 
 	protected String getColDataType(String propName, String colName, String dataType) {
 		if (StringUtil.isEmpty(dataType)){

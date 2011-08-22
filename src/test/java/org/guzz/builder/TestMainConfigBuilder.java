@@ -54,7 +54,7 @@ public class TestMainConfigBuilder extends TestCase {
 		FileResource fs = new FileResource("classpath:guzzmain_test1.xml") ;
 		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(null, fs, "UTF-8") ;
 		
-		Document md = b.rootDoc ;
+		Element md = b.rootDoc ;
 		assertNotNull(md) ;
 //		System.out.println(md.asXML()) ;
 		List elements = md.selectNodes("//business") ;
@@ -84,7 +84,7 @@ public class TestMainConfigBuilder extends TestCase {
 		GuzzContextImpl gf = (GuzzContextImpl)new Configuration("classpath:guzzmain_test1.xml").newGuzzContext() ;
 		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;
 		
-		Document md = b.rootDoc ;
+		Element md = b.rootDoc ;
 		assertNotNull(md) ;
 		
 		List es = md.selectNodes("//sqlMap/orm") ;
@@ -108,7 +108,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		GuzzConfigFileBuilder b = GuzzConfigFileBuilder.build(gf, fs, "UTF-8") ;
 		
-		Document md = b.rootDoc ;
+		Element md = b.rootDoc ;
 		assertNotNull(md) ;
 		
 		List maps = b.listGlobalORMs() ;

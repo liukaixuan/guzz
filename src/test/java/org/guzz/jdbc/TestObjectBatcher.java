@@ -88,7 +88,7 @@ public class TestObjectBatcher extends DBBasedTestCase {
 		
 		for(int i = 0 ; i < users.size() ; i++){
 			User u = (User) users.get(i) ;
-			u.setFavCount(3849021) ;
+			u.setFavCount(new Integer(3849021)) ;
 			batcher.update(u) ;
 		}
 		

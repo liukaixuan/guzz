@@ -52,6 +52,8 @@ public class DateTimeSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return null ;
+		
 		Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){
 			throw new DataTypeException("unknown datetime:" + value + ", date format should be:" + dateFormat) ;
@@ -81,7 +83,11 @@ public class DateTimeSQLDataType implements SQLDataType, ParameteredType {
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value == null){
-			pstm.setTimestamp(parameterIndex, this.nullDate) ;
+			if(this.nullDate == null){
+				pstm.setNull(parameterIndex, java.sql.Types.TIMESTAMP) ;
+			}else{
+				pstm.setTimestamp(parameterIndex, this.nullDate) ;
+			}
 			
 			return ;
 		}

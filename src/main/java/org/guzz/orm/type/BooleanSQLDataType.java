@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * 
- * 
+ * primary type: boolean
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -71,6 +71,8 @@ public class BooleanSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return Boolean.FALSE ;
+		
 		char c = value.charAt(0) ;
 		if(c == '1' || c =='y' || c == 'Y' || c == 't' || c == 'T') return Boolean.TRUE ;
 	

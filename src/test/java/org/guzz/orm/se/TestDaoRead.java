@@ -60,7 +60,7 @@ public class TestDaoRead extends DBBasedTestCase {
 			assertNotNull(user) ;
 			assertEquals(user.getUserName(), "name " + i) ;	
 			assertEquals(user.getPassword(), "psw " + i) ;	
-			assertEquals(user.getFavCount(), i) ;		
+			assertEquals(user.getFavCount().intValue(), i) ;		
 			assertEquals(user.isVip(), (i%2 == 0)) ;		
 		}
 		

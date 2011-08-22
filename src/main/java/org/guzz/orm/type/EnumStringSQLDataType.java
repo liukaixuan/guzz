@@ -92,6 +92,8 @@ public class EnumStringSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return null ;
+		
 		return getEnumFromString(value) ;
 	}
 

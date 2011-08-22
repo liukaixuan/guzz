@@ -75,17 +75,17 @@ public class SequenceHiLoGenerator extends SequenceIdGenerator {
 	public synchronized Number generate(WriteTranSession session, Object tableCondition) {
 		if (maxLo < 1) {
 			//keep the behavior consistent even for boundary usages
-			Number n = super.nextSequenceValue(session, tableCondition) ;
+			Number n = (Number) super.nextSequenceValue(session, tableCondition) ;
 			
 			if(n.longValue() == 0L){
-				n = super.nextSequenceValue(session, tableCondition) ;
+				n =  (Number) super.nextSequenceValue(session, tableCondition) ;
 			}
 			
 			return IdentifierGeneratorFactory.createNumber(n.longValue(), this.returnType) ;
 		}
 		
 		if (lo > maxLo){
-			Number n = super.nextSequenceValue(session, tableCondition) ;
+			Number n =  (Number) super.nextSequenceValue(session, tableCondition) ;
 			
 			long hival = n.longValue() ;
 			lo = (hival == 0) ? 1 : 0;
