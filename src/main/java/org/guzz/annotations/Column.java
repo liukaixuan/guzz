@@ -38,9 +38,11 @@ import org.guzz.pojo.lob.TranBlob;
 public @interface Column {
 	
 	 /**
-     * (Optional) The value returned when the stored value in the database is null.
+     * (Optional) The value returned when the stored value in the database is null.  
+     * 
+     * The value "null" is reserved for java keyword null.
      */
-    String nullValue() default "" ;
+    String nullValue() default "null" ;
     
     /**
      * (Optional) The user-defined loader to fetch the property's value.
