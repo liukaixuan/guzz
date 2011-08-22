@@ -22,60 +22,65 @@ import java.sql.SQLException;
 
 /**
  * 
- * primary type: short
+ * java.lang.Integer
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ShortSQLDataType implements SQLDataType {
+public class IntegerObjectSQLDataType implements SQLDataType {
 
-	private short nullValue ;
+	private Integer nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = ((Short) nullValue).shortValue() ;
+		this.nullValue = (Integer) nullValue ;
 	}
 	
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		short value = rs.getShort(colName) ;
+		int value = rs.getInt(colName) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return Integer.valueOf(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		short value = rs.getShort(colIndex) ;
+		int value = rs.getInt(colIndex) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return Integer.valueOf(value) ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value)  throws SQLException {
-		if(value == null){
-			pstm.setShort(parameterIndex, this.nullValue) ;
-			return ;
-		}
 		if(value instanceof String){
 			value = getFromString((String) value) ;
 		}
 		
-		short v = ((Number) value).shortValue() ;
+		if(value == null){
+			value = this.nullValue ;
+		}
 		
-		pstm.setShort(parameterIndex, v) ;
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.INTEGER) ;
+		}else{
+			int v = ((Number) value).intValue() ;
+			
+			pstm.setInt(parameterIndex, v) ;
+		}
 	}
 	
 	public Class getDataType(){
-		return Short.class ;
+		return Integer.class ;
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Short.valueOf((short) 0) ;
+		//Type java.lang.Integer allows null value. 
+		if(value == null) return null ;
 		
-		return Short.valueOf(value) ;
+		return Integer.valueOf(value) ;
 	}
 
 }

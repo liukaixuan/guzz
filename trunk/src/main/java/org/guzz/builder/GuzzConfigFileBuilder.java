@@ -70,7 +70,7 @@ import org.xml.sax.SAXException;
  */
 public class GuzzConfigFileBuilder {
 	
-	protected Document rootDoc  ;
+	protected Element rootDoc  ;
 	
 	protected GuzzContextImpl gf  ;
 	
@@ -103,7 +103,7 @@ public class GuzzConfigFileBuilder {
 		document = reader.read(isr);
 		final Element root = document.getRootElement();
 		
-        List list = document.selectNodes( "//import" );
+        List list = document.selectNodes("//import");
         
         for(int i = 0 ; i < list.size() ; i++){
         	Element  n = (Element ) list.get(i) ;
@@ -125,7 +125,7 @@ public class GuzzConfigFileBuilder {
         	
         	content.remove(indexOfPos) ;
         	
-        	//append inclued docs
+        	//appends included docs
         	Element ie = includedDoc.getRootElement() ;        	
         	List ie_children = ie.content() ;
         	
@@ -138,7 +138,7 @@ public class GuzzConfigFileBuilder {
 	}
 	
 	protected void setupMainConfigDocument(GuzzContext gf, Resource r, String encoding) throws DocumentException, IOException, SAXException{
-		rootDoc = loadFullConfigFile(r, encoding) ;
+		rootDoc = loadFullConfigFile(r, encoding).getRootElement() ;
 		
     	this.mainConfigResource = r ;
 	}
@@ -160,13 +160,13 @@ public class GuzzConfigFileBuilder {
 		
 		LinkedList dbGroups = new LinkedList() ;
 		
-		List rootDBGroups = parseForPhysicsDBGroup(this.rootDoc.selectNodes("//tran/dbgroup"), "default") ;
+		List rootDBGroups = parseForPhysicsDBGroup(this.rootDoc.selectNodes("tran/dbgroup"), "default") ;
 		if(rootDBGroups != null ){
 			dbGroups.addAll(rootDBGroups) ;
 		}
 		
 		//Load virtual dbGroup
-		List vss = this.rootDoc.selectNodes("//tran/virtualdbgroup") ;
+		List vss = this.rootDoc.selectNodes("tran/virtualdbgroup") ;
 		
 		if(vss != null && !vss.isEmpty()){
 			for(int i = 0 ; i < vss.size() ; i++){
@@ -273,7 +273,7 @@ public class GuzzConfigFileBuilder {
 	}
 	
 	public Map getConfiguredDialect(){
-		List ls = this.rootDoc.selectNodes("//dialect") ;
+		List ls = this.rootDoc.selectNodes("dialect") ;
 		
 		if(ls == null) return null ;
 		if(ls.isEmpty()) return null ;
@@ -322,7 +322,7 @@ public class GuzzConfigFileBuilder {
 		 */
 		LinkedList mappings = new LinkedList() ;
 		
-		List bus = this.rootDoc.selectNodes("//business") ;
+		List bus = this.rootDoc.selectNodes("business") ;
 		
 		for(int i = 0 ; i < bus.size() ; i++){
 			Element e = (Element) bus.get(i) ;
@@ -383,7 +383,7 @@ public class GuzzConfigFileBuilder {
 	 * Has any annotated businesses declared?
 	 */
 	public boolean hasAnnotatedBusiness(){
-		List bus = this.rootDoc.selectNodes("//a-business") ;
+		List bus = this.rootDoc.selectNodes("a-business") ;
 		
 		return !bus.isEmpty() ;
 	}
@@ -398,7 +398,7 @@ public class GuzzConfigFileBuilder {
 		 <a-business name="user" class="org.guzz.test.User"/>
 		*/
 		
-		List bus = this.rootDoc.selectNodes("//a-business") ;
+		List bus = this.rootDoc.selectNodes("a-business") ;
 		
 		for(int i = 0 ; i < bus.size() ; i++){
 			Element e = (Element) bus.get(i) ;
@@ -423,7 +423,7 @@ public class GuzzConfigFileBuilder {
 		 */
 		LinkedList mappings = new LinkedList() ;
 		
-		List bus = this.rootDoc.selectNodes("//a-business") ;
+		List bus = this.rootDoc.selectNodes("a-business") ;
 		
 		for(int i = 0 ; i < bus.size() ; i++){
 			Element e = (Element) bus.get(i) ;
@@ -444,7 +444,7 @@ public class GuzzConfigFileBuilder {
 	}
 	
 	public List listGlobalORMs() throws IOException, ClassNotFoundException{
-		List ls = this.rootDoc.selectNodes("//orm") ;
+		List ls = this.rootDoc.selectNodes("orm") ;
 		
 		LinkedList list = new LinkedList() ;
 		
@@ -483,9 +483,11 @@ public class GuzzConfigFileBuilder {
 		}
 		
 		Assert.assertNotEmpty(m_id, "missing attribute [id] in:" + ormFragment.asXML()) ;
-		Assert.assertNotEmpty(m_class, "missing attribute [class] in" + ormFragment.asXML()) ;
 		
-		ResultMapBasedObjectMapping map =  ObjectMappingUtil.createResultMapping(gf, m_id, Class.forName(m_class), m_dbgroup, shadow, table) ;
+		//2011-08-18 fix bug，在update操作时，不需要class属性。
+		//Assert.assertNotEmpty(m_class, "missing attribute [class] in" + ormFragment.asXML()) ;
+		
+		ResultMapBasedObjectMapping map =  ObjectMappingUtil.createResultMapping(gf, m_id, StringUtil.isEmpty(m_class) ? null : Class.forName(m_class), m_dbgroup, shadow, table) ;
 		
 		List results = ormFragment.selectNodes("result") ;
 		
@@ -527,7 +529,7 @@ public class GuzzConfigFileBuilder {
 		</sqlMap>
 		 */
 		
-		List sqlMaps = this.rootDoc.selectNodes("//sqlMap") ;
+		List sqlMaps = this.rootDoc.selectNodes("sqlMap") ;
 		HashMap sqls = new HashMap() ;
 		
 		for(int i = 0 ; i < sqlMaps.size() ; i++){
@@ -695,7 +697,7 @@ public class GuzzConfigFileBuilder {
 		 </config-server>
 		*/
 		
-		List es = this.rootDoc.selectNodes("//config-server/server") ;
+		List es = this.rootDoc.selectNodes("config-server/server") ;
 		
 		if(es.isEmpty()){
 			return null ;
@@ -744,7 +746,7 @@ public class GuzzConfigFileBuilder {
 
 		HashMap services = new HashMap() ;
 		
-		List es = this.rootDoc.selectNodes("//service") ;
+		List es = this.rootDoc.selectNodes("service") ;
 		
 		if(es.isEmpty()){
 			return services ;
@@ -778,7 +780,7 @@ public class GuzzConfigFileBuilder {
 	
 	//加载properties配置文件
 	protected Properties loadPropertyFile(Document doc) throws IOException{
-		List ls = doc.selectNodes("//properties/@file") ;
+		List ls = doc.selectNodes("properties/@file") ;
 		
 		if(ls == null || ls.isEmpty()){
 			return null ;

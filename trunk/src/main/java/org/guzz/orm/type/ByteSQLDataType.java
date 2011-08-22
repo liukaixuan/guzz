@@ -60,7 +60,11 @@ public class ByteSQLDataType implements SQLDataType {
 			value = this.nullValue ;
 		}
 		
-		pstm.setByte(parameterIndex, ((Byte) value).byteValue()) ;
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.BIT) ;
+		}else{
+			pstm.setByte(parameterIndex, ((Byte) value).byteValue()) ;
+		}
 	}
 	
 	public Class getDataType(){
@@ -68,6 +72,8 @@ public class ByteSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return null ;
+		
 		return new Byte(value) ;
 	}
 

@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * 
- * 
+ * primary type: long
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -73,6 +73,8 @@ public class BigIntSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return Long.valueOf(0) ;
+		
 		return Long.valueOf(value) ;
 	}
 

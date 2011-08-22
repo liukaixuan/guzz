@@ -26,8 +26,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.exception.DataTypeException;
 import org.guzz.orm.type.BigDecimalSQLDataType;
+import org.guzz.orm.type.BigIntObjectSQLDataType;
 import org.guzz.orm.type.BigIntSQLDataType;
 import org.guzz.orm.type.BlobSQLDataType;
+import org.guzz.orm.type.BooleanObjectSQLDataType;
 import org.guzz.orm.type.BooleanSQLDataType;
 import org.guzz.orm.type.ByteSQLDataType;
 import org.guzz.orm.type.BytesSQLDataType;
@@ -36,13 +38,17 @@ import org.guzz.orm.type.ClobSQLDataType;
 import org.guzz.orm.type.DateSQLDataType;
 import org.guzz.orm.type.DateTimeSQLDataType;
 import org.guzz.orm.type.DialectAware;
+import org.guzz.orm.type.DoubleObjectSQLDataType;
 import org.guzz.orm.type.DoubleSQLDataType;
 import org.guzz.orm.type.EnumOrdinalSQLDataType;
 import org.guzz.orm.type.EnumStringSQLDataType;
+import org.guzz.orm.type.FloatObjectSQLDataType;
 import org.guzz.orm.type.FloatSQLDataType;
+import org.guzz.orm.type.IntegerObjectSQLDataType;
 import org.guzz.orm.type.IntegerSQLDataType;
 import org.guzz.orm.type.ParameteredType;
 import org.guzz.orm.type.SQLDataType;
+import org.guzz.orm.type.ShortObjectSQLDataType;
 import org.guzz.orm.type.ShortSQLDataType;
 import org.guzz.orm.type.StringSQLDataType;
 import org.guzz.orm.type.TimeSQLDataType;
@@ -64,8 +70,8 @@ public abstract class AbstractDialect implements Dialect {
 	
 	protected void regSystemTypes(){
 		sqlTypes.put("int", IntegerSQLDataType.class) ;
-		sqlTypes.put("Integer", IntegerSQLDataType.class) ;
-		sqlTypes.put(Integer.class.getName(), IntegerSQLDataType.class) ;
+		sqlTypes.put("Integer", IntegerObjectSQLDataType.class) ;
+		sqlTypes.put(Integer.class.getName(), IntegerObjectSQLDataType.class) ;
 		
 		sqlTypes.put("string", StringSQLDataType.class) ;
 		sqlTypes.put("varchar", StringSQLDataType.class) ;
@@ -95,27 +101,27 @@ public abstract class AbstractDialect implements Dialect {
 		
 		//boolean
 		sqlTypes.put("bool", BooleanSQLDataType.class) ;
-		sqlTypes.put("boolean", BooleanSQLDataType.class) ;	
-		sqlTypes.put(Boolean.class.getName(), BooleanSQLDataType.class) ;		
+		sqlTypes.put("boolean", BooleanSQLDataType.class) ;
+		sqlTypes.put(Boolean.class.getName(), BooleanObjectSQLDataType.class) ;		
 
 		sqlTypes.put("bigint", BigIntSQLDataType.class) ;
 		sqlTypes.put("long", BigIntSQLDataType.class) ;
-		sqlTypes.put(Long.class.getName(), BigIntSQLDataType.class) ;
+		sqlTypes.put(Long.class.getName(), BigIntObjectSQLDataType.class) ;
 		
 		sqlTypes.put("double", DoubleSQLDataType.class) ;
-		sqlTypes.put(Double.class.getName(), DoubleSQLDataType.class) ;
+		sqlTypes.put(Double.class.getName(), DoubleObjectSQLDataType.class) ;
 		
 		sqlTypes.put("money", BigDecimalSQLDataType.class) ;	
 		sqlTypes.put("decimal", BigDecimalSQLDataType.class) ;
 		sqlTypes.put(BigDecimal.class.getName(), BigDecimalSQLDataType.class) ;		
 
 		sqlTypes.put("float", FloatSQLDataType.class) ;
-		sqlTypes.put(Float.class.getName(), FloatSQLDataType.class) ;
+		sqlTypes.put(Float.class.getName(), FloatObjectSQLDataType.class) ;
 
 		sqlTypes.put("short", ShortSQLDataType.class) ;
 		sqlTypes.put("smallint", ShortSQLDataType.class) ;
 		sqlTypes.put("tinyint", ShortSQLDataType.class) ;
-		sqlTypes.put(Short.class.getName(), ShortSQLDataType.class) ;
+		sqlTypes.put(Short.class.getName(), ShortObjectSQLDataType.class) ;
 		
 		//bit
 		sqlTypes.put("byte", ByteSQLDataType.class) ;

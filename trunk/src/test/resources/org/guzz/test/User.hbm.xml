@@ -12,7 +12,7 @@
         </property>
         <property name="password" type="string" column="MyPSW"></property>
         <property name="vip" type="boolean" column="VIP_USER" />
-        <property name="favCount" type="int" column="FAV_COUNT" />
+        <property name="favCount" type="java.lang.Integer" null="999" column="FAV_COUNT" />
         <property name="createdTime" type="datetime" column="createdTime" />        
     </class>
 </guzz-mapping>

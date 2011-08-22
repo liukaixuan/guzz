@@ -62,6 +62,11 @@ public class ClobSQLDataType implements SQLDataType, DialectAware {
 			value = getFromString((String) value) ;
 		}
 		
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.CLOB) ;
+			return ;
+		}
+		
 		boolean useStream = false ;
 		Clob clob = (Clob) value ;
 		
@@ -81,6 +86,8 @@ public class ClobSQLDataType implements SQLDataType, DialectAware {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return null ;
+		
 		return Guzz.createClob(value) ;
 	}
 

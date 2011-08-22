@@ -82,7 +82,7 @@
 
 <!ELEMENT orm (result*)>
 <!ATTLIST orm id CDATA #REQUIRED>
-<!ATTLIST orm class CDATA #REQUIRED>
+<!ATTLIST orm class CDATA #IMPLIED>
 <!ATTLIST orm dbgroup CDATA "default">
 <!ATTLIST orm table CDATA #IMPLIED>
 <!ATTLIST orm shadow CDATA #IMPLIED>

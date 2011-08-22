@@ -512,7 +512,7 @@ public class JPA2AnnotationsBuilder {
 		boolean dynamicUpdate = info.dynamicUpdate ;
 		
 		if(StringUtil.isEmpty(tableName)){
-			//According to JPA spefication, we use class's short name as the table name.
+			//According to the JPA's spefication, we use the class's short name as the table name.
 			tableName = domainCls.getSimpleName() ;
 		}	
 		

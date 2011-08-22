@@ -22,23 +22,23 @@ import java.sql.SQLException;
 
 /**
  * 
- * primary type: short
+ * java.lang.Short
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ShortSQLDataType implements SQLDataType {
+public class ShortObjectSQLDataType implements SQLDataType {
 
-	private short nullValue ;
+	private Short nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = ((Short) nullValue).shortValue() ;
+		this.nullValue = (Short) nullValue ;
 	}
 	
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
 		short value = rs.getShort(colName) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
 		return new Short(value) ;
@@ -48,24 +48,28 @@ public class ShortSQLDataType implements SQLDataType {
 		short value = rs.getShort(colIndex) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
 		return new Short(value) ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value)  throws SQLException {
-		if(value == null){
-			pstm.setShort(parameterIndex, this.nullValue) ;
-			return ;
-		}
 		if(value instanceof String){
 			value = getFromString((String) value) ;
 		}
 		
-		short v = ((Number) value).shortValue() ;
+		if(value == null){
+			value = this.nullValue ;
+		}
 		
-		pstm.setShort(parameterIndex, v) ;
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.SMALLINT) ;
+		}else{
+			short v = ((Number) value).shortValue() ;
+			
+			pstm.setShort(parameterIndex, v) ;
+		}
 	}
 	
 	public Class getDataType(){

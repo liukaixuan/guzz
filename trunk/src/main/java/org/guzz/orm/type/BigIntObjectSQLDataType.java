@@ -22,60 +22,66 @@ import java.sql.SQLException;
 
 /**
  * 
- * primary type: short
+ * java.lang.Long
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ShortSQLDataType implements SQLDataType {
+public class BigIntObjectSQLDataType implements SQLDataType {
 
-	private short nullValue ;
+	private Long nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = ((Short) nullValue).shortValue() ;
+		this.nullValue = (Long) nullValue ;
 	}
 	
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		short value = rs.getShort(colName) ;
+		long value = rs.getLong(colName) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return new Long(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		short value = rs.getShort(colIndex) ;
+		long value = rs.getLong(colIndex) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return new Long(value) ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value)  throws SQLException {
-		if(value == null){
-			pstm.setShort(parameterIndex, this.nullValue) ;
-			return ;
-		}
 		if(value instanceof String){
 			value = getFromString((String) value) ;
 		}
 		
-		short v = ((Number) value).shortValue() ;
+		if(value == null){
+			value = this.nullValue ;
+		}
 		
-		pstm.setShort(parameterIndex, v) ;
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.BIGINT) ;
+		}else{
+			long v = ((Number) value).longValue() ;
+			
+			pstm.setLong(parameterIndex, v) ;
+		}
 	}
 	
 	public Class getDataType(){
-		return Short.class ;
+		return Long.class ;
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Short.valueOf((short) 0) ;
+		//Object type allows null value. 
+		if(value == null) return null ;
 		
-		return Short.valueOf(value) ;
+		return Long.valueOf(value) ;
 	}
+
 
 }

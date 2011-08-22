@@ -67,6 +67,10 @@ public class EnumOrdinalSQLDataType implements SQLDataType, ParameteredType {
 	protected Object getEnumFromOrdinal(int ordinal){
 		Object[] enums;
 		
+		if(valuesMethod == null){
+			throw new DataTypeException("Parameters of class names are requried for enum types.") ;
+		}
+		
 		try {
 			enums = (Object[]) valuesMethod.invoke((Object) null, (Object[]) null);
 		} catch (IllegalArgumentException e) {
@@ -124,6 +128,8 @@ public class EnumOrdinalSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return null ;
+		
 		return getEnumFromOrdinal(Integer.parseInt(value)) ;
 	}
 

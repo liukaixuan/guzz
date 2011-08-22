@@ -59,7 +59,7 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 		mapping.getBeanWrapper().setValue(domainObject, pkColumn.getPropName(), value) ;
 	}
 	
-	protected Number nextSequenceValue(WriteTranSession session, Object tableCondition){
+	protected Serializable nextSequenceValue(WriteTranSession session, Object tableCondition){
 		JDBCTemplate t = null ;
 		
 		if(this.dbGroup == null){
@@ -68,7 +68,7 @@ public class SequenceIdGenerator implements IdentifierGenerator, Configurable {
 			t = session.createJDBCTemplateByDbGroup(this.dbGroup, tableCondition) ;
 		}
 		
-		return (Number) t.executeQueryWithoutPrepare(selectSequenceClause, 
+		return (Serializable) t.executeQueryWithoutPrepare(selectSequenceClause, 
 				new SQLQueryCallBack(){
 					public Object iteratorResultSet(ResultSet rs) throws Exception {
 						if(rs.next()){

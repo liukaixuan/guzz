@@ -122,7 +122,16 @@ public class TableColumn {
 	}
 
 	public void setNullValue(String nullValue) {
+		if("null".equals(nullValue)){
+			nullValue = null ;
+		}
+		
 		this.nullValue = nullValue;
+		
+		//后续修改
+		if(orm != null && getSqlDataType() != null){
+			getSqlDataType().setNullToValue(getSqlDataType().getFromString(nullValue)) ;
+		}
 	}
 
 	public SQLDataType getSqlDataType() {

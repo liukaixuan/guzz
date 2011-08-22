@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * 
- * 
+ * primary type: double
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -73,6 +73,8 @@ public class DoubleSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return Double.valueOf(0) ;
+		
 		return Double.valueOf(value) ;
 	}
 

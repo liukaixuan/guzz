@@ -22,60 +22,66 @@ import java.sql.SQLException;
 
 /**
  * 
- * primary type: short
+ * java.lang.Boolean
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ShortSQLDataType implements SQLDataType {
-
-	private short nullValue ;
+public class BooleanObjectSQLDataType implements SQLDataType {
+	
+	private Boolean nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = ((Short) nullValue).shortValue() ;
+		this.nullValue = (Boolean) nullValue ;
 	}
-	
+
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		short value = rs.getShort(colName) ;
+		boolean value = rs.getBoolean(colName) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return value ? Boolean.TRUE : Boolean.FALSE ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		short value = rs.getShort(colIndex) ;
+		boolean value = rs.getBoolean(colIndex) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return value ? Boolean.TRUE : Boolean.FALSE ;
 	}
 
-	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value)  throws SQLException {
-		if(value == null){
-			pstm.setShort(parameterIndex, this.nullValue) ;
-			return ;
-		}
+	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
 		if(value instanceof String){
 			value = getFromString((String) value) ;
 		}
 		
-		short v = ((Number) value).shortValue() ;
+		if(value == null){
+			value = this.nullValue ;
+		}
 		
-		pstm.setShort(parameterIndex, v) ;
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.BOOLEAN) ;
+		}else{
+			pstm.setBoolean(parameterIndex, ((Boolean) value).booleanValue()) ;
+		}
 	}
 	
 	public Class getDataType(){
-		return Short.class ;
+		return Boolean.class ;
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Short.valueOf((short) 0) ;
+		//Object type allows null value. 
+		if(value == null) return null ;
 		
-		return Short.valueOf(value) ;
+		char c = value.charAt(0) ;
+		if(c == '1' || c =='y' || c == 'Y' || c == 't' || c == 'T') return Boolean.TRUE ;
+	
+		return Boolean.FALSE ;
 	}
 
 }

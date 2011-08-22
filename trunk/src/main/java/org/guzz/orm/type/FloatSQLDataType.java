@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * 
- * 
+ * primary type: float
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -73,6 +73,8 @@ public class FloatSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return Float.valueOf(0) ;
+		
 		return Float.valueOf(value) ;
 	}
 

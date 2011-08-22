@@ -22,60 +22,65 @@ import java.sql.SQLException;
 
 /**
  * 
- * primary type: short
+ * java.lang.Double
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class ShortSQLDataType implements SQLDataType {
-
-	private short nullValue ;
+public class DoubleObjectSQLDataType implements SQLDataType {
+	
+	private Double nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = ((Short) nullValue).shortValue() ;
+		this.nullValue = (Double) nullValue ;
 	}
-	
+
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		short value = rs.getShort(colName) ;
+		double value = rs.getDouble(colName) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return new Double(value) ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		short value = rs.getShort(colIndex) ;
+		double value = rs.getDouble(colIndex) ;
 		
 		if(rs.wasNull()){
-			value = this.nullValue ;
+			return this.nullValue ;
 		}
 		
-		return new Short(value) ;
+		return new Double(value) ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value)  throws SQLException {
-		if(value == null){
-			pstm.setShort(parameterIndex, this.nullValue) ;
-			return ;
-		}
 		if(value instanceof String){
 			value = getFromString((String) value) ;
 		}
 		
-		short v = ((Number) value).shortValue() ;
+		if(value == null){
+			value = this.nullValue ;
+		}
 		
-		pstm.setShort(parameterIndex, v) ;
+		if(value == null){
+			pstm.setNull(parameterIndex, java.sql.Types.DOUBLE) ;
+		}else{
+			double v = ((Number) value).doubleValue() ;
+			
+			pstm.setDouble(parameterIndex, v) ;
+		}
 	}
 	
 	public Class getDataType(){
-		return Short.class ;
+		return Double.class ;
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Short.valueOf((short) 0) ;
+		//Object type allows null value. 
+		if(value == null) return null ;
 		
-		return Short.valueOf(value) ;
+		return Double.valueOf(value) ;
 	}
 
 }

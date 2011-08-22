@@ -77,17 +77,18 @@ public class CalendarSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value) throws SQLException {
+		if(value instanceof String){
+			value = getFromString((String) value) ;
+		}
+		
 		if(value == null){
 			if(this.nullDate == null){
-				pstm.setTimestamp(parameterIndex, null) ;
+				pstm.setNull(parameterIndex, java.sql.Types.TIMESTAMP) ;
 			}else{
 				pstm.setTimestamp(parameterIndex, new Timestamp(this.nullDate.getTimeInMillis())) ;
 			}
 			
 			return ;
-		}
-		if(value instanceof String){
-			value = getFromString((String) value) ;
 		}
 		
 		if(value instanceof java.util.Date){
@@ -106,6 +107,8 @@ public class CalendarSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null) return null ;
+		
 		Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){
 			throw new DataTypeException("unknown calendar date:" + value + ", date format shoule be:" + dateFormat) ;
