@@ -1,5 +1,5 @@
 <!--
-	Guzz Mapping DTD, version 1.0
+	Guzz Mapping DTD, version 2.0
 	Authors: Liu Kaixuan (liukaixuan@gmail.com)
 	
 	One Class, One Mapping file.
@@ -27,11 +27,17 @@
 	<!ATTLIST class dynamic-update (true|false) "false">
 
 <!-- Declares the id type, column and generation algorithm for an entity class. -->
-<!ELEMENT id (generator)>
+<!ELEMENT id (column?, generator)>
 	<!ATTLIST id name CDATA #REQUIRED>
 	<!ATTLIST id column CDATA #IMPLIED>
 	<!ATTLIST id type CDATA #IMPLIED>
-	
+
+<!-- Declares the column name in the database. -->
+<!ELEMENT column (comment*)>
+	<!ATTLIST column name CDATA #REQUIRED>
+
+<!ELEMENT comment (#PCDATA)>
+		
 <!-- Generators generate unique identifiers. The class attribute specifies a Java 
 class implementing an id generation algorithm. -->
 <!ELEMENT generator (param*)>
@@ -41,7 +47,7 @@ class implementing an id generation algorithm. -->
 	<!ATTLIST param name CDATA #REQUIRED>
 
 <!-- Property of an entity class. JavaBeans style properties are mapped to table columns. -->
-<!ELEMENT property (#PCDATA)>
+<!ELEMENT property (column?)>
 	<!ATTLIST property name CDATA #REQUIRED>
 	<!ATTLIST property type CDATA #IMPLIED>
 	<!ATTLIST property column CDATA #IMPLIED>

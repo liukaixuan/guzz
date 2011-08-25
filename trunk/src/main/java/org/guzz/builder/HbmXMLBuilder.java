@@ -25,6 +25,7 @@ import org.apache.xerces.impl.Constants;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.dom4j.Visitor;
 import org.dom4j.VisitorSupport;
 import org.dom4j.io.SAXReader;
@@ -176,7 +177,17 @@ public class HbmXMLBuilder {
 				}else if("id".equalsIgnoreCase(e.getName())){
 					String name = e.attributeValue("name") ;
 					String type = e.attributeValue("type") ;
-					String column = e.attributeValue("column") ;
+					String column = null ;
+					
+					Element columnE = (Element) e.selectSingleNode("column") ;
+					if(columnE != null){
+						column = columnE.attributeValue("name") ;
+					}
+					
+					if(StringUtil.isEmpty(column)){
+						column = e.attributeValue("column") ;
+					}
+					
 					if(StringUtil.isEmpty(column)){
 						column = name ;
 					}
@@ -191,12 +202,22 @@ public class HbmXMLBuilder {
 					String name = e.attributeValue("name") ;
 					String type = e.attributeValue("type") ;
 					String nullValue = e.attributeValue("null") ;
-					String column = e.attributeValue("column") ;
 					String lazy = e.attributeValue("lazy") ;
 					String loader = e.attributeValue("loader") ;
 					
 					boolean insertIt = StringUtil.toBoolean(e.attributeValue("insert"), true) ;
 					boolean updateIt = StringUtil.toBoolean(e.attributeValue("update"), true) ;
+					
+					String column = null ;
+					
+					Element columnE = (Element) e.selectSingleNode("column") ;
+					if(columnE != null){
+						column = columnE.attributeValue("name") ;
+					}
+					
+					if(StringUtil.isEmpty(column)){
+						column = e.attributeValue("column") ;
+					}
 					
 					if(StringUtil.isEmpty(column)){
 						column = name ;
