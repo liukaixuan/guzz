@@ -46,6 +46,7 @@ import org.guzz.orm.type.FloatObjectSQLDataType;
 import org.guzz.orm.type.FloatSQLDataType;
 import org.guzz.orm.type.IntegerObjectSQLDataType;
 import org.guzz.orm.type.IntegerSQLDataType;
+import org.guzz.orm.type.JavaUtilDateSQLDataType;
 import org.guzz.orm.type.ParameteredType;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.orm.type.ShortObjectSQLDataType;
@@ -85,7 +86,7 @@ public abstract class AbstractDialect implements Dialect {
 		//java.sql.Timestamp
 		sqlTypes.put("datetime", DateTimeSQLDataType.class) ;
 		sqlTypes.put("timestamp", DateTimeSQLDataType.class) ;
-		sqlTypes.put(java.util.Date.class.getName(), DateTimeSQLDataType.class) ;
+		sqlTypes.put(java.util.Date.class.getName(), JavaUtilDateSQLDataType.class) ;
 		sqlTypes.put(java.sql.Timestamp.class.getName(), DateTimeSQLDataType.class) ;
 
 		//java.sql.Date
