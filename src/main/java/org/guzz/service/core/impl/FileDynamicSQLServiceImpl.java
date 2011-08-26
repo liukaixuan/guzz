@@ -219,7 +219,6 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 			String sql = s_node.getTextTrim() ;
 			sql = StringUtil.replaceString(sql, "\r\n", " ") ;
 			sql = StringUtil.replaceString(sql, "\n", " ") ;
-			Map paramPropMapping = GuzzConfigFileBuilder.loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
 			CompiledSQL cs = null ;
@@ -235,8 +234,8 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 				cs.setResultClass(beanCls) ;
 			}
 			
-			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
-			cs.addParamPropMappings(paramPropMapping) ;
+			//Register parameters' types.
+			GuzzConfigFileBuilder.loadParamPropsMapping(cs, (Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			return cs ;
 		}
@@ -247,16 +246,21 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 			String sql = u_node.getTextTrim() ;
 			sql = StringUtil.replaceString(sql, "\r\n", " ") ;
 			sql = StringUtil.replaceString(sql, "\n", " ") ;
-			Map paramPropMapping = GuzzConfigFileBuilder.loadParamPropsMapping((Element) u_node.selectSingleNode("paramsMapping")) ;
 			
 			//首先提取本sqlmap内的orm信息，这些orm优先于global orm定义。
 			ObjectMapping localORM = this.loadORM(root, m_orm, m_dbgroup) ;
+			CompiledSQL cs = null ;
 			
 			if(localORM != null){
-				return compiledSQLBuilder.buildCompiledSQL(localORM, sql).addParamPropMappings(paramPropMapping) ;
+				cs = compiledSQLBuilder.buildCompiledSQL(localORM, sql) ;
 			}else{
-				return compiledSQLBuilder.buildCompiledSQL(m_orm, sql).addParamPropMappings(paramPropMapping) ;
+				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, sql) ;
 			}
+			
+			//Register parameters' types.
+			GuzzConfigFileBuilder.loadParamPropsMapping(cs, (Element) u_node.selectSingleNode("paramsMapping")) ;
+			
+			return cs ;
 		}
 		
 		throw new GuzzException("no sql found for id:[" + id + "]") ;

@@ -46,10 +46,18 @@
 			select * from @@user
 			 where 
 			 	@id = :id 
+			
+			<paramsMapping>
+				<map paramName="id" type="int" />
+			</paramsMapping>
 		</select>
 		
 		<select id="selectUserByName" orm="user" result-class="java.util.HashMap">
 			select @id, @userName, @vip, @password from @@user where @userName = :userName
+			
+			<paramsMapping>
+				<map paramName="userName" propName="userName" />
+			</paramsMapping>
 		</select>
 	
 		<update id="updateUserFavCount" orm="userObjectMap">
@@ -70,6 +78,10 @@
 		
 		<select id="listCommentsByName" orm="commentMap" >
 			select * from @@commentMap where @userName = :userName
+			
+			<paramsMapping>
+				<map paramName="userName" propName="userName" />
+			</paramsMapping>
 		</select>
 				
 		<orm id="userObjectMap" class="org.guzz.test.UserModel">

@@ -105,10 +105,9 @@ public abstract class BindedCompiledSQL {
 				value = null ;
 			}
 			
-			String propName = cs.getPropName(orderParam) ;
+			SQLDataType type = cs.getSQLDataTypeForParam(cs, orderParam) ;
 			
-			if(propName != null){
-				SQLDataType type = cs.getMapping().getSQLDataTypeOfProperty(propName) ;
+			if(type != null){
 				type.setSQLValue(pstm, i + bindStartIndex, value) ;
 			}else{ //使用jdbc自己的方式绑定。
 				if(log.isInfoEnabled()){
