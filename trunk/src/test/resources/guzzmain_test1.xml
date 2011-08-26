@@ -46,6 +46,10 @@
 			select * from @@user
 				 where 
 				 	@id = :id
+			
+			<paramsMapping>
+				<map paramName="id" type="int" />
+			</paramsMapping>
 		</select>
 		
 		<select id="selectUserByName" orm="user">

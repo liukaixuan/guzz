@@ -57,6 +57,7 @@ public class CustomBindedCompiledSQL extends BindedCompiledSQL {
 			NormalCompiledSQL cs = this.customCS.getSql(om) ;
 			//将用户设置的param和prop的mapping复制给CompiledSQL
 			cs.addParamPropMappings(this.customCS.paramPropMapping) ;
+			cs.registerParamTypes(this.customCS.paramTypes) ;
 			
 			this.runtimeCS = cs ;
 		}

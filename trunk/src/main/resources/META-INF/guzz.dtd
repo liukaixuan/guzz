@@ -71,7 +71,8 @@
 <!ELEMENT paramsMapping (map*)>
 <!ELEMENT map EMPTY>
 <!ATTLIST map paramName CDATA #REQUIRED>
-<!ATTLIST map propName CDATA #REQUIRED>
+<!ATTLIST map propName CDATA #IMPLIED>
+<!ATTLIST map type CDATA #IMPLIED>
 <!ATTLIST select id ID #REQUIRED>
 <!ATTLIST select orm CDATA #REQUIRED>
 <!ATTLIST select result-class CDATA #IMPLIED>

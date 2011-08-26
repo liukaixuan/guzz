@@ -607,7 +607,6 @@ public class GuzzConfigFileBuilder {
 			String value = s_node.getTextTrim() ;
 			value = StringUtil.replaceString(value, "\r\n", " ") ;
 			value = StringUtil.replaceString(value, "\n", " ") ;
-			Map paramPropMapping = loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
 			CompiledSQL cs = null ;
@@ -623,8 +622,8 @@ public class GuzzConfigFileBuilder {
 				cs.setResultClass(beanCls) ;
 			}
 			
-			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
-			cs.addParamPropMappings(paramPropMapping) ;
+			//Register parameters' types.
+			loadParamPropsMapping(cs, (Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			css.put(m_id, cs) ;
 		}
@@ -637,7 +636,6 @@ public class GuzzConfigFileBuilder {
 			String value = s_node.getTextTrim() ;
 			value = StringUtil.replaceString(value, "\r\n", " ") ;
 			value = StringUtil.replaceString(value, "\n", " ") ;
-			Map paramPropMapping = loadParamPropsMapping((Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			ObjectMapping localORM = (ObjectMapping) local_orms.get(m_orm) ;
 			CompiledSQL cs = null ;
@@ -648,8 +646,8 @@ public class GuzzConfigFileBuilder {
 				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
 			}
 			
-			//Link the markedSQL's param names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
-			cs.addParamPropMappings(paramPropMapping) ;
+			//Register parameters' types.
+			loadParamPropsMapping(cs, (Element) s_node.selectSingleNode("paramsMapping")) ;
 			
 			css.put(m_id, cs) ;
 		}
@@ -658,34 +656,40 @@ public class GuzzConfigFileBuilder {
 	}
 	
 	/**
-	 * Load params for the sql segment.
-	 * The XML segment format should be:
+	 * Load query params for the sql segment into the {@link CompiledSQL}.
+	 * 
+	 * <p/>The XML segment format should be:
 	 * <pre>
 	 * &lt;paramsMapping&gt;
 	 *		&lt;map paramName="city" propName="cityName" /&gt;
-	 *		&lt;map paramName="timeStart" propName="createdTime" /&gt;
+	 *		&lt;map paramName="timeStart" type="datetime|yyyy-MM-dd HH:mm:ss" /&gt;
 	 *		&lt;map paramName="voteId" propName="voteId" /&gt;
 	 * &lt;/paramsMapping&gt;
 	 * </pre>
 	 * 
 	 * @return return null if paramsMappingNode is null.
 	 */
-	public static Map loadParamPropsMapping(Element paramsMappingNode) throws IOException, ClassNotFoundException{
+	public static void loadParamPropsMapping(CompiledSQL cs, Element paramsMappingNode) throws IOException, ClassNotFoundException{
 		if(paramsMappingNode == null){
-			return null ;
+			return ;
 		}
 		
 		List ps = paramsMappingNode.selectNodes("map") ;
-		HashMap params = new HashMap() ;
 		
 		for(int i = 0 ; i < ps.size() ; i++){
 			Element xml_p = (Element) ps.get(i) ;
 			
-			params.put(xml_p.attributeValue("paramName"), xml_p.attributeValue("propName")) ;
+			String paramName = xml_p.attributeValue("paramName") ;
+			String propName = xml_p.attributeValue("propName") ;
+			String type = xml_p.attributeValue("type") ;
 			
+			//Link the markedSQL's parameter names with the orm's propertyNames to satisfy SQLDataType's better user-defined data binding. 
+			if(StringUtil.notEmpty(type)){
+				cs.registerParamType(paramName, type) ;
+			}else{
+				cs.addParamPropMapping(paramName, propName) ;
+			}
 		}
-		
-		return params ;
 	}
 	
 	public ConfigServer loadConfigServer() throws IOException, ClassNotFoundException{
