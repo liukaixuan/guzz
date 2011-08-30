@@ -1,8 +1,10 @@
 == Introduction ==
 
- Guzz distributes itself with some common used services built in to avoid re-coding. In 1.2.8 and later, you will find 5 services in the jar: Debug service, Dynamic SQL Service, Count update queue service(client and server), and insert queue service. You can use it directly in your projects.
+ Guzz distributes itself with some common used services built in to avoid re-coding. You can use these directly in your projects.
 
-== 1. Debug Service: ==
+ <wiki:toc max_depth="2" />
+
+== Debug Service ==
 
 *purpose:* Turn on/off the output of executed sqls. Set system run level.
 
@@ -47,7 +49,7 @@ onlySlowSQLInMillSeconds=0
 
 The configuration group name must be guzzDebug.
 
-== 2. Dynamic SQL Service: ==
+== Dynamic Load SQL Service ==
 
 *purpose:* Load sql by id dynamically. Guzz allows you to configure your sqls in guzz.xml, and use it by id as ibatis does. But, when you need to change or add a sql, you have to modify the guzz.xml, and restart the whole application to take effects. With DynamicSQLService, you can define your own sql-source, change and load the sqls by yourself in a online system, without any restarts. Dynamic SQL is a good choice for:
  * 1. Tune Performance. Replace a old sql with a new one without restarting.
@@ -94,7 +96,7 @@ The configuration group name must be guzzDebug.
 
 Notes: the service name must be: guzzDynamicSQL
 
-== 3. Count update queue service(Client-side): ==
+== Count update queue service(Client-side) ==
 
 *purpose:* Log operations for increment or decrement a count number column by primary key to a temporary table. In the meantime, a demon thread reads operations from the temporary table, combines operations for the same records, and updates back to the main table. This service is usually used in a big site to handle the count updating bottle-neck of database. This service is the client side, and handles the part of writing to a temporary table.
 
@@ -204,9 +206,9 @@ public interface SlowUpdateService {
 
  Use g:inc taglib to do the updating in the JSP file.
 
-== 4. Count update queue service(Server-side): ==
+== Count update queue service(Server-side) ==
 
-*purpose:* Transfer the operations in the temporary table to the main database. One instance for one temporary table, cluster is not supported.
+*purpose:* Transfer the operations in the temporary table to the main database. One instance for one temporary table, cluster is not supported until !LeaderService is injected.
 
 *Interface:* org.guzz.service.db.SlowUpdateServer
 
@@ -321,7 +323,7 @@ Inject it into slowUpdateServer:
 
 }}}
   
-== 5. Insert Queue Service: ==
+== Insert Queue Service ==
 
 *purpose:* Write objects into a memory queue, and another demon thread inserts the queued objects into the database.
 
@@ -351,4 +353,56 @@ queueSize=20480
 *Mechanism:* This service created an array sized of queueSize. All objects inserted are stored in this array in a cycle mode. The demon thread open a not-auto-commit connection, check the array, and insert the queued objects into the main database, and commit it. Each time, the demon thread commit at most commitSize objects.
 
 *Tips:* You can insert different business objects into the InsertQueueService at the same time.
+
+
+== !ExecutorService ==
+
+*purpose:* Packs the JDK's ExecutorService to a service to build one ThreadPool for all asynchronous operations.
+
+*Interface:* java.util.concurrent.ExecutorService
+
+*Service name:* Anything you like. executorService is suggested.
+
+*Used inside guzz:* Guzz won't use it inside the framework.
+
+*Declare Service:* Declare in guzz.xml:
+
+{{{
+<service name="executorService" configName="jdk5ExecutorService" class="org.guzz.service.core.impl.JDK5ExecutorServiceImpl" />	
+}}}
+
+*Service Parameters(configured in properties file):* 
+
+{{{
+
+[jdk5ExecutorService]
+#min threads
+corePoolSize=5
+
+#max threads
+maxPoolSize=50
+
+#max idle time in mill-seconds for a thread. The timeout thread will be terminated until the thread pool drops to the size of corePoolSize.
+keepAliveMilSeconds=60000
+
+#max queue size of pending tasks.
+queueSize=2048
+
+}}}
+ 
+
+== !LeaderService ==
+
+*purpose:* Determine if this machine is the leader one in the cluster.
+
+*Interface:* org.guzz.service.core.LeaderService
+
+*Service name:* Anything you like. "leaderService" is recommended.
+
+*Used inside guzz:* If this service is injected into a slowUpdateServer, the slowUpdateServer won't run until the injected leaderService.amILeader() returns true.
+
+*Declare Service:* There is no default implementation in guzz. Implementation Example:[http://code.google.com/p/halo-cloud/source/browse/JavaClient/src/main/java/misc/com/guzzservices/version/impl/ZKLeaderElectionServiceImpl.java] 
+
+
+ 
  
