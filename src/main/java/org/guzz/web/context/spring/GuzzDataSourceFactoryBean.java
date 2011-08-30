@@ -25,7 +25,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
  * 
- * Helper class to retrieve guzz's dataSource in the spring bean.
+ * Helper class to export guzz's dataSource as a spring bean.
  * 
  * @author liu kaixuan(liukaixuan@gmail.com)
  */

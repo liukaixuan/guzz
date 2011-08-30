@@ -26,9 +26,9 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * 
- * Helper class to retrieve guzz service in the spring context.
+ * Helper class to export a guzz service as a spring bean.
  * 
- * <p>Perform {@link ApplicationContextAware#setApplicationContext(applicationContext)} on the fly if the service implements {@link ApplicationContextAware}</p>
+ * <p>Perform {@link ApplicationContextAware#setApplicationContext(applicationContext)} if the service implements {@link ApplicationContextAware}</p>
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
