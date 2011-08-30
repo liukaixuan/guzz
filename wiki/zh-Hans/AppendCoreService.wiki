@@ -1,7 +1,9 @@
 == 概述 ==
 
- guzz自身携带了一些常用的服务，供项目方便使用。主要有：调试信息服务，动态SQL服务，计数器更新队列服务以及日志队列服务。
+ guzz自身携带了一些常用的服务，供项目方便使用。主要有：调试信息服务，动态SQL服务，计数器更新队列服务，选举服务以及插入队列服务等。
 
+ <wiki:toc max_depth="2" />
+ 
 == 1. 调试信息服务： ==
 
 *用途：*用于打开或者关闭数据库输出日志，设置系统运行级别。
@@ -206,7 +208,7 @@ public interface SlowUpdateService {
 
 == 4. 计数器更新队列服务（服务器端）： ==
 
-*用途：* 完成从临时表到主库的更新操作。此服务1个临时表只允许1个实例运行，不支持集群，但可以和客户端服务同时运行。
+*用途：* 完成从临时表到主库的更新操作。此服务1个临时表只允许1个实例运行，默认不支持集群（集群需 LeaderService 支持），但可以和客户端服务同时运行。
 
 *接口：*org.guzz.service.db.SlowUpdateServer
 
@@ -320,7 +322,11 @@ public class BlogUpdateExceptionHandlerServiceImpl extends AbstractService imple
 <service name="slowUpdateServer" dependsOn="feedUpdateExceptionHandlerService" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
 
 }}}
- 
+
+*集群支持：* 
+
+如果需要集群支持，可以实现并注入 LeaderService 到本服务中。在有LeaderService支持的情况下，本服务在集群下可以启动多份，但仅在LeaderService确定的主机上才会实际运行。
+
 
 == 5. 数据库插入队列服务： ==
 
@@ -352,4 +358,57 @@ queueSize=20480
 }}}
 
 *内部工作原理：* 与默认的slowUpdate服务相同。唯一不同的是InsertQueueService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。InsertQueueService处理的对象一般是应用系统自己定义的对象。
+ 
+
+== 6. 线程池服务： ==
+
+*用途：* 线程池服务是对JDK concurrent包的ExecutorService的一层封装。用于构建一个ExecutorService，供多个地方共用。 一般执行异步调用，需要注入ExecutorService。
+
+*接口：* java.util.concurrent.ExecutorService
+
+*注册服务名称：* 自定义，推荐executorService
+
+*guzz内部使用范围：* 内部不使用
+
+*配置方法：*
+
+ guzz.xml：
+
+{{{
+<service name="executorService" configName="jdk5ExecutorService" class="org.guzz.service.core.impl.JDK5ExecutorServiceImpl" />	
+}}}
+
+ properties文件：
+ 
+{{{
+[jdk5ExecutorService]
+#最少线程数
+corePoolSize=5
+
+#最大线程数
+maxPoolSize=50
+
+#线程空闲最大时间（单位：毫秒），超出空闲时间的线程将被停掉，直到总线程数降到corePoolSize为止。
+keepAliveMilSeconds=60000
+
+#没有空闲线程时，任务排队队列最大程度
+queueSize=2048
+}}}
+
+ 以上属性的值为不配置时的默认值。
+
+== 7. LeaderService： ==
+
+*用途：* 用于确定集群环境下，当前机器是否为主机。一般情况下，主机只有一台。
+
+*接口：* org.guzz.service.core.LeaderService
+
+*注册服务名称：* 自定义，推荐leaderService
+
+*guzz内部使用范围：* 当leaderService注入给slowUpdateServer服务时，slowUpdateServer仅在leaderService.amILeader()返回true时执行服务。
+
+*配置方法：* guzz包不提供默认实现。实现方式可以参看：[http://code.google.com/p/halo-cloud/source/browse/trunk/misc/com/guzzservices/version/impl/ZKLeaderElectionServiceImpl.java] 
+ 
+ 
+ 
  
