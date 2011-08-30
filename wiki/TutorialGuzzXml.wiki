@@ -45,7 +45,7 @@
 			 	@id = :id and @status = :checked
                         <paramsMapping>
 				<map paramName="userName" propName="userName" />
-				<map paramName="checked" propName="status" />
+				<map paramName="checked" type="int" />
 			</paramsMapping>
 		</select>
 		

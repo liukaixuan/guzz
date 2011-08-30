@@ -43,7 +43,7 @@
 			 	@id = :id and @status = :checked
                         <paramsMapping>
 				<map paramName="userName" propName="userName" />
-				<map paramName="checked" propName="status" />
+				<map paramName="checked" type="int" />
 			</paramsMapping>
 		</select>
 		
@@ -103,7 +103,7 @@
 
  如果sql中包含参数，使用“冒号+参数名称”代替，如“:userName”，在程序中执行时通过java.util.Map传入"userName"->value对进行调用，guzz将完成命名参数的参数设置（PreparedStatement方式）。
 
- 参数设置时，需要确定参数的数据类型。默认情况下，数据类型由JDBC驱动自动检测与匹配，用户也可以自己定义参数的数据类型。设置方法是将参数与映射后对象的属性名称做映射，guzz将按照java属性的类型对待参数类型。定义方法为在select/update中增加paramsMapping/map配置，如上面示例中id为selectUser的sql配置。做完映射后，guzz支持自动把字符串类型转为需要的类型，在使用动态SQL需要自动传入与解析不确定的参数时，非常有用。
+ 参数设置时，需要确定参数的数据类型。默认情况下，数据类型由JDBC驱动自动检测与匹配（可能会不准确），用户也可以自己定义参数的数据类型（建议方式）。设置方法是将参数与映射后对象的属性名称做映射，guzz将按照java属性的类型对待参数类型。定义方法为在select/update中增加paramsMapping/map配置，如上面示例中id为selectUser的sql配置。map接受3个参数，paramName为参数名称，必须填写；propName为参数对应的java属性名称，type为数据类型，类似hbm.xml中定义属性的type属性。propName和type必须设定1个，用于确定paramName的数据类型。做完映射后，guzz支持自动把字符串类型转为需要的类型，在使用动态SQL需要自动传入与解析不确定的参数时，非常有用。
 
  select|update的orm属性值可以是本文件中定义的orm元素的值，也可以是领域对象的businessName（直接使用hbm.xml或者annotation定义的映射）。orm映射默认将结果转会成领域对象，用户也可以通过配置result-class自定义转换成的java对象。result-class可以是javabean类或Map类，如...result-class="org.guzz.SomeBeanForm"，或result-class="java.util.HashMap"。
 
