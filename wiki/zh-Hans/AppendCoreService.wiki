@@ -4,7 +4,7 @@
 
  <wiki:toc max_depth="2" />
  
-== 1. 调试信息服务： ==
+== 调试信息服务  ==
 
 *用途：*用于打开或者关闭数据库输出日志，设置系统运行级别。
 
@@ -49,7 +49,7 @@ onlySlowSQLInMillSeconds=0
 
 配置参数名称必须为guzzDebug
 
-== 2. 动态SQL服务： ==
+== 动态SQL服务  ==
 
 *用途：*根据id，动态的加载并执行配置的sql语句。guzz允许在guzz.xml中配置sql和sql映射，按照id执行，类似于ibatis；但这种方式不支持sql的变化，一旦需要修改sql或者添加新的sql，必须重启应用方可生效。动态SQL服务即用来解决此问题，他允许应用自己定义sql和sql映射的来源（如存储在数据库中），并可以按照应用自身的需要动态调整sql，无需重启。动态SQL服务主要有两种应用场景：
  * 1. 动态的调试SQL。当发现某些SQL存在性能隐患时，用新优化的SQL在线替换旧的SQL语句，无需重启系统完成升级。
@@ -92,7 +92,7 @@ onlySlowSQLInMillSeconds=0
 
 注意，服务的名称必须为：guzzDynamicSQL
 
-== 3. 计数器更新队列服务（客户端）： ==
+== 计数器更新队列服务（客户端）  ==
 
 *用途：* 将按照主键进行字段增加或减少的计数sql操作，通过队列写入临时表。同时另外一个后台线程读取临时表数据，合并对同一条记录的操作，再写回主库进行更新操作。一般用于处理大型网站计数操作的数据库性能瓶颈。本服务为客户端，完成写入到临时表部分的操作。
 
@@ -206,7 +206,7 @@ public interface SlowUpdateService {
 
  使用g:inc标签进行计数更新，则自动使用此服务。
 
-== 4. 计数器更新队列服务（服务器端）： ==
+== 计数器更新队列服务（服务器端）  ==
 
 *用途：* 完成从临时表到主库的更新操作。此服务1个临时表只允许1个实例运行，默认不支持集群（集群需 LeaderService 支持），但可以和客户端服务同时运行。
 
@@ -328,7 +328,7 @@ public class BlogUpdateExceptionHandlerServiceImpl extends AbstractService imple
 如果需要集群支持，可以实现并注入 LeaderService 到本服务中。在有LeaderService支持的情况下，本服务在集群下可以启动多份，但仅在LeaderService确定的主机上才会实际运行。
 
 
-== 5. 数据库插入队列服务： ==
+== 数据库插入队列服务  ==
 
 *用途：* 将1个对象写入队列，另外1个后台线程将队列中的元素写入到数据库中。用于应用处理不太重要但又可能影响性能的数据库写操作。
 
@@ -360,7 +360,7 @@ queueSize=20480
 *内部工作原理：* 与默认的slowUpdate服务相同。唯一不同的是InsertQueueService允许同时插入不同的领域对象，配置的commitSize用于表示执行多少次sql进行一次commit操作。InsertQueueService处理的对象一般是应用系统自己定义的对象。
  
 
-== 6. 线程池服务： ==
+== 线程池服务  ==
 
 *用途：* 线程池服务是对JDK concurrent包的ExecutorService的一层封装。用于构建一个ExecutorService，供多个地方共用。 一般执行异步调用，需要注入ExecutorService。
 
@@ -397,7 +397,7 @@ queueSize=2048
 
  以上属性的值为不配置时的默认值。
 
-== 7. LeaderService： ==
+== LeaderService ==
 
 *用途：* 用于确定集群环境下，当前机器是否为主机。一般情况下，主机只有一台。
 
@@ -407,7 +407,7 @@ queueSize=2048
 
 *guzz内部使用范围：* 当leaderService注入给slowUpdateServer服务时，slowUpdateServer仅在leaderService.amILeader()返回true时执行服务。
 
-*配置方法：* guzz包不提供默认实现。实现方式可以参看：[http://code.google.com/p/halo-cloud/source/browse/trunk/misc/com/guzzservices/version/impl/ZKLeaderElectionServiceImpl.java] 
+*配置方法：* guzz包不提供默认实现。实现方式可以参看：[http://code.google.com/p/halo-cloud/source/browse/JavaClient/src/main/java/misc/com/guzzservices/version/impl/ZKLeaderElectionServiceImpl.java] 
  
  
  
