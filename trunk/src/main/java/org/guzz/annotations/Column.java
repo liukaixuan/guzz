@@ -40,7 +40,7 @@ public @interface Column {
 	 /**
      * (Optional) The value returned when the stored value in the database is null.  
      * 
-     * The value "null" is reserved for java keyword null.
+     * The value "null" is reserved for the java keyword null.
      */
     String nullValue() default "null" ;
     

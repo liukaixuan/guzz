@@ -18,7 +18,7 @@ package org.guzz.web.context;
 
 /**
  * 
- * Bean factory to link with the outside Bean Context. eg: spring'a ApplicationContext.
+ * Bean factory to the outside container of the GuzzContext. eg: a spring'a ApplicationContext.
  * 
  * <p>ExtendedBeanFactory is initialized after GuzzContext.</p>
  *
