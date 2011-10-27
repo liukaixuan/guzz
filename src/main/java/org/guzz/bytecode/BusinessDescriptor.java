@@ -153,6 +153,7 @@ public class BusinessDescriptor {
 			
 			String sql = "select " + orm.tableColumn.getColNameForSQL() + " from " + MarkedSQL.TABLE_START_TAG_IN_MARKED_SQL + businessName + " where " + table.getPKColumn().getColNameForSQL() + "=:id" ;
 			sqlForLoadLazy = tm.getCompiledSQLBuilder().buildCompiledSQL(businessName, sql) ;
+			sqlForLoadLazy.addParamPropMapping("id", table.getPKColumn().getPropName()) ;
 		}
 		
 		public Object loadProperty(Object fetchedObject){
