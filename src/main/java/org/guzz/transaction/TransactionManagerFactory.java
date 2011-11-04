@@ -35,9 +35,10 @@ public class TransactionManagerFactory {
 			CompiledSQLManager compiledSQLManager, 
 			CompiledSQLBuilder compiledSQLBuilder, 
 			DebugService debugService, 
-			DBGroupManager dbGroupManager){
+			DBGroupManager dbGroupManager,
+			TranSessionLocator tranSessionLocator){
 				
-		return new DataSourceTransactionManager(omm, compiledSQLManager, compiledSQLBuilder, debugService, dbGroupManager) ;
+		return new DataSourceTransactionManager(omm, compiledSQLManager, compiledSQLBuilder, debugService, dbGroupManager, tranSessionLocator) ;
 	}
 
 }

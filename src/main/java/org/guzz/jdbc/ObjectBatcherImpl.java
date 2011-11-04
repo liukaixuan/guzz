@@ -127,6 +127,7 @@ public class ObjectBatcherImpl extends AbstractBatcher implements ObjectBatcher 
 		
 		try {
 			this.ps = conn.prepareStatement(rawSQL) ;
+			sessionImpl.applyQueryTimeout(this.ps) ;
 		} catch (SQLException e) {
 			throw new DaoException("error prepare sql:[" + rawSQL + "], domainObject is:" + domainObject.getClass()) ;
 		}

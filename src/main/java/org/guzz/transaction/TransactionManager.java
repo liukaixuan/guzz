@@ -16,6 +16,7 @@
  */
 package org.guzz.transaction;
 
+import org.guzz.dao.WriteTemplate;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 
 /**
@@ -43,5 +44,7 @@ public interface TransactionManager {
 	public WriteTranSession openRWTran(boolean autoCommit) ;
 	
 	public CompiledSQLBuilder getCompiledSQLBuilder() ;
+	
+	public WriteTemplate createBindedWriteTemplate() ;
 	
 }

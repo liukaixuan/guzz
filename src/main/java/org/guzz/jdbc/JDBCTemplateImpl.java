@@ -16,16 +16,24 @@
  */
 package org.guzz.jdbc;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
+import org.guzz.exception.JDBCException;
 import org.guzz.orm.sql.SQLQueryCallBack;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.service.core.DebugService;
+import org.guzz.transaction.AbstractTranSessionImpl;
 import org.guzz.util.CloseUtil;
 
 
@@ -37,15 +45,18 @@ import org.guzz.util.CloseUtil;
  */
 public class JDBCTemplateImpl implements JDBCTemplate{
 	
-	protected Dialect dialect ;
+	protected final Dialect dialect ;
 	
-	protected Connection conn ;
+	protected final Connection conn ;
 	
-	protected boolean isReadonly ;
+	protected final boolean isReadonly ;
 	
-	protected DebugService debugService ;
+	protected final DebugService debugService ;
 	
-	public JDBCTemplateImpl(Dialect dialect, DebugService debugService, Connection conn, boolean isReadonly){
+	protected final AbstractTranSessionImpl tranSessionImpl ;
+	
+	public JDBCTemplateImpl(AbstractTranSessionImpl tranSessionImpl, Dialect dialect, DebugService debugService, Connection conn, boolean isReadonly){
+		this.tranSessionImpl = tranSessionImpl ;
 		this.dialect = dialect ;
 		this.debugService = debugService ;
 		this.conn = conn ;
@@ -65,8 +76,10 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		
 		PreparedStatement pstm = null ;
 		ResultSet rs = null ;
-		try {			
+		try {
 			pstm = conn.prepareStatement(sql) ;
+			tranSessionImpl.applyQueryTimeout(pstm) ;
+			
 			if(params != null && params.length > 0){
 				for(int i = 0 ; i < params.length ; i++){
 					Object value = params[i] ;
@@ -91,8 +104,9 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			}
 			
 			return callback.iteratorResultSet(rs) ;
-		} 
-		catch (Exception e) {
+		}catch(SQLException e){
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + sql, e, e.getSQLState()) ;
+		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
 			CloseUtil.close(rs) ;
@@ -112,6 +126,8 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		
 		try {
 			st = conn.createStatement() ;
+			tranSessionImpl.applyQueryTimeout(st) ;
+			
 			rs = st.executeQuery(sql) ;
 			
 			if(this.debugService.isLogSQL()){
@@ -124,8 +140,9 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			}
 			
 			return callback.iteratorResultSet(rs) ;
-		} 
-		catch (Exception e) {
+		}catch(SQLException e){
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + sql, e, e.getSQLState()) ;
+		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
 			CloseUtil.close(rs) ;
@@ -148,6 +165,8 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		
 		try {			
 			pstm = conn.prepareStatement(sql) ;
+			tranSessionImpl.applyQueryTimeout(pstm) ;
+			
 			if(params != null && params.length > 0){
 				for(int i = 0 ; i < params.length ; i++){
 					Object value = params[i] ;
@@ -172,6 +191,8 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			}
 			
 			return affectedRows ;
+		}catch(SQLException e){
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + sql, e, e.getSQLState()) ;
 		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
@@ -194,6 +215,8 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		
 		try {
 			pstm = conn.prepareStatement(sql) ;
+			tranSessionImpl.applyQueryTimeout(pstm) ;
+			
 			if(params != null && params.length > 0){
 				for(int i = 0 ; i < params.length ; i++){					
 					pstm.setInt(i + 1, params[i]) ;
@@ -212,6 +235,8 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			}
 			
 			return affectedRows ;
+		}catch(SQLException e){
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + sql, e, e.getSQLState()) ;
 		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
@@ -232,8 +257,10 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		
 		PreparedStatement pstm = null ;
 		
-		try {			
+		try {
 			pstm = conn.prepareStatement(sql) ;
+			tranSessionImpl.applyQueryTimeout(pstm) ;
+			
 			if(dataTypes != null && dataTypes.length > 0){
 				for(int i = 0 ; i < dataTypes.length ; i++){
 					SQLDataType type = dataTypes[i] ;
@@ -255,6 +282,8 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			}
 			
 			return affectedRows ;
+		}catch(SQLException e){
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + sql, e, e.getSQLState()) ;
 		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
@@ -277,6 +306,7 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 		
 		try {
 			st = conn.createStatement() ;
+			tranSessionImpl.applyQueryTimeout(st) ;
 			
 			int affectedRows = st.executeUpdate(sql) ;
 			
@@ -290,8 +320,9 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 			}
 			
 			return affectedRows ;
-		} 
-		catch (Exception e) {
+		}catch(SQLException e){
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + sql, e, e.getSQLState()) ;
+		}catch (Exception e) {
 			throw new DaoException(sql, e) ;
 		}finally{
 			CloseUtil.close(st) ;
@@ -303,7 +334,66 @@ public class JDBCTemplateImpl implements JDBCTemplate{
 	}
 
 	public Connection getConnection() {
-		return conn;
+		return (Connection) Proxy.newProxyInstance(
+				conn.getClass().getClassLoader(), new Class[]{Connection.class},
+				new CloseSuppressingInvocationHandler(conn));
 	}
+
+	/**
+	 * Native JDBC Connection. Don't close it!
+	 */
+	public Connection getNativeConnection() {
+		return conn ;
+	}
+	
+	/**
+	 * Invocation handler that suppresses close calls on JDBC Connection.
+	 */
+	private class CloseSuppressingInvocationHandler implements InvocationHandler {
+
+		private final Connection target;
+		
+		public CloseSuppressingInvocationHandler(Connection target) {
+			this.target = target;
+		}
+
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			// Invocation on Session interface coming in...
+
+			if (method.getName().equals("equals")) {
+				// Only consider equal when proxies are identical.
+				return (proxy == args[0]);
+			}else if (method.getName().equals("hashCode")) {
+				// Use hashCode of Session proxy.
+				return System.identityHashCode(proxy);
+			}else if (method.getName().equals("close")) {
+				// Handle close method: suppress, not valid.
+				return null;
+			}else if (method.getName().equals("setTransactionIsolation") && args.length == 1) {
+				tranSessionImpl.getConnectionsGroup().setTransactionIsolation(target, (Integer) args[0]) ;
+				return null;
+			}
+
+			// Invoke method on target Session.
+			try {
+				Object retVal = method.invoke(this.target, args);
+				
+				//set timeout
+				if(retVal instanceof PreparedStatement){
+					tranSessionImpl.applyQueryTimeout((PreparedStatement) retVal) ;
+				}else if(retVal instanceof Statement){
+					tranSessionImpl.applyQueryTimeout((Statement) retVal) ;
+				}else if(retVal instanceof CallableStatement){
+					tranSessionImpl.applyQueryTimeout((CallableStatement) retVal) ;
+				}
+				
+				return retVal;
+			}
+			catch (InvocationTargetException ex) {
+				throw ex.getTargetException();
+			}
+		}
+	}
+
 
 }

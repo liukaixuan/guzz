@@ -41,8 +41,8 @@ public interface WriteTranSession extends TranSession{
 	 * 
 	 * create a batcher to perform jdbc batch operations based on the {@link CompiledSQL}.
 	 * 
-	 * <br>the {@link WriteTranSession} from which the batcher is created, 
-	 * share the same {@link java.sql.Connection} and {@link javax.transaction.Transaction} with the batcher.
+	 * <br>The {@link WriteTranSession} from which the batcher is created, 
+	 * shares the same {@link java.sql.Connection} and javax.transaction.Transaction within the batcher.
 	 * <br>
 	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
 	 * 
@@ -59,7 +59,7 @@ public interface WriteTranSession extends TranSession{
 	 * create a batcher to perform jdbc batch operations based on the {@link CompiledSQL}.
 	 * 
 	 * <br>the {@link WriteTranSession} from which the batcher is created, 
-	 * share the same {@link java.sql.Connection} and {@link javax.transaction.Transaction} with the batcher.
+	 * share the same {@link java.sql.Connection} and javax.transaction.Transaction with the batcher.
 	 * <br>
 	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
 	 * 
@@ -74,7 +74,7 @@ public interface WriteTranSession extends TranSession{
 	 * create a batcher to perform operations on pojo objects.
 	 *
 	 * <br>the {@link WriteTranSession} from which the batcher is created, 
-	 * share the same {@link java.sql.Connection} and {@link javax.transaction.Transaction} with the batcher.
+	 * share the same {@link java.sql.Connection} and javax.transaction.Transaction with the batcher.
 	 * <br>
 	 * The resources of the batcher will be released once the {@link WriteTranSession} is closed.
 	 * 
@@ -146,9 +146,5 @@ public interface WriteTranSession extends TranSession{
 	 * @throws DaoException throw DaoException if SQLException throwed in the rollback.
 	 */
 	public void rollback() throws DaoException ;
-	
-	public void commitAndClose() ;
-	
-	public void rollbackAndClose() ;
 
 }

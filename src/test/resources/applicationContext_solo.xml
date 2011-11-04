@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="guzzContext" class="org.guzz.web.context.spring.GuzzContextBeanFactory" factory-method="createGuzzContext">
+	    <constructor-arg><value>classpath:guzzmain_test1.xml</value></constructor-arg>
+	</bean>
+	
+	<bean id="abstractGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
+   		<property name="guzzContext" ref="guzzContext" />
+	</bean>
+     
+    <!-- 配置DAO -->  
+    <bean id="userDao" parent="abstractGuzzDao" class="org.guzz.dao.UserDaoImpl">
+    </bean>
+    
+</beans>
+

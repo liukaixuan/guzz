@@ -21,8 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +37,7 @@ import org.guzz.dao.PageFlip;
 import org.guzz.dialect.Dialect;
 import org.guzz.exception.DaoException;
 import org.guzz.exception.GuzzException;
+import org.guzz.exception.JDBCException;
 import org.guzz.exception.ORMException;
 import org.guzz.jdbc.JDBCTemplate;
 import org.guzz.jdbc.JDBCTemplateImpl;
@@ -70,33 +70,47 @@ import org.guzz.util.javabean.BeanWrapper;
 public class AbstractTranSessionImpl {
 	protected transient final Log log = LogFactory.getLog(getClass()) ;	
 		
-	protected ObjectMappingManager omm ;
+	protected final ObjectMappingManager omm ;
 	
-	protected CompiledSQLManager compiledSQLManager ;
+	protected final CompiledSQLManager compiledSQLManager ;
 	
-	protected ConnectionFetcher connectionFetcher ;
-			
 	protected JDBCTemplate jdbcTemplate ;
 	
-	protected DebugService debugService ;
+	protected final DebugService debugService ;
 	
-	protected DBGroupManager dbGroupManager ;	
+	protected final DBGroupManager dbGroupManager ;	
 	
 	protected boolean isReadonly ;
 	
-	/**保存已经打开的连接。针对同一个数据库只打开一个连接（保证事务提交）。*/
-	protected Map opennedConnections = new HashMap() ;
+	protected final CompiledSQLBuilder compiledSQLBuilder ;
+	
+	protected final ConnectionsGroup connectionsGroup ;	
 
-	protected CompiledSQLBuilder compiledSQLBuilder ;
+	private int queryTimeoutInSeconds ;
 	
 	public AbstractTranSessionImpl(ObjectMappingManager omm, CompiledSQLManager compiledSQLManager, ConnectionFetcher connectionFetcher, DebugService debugService, DBGroupManager dbGroupManager, boolean isReadonly) {
 		this.omm = omm ;
 		this.compiledSQLManager = compiledSQLManager ;
-		this.connectionFetcher = connectionFetcher ;
 		this.debugService = debugService ;
 		this.dbGroupManager = dbGroupManager ;
 		this.isReadonly = isReadonly ;
 		this.compiledSQLBuilder = compiledSQLManager.getCompiledSQLBuilder() ;
+		this.connectionsGroup = new ConnectionsGroup(connectionFetcher) ;
+	}	
+
+	/**
+	 * Construct a new TranSession using the same {@link ConnectionsGroup} of the given TranSession.
+	 * 
+	 * The newly created TranSesson will share the same transaction with the old one.
+	 */
+	public AbstractTranSessionImpl(AbstractTranSessionImpl sessionImpl) {
+		this.omm = sessionImpl.omm ;
+		this.compiledSQLManager = sessionImpl.compiledSQLManager ;
+		this.debugService = sessionImpl.debugService ;
+		this.dbGroupManager = sessionImpl.dbGroupManager ;
+		this.isReadonly = sessionImpl.isReadonly ;
+		this.compiledSQLBuilder = sessionImpl.compiledSQLBuilder ;
+		this.connectionsGroup = sessionImpl.connectionsGroup ;
 	}
 	
 	public Class getRealDomainClass(Object domainObject){
@@ -108,13 +122,7 @@ public class AbstractTranSessionImpl {
 	}
 
 	public void close() {
-		Iterator i = this.opennedConnections.values().iterator() ;
-		
-		while(i.hasNext()){
-			Connection conn = (Connection) i.next() ;
-			
-			CloseUtil.close(conn) ;
-		}
+		this.connectionsGroup.close() ;
 	}
 	
 	public Connection getConnection(DBGroup group, Object tableCondition){
@@ -123,15 +131,24 @@ public class AbstractTranSessionImpl {
 		return getConnection(fdb) ;
 	}
 	
-	public Connection getConnection(PhysicsDBGroup fdb){
-		Connection conn = (Connection) this.opennedConnections.get(fdb.getGroupName()) ;
-			
-		if(conn == null){
-			conn = connectionFetcher.getConnection(fdb) ;
-			this.opennedConnections.put(fdb.getGroupName(), conn) ;
-		}
-		
-		return conn ;
+	protected Connection getConnection(PhysicsDBGroup fdb){
+		return this.connectionsGroup.getConnection(fdb) ;
+	}
+
+	public IsolationsSavePointer setTransactionIsolation(int isolationLevel) {
+		return connectionsGroup.setTransactionIsolation(isolationLevel) ;
+	}
+
+	public boolean isIsolationLevelChanged() {
+		return connectionsGroup.isIsolationLevelChanged() ;
+	}
+
+	public void resetTransactionIsolationTo(IsolationsSavePointer savePointer) {
+		connectionsGroup.resetTransactionIsolationTo(savePointer) ;
+	}
+
+	public void resetTransactionIsolationToLastSavePointer() {
+		connectionsGroup.resetTransactionIsolationToLastSavePointer() ;
 	}
 	
 	public List list(String id, Map params){
@@ -201,6 +218,7 @@ public class AbstractTranSessionImpl {
 		try{
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
+			this.applyQueryTimeout(pstm) ;
 			
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
@@ -228,7 +246,7 @@ public class AbstractTranSessionImpl {
 			
 			return results ;
 		}catch(SQLException e){
-			throw new DaoException(rawSQL, e) ;
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + rawSQL, e, e.getSQLState()) ;
 		}finally{
 			CloseUtil.close(rs) ;
 			CloseUtil.close(pstm) ;
@@ -379,6 +397,7 @@ public class AbstractTranSessionImpl {
 		try{
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
+			this.applyQueryTimeout(pstm) ;
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			rs = pstm.executeQuery() ;
@@ -410,7 +429,7 @@ public class AbstractTranSessionImpl {
 				}
 			}
 		}catch(SQLException e){
-			throw new DaoException(rawSQL, e) ;
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + rawSQL, e, e.getSQLState()) ;
 		}finally{
 			CloseUtil.close(rs) ;
 			CloseUtil.close(pstm) ;
@@ -454,6 +473,7 @@ public class AbstractTranSessionImpl {
 		try{
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
+			this.applyQueryTimeout(pstm) ;
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			rs = pstm.executeQuery() ;
@@ -483,7 +503,7 @@ public class AbstractTranSessionImpl {
 				}
 			}
 		}catch(SQLException e){
-			throw new DaoException(rawSQL, e) ;
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + rawSQL, e, e.getSQLState()) ;
 		}finally{
 			CloseUtil.close(rs) ;
 			CloseUtil.close(pstm) ;
@@ -536,6 +556,7 @@ public class AbstractTranSessionImpl {
 		try{
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL) ;
+			this.applyQueryTimeout(pstm) ;
 			
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
@@ -565,7 +586,7 @@ public class AbstractTranSessionImpl {
 				}
 			}
 		}catch(SQLException e){
-			throw new DaoException(rawSQL, e) ;
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + rawSQL, e, e.getSQLState()) ;
 		}finally{
 			CloseUtil.close(rs) ;
 			CloseUtil.close(pstm) ;
@@ -636,8 +657,6 @@ public class AbstractTranSessionImpl {
 		
 		return findObject(bsql) ;
 	}
-	
-
 
 	public JDBCTemplate createJDBCTemplate(Class domainClass) {
 		return this.createJDBCTemplate(domainClass, Guzz.getTableCondition()) ;
@@ -660,7 +679,7 @@ public class AbstractTranSessionImpl {
 		
 		Connection conn = getConnection(group, tableCondition) ;
 		
-		return new JDBCTemplateImpl(group.getDialect(), debugService, conn, isReadonly) ;
+		return new JDBCTemplateImpl(this, group.getDialect(), debugService, conn, isReadonly) ;
 	}
 	
 	public JDBCTemplate createJDBCTemplate(String businessName, Object tableCondition){
@@ -673,6 +692,71 @@ public class AbstractTranSessionImpl {
 		DBGroup group = map.getDbGroup() ;
 		Connection conn = getConnection(group, tableCondition) ;
 				
-		return new JDBCTemplateImpl(group.getDialect(), debugService, conn, isReadonly) ;
+		return new JDBCTemplateImpl(this, group.getDialect(), debugService, conn, isReadonly) ;
 	}
+	
+	/**
+	 * Apply the current query timeout, if any, to the current <code>PreparedStatement</code>.
+	 * 
+	 * @param pstm PreparedStatement
+	 * @see java.sql.PreparedStatement#setQueryTimeout
+	 */
+	public void applyQueryTimeout(PreparedStatement pstm){
+		if(hasQueryTimeout()){
+			try {
+				pstm.setQueryTimeout(getQueryTimeoutInSeconds()) ;
+			} catch (SQLException e) {
+				throw new JDBCException("failed to setQueryTimeout to :" + getQueryTimeoutInSeconds(), e, e.getSQLState()) ;
+			}
+		}
+	}
+	
+	/**
+	 * Apply the current query timeout, if any, to the current <code>Statement</code>.
+	 * 
+	 * @param stmt Statement
+	 * @see java.sql.Statement#setQueryTimeout
+	 */
+	public void applyQueryTimeout(Statement stmt){
+		if(hasQueryTimeout()){
+			try {
+				stmt.setQueryTimeout(getQueryTimeoutInSeconds()) ;
+			} catch (SQLException e) {
+				throw new JDBCException("failed to setQueryTimeout to :" + getQueryTimeoutInSeconds(), e, e.getSQLState()) ;
+			}
+		}
+	}
+	
+	/**
+	 * Apply the current query timeout, if any, to the current <code>java.sql.CallableStatement</code>.
+	 * 
+	 * @param cs java.sql.CallableStatement
+	 * @see java.sql.CallableStatement#setQueryTimeout
+	 */
+	public void applyQueryTimeout(java.sql.CallableStatement cs){
+		if(hasQueryTimeout()){
+			try {
+				cs.setQueryTimeout(getQueryTimeoutInSeconds()) ;
+			} catch (SQLException e) {
+				throw new JDBCException("failed to setQueryTimeout to :" + getQueryTimeoutInSeconds(), e, e.getSQLState()) ;
+			}
+		}
+	}
+	
+	public final boolean hasQueryTimeout(){
+		return this.queryTimeoutInSeconds > 0 ;
+	}
+
+	public final int getQueryTimeoutInSeconds() {
+		return this.queryTimeoutInSeconds;
+	}
+
+	public final void setQueryTimeoutInSeconds(int queryTimeoutInSeconds) {
+		this.queryTimeoutInSeconds = queryTimeoutInSeconds;
+	}
+
+	public ConnectionsGroup getConnectionsGroup() {
+		return this.connectionsGroup;
+	}
+
 }

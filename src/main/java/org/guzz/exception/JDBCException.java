@@ -14,24 +14,43 @@
  * limitations under the License.
  *
  */
-package org.guzz.connection;
+package org.guzz.exception;
 
-import java.sql.Connection;
-
+import java.sql.SQLException;
 
 /**
  * 
- * 用来获取connection。
+ * 
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
-public interface ConnectionFetcher {
+public class JDBCException extends DaoException {
 	
-	/**
-	 * 
-	 * Open a new connection for the given dbGroup.
-	 * 
-	 */
-	public Connection getConnection(PhysicsDBGroup dbGroup) ;
+	private String SQL ;
+	
+	private SQLException SQLException ;
+
+	public JDBCException(String message, SQLException sqlException, String sql) {
+		super(message, sqlException);
+		
+		this.SQL = sql ;
+		this.SQLException = sqlException ;
+	}
+
+	public String getSQL() {
+		return this.SQL;
+	}
+
+	public void setSQL(String sQL) {
+		this.SQL = sQL;
+	}
+
+	public SQLException getSQLException() {
+		return this.SQLException;
+	}
+
+	public void setSQLException(SQLException sQLException) {
+		this.SQLException = sQLException;
+	}
 	
 }
