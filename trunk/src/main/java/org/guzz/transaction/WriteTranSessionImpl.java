@@ -17,6 +17,10 @@
 package org.guzz.transaction;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -34,6 +38,7 @@ import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.dao.PersistListener;
 import org.guzz.exception.DaoException;
 import org.guzz.exception.GuzzException;
+import org.guzz.exception.JDBCException;
 import org.guzz.exception.ORMException;
 import org.guzz.id.IdentifierGenerator;
 import org.guzz.jdbc.ObjectBatcher;
@@ -67,7 +72,10 @@ import org.guzz.util.javabean.BeanWrapper;
  */
 public class WriteTranSessionImpl extends AbstractTranSessionImpl implements WriteTranSession {
 	private List psForBatch = null ;
+	
 	private List objectBatchers = null ;
+	
+	private ReadonlyTranSession read ;
 
 	public WriteTranSessionImpl(ObjectMappingManager omm, CompiledSQLManager compiledSQLManager, DebugService debugService, DBGroupManager dbGroupManager, boolean autoCommit) {
 		super(omm, compiledSQLManager, new WriteConnectionFetcher(autoCommit), debugService, dbGroupManager, false);
@@ -305,7 +313,8 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		
 		try {
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
-			pstm = conn.prepareStatement(rawSQL);			
+			pstm = conn.prepareStatement(rawSQL);		
+			this.applyQueryTimeout(pstm) ;	
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			if(pls.length > 0){
@@ -335,7 +344,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 			
 			return affectedRows ;
 		}catch(SQLException e){
-			throw new DaoException(rawSQL, e) ;
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + rawSQL, e, e.getSQLState()) ;
 		}finally{
 			CloseUtil.close(pstm) ;
 		}
@@ -360,7 +369,8 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		
 		try {
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
-			pstm = conn.prepareStatement(rawSQL);			
+			pstm = conn.prepareStatement(rawSQL);
+			this.applyQueryTimeout(pstm) ;
 			bsql.prepareNamedParams(db.getDialect(), pstm) ;
 			
 			int affectedRows = pstm.executeUpdate() ;
@@ -376,7 +386,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 			
 			return affectedRows ;
 		}catch(SQLException e){
-			throw new DaoException(rawSQL, e) ;
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + rawSQL, e, e.getSQLState()) ;
 		}finally{
 			CloseUtil.close(pstm) ;
 		}
@@ -440,9 +450,10 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		try {
 			Connection conn = getConnection(db, bsql.getTableCondition()) ;
 			pstm = conn.prepareStatement(rawSQL);
+			this.applyQueryTimeout(pstm) ;
 		}catch(SQLException e){
 			CloseUtil.close(pstm) ;
-			throw new DaoException(rawSQL, e) ;
+			throw new JDBCException("Error Code:" + e.getErrorCode() + ", sql:" + rawSQL, e, e.getSQLState()) ;
 		}
 		
 		if(this.psForBatch == null){
@@ -469,74 +480,14 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 	}
 	
 	public void commit(){
-		try {
-			Iterator i = this.opennedConnections.values().iterator() ;
-			
-			while(i.hasNext()){
-				Connection conn = (Connection) i.next() ;
-				
-				conn.commit() ;
-			}
-			
-		} catch (SQLException e) {
-			throw new DaoException(e) ;
-		}
+		this.connectionsGroup.commit() ;
 	}
 	
 	public void rollback() throws DaoException {
-		SQLException ex = null ;
-		Iterator i = this.opennedConnections.values().iterator() ;
-		StringBuffer sb = null ;
-		
-		while(i.hasNext()){
-			Connection conn = (Connection) i.next() ;
-			
-			try {
-				//所有连接全部忽略错误，并且rollback。
-				conn.rollback() ;				
-			} catch (SQLException e) {
-				if(ex != null){
-					if(sb == null){//combine all exceptions before the last one together, and re-throw the last one.
-						sb = new StringBuffer() ;
-					}
-					
-					sb.append("[errorCode:").append(ex.getErrorCode()).append(", msg:").append(ex.getMessage()).append("];") ;
-				}
-				
-				ex = e ;
-			}
-		}
-		
-		if(ex != null){//find exception
-			if(sb == null){ //only one exception throwed.
-				throw new DaoException(ex) ;
-			}else{
-				throw new DaoException(sb.toString(), ex) ;
-			}
-		}
-	}
-		
-	public void commitAndClose(){
-		try {
-			commit() ;
-		} catch (Exception e) {
-			throw new DaoException(e) ;
-		}finally{
-			close() ;
-		}
-	}
-	
-	public void rollbackAndClose(){
-		try {
-			rollback() ;
-		} catch (Exception e) {
-			throw new DaoException(e) ;
-		}finally{
-			close() ;
-		}
+		this.connectionsGroup.rollback() ;
 	}
 
-	public void close() {
+	public void close() {		
 		if(this.psForBatch != null){
 			Iterator i = this.psForBatch.iterator() ;
 			while(i.hasNext()){
@@ -556,7 +507,60 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		//close connections.
 		super.close();
 	}
+	
+	public ReadonlyTranSession exportReadAPI() {
+		ReadonlyTranSession r = exportNativeReadAPI() ;
+		
+		return (ReadonlyTranSession) Proxy.newProxyInstance(
+				r.getClass().getClassLoader(), new Class[]{ReadonlyTranSession.class},
+				new TranSessionCloseSuppressingInvocationHandler(r));
+	}
+	
+	public ReadonlyTranSession exportNativeReadAPI() {
+		if(read == null){
+			read = new ReadonlyTranSessionImpl(this) ;
+		}
+		
+		return read ;
+	}
 
+}
+
+/**
+ * Invocation handler that suppresses close calls on Guzz ReadonlyTranSession.
+ */
+class TranSessionCloseSuppressingInvocationHandler implements InvocationHandler {
+
+	private final TranSession target;
+
+	public TranSessionCloseSuppressingInvocationHandler(TranSession target) {
+		this.target = target;
+	}
+
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		// Invocation on Session interface coming in...
+
+		if (method.getName().equals("equals")) {
+			// Only consider equal when proxies are identical.
+			return (proxy == args[0]);
+		}else if (method.getName().equals("hashCode")) {
+			// Use hashCode of Session proxy.
+			return System.identityHashCode(proxy);
+		}else if (method.getName().equals("close")) {
+			// Handle close method: suppress, not valid.
+			return null;
+		}
+
+		// Invoke method on target Session.
+		try {
+			Object retVal = method.invoke(this.target, args);
+			
+			return retVal;
+		}
+		catch (InvocationTargetException ex) {
+			throw ex.getTargetException();
+		}
+	}
 }
 
 

@@ -28,7 +28,7 @@ import org.guzz.transaction.TranSession;
  * 
  * A template to execute raw sql statements, or fetch the database {@link Connection}.
  * <p/>
- * The executed sql statements is under the {@link javax.transaction.Transaction} of the outer TranSession that created this {@link JDBCTemplate}.
+ * The executed sql statements is under the javax.transaction.Transaction of the outer TranSession that created this {@link JDBCTemplate}.
  * 
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -66,7 +66,7 @@ public interface JDBCTemplate {
 	public int executeUpdateWithoutPrepare(String sql) ;
 	
 	/**
-	 * 返回callback返回的值。
+	 * Return the value callback returns.
 	 */
 	public Object executeQuery(String sql, SQLQueryCallBack callback) ;
 	
@@ -76,12 +76,22 @@ public interface JDBCTemplate {
 	public Object executeQueryWithoutPrepare(String sql, SQLQueryCallBack callback) ;
 
 	/**
-	 * Fetch the {@link Connection} used for this {@link JDBCTemplate}.
+	 * Fetch the {@link Connection} used for this {@link JDBCTemplate}. 
+	 * The returned connection is proxied, invoking its close() takes no effects, and calls to {@link Connection#setTransactionIsolation(int)} will join the outer {@link TranSession}. 
+	 * 
+	 * @see #getNativeConnection()
+	 */
+	public Connection getConnection() ;
+	
+	/**
+	 * Fetch the native {@link Connection} used for this {@link JDBCTemplate}.
 	 * <p>
 	 * Don't close the returned Connection. 
 	 * Use the outer {@link TranSession#close()} to do the cleaning job.
 	 * <p/>
+	 * 
+	 * @see #getConnection()
 	 */
-	public Connection getConnection() ;
+	public Connection getNativeConnection() ;
 	
 }

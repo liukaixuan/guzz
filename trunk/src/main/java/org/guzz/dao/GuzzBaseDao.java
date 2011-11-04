@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2008-2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,11 @@ import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.service.core.DynamicSQLService;
 import org.guzz.transaction.ReadonlyTranSession;
 import org.guzz.transaction.TransactionManager;
-import org.guzz.transaction.WriteTranSession;
 
 
 /**
  * 
- * 供第三方方便调用的BaseDao.
+ * 供第三方方便调用的BaseDao. 如果配置spring事务管理，数据库写操作将自动加入Spring的声明式事务。
  *
  * @author liukaixuan(liukaixuan@gmail.com)
  */
@@ -41,74 +40,47 @@ public class GuzzBaseDao {
 	
 	private GuzzContext guzzContext ;
 	
-	public Serializable insert(Object domainObject){
-		WriteTranSession session = transactionManager.openRWTran(true) ;
+	private WriteTemplate writeTemplate ;
 		
-		try{
-			return session.insert(domainObject) ;
-		}finally{
-			session.close() ;
-		}
+	/**
+	 * Return the WriteTemplate for this DAO,
+	 * pre-initialized with the GuzzContext/TransactionManager or set explicitly.
+	 * <p><b>Note: The returned WriteTemplate is a shared instance.</b>
+	 */
+	public final WriteTemplate getWriteTemplate() {
+	  return this.writeTemplate;
+	}
+
+	public void setWriteTemplate(WriteTemplate writeTemplate) {
+		this.writeTemplate = writeTemplate;
+	}
+	
+	public Serializable insert(Object domainObject){
+		return getWriteTemplate().insert(domainObject) ;
 	}
 	
 	public void update(Object domainObject){
-		WriteTranSession session = transactionManager.openRWTran(true) ;
-		
-		try{
-			session.update(domainObject) ;
-		}finally{
-			session.close() ;
-		}
+		getWriteTemplate().update(domainObject) ;
 	}
 	
 	public void delete(Object domainObject){
-		WriteTranSession session = transactionManager.openRWTran(true) ;
-		
-		try{
-			session.delete(domainObject) ;
-		}finally{
-			session.close() ;
-		}
+		getWriteTemplate().delete(domainObject) ;
 	}
 	
 	public Serializable insert(Object domainObject, Object tableCondition){
-		WriteTranSession session = transactionManager.openRWTran(true) ;
-		
-		try{
-			return session.insert(domainObject, tableCondition) ;
-		}finally{
-			session.close() ;
-		}
+		return getWriteTemplate().insert(domainObject, tableCondition) ;
 	}
 	
 	public void update(Object domainObject, Object tableCondition){
-		WriteTranSession session = transactionManager.openRWTran(true) ;
-		
-		try{
-			session.update(domainObject, tableCondition) ;
-		}finally{
-			session.close() ;
-		}
+		getWriteTemplate().update(domainObject, tableCondition) ;
 	}
 	
 	public void delete(Object domainObject, Object tableCondition){
-		WriteTranSession session = transactionManager.openRWTran(true) ;
-		
-		try{
-			session.delete(domainObject, tableCondition) ;
-		}finally{
-			session.close() ;
-		}
+		getWriteTemplate().delete(domainObject, tableCondition) ;
 	}
 	
 	public Object getForUpdate(Class domainClass, Serializable pk){
-		WriteTranSession session = transactionManager.openRWTran(true) ;
-		
-		try{
-			return session.findObjectByPK(domainClass, pk) ;
-		}finally{
-			session.close() ;
-		}
+		return getWriteTemplate().getForUpdate(domainClass, pk) ;
 	}
 	
 	public Object getForRead(Class domainClass, Serializable pk){
@@ -243,6 +215,7 @@ public class GuzzBaseDao {
 
 	public void setTransactionManager(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
+		this.writeTemplate = this.transactionManager.createBindedWriteTemplate() ;
 	}
 	
 	public void setGuzzContext(GuzzContext guzzContext){

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="guzzContext" class="org.guzz.web.context.spring.GuzzContextBeanFactory" factory-method="createGuzzContext">
+	    <constructor-arg><value>classpath:guzzmain_spring.xml</value></constructor-arg>
+	</bean>
+	
+	<bean id="abstractGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
+   		<property name="guzzContext" ref="guzzContext" />
+	</bean>
+  
+    <!-- 定义事务管理器（声明式的事务） -->    
+    <bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
+        <property name="guzzContext" ref="guzzContext" />  
+    </bean>
+      
+    <bean id="transactionBase" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"  
+            lazy-init="true" abstract="true">    
+        <!-- 配置事务管理器 -->
+        <property name="transactionManager" ref="transactionManager" />    
+        <!-- 配置事务属性 -->
+        <property name="transactionAttributes">
+            <props>
+                <prop key="getIso">PROPAGATION_REQUIRED,readOnly,ISOLATION_SERIALIZABLE</prop> 
+                <prop key="insertTimeout">PROPAGATION_REQUIRED,timeout_3, -Exception</prop>  
+                <prop key="*">PROPAGATION_REQUIRED</prop>    
+            </props>
+        </property>
+    </bean>
+     
+    <!-- 配置DAO -->
+    <bean id="userDao" parent="transactionBase" >
+        <property name="target">
+        	<bean parent="abstractGuzzDao" class="org.guzz.dao.UserDaoImpl">
+		    </bean>
+        </property>
+    </bean>
+    
+</beans>
+

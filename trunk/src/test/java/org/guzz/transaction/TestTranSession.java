@@ -16,8 +16,10 @@
  */
 package org.guzz.transaction;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import org.guzz.jdbc.JDBCTemplate;
@@ -103,6 +105,88 @@ public class TestTranSession extends DBBasedTestCase{
 		assertEquals(name2, "title 2") ;
 		
 		ts.close() ;
+	}
+		
+	public void testTimeout() throws SQLException, Exception{
+		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
+		try{
+			//timeout in 2 seconds
+			ts.setQueryTimeoutInSeconds(2) ;
+			
+			JDBCTemplate jdbc = ts.createJDBCTemplateByDbGroup("mysql") ;
+			jdbc.executeQueryWithoutPrepare("select benchmark(3000000, md5('iteratorResultSet') ) as a", 
+					new SQLQueryCallBack() {
+						
+						public Object iteratorResultSet(ResultSet rs) throws Exception {
+							if(rs.next()){
+								return rs.getString("a") ;
+							}
+							
+							return null ;
+						}
+					}
+			) ;
+			
+			fail("Should be timed out.") ;
+			
+		}catch(Exception e){
+			e.printStackTrace() ;
+		}finally{
+			ts.close() ;
+		}
+	}
+		
+	public void testTimeout2() throws SQLException, Exception{
+		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
+		try{
+			//timeout in 2 seconds
+			ts.setQueryTimeoutInSeconds(2) ;
+			
+			JDBCTemplate jdbc = ts.createJDBCTemplateByDbGroup("mysql") ;
+			
+			Connection conn = jdbc.getConnection() ;
+			conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE) ;
+			
+			Statement st = conn.createStatement() ;
+			st.execute("select benchmark(3000000, md5('iteratorResultSet') ) as a") ;
+			
+			st.close() ;
+			fail("Should be timed out.") ;
+		}catch(Exception e){
+			e.printStackTrace() ;
+		}finally{
+			ts.resetTransactionIsolationToLastSavePointer() ;
+			
+			ts.close() ;
+		}
+	}
+		
+	public void testResetTransactionIsolation() throws SQLException, Exception{
+		ReadonlyTranSession ts = gf.getTransactionManager().openDelayReadTran() ;
+		try{			
+			JDBCTemplate jdbc = ts.createJDBCTemplateByDbGroup("mysql") ;
+			
+			Connection conn = jdbc.getConnection() ;
+			
+			int old = conn.getTransactionIsolation() ;
+			
+			conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE) ;
+			
+			Statement st = conn.createStatement() ;
+			st.execute("select benchmark(300000, md5('iteratorResultSet') ) as a") ;
+			
+			st.close() ;
+			
+			assertTrue(ts.isIsolationLevelChanged()) ;
+			
+			ts.resetTransactionIsolationToLastSavePointer() ;
+			assertFalse(ts.isIsolationLevelChanged()) ;
+			
+			assertEquals(old, conn.getTransactionIsolation()) ;
+			assertTrue(Connection.TRANSACTION_SERIALIZABLE != conn.getTransactionIsolation()) ;
+		}finally{
+			ts.close() ;
+		}
 	}
 	
 }

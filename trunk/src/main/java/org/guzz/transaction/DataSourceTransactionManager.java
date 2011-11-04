@@ -17,6 +17,7 @@
 package org.guzz.transaction;
 
 import org.guzz.connection.DBGroupManager;
+import org.guzz.dao.WriteTemplate;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CompiledSQLManager;
@@ -41,13 +42,17 @@ public class DataSourceTransactionManager implements TransactionManager {
 	
 	private DBGroupManager dbGroupManager ;
 	
+	protected final TranSessionLocator tranSessionLocator ;
+	
 	public DataSourceTransactionManager(ObjectMappingManager omm, CompiledSQLManager compiledSQLManager,
-			CompiledSQLBuilder compiledSQLBuilder, DebugService debugService, DBGroupManager dbGroupManager) {
+			CompiledSQLBuilder compiledSQLBuilder, DebugService debugService, DBGroupManager dbGroupManager, 
+			TranSessionLocator tranSessionLocator) {
 		this.omm = omm ;
 		this.compiledSQLManager = compiledSQLManager ;
 		this.compiledSQLBuilder = compiledSQLBuilder ;
 		this.debugService = debugService ;
 		this.dbGroupManager = dbGroupManager ;
+		this.tranSessionLocator = tranSessionLocator ;
 	}
 	
 	public ReadonlyTranSession openDelayReadTran() {
@@ -64,6 +69,10 @@ public class DataSourceTransactionManager implements TransactionManager {
 	
 	public CompiledSQLBuilder getCompiledSQLBuilder() {
 		return compiledSQLBuilder;
+	}
+
+	public WriteTemplate createBindedWriteTemplate() {
+		return tranSessionLocator.currentWriteTemplate() ;
 	}
 
 }

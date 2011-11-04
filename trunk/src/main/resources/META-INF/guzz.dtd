@@ -20,6 +20,7 @@
 <!ATTLIST param value CDATA #REQUIRED>
 
 <!ELEMENT tran ((dbgroup* | virtualdbgroup*)+)>
+<!ATTLIST tran locator CDATA "default">
 
 <!ELEMENT virtualdbgroup (dbgroup*)>
 <!ATTLIST virtualdbgroup name CDATA #REQUIRED>

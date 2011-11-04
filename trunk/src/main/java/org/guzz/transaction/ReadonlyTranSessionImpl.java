@@ -38,11 +38,16 @@ import org.guzz.util.CloseUtil;
 public class ReadonlyTranSessionImpl extends AbstractTranSessionImpl implements ReadonlyTranSession {
 //	private static transient final Log log = LogFactory.getLog(ReadonlyTranSessionImpl.class) ;	
 	
-	private boolean allowDelay ;
+	private final boolean allowDelay ;
 	
 	public ReadonlyTranSessionImpl(ObjectMappingManager omm, CompiledSQLManager compiledSQLManager, DebugService debugService, DBGroupManager dbGroupManager, boolean allowDelay){
 		super(omm, compiledSQLManager, new ReadonlyConnectionFetcher(allowDelay), debugService, dbGroupManager, true) ;
 		this.allowDelay = allowDelay ;
+	}
+	
+	public ReadonlyTranSessionImpl(WriteTranSessionImpl writeSessionImpl){
+		super(writeSessionImpl) ;
+		this.allowDelay = false ;
 	}
 
 	public boolean allowDelayRead() {
@@ -53,7 +58,7 @@ public class ReadonlyTranSessionImpl extends AbstractTranSessionImpl implements 
 
 class ReadonlyConnectionFetcher implements ConnectionFetcher{
 	
-	private boolean allowDelay ;
+	private final boolean allowDelay ;
 	
 	public ReadonlyConnectionFetcher(boolean allowDelay){
 		this.allowDelay = allowDelay ;
@@ -79,7 +84,7 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 				CloseUtil.close(conn) ;
 				
 				//TODO: add a check job to diagnose the datasource. refetch the connection from another slave datasource.
-				throw new DaoException("fail to acquire readonly conn.", e) ;
+				throw new DaoException("failed to acquire a readonly conn.", e) ;
 			}
 
 			try {
@@ -90,7 +95,7 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 				//be careful of conn leak.
 				CloseUtil.close(conn) ;
 				
-				throw new DaoException("fail to open readonly conn.", e) ;
+				throw new DaoException("failed to open a readonly conn.", e) ;
 			}
 		}
 		
@@ -112,19 +117,15 @@ class ReadonlyConnectionFetcher implements ConnectionFetcher{
 				CloseUtil.close(conn) ;
 				
 				//TODO: add a check job to diagnose the datasource. refetch the connection from another slave datasource.
-				throw new DaoException("fail to acquire no-delay readonly conn.", e) ;
+				throw new DaoException("failed to acquire a no-delay readonly conn.", e) ;
 			}
 		}
 		
-		throw new DaoException("no datasource is available.") ;
+		throw new DaoException("No DataSource is available for no-delay readonly conns.") ;
 	}
 
 	public boolean isAllowDelay() {
 		return allowDelay;
-	}
-
-	public void setAllowDelay(boolean allowDelay) {
-		this.allowDelay = allowDelay;
 	}
 	
 }

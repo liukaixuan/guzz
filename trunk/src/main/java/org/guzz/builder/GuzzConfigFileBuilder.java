@@ -53,6 +53,9 @@ import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.service.ServiceInfo;
+import org.guzz.transaction.DefaultTranSessionLocatorImpl;
+import org.guzz.transaction.SpringTranSessionLocatorImpl;
+import org.guzz.transaction.TranSessionLocator;
 import org.guzz.util.Assert;
 import org.guzz.util.ClassUtil;
 import org.guzz.util.CloseUtil;
@@ -223,6 +226,43 @@ public class GuzzConfigFileBuilder {
 		}
 		
 		return dbGroups ;
+	}
+	
+	public Class getTranLocator(){
+		/*
+		 <tran locator="spring">
+			.....
+		 </tran>
+		*/
+		
+		List vss = this.rootDoc.selectNodes("tran") ;
+		
+		if(vss != null && !vss.isEmpty()){
+			Element e = (Element) vss.get(0) ;
+			
+			String className = e.attributeValue("locator") ;
+			if(StringUtil.isEmpty(className)){
+				return null ;
+			}
+			
+			if("solo".equals(className)){
+				className = DefaultTranSessionLocatorImpl.class.getName() ;
+			}else if("default".equals(className)){
+				className = DefaultTranSessionLocatorImpl.class.getName() ;
+			}else if("spring".equals(className)){
+				className = SpringTranSessionLocatorImpl.class.getName() ;
+			}
+			
+			Class cls =  ClassUtil.getClass(className) ;
+			
+			if(!TranSessionLocator.class.isAssignableFrom(cls)){
+				throw new GuzzException("tran class must be a implementor of:[" + TranSessionLocator.class.getName() + "]") ;
+			}
+			
+			return cls ;
+		}
+		
+		return null ;
 	}
 	
 	protected List parseForPhysicsDBGroup(List segElements, String defaultDialect){

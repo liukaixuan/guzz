@@ -69,6 +69,8 @@ import org.guzz.service.core.impl.SlowUpdateServiceImpl;
 import org.guzz.service.core.impl.SlowUpdateServiceProxy;
 import org.guzz.service.impl.ServiceManagerFactory;
 import org.guzz.service.impl.ServiceManagerImpl;
+import org.guzz.transaction.DefaultTranSessionLocatorImpl;
+import org.guzz.transaction.TranSessionLocator;
 import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.TransactionManagerFactory;
 import org.guzz.util.CloseUtil;
@@ -227,9 +229,19 @@ public class GuzzContextImpl implements GuzzContext{
 			log.info("Prepare transactions....") ;
 		}
 		
+		Class locatorCls = builder.getTranLocator() ;
+		TranSessionLocator tranSessionLocator = null ;
+		if(locatorCls != null){
+			tranSessionLocator = (TranSessionLocator) locatorCls.newInstance() ;
+		}else{
+			tranSessionLocator = new DefaultTranSessionLocatorImpl() ;
+		}
+		
+		this.registerContextLifeCycle(tranSessionLocator) ;
+		
 		transactionManager = TransactionManagerFactory.buildTransactionFactory(objectMappingManager, compiledSQLManager, 
 				compiledSQLBuilder,
-				this.debugService, dbGroupManager) ;
+				this.debugService, dbGroupManager, tranSessionLocator) ;
 				
 		Service sus = new SlowUpdateServiceProxy((SlowUpdateServiceImpl) ServiceManagerImpl.createNewService(this, configServer, new ServiceInfo(Service.FAMOUSE_SERVICE.SLOW_UPDATE, "guzzSlowUpdate", SlowUpdateServiceImpl.class))) ;
 

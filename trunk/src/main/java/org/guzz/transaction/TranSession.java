@@ -22,9 +22,9 @@ import org.guzz.jdbc.JDBCTemplate;
 
 /**
  * 
- * A database {@link javax.transaction.Transaction} and {@link Connection} holder. 
+ * A database javax.transaction.Transaction and its {@link Connection}s' holder. 
  * 
- * <p>Maintain a distributed Transaction among all involved databases.
+ * <p>Maintain a distributed Transaction among all involving databases.
  * </p>
  * 
  * @author liu kaixuan(liukaixuan@gmail.com)
@@ -67,8 +67,21 @@ public interface TranSession {
 	public JDBCTemplate createJDBCTemplateByDbGroup(String dbGroup, Object tableCondition) ;
 
 	/**
-	 * Close the {@link javax.transaction.Transaction} and all {@link Connection}s, ignoring any exceptions.
+	 * Close the javax.transaction.Transaction and all {@link Connection}s, ignoring any exceptions.
 	 */
 	public void close() ;
+	
+	public void setQueryTimeoutInSeconds(int seconds) ;
+	
+	public IsolationsSavePointer setTransactionIsolation(int isolationLevel) ;
+	
+	/**
+	 * 数据库连接的Isolation隔离级别是否有改变
+	 */
+	public boolean isIsolationLevelChanged() ;
+	
+	public void resetTransactionIsolationTo(IsolationsSavePointer savePointer) ;
+
+	public void resetTransactionIsolationToLastSavePointer() ;
 	
 }
