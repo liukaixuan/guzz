@@ -2,6 +2,7 @@ package org.guzz.transaction;
 
 import java.sql.SQLException;
 
+import org.guzz.GuzzContext;
 import org.guzz.dao.GuzzReadCallback;
 import org.guzz.dao.GuzzWriteCallback;
 import org.guzz.exception.JDBCException;
@@ -96,6 +97,10 @@ public class SoloWriteTemplate extends AbstractWriteTemplate{
 
 	public void setTransactionManager(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
+	}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		this.setTransactionManager(guzzContext.getTransactionManager()) ;
 	}
 	
 }
