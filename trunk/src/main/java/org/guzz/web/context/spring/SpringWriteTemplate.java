@@ -18,6 +18,7 @@ package org.guzz.web.context.spring;
 
 import java.sql.SQLException;
 
+import org.guzz.GuzzContext;
 import org.guzz.dao.GuzzReadCallback;
 import org.guzz.dao.GuzzWriteCallback;
 import org.guzz.dao.WriteTemplate;
@@ -236,6 +237,10 @@ public class SpringWriteTemplate extends AbstractWriteTemplate implements WriteT
 
 	public void setTransactionManager(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
+	}
+
+	public void setGuzzContext(GuzzContext guzzContext) {
+		this.setTransactionManager(guzzContext.getTransactionManager()) ;
 	}
 
 }
