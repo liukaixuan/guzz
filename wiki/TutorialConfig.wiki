@@ -84,7 +84,9 @@ Most of the time, you should add another "BaseDao" bean for making up your own D
  
  Add a new attribute locator="spring" in element tran in guzz.xml like this:
 
-{{{<tran locator="spring">}}}
+{{{
+<tran locator="spring">
+}}}
  
  If have configured Spring Transaction for Hibernate before, copy the configurations and change the bean "transactionManager"'s definition (in applicationContext.xml) to:
 
@@ -97,7 +99,7 @@ Most of the time, you should add another "BaseDao" bean for making up your own D
  It is done. Here is a example:
 
 {{{
-	<bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
+<bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
         <property name="guzzContext" ref="guzzContext" />  
     </bean>
       
