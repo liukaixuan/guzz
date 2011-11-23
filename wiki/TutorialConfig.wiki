@@ -99,7 +99,7 @@ Most of the time, you should add another "BaseDao" bean for making up your own D
  It is done. Here is a example:
 
 {{{
-<bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
+    <bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
         <property name="guzzContext" ref="guzzContext" />  
     </bean>
       

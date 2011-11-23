@@ -90,7 +90,7 @@ gc.shutdown() ;
 </bean>
 }}}
 
- 如果你忘了怎么配置，这是一篇好文章：[http://jie2workjava.iteye.com/blog/446250 Spring事务配置的五种方式]
+ 如果你忘了怎么配置，这是一篇很好的文章：[http://jie2workjava.iteye.com/blog/446250 Spring事务配置的五种方式]
  
  * 5. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
  

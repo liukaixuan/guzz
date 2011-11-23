@@ -7,9 +7,9 @@
 
  !GuzzBaseDao is a handy base class for implementing DAOs of your system. It provides common useful methods, and is suggested to be used for all DAOs.
  
- -*WARNING: Without Spring Declaration transaction in scope, every persist method in !GuzzBaseDao acts in its single standalone transaction! They are not prepared to work together in one transaction.*
+ -*WARNING: Without Spring Declaration transaction in scope, all write methods in !GuzzBaseDao act in their own standalone transactions! They won't work together in one atom transaction.*
 
- If you have configured Spring declaration transaction, all WRITE operations will be under the control of standard Spring transaction; But all READ operations will still open separate readonly slave-database connections to perform.
+ If you had already configured Spring declaration transaction, all WRITE operations will be under the control of the standard Spring transaction; But all READ operations will still open their separate readonly slave-database connections to perform.
  
  Call !GuzzBaseDao.getWriteTemplate() to get the current WriteTemplate for reading in the current Spring transaction or performing others WRITE operations not listed in !GuzzBaseDao.
  
