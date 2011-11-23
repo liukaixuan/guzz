@@ -4,7 +4,11 @@
 
  guzz建议所有的Dao继承!GuzzBaseDao，以使用base dao中提供的常用持久化方法。
  
- 但需要注意，!GuzzBaseDao 中的每个方法都会在单独的事务中完成；如果需要多个操作原子执行，不要使用!GuzzBaseDao提供的方法。
+ 但需要注意，在没有配置Spring声明式事务的情况下，!GuzzBaseDao 中的每个方法都会在单独的事务中完成；如果需要多个操作原子执行，不要使用!GuzzBaseDao提供的方法。
+ 
+ 如果声明了spring事务，则!GuzzBaseDao内的*写*方法都将在spring统一事务管理下执行；读方法还将单独打开到slave数据库的只读连接执行，不会加入事务。
+ 
+ 如果需要执行加入当前写事务的读操作，或执行!GuzzBaseDao没有提供的写操作，可以通过 getWriteTemplate()获取当前的WriteTemplate进行事务读写。WriteTemplate类似HibernateTemplate和JDBCTemplate。
 
 == !ReadonlyTranSession读API： ==
 

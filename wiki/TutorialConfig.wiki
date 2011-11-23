@@ -80,7 +80,47 @@ Most of the time, you should add another "BaseDao" bean for making up your own D
 </bean>
 }}}
 
- * 4. Now, guzz will work with spring IOC. You can fetch guzzContext through the spring bean or GuzzWebApplicationContextUtil as above。
+ * 4. Join Spring Declaration Transaction(guzz 1.3.0+):
+ 
+ Add a new attribute locator="spring" in element tran in guzz.xml like this:
+
+{{{<tran locator="spring">}}}
+ 
+ If have configured Spring Transaction for Hibernate before, copy the configurations and change the bean "transactionManager"'s definition (in applicationContext.xml) to:
+
+{{{
+<bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
+	<property name="guzzContext" ref="guzzContext" />
+</bean>
+}}}
+
+ It is done. Here is a example:
+
+{{{
+	<bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
+        <property name="guzzContext" ref="guzzContext" />  
+    </bean>
+      
+    <bean id="transactionBase" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"  
+            lazy-init="true" abstract="true">    
+        <property name="transactionManager" ref="transactionManager" />    
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>    
+            </props>
+        </property>
+    </bean>
+     
+    <!-- Most of the time, your services layer -->
+    <bean id="userDao" parent="transactionBase" >
+        <property name="target">
+        	<bean parent="abstractGuzzDao" class="org.guzz.dao.UserDaoImpl">
+		    </bean>
+        </property>
+    </bean>
+}}} 
+  
+ * 5. Now, guzz will work with spring IOC. You can fetch guzzContext through the spring bean or GuzzWebApplicationContextUtil as above.
 
 
 === fetch !GuzzContext in Web Application: ===

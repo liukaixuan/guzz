@@ -75,7 +75,22 @@ gc.shutdown() ;
 </bean>
 }}}
 
- * 4. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
+ * 4. 支持spring声明式事务（需要guzz 1.3.0+）：
+ 
+ 修改guzz.xml，在tran定义上增加一个属性：locator="spring" 类似这样：
+{{{<tran locator="spring">}}}
+ 
+ 如果您在spring中配置过Hibernate的声明式事务，把配置copy过来，然后（一般在applicationContext.xml文件中）修改transactionManager如下即可：
+
+{{{
+<bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">  
+	<property name="guzzContext" ref="guzzContext" />
+</bean>
+}}}
+
+ 如果你忘了怎么配置，这是一篇好文章：[http://jie2workjava.iteye.com/blog/446250 Spring事务配置的五种方式]
+ 
+ * 5. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
  
  
 === 在web应用中获取GuzzContext： === 
