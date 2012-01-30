@@ -216,6 +216,40 @@ try{
 }}}
 
 
+=== Query by wild-card sqls built in runtime: ===
+
+ Build sqls in runtime and execute them.
+  
+{{{
+ 	ReadonlyTranSession session = tm.openDelayReadTran() ; 
+	Guzz.setTableCondition("all") ;
+	
+	//list all cargoes priced above 100.00
+	//concate a sql statement
+	String sql="select c.* from (select @id, @name, @storeCount from tb_cargo_book where @price>=:param_price union all select @id, @name, @storeCount from tb_cargo_crossstitch where @price>=:param_price) as c ";
+	
+	//Compile the sql. The first parameter "Cargo.class" indicates the database group to run the sql and the default result-object mapping.
+	CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(Cargo.class, sql) ; 
+	
+	//Bind the sql parameter "param_price" with a strong type.
+	cs.addParamPropMapping("param_price", "price") ;
+	
+	//List the first 1000 cargoes.
+	List<Cargo> cargoes = session.list(cs.bind("param_price", 100.00), 1, 1000) ;	
+	
+	//Temporary change the result to HashMap -- set bsql
+	List<HashMap<String, Object>> cargoes2 = session.list(cs.bind("param_price", 100.00).setResultClass(java.util.HashMap.class), 1, 1000) ;
+	
+	//Change the default result to HashMap -- set CompiledSQL
+	cs.setResultClass(java.util.HashMap.class) ;	
+	List<HashMap<String, Object>> cargoes3 = session.list(cs.bind("param_price", 100.00), 1, 1000) ;
+	List<HashMap<String, Object>> cargoes4 = session.list(cs.bind("param_price", 100.00), 2, 20) ;
+	
+	session.close() ;
+ 
+}}}
+
+
 == !WriteTranSession, API for write ==
 
  WriteTranSession is the API interface for performing updating operations the databases. In a master-slave database architecture, WriteTranSession operates the master database only.

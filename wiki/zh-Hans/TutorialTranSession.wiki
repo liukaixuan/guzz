@@ -204,6 +204,39 @@ try{
 
 }}} 
 
+=== 程序中拼接SQL语句： ===
+
+  用于在程序中动态拼接sql语句，并执行。
+  
+{{{
+ 	ReadonlyTranSession session = tm.openDelayReadTran() ; 
+	Guzz.setTableCondition("all") ;
+	
+	//任意拼接出sql字符串
+	String sql="select c.* from (select @id, @name, @storeCount from tb_cargo_book where @price>=:param_price union all select @id, @name, @storeCount from tb_cargo_crossstitch where @price>=:param_price) as c ";
+	
+	//编译成执行对象。第一个参数"Cargo.class"暗示此sql将要运行的数据库组为存储Cargo对象的数据库组，并指定默认结果构造成Cargo对象返回。
+	CompiledSQL cs = tm.getCompiledSQLBuilder().buildCompiledSQL(Cargo.class, sql) ; 
+	
+	//赋予sql语句中的参数"param_price"强类型。类型和price属性相同。	
+	cs.addParamPropMapping("param_price", "price") ;
+	
+	//返回前1000个货物。
+	List<Cargo> cargoes = session.list(cs.bind("param_price", 100.00), 1, 1000) ;	
+	
+	//临时更改返回结果为HashMap类型。 -- 通过设置BindedCompiledSQL的参数
+	List<HashMap<String, Object>> cargoes2 = session.list(cs.bind("param_price", 100.00).setResultClass(java.util.HashMap.class), 1, 1000) ;
+	
+	//更改默认返回结果为HashMap类型。 -- 通过设置CompiledSQL的属性
+	cs.setResultClass(java.util.HashMap.class) ;	
+	List<HashMap<String, Object>> cargoes3 = session.list(cs.bind("param_price", 100.00), 1, 1000) ;
+	List<HashMap<String, Object>> cargoes4 = session.list(cs.bind("param_price", 100.00), 2, 20) ;
+	
+	session.close() ;
+ 
+}}}
+
+
 == !WriteTranSession写API ==
 
  WriteTranSession为写api接口。
