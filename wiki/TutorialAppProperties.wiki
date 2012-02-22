@@ -159,7 +159,7 @@ guzz_app_databases.properties
 
 In this configuration, guzz will load and combine all configurations in guzz_app.properties, guzz_app_databases.properties and /root/optional_properties.properties. 
 
-The \* marker before "/root/optional_properties.properties" indicates that "/root/optional_properties.properties" is a optional file. If "/root/optional_properties.properties" exists, load it ; or ignore it.
+The `*` marker before "/root/optional_properties.properties" indicates that "/root/optional_properties.properties" is a optional file. If "/root/optional_properties.properties" exists, load it ; or ignore it.
 
 == Working with Configuration Server ==
 

@@ -149,7 +149,7 @@ guzz_app_databases.properties
 
 在这个配置中，guzz加载guzz_app.properties，guzz_app_databases.properties和/root/optional_properties.properties的配置项。
 
-/root/optional_properties.properties 前面加\*，表示此文件文件为可选配置文件。如果存在，则加载；如果不存在，则自动忽略。
+/root/optional_properties.properties 前面加`*`，表示此文件文件为可选配置文件。如果存在，则加载；如果不存在，则自动忽略。
 
 
 == 与配置管理服务器集成 ==
