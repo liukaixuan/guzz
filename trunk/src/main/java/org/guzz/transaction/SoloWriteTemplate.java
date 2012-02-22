@@ -85,6 +85,10 @@ public class SoloWriteTemplate extends AbstractWriteTemplate{
 	public ReadonlyTranSession exportReadAPI() {
 		return ((WriteTranSessionImpl)getTransactionManager().openRWTran(false)).exportNativeReadAPI() ;
 	}
+	
+	public WriteTranSession getWriteTranSession(){
+		return getTransactionManager().openRWTran(true) ;
+	}
 
 	@Override
 	protected WriteTranSession getSession() {

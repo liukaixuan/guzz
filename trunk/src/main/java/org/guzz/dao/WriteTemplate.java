@@ -17,9 +17,10 @@
 package org.guzz.dao;
 
 import java.io.Serializable;
+import java.util.Map;
 
+import org.guzz.orm.sql.BindedCompiledSQL;
 import org.guzz.transaction.ReadonlyTranSession;
-import org.guzz.transaction.TransactionManager;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.web.context.spring.GuzzTransactionManager;
 
@@ -100,6 +101,10 @@ public interface WriteTemplate {
 	 */
 	public <T> T executeWrite(GuzzWriteCallback<T> action) ;
 	
+	public int executeUpdate(BindedCompiledSQL bsql) ;
+	
+	public int executeUpdate(String id, Map params) ;
+	
 	/**
 	 * Export read API from the underly <code>WriteTranSession</code> of this template.
 	 * 
@@ -110,5 +115,16 @@ public interface WriteTemplate {
 	 * <p><b>The caller is responsible for closing the returned <code>ReadonlyTranSession</code>.</b>
 	 */
 	public ReadonlyTranSession exportReadAPI() ;
+	
+	/**
+	 * Return the the underly <code>WriteTranSession</code> of this template.
+	 * 
+	 * <p>If called within a thread-bound Guzz transaction (initiated
+	 * by GuzzTransactionManager), the returned <code>WriteTranSession</code> will be inside the thread-bound transaction.
+	 * Or a new <b>auto-commit</b> <code>WriteTranSession</code> is opened to return.
+	 * 
+	 * <p><b>The caller is responsible for closing the returned <code>WriteTranSession</code>.</b>
+	 */
+	public WriteTranSession getWriteTranSession() ;
 
 }

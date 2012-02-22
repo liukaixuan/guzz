@@ -146,6 +146,10 @@ public class SpringWriteTemplate extends AbstractWriteTemplate implements WriteT
 	public ReadonlyTranSession exportReadAPI() {
 		return ((WriteTranSessionImpl) this.currentSession(true)).exportReadAPI() ;
 	}
+	
+	public WriteTranSession getWriteTranSession() {
+		return this.currentSession(false) ;
+	}
 
 
 	/**
