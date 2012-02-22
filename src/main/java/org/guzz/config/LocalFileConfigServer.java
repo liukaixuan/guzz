@@ -17,6 +17,9 @@
 package org.guzz.config;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,8 +30,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.guzz.Service;
 import org.guzz.exception.GuzzException;
+import org.guzz.exception.InvalidConfigurationException;
+import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
 import org.guzz.service.ServiceConfig;
+import org.guzz.util.CloseUtil;
 import org.guzz.util.PropertyUtil;
 import org.guzz.util.StringUtil;
 
@@ -114,6 +120,41 @@ public class LocalFileConfigServer implements ConfigServer {
 	
 	public void setOptionalResource3(Resource r){
 		this.addResource(r, false) ;
+	}
+	
+	/**
+	 * A file contains the paths of all resource files separated by new lines.
+	 * A resource file name starts with a star(*) makes it a optional one.
+	 * Lines start with # is treated as comments.
+	 */
+	public void setResourceList(Resource r){
+		LineNumberReader lr = null ;
+		try {
+			lr = new LineNumberReader(new InputStreamReader(r.getInputStream(), "UTF-8")) ;
+			String line = null ;
+			
+			while((line = lr.readLine()) != null){
+				line = line.trim() ;
+				
+				if(line.length() == 0) continue ;
+				if(line.startsWith("#")) continue ;
+				
+				boolean resourceMustBeValid = true ;
+				
+				if(line.charAt(0) == '*'){
+					line = line.substring(1) ;
+					resourceMustBeValid = false ;
+				}
+				
+				this.addResource(new FileResource(r, line), resourceMustBeValid) ;
+			}
+		} catch (UnsupportedEncodingException e) {
+			throw new InvalidConfigurationException(r.toString(), e) ;
+		} catch (IOException e) {
+			throw new InvalidConfigurationException(r.toString(), e) ;
+		}finally{
+			CloseUtil.close(lr) ;
+		}
 	}
 	
 	protected void addResource(Resource r, boolean resourceMustBeValid){

@@ -64,7 +64,13 @@ public class FileResource implements Resource {
 				this.file = new File(fileName) ;
 			}else if(relativedResource instanceof FileResource){
 				File relativedFile = ((FileResource) relativedResource).getFile() ;
-				this.file = new File(relativedFile.getParentFile(), fileName) ;
+				
+				File f = new File(fileName) ;
+				if(f.isAbsolute()){
+					this.file = f ;
+				}else{
+					this.file = new File(relativedFile.getParentFile(), fileName) ;
+				}
 			}else{
 				log.warn("unknown relatived Resource:" + relativedResource) ;
 			}
