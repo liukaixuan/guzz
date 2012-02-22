@@ -1,10 +1,10 @@
-== Standalone usage: ==
+== General usage: ==
 
- guzz_app.properties is used to store configuration details of a system. Most of the time, it contains configurations for databases and services.
+ guzz_app.properties is used to store configuration details of an application. Most of the time, it contains configurations for databases and services.
  
- The content of guzz_app.properties is organized just as what mysql does. A line represents a configuration item; and a line starts with # means comments.
+ The content of guzz_app.properties is organized just as what mysql does. A line represents a configuration item; and a line starts with # indicates a comment.
 
- {{{[groupName]}}} marks a start of a group. From the mark, to the next {{{[xxx]}}}, all items belongs to this group "groupName". For example:
+ {{{[groupName]}}} marks a start of a group. From the mark, to the next {{{[xxx]}}}, all items belong to the group "groupName". For example:
 
  {{{
 [masterDB]
@@ -91,7 +91,75 @@ ignoreDemonThreadSQL=true
 
  "guzz.maxLoad" defines the max capacity of a service. It depends on the service itself.
  
- The other items without the start of "guzz." means it's defined by the service itself.
+ The other items without the start of "guzz." means it is defined by the service itself.
+
+
+== Use multiple properties files: ==
+
+A properties file is designated in guzz.xml:
+{{{
+		<config-server>
+                <server class="org.guzz.config.LocalFileConfigServer">
+                        <param name="resource" value="guzz_app.properties" />
+                </server>
+        </config-server>
+}}}
+
+In fact, up to 4 properties files and 4 optional properties files can be designated in guzz.xml which will be loaded and combined together during startup.
+
+Optional properties file means that: If the file exists, guzz will load it; or ignore it without any errors.
+
+Here is the full configuration for configuring multiple properties files:
+
+{{{
+		<config-server>
+                <server class="org.guzz.config.LocalFileConfigServer">
+                        <param name="resource" value="guzz_app.properties" />
+                        <param name="resource1" value="guzz_app1.properties" />
+                        <param name="resource2" value="guzz_app2.properties" />
+                        <param name="resource3" value="guzz_app3.properties" />
+                        
+                        <param name="optionalResource" value="guzz_app4.properties" />
+                        <param name="optionalResource1" value="guzz_app5.properties" />
+                        <param name="optionalResource2" value="guzz_app6.properties" />
+                        <param name="optionalResource3" value="guzz_app7.properties" />
+                </server>
+        </config-server>
+}}}
+
+== Use the list of properties files: ==
+
+This is a more flexible way to use multiple properties files.
+
+A text file is used to list the names of all chose properties files. Guzz read the text file and load all properties files listed there.
+
+Examples:
+
+{{{
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resourceList" value="resources_list.properties" />
+		</server>
+	</config-server>
+}}}
+
+resources_list.properties:
+{{{
+
+#basic config files
+guzz_app.properties
+
+#DBs
+guzz_app_databases.properties
+
+#guzz task config file.
+*/root/optional_properties.properties
+
+}}}
+
+In this configuration, guzz will load and combine all configurations in guzz_app.properties, guzz_app_databases.properties and /root/optional_properties.properties. 
+
+The * marker before "/root/optional_properties.properties" indicates that "/root/optional_properties.properties" is a optional file. If "/root/optional_properties.properties" exists, load it ; or ignore it.
 
 == Working with Configuration Server ==
 

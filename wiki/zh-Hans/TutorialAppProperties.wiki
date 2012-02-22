@@ -87,6 +87,69 @@ ignoreDemonThreadSQL=true
 #other services' configurations go here...
 }}}
 
+== 使用多个properties配置文件： ==
+
+properties配置文件用guzz.xml的
+{{{
+		<config-server>
+                <server class="org.guzz.config.LocalFileConfigServer">
+                        <param name="resource" value="guzz_app.properties" />
+                </server>
+        </config-server>
+}}}
+指定。可以一次性指定多个文件为配置文件，也可以指定某些文件为可选的配置文件，guzz在启动时全部加载并合并到一起。
+
+可选的配置文件是指：如果文件存在则加载；如果文件不存在，则自动忽略。
+
+默认的配置实现，允许提供最多4个properties常规配置文件和最多4个可选的配置文件。完整的配置方式如下：
+{{{
+		<config-server>
+                <server class="org.guzz.config.LocalFileConfigServer">
+                        <param name="resource" value="guzz_app.properties" />
+                        <param name="resource1" value="guzz_app1.properties" />
+                        <param name="resource2" value="guzz_app2.properties" />
+                        <param name="resource3" value="guzz_app3.properties" />
+                        
+                        <param name="optionalResource" value="guzz_app4.properties" />
+                        <param name="optionalResource1" value="guzz_app5.properties" />
+                        <param name="optionalResource2" value="guzz_app6.properties" />
+                        <param name="optionalResource3" value="guzz_app7.properties" />
+                </server>
+        </config-server>
+}}}
+
+== 使用properties文件列表方式配置： ==
+
+这种方式，将实际需要加载的properties配置文件，用文件名列表的方式在一个properties文件中指定。
+
+用于在properties配置文件多变的场景下，保持guzz.xml文件的一致性。
+
+示例如下：
+{{{
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resourceList" value="resources_list.properties" />
+		</server>
+	</config-server>
+}}}
+
+resources_list.properties内容示例如下：
+{{{
+
+#basic config files
+guzz_app.properties
+
+#DBs
+guzz_app_databases.properties
+
+#guzz task config file.
+*/root/optional_properties.properties
+
+}}}
+
+在这个配置中，guzz加载guzz_app.properties，guzz_app_databases.properties和/root/optional_properties.properties的配置项。
+
+/root/optional_properties.properties 前面加*，表示此文件文件为可选配置文件。如果存在，则加载；如果不存在，则自动忽略。
 
 
 == 与配置管理服务器集成 ==
@@ -106,7 +169,7 @@ ignoreDemonThreadSQL=true
 	<server class="your config server's client implementation">
 		<param name="param1" value="somevalue" />
 		<param name="param2" value="somevalue2" />
-        </server>
+    </server>
 </config-server>
 }}}
 
@@ -119,3 +182,4 @@ public void setResource(org.guzz.io.Resource r) ;
 }}}
 
  在所有配置注入完成后，guzz调用 ConfigServer 的startup() 启动。在guzz退出时，调用shutdown() 方法关闭。
+ 
