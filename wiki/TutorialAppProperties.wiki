@@ -107,7 +107,7 @@ A properties file is designated in guzz.xml:
 
 In fact, up to 4 properties files and 4 optional properties files can be designated in guzz.xml which will be loaded and combined together during startup.
 
-Optional properties file means that: If the file exists, guzz will load it; or ignore it without any errors.
+Optional properties file means that: If the file is exist, guzz will load it; or it will be ignored without any errors.
 
 Here is the full configuration for configuring multiple properties files:
 
