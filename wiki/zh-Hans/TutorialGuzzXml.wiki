@@ -119,7 +119,7 @@
 || Oracle 9i || org.guzz.dialect.Oracle9iDialect || - ||
 || Oracle 10g || org.guzz.dialect.Oracle10gDialect || - ||
 || H2 Database || org.guzz.dialect.H2Dialect|| - ||
-|| Microsoft SQL Server 2000 & 2005 || org.guzz.dialect.MSSQLDialect|| 不支持分页查询。未测试。 ||
+|| Microsoft SQL Server 2000+ || org.guzz.dialect.MSSQLDialect|| 不支持分页查询。未测试。 ||
 
 == guzz支持的数据类型 ==
 || *数据库* || *数据库数据类型* || *guzz中type取值* || *Java类型* || *含义* ||

@@ -124,7 +124,7 @@ Notes:
 || Oracle 9i || org.guzz.dialect.Oracle9iDialect || - ||
 || Oracle 10g || org.guzz.dialect.Oracle10gDialect || - ||
 || H2 Database || org.guzz.dialect.H2Dialect|| - ||
-|| Microsoft SQL Server 2000 & 2005 || org.guzz.dialect.MSSQLDialect|| Page Navigation is not supported. Not Tested! ||
+|| Microsoft SQL Server 2000+ || org.guzz.dialect.MSSQLDialect|| Page Navigation is not supported. Not Tested! ||
 
 == Data Types Supported ==
 
