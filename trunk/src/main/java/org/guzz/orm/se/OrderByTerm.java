@@ -39,8 +39,14 @@ public class OrderByTerm implements SearchTerm {
 	 * @param orderBy 例如：id asc, createdTime desc
 	 * */
 	public OrderByTerm(String orderBy){
-		if(StringUtil.isEmpty(orderBy)) return ;
-		
+		addOrders(orderBy) ;
+	}
+	
+	/**
+	 * 在现有order by基础上，增加一个order。
+	 * @param orderBy 与构造函数相同
+	 */
+	public void addOrders(String orderBy){
 		String[] ss = StringUtil.splitString(orderBy, ",") ;
 		for(int i = 0 ; i < ss.length ; i++){
 			String m_s = ss[i].trim() ;
@@ -66,7 +72,7 @@ public class OrderByTerm implements SearchTerm {
 	}
 	
 	/**
-	 * 在现有order by基础上，增加一个order。
+	 * 在现有order by基础上，增加order。
 	 * @param propName 域对象的property name
 	 * @param isAsc true按照升序排，false按照降序排。
 	 */

@@ -42,6 +42,26 @@ public class SQLCompiler {
 	
 	private final CompiledSQLBuilder sqlBuilder ;
 	
+	private static boolean[] delimiterChars = new boolean[128] ;
+	
+	static{
+		delimiterChars[' '] = true ;
+		delimiterChars['	'] = true ;
+		delimiterChars['='] = true ;
+		delimiterChars['>'] = true ;
+		delimiterChars['<'] = true ;
+		delimiterChars[','] = true ;
+		delimiterChars['('] = true ;
+		delimiterChars[')'] = true ;
+		delimiterChars['\''] = true ;
+		delimiterChars['"'] = true ;
+		delimiterChars['~'] = true ;
+		delimiterChars['!'] = true ;
+		delimiterChars['\r'] = true ;
+		delimiterChars['\n'] = true ;
+		delimiterChars['\t'] = true ;
+	}
+	
 	public SQLCompiler(ObjectMappingManager omm, CompiledSQLBuilder sqlBuilder){
 		this.omm = omm ;
 		this.sqlBuilder = sqlBuilder ;
@@ -54,44 +74,38 @@ public class SQLCompiler {
 		
 		String sql = translateMark(cs, mapping, markedSQL) ;
 		
-		StringBuffer sb = new StringBuffer(sql) ;
-		StringBuffer newsb = new StringBuffer(sb.length() + 16) ;
-		int length = sb.length() ;
-		int colon_count = 0 ;
-		int startPos = 0 ;
-		for(int i = 0 ; i < length; i++){
-			char c = sb.charAt(i) ;
+		char[] chars = sql.toCharArray();
+		StringBuffer newsb = new StringBuffer(chars.length + 16) ;
+		for(int i = 0 ; i < chars.length; ){
+			char c = chars[i];
 			
 			if(c == ':'){
-				colon_count++ ;
-				startPos = i ;
-				continue ;
-			}else if(colon_count == 0){ //没有需要处理的替换内容
-				newsb.append(c) ;
-				continue ;
-			}
-			
-			if(colon_count > 1){//连续2个:及以上，报错。
-				throw new ORMException("too many : marks for named parameter. sql is:" + sql) ;
-			}
-			
-			if(c == ' ' || c == ',' ||c == ')' ||c == '\'' ||c == '"' || i == length - 1){
-				if(!(c == ' ' || c == ',' ||c == ')' ||c == '\'' ||c == '"' )){//到达字符串最后了。不能使用if(i == length -1)判断，因为符合")"可能也是最后一个字符。
-					i++ ;//向前多走一个字符
+				// 去掉空格
+				i++;
+				for( ; i < chars.length; ){
+					if( chars[i] == ' ' || chars[i] == '\t') {
+						i++;
+					} else {
+						break;
+					}
 				}
 				
-				String m_mark = sb.substring(startPos + 1, i) ;
+				int j = i;
+				for( ; j < chars.length; j++){
+					c = chars[j];
 					
+					if(c < 128 && delimiterChars[c]){
+						break ;
+					}
+				}
+				String m_mark = new String(chars, i, j - i) ;				
 				newsb.append('?') ;
 				cs.addParamToLast(m_mark) ;
-				
-				if(i != length){
-					newsb.append(c) ;
-				}
-				
-				//完成一次翻译后，计数器归0
-				colon_count = 0 ;
-				startPos = 0 ;
+
+				i = j;
+			} else {
+				newsb.append(c);
+				i++;
 			}
 		}
 		
@@ -140,46 +154,45 @@ public class SQLCompiler {
 	
 	/**将java属性转换为sql字段，sql表等。通过此方法后，返回的string为携带named param的sql语句。*/
 	protected String translateMark(NormalCompiledSQL cs, ObjectMapping mapping, String markedSQL){
-		StringBuffer sb = new StringBuffer(markedSQL) ;
-		StringBuffer newsb = new StringBuffer(sb.length() + 16) ;
-		int length = sb.length() ;
-		int alpha_count = 0 ;
-		int startPos = 0 ;
-		
-		for(int i = 0 ; i < length; i++){
-			char c = sb.charAt(i) ;
+		char[] chars = markedSQL.toCharArray();
+		StringBuffer newsb = new StringBuffer(chars.length + 16) ;
+		for(int i = 0 ; i < chars.length; ){
+			char c = chars[i];
 			
 			if(c == '@'){
-				alpha_count ++ ;
-				startPos = i ;
-				continue ;
-			}else if(alpha_count == 0){ //没有需要处理的替换内容
-				newsb.append(c) ;
-				
-				continue ;
-			}
-			
-			if(alpha_count > 2){//连续3个@及以上，报错。
-				throw new ORMException("too many @@@ marks.") ;
-			}
-			
-			if(c == ' ' || c == '	' || c == '=' || c == '>' || c == '<' || c == ',' ||c == '('  ||c == ')' ||c == '\'' ||c == '"' ||i == length - 1){//变量替换结束。
-				String m_mark ;
-				if(!(c == ' '  || c == '	' || c == '=' || c == '>' || c == '<' || c == ',' ||c == '(' ||c == ')' ||c == '\'' ||c == '"' )){//到达字符串最后了。不能使用if(i == length -1)判断，因为符合")"可能也是最后一个字符。
-					i++ ;//向前多走一个字符
+				i++;
+				if (i == chars.length) {
+					throw new ORMException("Name needed after @");
 				}
 				
-				m_mark = sb.substring(startPos + 1, i) ;
+				boolean isTable = chars[i] == '@';
+				if (isTable) {
+					i++;
+				}
 				
-				if(alpha_count == 1){ //属性替换开始
-					String colName = mapping.getColNameByPropNameForSQL(m_mark) ;
-					if(colName == null){
-						throw new ORMException("unknown property[" + m_mark + "] in sql:" + markedSQL) ;
+				// 去掉空格
+				for( ; i < chars.length; ){
+					if( chars[i] == ' ' || chars[i] == '\t') {
+						i++;
+					} else {
+						break;
 					}
+				}
+				
+				int j = i;
+				for( ; j < chars.length; j++){
+					c = chars[j];
 					
-					newsb.append(colName) ;
-					
-				}else{//表替换
+					if(c < 128 && delimiterChars[c]){
+						break ;
+					}
+				}
+				
+				String m_mark = new String(chars, i, j - i) ;
+				if (m_mark.length() == 0) {
+					throw new ORMException("Invalid format SQL:"+markedSQL);
+				}
+				if (isTable) {
 					Table m_table = null ;
 					
 					//表可能是local orm的映射，而local orm在oom中并没有注册，需要从传入的ObjectMapping中获取。
@@ -201,19 +214,22 @@ public class SQLCompiler {
 					}else{
 						throw new DaoException("unknown table mark:" + m_mark) ;
 					}
+				} else {
+					String colName = mapping.getColNameByPropNameForSQL(m_mark) ;
+					if(colName == null){
+						throw new ORMException("unknown property[" + m_mark + "] in sql:" + markedSQL) ;
+					}
+					
+					newsb.append(colName) ;
 				}
 				
-				if(i != length){
-					newsb.append(c) ;
-				}
-				
-				//完成一次翻译后，计数器归0
-				alpha_count = 0 ;
-				startPos = 0 ;
+				i = j;
+			} else {
+				newsb.append(c);
+				i++;
 			}
 		}
 		
 		return newsb.toString() ;
-	}
-	
+	}	
 }

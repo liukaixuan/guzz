@@ -19,6 +19,7 @@ package org.guzz.orm.mapping;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -31,10 +32,12 @@ import org.guzz.orm.Business;
 import org.guzz.orm.ColumnORM;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
+import org.guzz.orm.type.SQLDataType;
 import org.guzz.pojo.GuzzProxy;
 import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
+import org.guzz.util.javabean.JavaBeanWrapper;
 
 /**
  * 
@@ -139,9 +142,24 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping{
 					bw.setValue(instance, colName, value) ;
 				}
 			}else{
-				//TODO: business忽略某些结果集。在debug模式下，DebugService发出警告！
-				if(log.isDebugEnabled()){
-					log.debug("warning:ignore ResultSet column:[" + colName + "] in POJOBasedObjectMapping for business:[" + this.business.getName() + "].") ;
+				//有时SQL中有一些计算出的字段，数据库中没有这个字段，但Bean中有这个字段. -by 波波
+				String propName = getPropName(colName, bw);
+				
+				if(isMap){
+					((Map) instance).put(propName == null ? colName : propName, rs.getObject(i)) ;
+				}else{
+					if (propName != null) {
+						String typeName = bw.getPropertyTypeName(propName);
+						SQLDataType sqlType = getDbGroup().getDialect().getDataType(typeName);
+						Object value = sqlType.getSQLValue(rs, i);
+						
+						bw.setValue(instance, propName, value) ;
+					} else {
+						//TODO: business忽略某些结果集。在debug模式下，DebugService发出警告！
+						if(log.isDebugEnabled()){
+							log.debug("warning:ignore ResultSet column:[" + colName + "] in POJOBasedObjectMapping for business:[" + this.business.getName() + "].") ;
+						}
+					}
 				}
 			}
 		}
@@ -152,6 +170,19 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping{
 		
 		return instance ;
 	}
+	
+	protected String getPropName(String colName, BeanWrapper bw) {
+		if (bw instanceof JavaBeanWrapper) {
+			List<String> props = ((JavaBeanWrapper)bw).getAllWritabeProps();
+			for (String prop : props) {
+				if (colName.equalsIgnoreCase(prop)) {
+					return prop;
+				}
+			}
+		}
+		return null;
+	}
+	
 	
 	protected String getColDataType(String propName, String colName, String dataType){
 		if (StringUtil.isEmpty(dataType)){
