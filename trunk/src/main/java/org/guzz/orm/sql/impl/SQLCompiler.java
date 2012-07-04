@@ -79,6 +79,20 @@ public class SQLCompiler {
 		for(int i = 0 ; i < chars.length; ){
 			char c = chars[i];
 			
+			if(c == '\\' && i != chars.length - 1){
+				char nextC = chars[i + 1] ;
+
+				//转义字符
+				if(nextC == ':' || nextC == '\'' || nextC == '\\' || nextC == '"'){
+					newsb.append(nextC);
+					i+=2;
+					
+					continue ;
+				}else{
+					throw new ORMException("unknown character:[\\" + nextC + "] for sql:" + markedSQL) ;
+				}
+			}
+			
 			if(c == ':'){
 				// 去掉空格
 				i++;
@@ -159,7 +173,11 @@ public class SQLCompiler {
 		for(int i = 0 ; i < chars.length; ){
 			char c = chars[i];
 			
-			if(c == '@'){
+			if(c == '\\' && i != chars.length - 1 && chars[i + 1] == '@'){
+				//转义@符号
+				newsb.append('@');
+				i+=2;
+			}else if(c == '@'){
 				i++;
 				if (i == chars.length) {
 					throw new ORMException("Name needed after @");
