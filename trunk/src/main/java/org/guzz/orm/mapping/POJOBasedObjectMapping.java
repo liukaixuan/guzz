@@ -132,7 +132,7 @@ public final class POJOBasedObjectMapping extends AbstractObjectMapping{
 				}
 			}else if(resultClass != null){
 				//如果设置了resultClass，尽可能多的赋值给resultClass；如果某个属性resultClass不接受，直接报错！
-				//原则：指定resultClass后，resultClass不允许忽略任何结果集。
+				//原则：指定resultClass后，resultClass不允许忽略任何结果集。【这是IBatis的策略，直接借用】
 				
 				Object value = rs.getObject(i) ;
 				

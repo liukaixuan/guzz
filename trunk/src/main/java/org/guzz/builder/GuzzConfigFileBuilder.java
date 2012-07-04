@@ -492,14 +492,14 @@ public class GuzzConfigFileBuilder {
 		
 		for(int i = 0 ; i < ls.size() ; i++){
 			Element e = (Element) ls.get(i) ;
-			ResultMapBasedObjectMapping map = loadORM(null, e) ;
+			ResultMapBasedObjectMapping map = loadORM(gf, null, e) ;
 			list.addLast(map) ;
 		}
 		
 		return list ;
 	}
 	
-	protected ResultMapBasedObjectMapping loadORM(String parentDBGroup, Element ormFragment) throws IOException, ClassNotFoundException{
+	protected static ResultMapBasedObjectMapping loadORM(GuzzContext gf, String parentDBGroup, Element ormFragment) throws IOException, ClassNotFoundException{
 		/*
 		 <orm id="userObjectMap" class="org.guzz.test.UserModel">
 			<result property="id" column="pk"/>
@@ -575,7 +575,7 @@ public class GuzzConfigFileBuilder {
 		for(int i = 0 ; i < sqlMaps.size() ; i++){
 			Element e = (Element) sqlMaps.get(i) ;
 			
-			sqls.putAll(loadSQLMap(gf.getObjectMappingManager(), gf.getCompiledSQLBuilder(), e)) ;
+			sqls.putAll(loadSQLMap(gf, gf.getObjectMappingManager(), gf.getCompiledSQLBuilder(), e)) ;
 		}
 		
 		return sqls ;
@@ -586,7 +586,7 @@ public class GuzzConfigFileBuilder {
 	 * 不会保存到系统的 @link ObjectMappingManager 中，只对本sqlMap内的sql语句有效。
 	 * @return (@link Map) id~~CompiledSQL
 	 */
-	protected Map loadSQLMap(ObjectMappingManager omm, CompiledSQLBuilder compiledSQLBuilder, Element fragment) throws IOException, ClassNotFoundException{
+	public static Map loadSQLMap(GuzzContext gf, ObjectMappingManager omm, CompiledSQLBuilder compiledSQLBuilder, Element fragment) throws IOException, ClassNotFoundException{
 		/*
 		<sqlMap dbgroup="user">
 			<select id="selectUser" orm="user">
@@ -626,7 +626,7 @@ public class GuzzConfigFileBuilder {
 		
 		for(int i = 0 ; i < orms.size() ; i++){
 			Element e = (Element) orms.get(i) ;
-			ResultMapBasedObjectMapping m_orm = loadORM(m_dbgroup, e) ;
+			ResultMapBasedObjectMapping m_orm = loadORM(gf, m_dbgroup, e) ;
 			
 			String[] ids = m_orm.getUniqueName() ;
 			
