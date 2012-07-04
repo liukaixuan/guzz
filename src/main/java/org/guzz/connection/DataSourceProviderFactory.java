@@ -39,6 +39,7 @@ public abstract class DataSourceProviderFactory {
 	static{
 		systemProviders.put("c3p0", C3P0DataSourceProvider.class.getName()) ;
 		systemProviders.put("dbcp", DBCPDataSourceProvider.class.getName()) ;
+		systemProviders.put("jndi", JNDIDataSourceProvider.class.getName()) ;
 		systemProviders.put("nopool", NoPooledDataSourceProvider.class.getName()) ;
 	}
 	
