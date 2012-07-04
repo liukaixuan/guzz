@@ -64,6 +64,11 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		//insert. bug on '('
 		ms = new MarkedSQL(map, "insert into @@article(@id, @title, DESCRIPTION, @createdTime) values(:id, :title, :d, :c)") ;
 		assertEquals(sc.translateMark(null, map, ms.getOrginalSQL()), "insert into TB_ARTICLE(id, NAME, DESCRIPTION, createdTime) values(:id, :title, :d, :c)") ;		
+	
+		//sql with HH:mm:ss time string
+		ms = new MarkedSQL(map, "select * from @@article where @title=:title and @createdTime > \\@to_date('20110101 0\\:0\\:0', 'YYYYMMDD HH24\\:MI\\:SS')") ;
+		assertEquals(sc.translateMark(null, map, ms.getOrginalSQL()), "select * from TB_ARTICLE where NAME=:title and createdTime > @to_date('20110101 0\\:0\\:0', 'YYYYMMDD HH24\\:MI\\:SS')") ;	
+	
 	}
 	
 	public void testSQLCompile() throws Exception{
@@ -102,6 +107,18 @@ public class TestSQLCompiler extends DBBasedTestCase {
 		
 		assertEquals(cs.bindNoParams().getSQLToRun(), "select * from TB_TABLE where id = 1") ;
 		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 0) ;
+		
+		//sql with HH:mm:ss time string
+		cs = sc.compileNormalCS(map, "select * from @@article where @title=:title and @createdTime > \\@to_date('20110101 0\\:0\\:0', 'YYYYMMDD HH24\\:MI\\:SS')") ;
+		assertEquals(cs.bindNoParams().getSQLToRun(), "select * from TB_ARTICLE where NAME=? and createdTime > @to_date('20110101 0:0:0', 'YYYYMMDD HH24:MI:SS')") ;
+		assertEquals(cs.bindNoParams().getCompiledSQLToRun().getOrderedParams().length, 1) ;
+		
+		try{
+			cs = sc.compileNormalCS(map, "select * from @@article where @title=:title and @createdTime > \\@to_date('\\20110101 0\\:0\\:0', 'YYYYMMDD HH24\\:MI\\:SS')") ;
+			fail("should fail.") ;
+		}catch(Exception e){
+			
+		}
 	}
 	
 	public void testSpecial() throws Exception{
