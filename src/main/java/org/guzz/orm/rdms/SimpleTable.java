@@ -103,6 +103,19 @@ public class SimpleTable implements Table {
 		addColumn(pkColumn) ;
 	}
 	
+	public TableColumn getVersionColumn() {
+		return versionColumn;
+	}
+
+	public String getVersionPropName() {
+		return versionColumn.getPropName() ;
+	}
+
+	public void addVersionColumn(TableColumn versionColumn){
+		this.versionColumn = versionColumn ;
+		addColumn(versionColumn) ;
+	}
+	
 	public void addColumn(TableColumn column){
 		synchronized(lock){
 			this.columns.add(column) ;
@@ -332,6 +345,8 @@ public class SimpleTable implements Table {
 //	private String PKPropName ;
 	
 	private TableColumn pkColumn ;
+	
+	private TableColumn versionColumn ;
 	
 	private IdentifierGenerator ig ;
 	

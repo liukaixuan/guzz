@@ -25,7 +25,6 @@ import org.apache.xerces.impl.Constants;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.dom4j.Visitor;
 import org.dom4j.VisitorSupport;
 import org.dom4j.io.SAXReader;
@@ -197,6 +196,35 @@ public class HbmXMLBuilder {
 					TableColumn col = ObjectMappingUtil.createTableColumn(gf, map, name, column, type, null) ;
 
 					st.addPKColumn(col) ;
+					
+				}else if("version".equalsIgnoreCase(e.getName())){
+					//see: http://docs.jboss.org/hibernate/orm/3.3/reference/en/html/mapping.html 5.1.9. Version (optional)
+					//TODO: 增加annotation方式对version的支持
+					
+					String name = e.attributeValue("name") ;
+					String type = e.attributeValue("type") ;
+					boolean insertIt = StringUtil.toBoolean(e.attributeValue("insert"), true) ;
+					String column = null ;
+					
+					Element columnE = (Element) e.selectSingleNode("column") ;
+					if(columnE != null){
+						column = columnE.attributeValue("name") ;
+					}
+					
+					if(StringUtil.isEmpty(column)){
+						column = e.attributeValue("column") ;
+					}
+					
+					if(StringUtil.isEmpty(column)){
+						column = name ;
+					}
+					
+					props.addLast(name) ;
+					
+					TableColumn col = ObjectMappingUtil.createTableColumn(gf, map, name, column, type, null) ;
+					col.setAllowInsert(insertIt) ;
+
+					st.addVersionColumn(col) ;
 					
 				}else if("property".equalsIgnoreCase(e.getName())){
 					String name = e.attributeValue("name") ;
