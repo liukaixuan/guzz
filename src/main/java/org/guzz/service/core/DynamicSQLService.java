@@ -29,7 +29,7 @@ import org.guzz.orm.sql.CompiledSQL;
  * </p>
  * <p>
  * To solve this problem, guzz introduced {@link DynamicSQLService}, with which you can add/remove/update(tune) complicated and/or
- * performance critica sqls online without restartings; and you can also design a new architecture to retrieve data for (ajax based) show out without writing a single line of server-side code. 
+ * performance critica sqls online without restarting; you can also design some new architectures to retrieve data for (ajax based) show out without writing a single line of server-side code. 
  * </p>
  * 
  * @author liu kaixuan(liukaixuan@gmail.com)
@@ -42,8 +42,8 @@ public interface DynamicSQLService {
 	 * 
 	 * <p>
 	 * If the sql has been changed and should take effects, this method should return the new one.<br><br>
-	 * The implementor is responsible for moniting the change of sqls, 
-	 * making decisions whether it should take effects now or not, 
+	 * The implementor is responsible for moniting changes of sqls, 
+	 * making decisions whether it should take effects now or later, 
 	 * caching it for performance, and flushing cache in cluster.
 	 * </p>
 	 * 

@@ -30,6 +30,7 @@
 	
 	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
 	<service name="onlyForTest2" configName="onlyForTest2Config" dependsOn="onlyForTest" class="org.guzz.test.sample.SampleTestService2" />
+	<service name="guzzDynamicSQL" configName="guzzDynamicSQL" class="org.guzz.service.core.impl.FileDynamicSQLServiceImpl" />
 	
 	<import resource="include/part2.xml" />
 

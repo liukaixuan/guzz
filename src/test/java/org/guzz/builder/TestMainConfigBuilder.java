@@ -22,7 +22,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.dom4j.Document;
 import org.dom4j.Element;
 import org.guzz.Configuration;
 import org.guzz.GuzzContextImpl;
@@ -91,7 +90,7 @@ public class TestMainConfigBuilder extends TestCase {
 		
 		assertEquals(es.size(), 2) ;
 		
-		ResultMapBasedObjectMapping map = b.loadORM(null, (Element) es.get(0)) ;
+		ResultMapBasedObjectMapping map = GuzzConfigFileBuilder.loadORM(gf, null, (Element) es.get(0)) ;
 		assertNotNull(map) ;
 	    
 		assertEquals(map.getColNameByPropNameForSQL("id"), "pk") ;
@@ -183,7 +182,7 @@ public class TestMainConfigBuilder extends TestCase {
 		List ss = Collections.list(Collections.enumeration(b.loadServices().values())) ;
 		
 		assertNotNull(ss) ;
-		assertEquals(ss.size(),2) ;
+		assertEquals(ss.size(),3) ;
 		
 		//test load order
 		ServiceInfo s = (ServiceInfo) ss.get(0) ;

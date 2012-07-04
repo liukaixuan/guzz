@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.xerces.impl.Constants;
@@ -32,14 +31,8 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.guzz.builder.GuzzConfigFileBuilder;
 import org.guzz.exception.GuzzException;
-import org.guzz.orm.ObjectMapping;
-import org.guzz.orm.mapping.ObjectMappingUtil;
-import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
-import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.service.ServiceConfig;
-import org.guzz.util.Assert;
-import org.guzz.util.ClassUtil;
 import org.guzz.util.CloseUtil;
 import org.guzz.util.StringUtil;
 
@@ -67,23 +60,7 @@ import org.guzz.util.StringUtil;
  *	&lt;/orm&gt;
  * &lt;/sqlMap&gt;<pre>
  * 
- * Here, we also use paramsMapping to indicate that parameter "paramId" in the sql is used for property "id", 
- * so guzz should convert the value of paramId to the class type of property "id".
- * 
- * <b>OR, you want to map the result into a Map:</b>
- * <pre>
- * &lt;sqlMap&gt;
- *	&lt;select orm="user" result-class="java.util.HashMap" &gt;
- *		select * from @@user
- *		 where 
- *		 	&#64;id = :id 
- *	&lt;/select&gt;
- * &lt;/sqlMap&gt;<pre>
- * 
- * This means: Query the sql, set up relationships between column names and property names with business "user"'s mapping(hbm.xml or annotations), and then put the result to a HashMap.
- * 
- * The "orm" attribute can be a business name, a global orm defined in guzz.xml, or a local orm in this file.<br>
- * The 'result-class' attribute can be a wildcard fully qualified javabean or java.util.Map class name. If the result-class if specified, The ResultSet will be mapped to this class.
+ * Check &ltsqlMap&gt in guzz.xml for details.
  * <br>
  * 
  * @author liu kaixuan(liukaixuan@gmail.com)
@@ -202,122 +179,18 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 	/**
 	 * 加载配置的sql语句。sql语句加载时自动和ObjectMapping进行关联。其中在<sqlMap></sqlMap>内定义的orm只在本sqlMap有效，
 	 * 不会保存到系统的 @link ObjectMappingManager 中，只对本sqlMap内的sql语句有效。
-	 * @return (@link Map) id~~CompiledSQL
 	 */
 	protected CompiledSQL loadCompiledSQL(String id, Element root) throws IOException, ClassNotFoundException{
-		if(!"sqlMap".equals(root.getName())){
-			throw new GuzzException("xml document should be in <sqlMap></sqlMap>") ;
+		Map css = GuzzConfigFileBuilder.loadSQLMap(this.guzzContext, this.guzzContext.getObjectMappingManager() , compiledSQLBuilder, root) ;
+		
+		if(css.isEmpty()){
+			throw new GuzzException("no sql found for id:" + id) ;
+		}else if(css.size() > 1){
+			throw new GuzzException("Only one sql is allowed in xml:[" + this.getSqlFile(id) + "] for id:" + id) ;
+		}else{
+			return (CompiledSQL) css.values().iterator().next() ;
 		}
-		
-		String m_dbgroup = root.attributeValue("dbgroup") ;
-		
-		//select可以接收@xxx的orm，update不允许接收。必须分开。
-		Element s_node = (Element) root.selectSingleNode("//sqlMap/select") ;
-		if(s_node != null){
-			String ormName = s_node.attributeValue("orm") ;
-			String resultClass = s_node.attributeValue("result-class") ;
-			String sql = s_node.getTextTrim() ;
-			sql = StringUtil.replaceString(sql, "\r\n", " ") ;
-			sql = StringUtil.replaceString(sql, "\n", " ") ;
-			
-			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
-			CompiledSQL cs = null ;
-			
-			ObjectMapping localORM = this.loadORM(root, ormName, m_dbgroup) ;
-			if(localORM != null){
-				cs = compiledSQLBuilder.buildCompiledSQL(localORM, sql) ;
-			}else{
-				cs = compiledSQLBuilder.buildCompiledSQL(ormName, sql) ;
-			}
-			
-			if(beanCls != null){
-				cs.setResultClass(beanCls) ;
-			}
-			
-			//Register parameters' types.
-			GuzzConfigFileBuilder.loadParamPropsMapping(cs, (Element) s_node.selectSingleNode("paramsMapping")) ;
-			
-			return cs ;
-		}
-		
-		Element u_node = (Element) root.selectSingleNode("//sqlMap/update") ;
-		if(u_node != null){
-			String m_orm = u_node.attributeValue("orm") ;
-			String sql = u_node.getTextTrim() ;
-			sql = StringUtil.replaceString(sql, "\r\n", " ") ;
-			sql = StringUtil.replaceString(sql, "\n", " ") ;
-			
-			//首先提取本sqlmap内的orm信息，这些orm优先于global orm定义。
-			ObjectMapping localORM = this.loadORM(root, m_orm, m_dbgroup) ;
-			CompiledSQL cs = null ;
-			
-			if(localORM != null){
-				cs = compiledSQLBuilder.buildCompiledSQL(localORM, sql) ;
-			}else{
-				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, sql) ;
-			}
-			
-			//Register parameters' types.
-			GuzzConfigFileBuilder.loadParamPropsMapping(cs, (Element) u_node.selectSingleNode("paramsMapping")) ;
-			
-			return cs ;
-		}
-		
-		throw new GuzzException("no sql found for id:[" + id + "]") ;
 	}
-	
-	protected ResultMapBasedObjectMapping loadORM(Element root, String ormId, String parentDbGroup) throws IOException, ClassNotFoundException{
-		List ormFragments = root.selectNodes("orm") ;
-		if(ormFragments.isEmpty()) return null ;
-		
-		for(int i = 0 ; i < ormFragments.size() ; i++){
-			Element ormFragment = (Element) ormFragments.get(0) ;
-			
-			String m_id = ormFragment.attributeValue("id") ;
-			Assert.assertNotEmpty(m_id, "invalid id. xml is:" + ormFragment.asXML()) ;
-			
-			if(!ormId.equals(m_id)) continue ;
-			
-			String m_class = ormFragment.attributeValue("class") ;
-			String m_dbgroup = ormFragment.attributeValue("dbgroup") ;
-			String shadow = ormFragment.attributeValue("shadow") ;
-			String table = ormFragment.attributeValue("table") ;
-			
-			if(StringUtil.isEmpty(m_dbgroup)){
-				m_dbgroup = parentDbGroup ;
-			}
-			
-			ResultMapBasedObjectMapping map =  ObjectMappingUtil.createResultMapping(this.guzzContext, m_id, Class.forName(m_class), m_dbgroup, shadow, table) ;
-			
-			List results = ormFragment.selectNodes("result") ;
-			
-			for(int k = 0 ; k < results.size() ; k++){
-				Element e = (Element) results.get(k) ;
-				
-				String loader = e.attributeValue("loader") ;
-				String property = e.attributeValue("property") ;
-				String column = e.attributeValue("column") ;
-				String nullValue = e.attributeValue("null") ;
-				String type = e.attributeValue("type") ;
-				
-				Assert.assertNotEmpty(property, "invalid property. xml is:" + e.asXML()) ;		
-				
-				if(StringUtil.isEmpty(column)){
-					column = property ;
-				}
-				
-				TableColumn col = ObjectMappingUtil.createTableColumn(this.guzzContext, map, property, column, type, loader) ;
-				col.setNullValue(nullValue) ;
-				
-				ObjectMappingUtil.addTableColumn(map, col) ;
-			}
-		
-			return map ;
-		}
-		
-		return null ;
-	}
-	
 	
 	public boolean overrideSqlInGuzzXML() {
 		return overrideSqlInGuzzXML ;
