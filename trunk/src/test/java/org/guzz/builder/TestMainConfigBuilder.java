@@ -189,7 +189,7 @@ public class TestMainConfigBuilder extends TestCase {
 		assertEquals(s.getServiceName(), "onlyForTest") ;
 		assertEquals(s.getConfigName(), "onlyForTestConfig") ;
 		
-		s = (ServiceInfo) ss.get(1) ;
+		s = (ServiceInfo) ss.get(2) ;
 		assertEquals(s.getServiceName(), "onlyForTest2") ;
 		assertEquals(s.getConfigName(), "onlyForTest2Config") ;
 		

@@ -277,9 +277,12 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 		String primaryKey = table.getPKColumn().getColNameForSQL() ;
 		String primaryProp = table.getPKPropName() ;
 		if(StringUtil.isEmpty(primaryProp)){
-			throw new GuzzException("business domain must has a primary key. table:" + table.getConfigTableName()) ;
+			throw new GuzzException("business domain must have a primary key. table:" + table.getConfigTableName()) ;
 		}
 		
+		String versionColName = table.getVersionColumn() == null ? null : table.getVersionColumn().getColNameForSQL() ;
+		String versionProp = table.getVersionColumn() == null ? null : table.getVersionColumn().getPropName();
+
 		StringBuffer sb = new StringBuffer() ;
 		HashMap paramPropMapping = new HashMap() ;
 		
@@ -300,14 +303,26 @@ public class CompiledSQLManagerImpl implements CompiledSQLManager {
 			}
 			
 			String propName = columns[i].getPropName() ;
-			sb.append(columns[i].getColNameForSQL()).append("=:").append(propName) ;
-			paramPropMapping.put(propName, propName) ;
+			if (versionColName != null && propName.equals(versionProp)) {
+				sb.append(versionColName + " = " + versionColName + " + 1");
+			} else {
+				sb.append(columns[i].getColNameForSQL()).append("=:").append(propName) ;
+				paramPropMapping.put(propName, propName) ;
+			}
 		}
 		
 		sb.append(" where ")
 		  .append(primaryKey)
 		  .append("=:")
-		  .append(primaryProp) ;		
+		  .append(primaryProp) ;
+		
+		if(versionColName != null) {
+			sb.append(" and ").append(versionColName)
+			  .append("=:")
+			  .append(versionProp) ;
+			
+			paramPropMapping.put(versionProp, versionProp) ;			
+		}
 		
 		NormalCompiledSQL cs = (NormalCompiledSQL) compiledSQLBuilder.buildCompiledSQL(mapping, sb.toString()).setParamPropMapping(paramPropMapping) ;
 		cs.addParamPropMapping(primaryProp, primaryProp) ;

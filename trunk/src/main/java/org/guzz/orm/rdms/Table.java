@@ -55,6 +55,8 @@ public interface Table {
 //	
 //	public String getPKPropName() ;
 	
+	public TableColumn getVersionColumn() ;
+	
 	public IdentifierGenerator getIdentifierGenerator() ;	
 
 	public TableColumn[] getColumnsForInsert() ;
