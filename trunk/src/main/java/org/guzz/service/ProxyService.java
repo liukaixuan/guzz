@@ -42,7 +42,10 @@ public abstract class ProxyService implements Service{
 	 */
 	public abstract Service getServiceImpl() ;
 	
-	public abstract void setServiceImpl(Service service) ;
+	/**
+	 * return the replaced old service.
+	 */
+	public abstract Object setServiceImpl(Service service) ;
 
 	public boolean configure(ServiceConfig[] scs) {
 		return getServiceImpl().configure(scs) ;

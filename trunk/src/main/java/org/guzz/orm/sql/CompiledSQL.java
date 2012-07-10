@@ -42,7 +42,7 @@ public abstract class CompiledSQL {
 	
 	protected Map paramTypes = null ;
 	
-	private Class resultClass ;
+	protected Class resultClass ;
 	
 	/**
 	 * Register the dataType for a sql param.

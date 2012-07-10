@@ -24,9 +24,7 @@ import org.guzz.orm.rdms.Table;
 
 /**
  * 
- * 编译好的sql语句。包括可以直接在数据库执行的sql语句，sql执行参数（参数值可以替换），以及ORM信息。
- * 
- * <br><br>一般来说，所有的sql都需要转换成CompliedSQL，然后绑定参数后进行实际的执行操作。
+ * sql语句，根据pojo属性设置情况，动态生成的CompiledSQL
  * 
  * @see BindedCompiledSQL
  * @author liukaixuan(liukaixuan@gmail.com)

@@ -89,14 +89,19 @@ public class ServiceManagerImpl implements ServiceManager {
 		}
 		
 		if(oldService != null && oldService instanceof ProxyService && !(service instanceof ProxyService)){
-			((ProxyService) oldService).setServiceImpl(service) ;
+			Object oldImp = ((ProxyService) oldService).setServiceImpl(service) ;
+			if(oldImp instanceof Service){
+				((Service) oldImp).shutdown() ;
+			}else{
+				log.info("unable to shutdown the old implementation of service:[" + serviceName + "]. The service's old implementation is:" + oldImp) ;
+			}
 		}else{
 			services.put(serviceName, service) ;
 		}
 	}
 
 	public void shutdown() {
-		//TODO: services are started in sequence, so shutdown them in order too.
+		//TODO: services are started in sequences, so shut them down in the reversed order.
 		Iterator i = services.values().iterator() ;
 		
 		while(i.hasNext()){

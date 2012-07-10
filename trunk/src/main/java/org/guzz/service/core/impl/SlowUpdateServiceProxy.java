@@ -40,8 +40,11 @@ public class SlowUpdateServiceProxy extends ProxyService implements SlowUpdateSe
 		return (Service) slowUpdateService ;
 	}
 
-	public void setServiceImpl(Service service) {
+	public Object setServiceImpl(Service service) {
+		Object oldService = this.slowUpdateService ;		
 		this.slowUpdateService = (SlowUpdateService) service ;
+		
+		return oldService ;
 	}
 
 	public void updateCount(String dbGroup, String tableName, String columnToUpdate, String pkColName, Serializable pkValue, int countToInc) {

@@ -38,13 +38,13 @@ public interface ReadonlyTranSession extends TranSession{
 	 * 
 	 * query without pagination.
 	 * 
-	 * @param id
+	 * @param id the id of the sql defined in the guzz.xml
 	 * @param params
 	 **/
 	public List list(String id, Map params) ;
 	
 	/**
-	 * @param id
+	 * @param id the id of the sql defined in the guzz.xml
 	 * @param params
 	 * @param startPos the first is 1, the second is 2...
 	 * @param maxSize

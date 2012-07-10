@@ -54,6 +54,7 @@ public interface Service {
 		public final String GUZZ_DEBUG = "guzzDebug" ;
 		public final String SLOW_UPDATE = "guzzSlowUpdate" ;
 		public final String DYNAMIC_SQL = "guzzDynamicSQL" ;
+		public final String TEMPLATED_SQL = "guzzTemplatedSQL" ;
 	}
 	
 	/**

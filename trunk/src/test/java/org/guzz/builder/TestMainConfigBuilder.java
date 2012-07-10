@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.dom4j.Element;
 import org.guzz.Configuration;
 import org.guzz.GuzzContextImpl;
+import org.guzz.Service;
 import org.guzz.config.ConfigServer;
 import org.guzz.connection.DBGroup;
 import org.guzz.connection.PhysicsDBGroup;
@@ -37,6 +38,7 @@ import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.ServiceInfo;
+import org.guzz.service.core.TemplatedSQLService;
 import org.guzz.test.sample.SampleTestService;
 import org.guzz.test.sample.SampleTestService2;
 import org.guzz.util.CloseUtil;
@@ -113,9 +115,9 @@ public class TestMainConfigBuilder extends TestCase {
 		List maps = b.listGlobalORMs() ;
 		for(int i = 0 ; i < maps.size() ; i++){
 			gf.getObjectMappingManager().registerObjectMapping((ObjectMapping) maps.get(i)) ;
-		}		
+		}
 		
-		Map sqls = b.listConfiguedCompiledSQLs() ;
+		Map sqls = b.listConfiguedCompiledSQLs((TemplatedSQLService) gf.getService(Service.FAMOUSE_SERVICE.TEMPLATED_SQL)) ;
 		assertEquals(sqls.size(), 8) ;
 		
 		CompiledSQL cs = (CompiledSQL) sqls.get("selectUsers") ;
@@ -182,14 +184,14 @@ public class TestMainConfigBuilder extends TestCase {
 		List ss = Collections.list(Collections.enumeration(b.loadServices().values())) ;
 		
 		assertNotNull(ss) ;
-		assertEquals(ss.size(),3) ;
+		assertEquals(ss.size(),4) ;
 		
 		//test load order
 		ServiceInfo s = (ServiceInfo) ss.get(0) ;
 		assertEquals(s.getServiceName(), "onlyForTest") ;
 		assertEquals(s.getConfigName(), "onlyForTestConfig") ;
 		
-		s = (ServiceInfo) ss.get(2) ;
+		s = (ServiceInfo) ss.get(3) ;
 		assertEquals(s.getServiceName(), "onlyForTest2") ;
 		assertEquals(s.getConfigName(), "onlyForTest2Config") ;
 		

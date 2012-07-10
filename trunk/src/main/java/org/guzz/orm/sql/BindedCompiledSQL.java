@@ -273,6 +273,18 @@ public abstract class BindedCompiledSQL {
 	public BindedCompiledSQL setResultClass(Class resultClass) {
 		this.resultClass = resultClass;
 		return this ;
+	}	
+	
+	protected BindedCompiledSQL copyUserSettingsFrom(BindedCompiledSQL bsql){
+		this.bindedParams = bsql.bindedParams ;
+		this.rowDataLoader = bsql.rowDataLoader ;
+		this.exceptionOnNoRecordFound = bsql.exceptionOnNoRecordFound ;
+		this.bindStartIndex = bsql.bindStartIndex ;
+		this.lockMode = bsql.lockMode ;
+		this.tableCondition = bsql.tableCondition ;
+		this.resultClass = bsql.resultClass ;
+		
+		return this ;
 	}
 
 }

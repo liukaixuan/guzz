@@ -19,7 +19,6 @@ package org.guzz.service;
 import java.io.Serializable;
 
 import org.guzz.util.StringUtil;
-import org.guzz.util.ViewFormat;
 
 /**
  * 

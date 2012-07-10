@@ -49,6 +49,16 @@ public class TestDynamicSQL extends DBBasedTestCase {
 		assertEquals(group.get("M_COUNT"), 499L) ;
 		assertEquals(group.get("vip"), true) ;
 		
+		//isVip为false查询所有
+		params.put("isVip", false) ;
+		result = session.list("9a3f8376-beb9-437b-8928-290eb0ba4420", params) ;
+		assertEquals(result.size(), 1) ;
+		
+		group = (Map) result.get(0) ;
+
+		assertEquals(group.size(), 1) ;				
+		assertEquals(group.get("M_COUNT"), 999L) ;		
+		
 		session.close() ;
 	}
 

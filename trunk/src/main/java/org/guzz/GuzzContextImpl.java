@@ -67,6 +67,7 @@ import org.guzz.service.core.impl.MultiMachinesDatabaseServiceImpl;
 import org.guzz.service.core.impl.SingleMachineDatabaseServiceImpl;
 import org.guzz.service.core.impl.SlowUpdateServiceImpl;
 import org.guzz.service.core.impl.SlowUpdateServiceProxy;
+import org.guzz.service.core.impl.TemplatedSQLServiceProxy;
 import org.guzz.service.impl.ServiceManagerFactory;
 import org.guzz.service.impl.ServiceManagerImpl;
 import org.guzz.transaction.DefaultTranSessionLocatorImpl;
@@ -129,7 +130,6 @@ public class GuzzContextImpl implements GuzzContext{
 	private boolean fullStarted ;
 	
 	protected GuzzContextImpl(){
-		init() ;
 	}
 	
 	/**
@@ -137,6 +137,20 @@ public class GuzzContextImpl implements GuzzContext{
 	 * @throws Exception 
 	 */
 	protected void initFromMainConfig(Resource config) throws Exception{
+		//初始化顺序：加载xml文件，构造数据类型，连接ConfigServer读取配置，初始化Service，初始化事务管理。
+		
+		//TODO: read this from config file.
+		this.proxyFactory = new CglibProxyFactory() ;
+		objectMappingManager = new ObjectMappingManager() ;
+		businessInterpreterManager = new BusinessInterpreterManager(this) ;
+		dbGroupManager = new DBGroupManager() ;
+		
+		//初始化proxied TemplatedSQLService
+		TemplatedSQLServiceProxy templatedSQLService = new TemplatedSQLServiceProxy() ;	
+		compiledSQLBuilder = new CompiledSQLBuilderImpl(this, objectMappingManager, templatedSQLService) ;		
+		compiledSQLManager = new CompiledSQLManagerImpl(compiledSQLBuilder) ;
+		
+		
 		GuzzConfigFileBuilder builder = GuzzConfigFileBuilder.build(this, config, "UTF-8") ;
 		if(log.isInfoEnabled()){
 			log.info("Loading guzz config file:" + config) ;
@@ -199,7 +213,7 @@ public class GuzzContextImpl implements GuzzContext{
 		}		
 		
 		//4. 加载配置的sql语句
-		Map predefinedSQLs = builder.listConfiguedCompiledSQLs() ;
+		Map predefinedSQLs = builder.listConfiguedCompiledSQLs(templatedSQLService) ;
 		Iterator entries = predefinedSQLs.entrySet().iterator() ;
 		
 		while(entries.hasNext()){
@@ -223,6 +237,7 @@ public class GuzzContextImpl implements GuzzContext{
 		this.dynamicSQLService = (DynamicSQLService) ServiceManagerImpl.createNewService(this, configServer, new ServiceInfo(Service.FAMOUSE_SERVICE.DYNAMIC_SQL, "guzzDynamicSQL", DynamicSQLServiceProxy.class)) ;
 		compiledSQLManager.setDynamicSQLService(dynamicSQLService) ;
 		serviceManager.registerService((Service) dynamicSQLService) ;
+		serviceManager.registerService(templatedSQLService) ;
 		
 		//7. 启动事务
 		if(log.isInfoEnabled()){
@@ -389,17 +404,6 @@ public class GuzzContextImpl implements GuzzContext{
 		
 		ghosts.put(b.getDomainClass().getName(), b) ;
 		ghosts.put(b.getName(), b) ;
-	}
-	
-	protected void init(){
-		//初始化顺序：加载xml文件，构造数据类型，连接ConfigServer读取配置，初始化Service，初始化事务管理。
-		this.proxyFactory = new CglibProxyFactory() ;//TODO: read this from config file.
-		objectMappingManager = new ObjectMappingManager() ;
-		businessInterpreterManager = new BusinessInterpreterManager(this) ;
-		dbGroupManager = new DBGroupManager() ;
-		compiledSQLBuilder = new CompiledSQLBuilderImpl(this, objectMappingManager) ;
-		
-		compiledSQLManager = new CompiledSQLManagerImpl(compiledSQLBuilder) ;
 	}
 	
 	public void registerVirtualDBView(VirtualDBView view){
