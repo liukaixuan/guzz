@@ -29,21 +29,23 @@ import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
 public interface CompiledSQLBuilder {
 	
 	public DBGroup getDBGroup(String businessName) ;
-	
 	public DBGroup getDBGroup(Class domainClass) ;
-		
-	public NormalCompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) ;
 	
-	public NormalCompiledSQL buildCompiledSQL(MarkedSQL sql) ;
-	
-	
+
 	/**获得compiledSQL，如果没有则新建一个。*/
-	public CompiledSQL buildCompiledSQL(String businessName, String markedSQL) ;
-	
+	public CompiledSQL buildCompiledSQL(String businessName, String markedSQL) ;	
 	public CompiledSQL buildCompiledSQL(Class domainClass, String markedSQL) ;
 	
-	public CustomCompiledSQL buildCustomCompiledSQL(String businessName, DynamicSQLProvider sqlProvider) ;
 	
+	public NormalCompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) ;	
+	public NormalCompiledSQL buildCompiledSQL(MarkedSQL sql) ;
+	
+		
+	public TemplatedCompiledSQL buildTemplatedCompiledSQL(ObjectMapping mapping, String markedSQL) ;	
+	public TemplatedCompiledSQL buildTemplatedCompiledSQL(String businessName, String markedSQL) ;	
+	
+	
+	public CustomCompiledSQL buildCustomCompiledSQL(String businessName, DynamicSQLProvider sqlProvider) ;	
 	public CustomCompiledSQL buildCustomCompiledSQL(Class domainClass, DynamicSQLProvider sqlProvider) ;
 			
 }

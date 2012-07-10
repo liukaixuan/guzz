@@ -1,10 +1,21 @@
 <!-- xxxx -->
 <sqlMap dbgroup="default">
-	<select orm="user" result-class="java.util.HashMap">
+	<select orm="user" result-class="java.util.HashMap" templated="true">
 		<paramsMapping>
 			<map paramName="vip" propName="vip" />
 			<map paramName="isVip" type="boolean" />
 		</paramsMapping>
-	  select count(*) as m_count, @vip from @@user group by @vip having @vip=:isVip
+	  select count(*) as m_count
+	  	#if(${isVip}) , @vip #end 
+	  	from @@user
+	  
+	  #notEmpty($nothingAtAll) test tag  #end
+	  
+	  #if(${isVip})
+	  
+	   group by @vip having @vip=:isVip
+	  
+	  #end 
+	   
 	</select>
 </sqlMap>

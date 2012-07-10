@@ -51,8 +51,10 @@ import org.guzz.orm.mapping.ResultMapBasedObjectMapping;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
+import org.guzz.orm.sql.TemplatedCompiledSQL;
 import org.guzz.orm.type.SQLDataType;
 import org.guzz.service.ServiceInfo;
+import org.guzz.service.core.TemplatedSQLService;
 import org.guzz.transaction.DefaultTranSessionLocatorImpl;
 import org.guzz.transaction.SpringTranSessionLocatorImpl;
 import org.guzz.transaction.TranSessionLocator;
@@ -558,7 +560,7 @@ public class GuzzConfigFileBuilder {
 	/**
 	 * @return (@link Map) id~~CompiledSQL
 	 */
-	public Map listConfiguedCompiledSQLs() throws IOException, ClassNotFoundException{
+	public Map listConfiguedCompiledSQLs(TemplatedSQLService templatedSQLService) throws IOException, ClassNotFoundException{
 		/*
 		<sqlMap>
 			....
@@ -575,7 +577,7 @@ public class GuzzConfigFileBuilder {
 		for(int i = 0 ; i < sqlMaps.size() ; i++){
 			Element e = (Element) sqlMaps.get(i) ;
 			
-			sqls.putAll(loadSQLMap(gf, gf.getObjectMappingManager(), gf.getCompiledSQLBuilder(), e)) ;
+			sqls.putAll(loadSQLMap(gf, templatedSQLService, gf.getObjectMappingManager(), gf.getCompiledSQLBuilder(), e, true)) ;
 		}
 		
 		return sqls ;
@@ -586,7 +588,7 @@ public class GuzzConfigFileBuilder {
 	 * 不会保存到系统的 @link ObjectMappingManager 中，只对本sqlMap内的sql语句有效。
 	 * @return (@link Map) id~~CompiledSQL
 	 */
-	public static Map loadSQLMap(GuzzContext gf, ObjectMappingManager omm, CompiledSQLBuilder compiledSQLBuilder, Element fragment) throws IOException, ClassNotFoundException{
+	public static Map loadSQLMap(GuzzContext gf, TemplatedSQLService templatedSQLService, ObjectMappingManager omm, CompiledSQLBuilder compiledSQLBuilder, Element fragment, boolean registerIdToTemplatedService) throws IOException, ClassNotFoundException{
 		/*
 		<sqlMap dbgroup="user">
 			<select id="selectUser" orm="user">
@@ -615,7 +617,7 @@ public class GuzzConfigFileBuilder {
 		 */
 		
 		if(!"sqlMap".equals(fragment.getName())){
-			throw new GuzzException("xml document should be in <sqlMap></sqlMap>") ;
+			throw new GuzzException("xml fragment should be insided in <sqlMap></sqlMap>") ;
 		}
 
 		String m_dbgroup = fragment.attributeValue("dbgroup") ;	
@@ -644,18 +646,39 @@ public class GuzzConfigFileBuilder {
 			String m_id = s_node.attributeValue("id") ;
 			String m_orm = s_node.attributeValue("orm") ;
 			String resultClass = s_node.attributeValue("result-class") ;
+			boolean templated = "true".equalsIgnoreCase(s_node.attributeValue("templated")) ;
 			String value = s_node.getTextTrim() ;
 			value = StringUtil.replaceString(value, "\r\n", " ") ;
 			value = StringUtil.replaceString(value, "\n", " ") ;
+			
+			if(registerIdToTemplatedService && m_id == null){
+				throw new InvalidConfigurationException("attribute id is required! xml:" + s_node.asXML()) ;
+			}
 			
 			Class beanCls = StringUtil.notEmpty(resultClass) ? ClassUtil.getClass(resultClass) : null ;
 			CompiledSQL cs = null ;
 			
 			ObjectMapping localORM = (ObjectMapping) local_orms.get(m_orm) ;
 			if(localORM != null){
-				cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
+				if(templated){
+					if(registerIdToTemplatedService){
+						cs = TemplatedCompiledSQL.buildAndRegisterById(templatedSQLService, localORM, m_id, value) ;
+					}else{
+						cs = TemplatedCompiledSQL.buildBySql(templatedSQLService, localORM, value) ;
+					}
+				}else{
+					cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
+				}
 			}else{
-				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+				if(templated){
+					if(registerIdToTemplatedService){
+						cs = TemplatedCompiledSQL.buildAndRegisterById(templatedSQLService, m_orm, m_id, value) ;
+					}else{
+						cs = TemplatedCompiledSQL.buildBySql(templatedSQLService, m_orm, value) ;
+					}
+				}else{
+					cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+				}
 			}
 			
 			if(beanCls != null){
@@ -673,6 +696,7 @@ public class GuzzConfigFileBuilder {
 			Element s_node = (Element) update_nodes.get(i) ;
 			String m_id = s_node.attributeValue("id") ;
 			String m_orm = s_node.attributeValue("orm") ;
+			boolean templated = "true".equalsIgnoreCase(s_node.attributeValue("templated")) ;
 			String value = s_node.getTextTrim() ;
 			value = StringUtil.replaceString(value, "\r\n", " ") ;
 			value = StringUtil.replaceString(value, "\n", " ") ;
@@ -681,9 +705,17 @@ public class GuzzConfigFileBuilder {
 			CompiledSQL cs = null ;
 			
 			if(localORM != null){
-				cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
+				if(templated){
+					cs = compiledSQLBuilder.buildTemplatedCompiledSQL(localORM, value) ;
+				}else{
+					cs = compiledSQLBuilder.buildCompiledSQL(localORM, value) ;
+				}
 			}else{
-				cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+				if(templated){
+					cs = compiledSQLBuilder.buildTemplatedCompiledSQL(m_orm, value) ;
+				}else{
+					cs = compiledSQLBuilder.buildCompiledSQL(m_orm, value) ;
+				}
 			}
 			
 			//Register parameters' types.

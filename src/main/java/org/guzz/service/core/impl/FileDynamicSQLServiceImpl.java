@@ -181,7 +181,7 @@ public class FileDynamicSQLServiceImpl extends AbstractDynamicSQLService {
 	 * 不会保存到系统的 @link ObjectMappingManager 中，只对本sqlMap内的sql语句有效。
 	 */
 	protected CompiledSQL loadCompiledSQL(String id, Element root) throws IOException, ClassNotFoundException{
-		Map css = GuzzConfigFileBuilder.loadSQLMap(this.guzzContext, this.guzzContext.getObjectMappingManager() , compiledSQLBuilder, root) ;
+		Map css = GuzzConfigFileBuilder.loadSQLMap(this.guzzContext, templatedSQLService, this.guzzContext.getObjectMappingManager() , compiledSQLBuilder, root, false) ;
 		
 		if(css.isEmpty()){
 			throw new GuzzException("no sql found for id:" + id) ;

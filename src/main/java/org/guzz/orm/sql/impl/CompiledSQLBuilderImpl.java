@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2008-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,11 @@ import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.orm.sql.CustomCompiledSQL;
+import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
 import org.guzz.orm.sql.MarkedSQL;
 import org.guzz.orm.sql.NormalCompiledSQL;
-import org.guzz.orm.sql.CustomCompiledSQL.DynamicSQLProvider;
+import org.guzz.orm.sql.TemplatedCompiledSQL;
+import org.guzz.service.core.TemplatedSQLService;
 
 /**
  * 
@@ -41,11 +43,14 @@ public class CompiledSQLBuilderImpl implements CompiledSQLBuilder {
 	
 	protected final ObjectMappingManager omm ;
 	
+	private TemplatedSQLService templatedSqlService; 
+	
 	protected final SQLCompiler sc ;
 	
-	public CompiledSQLBuilderImpl(GuzzContextImpl guzzContext, ObjectMappingManager omm){
+	public CompiledSQLBuilderImpl(GuzzContextImpl guzzContext, ObjectMappingManager omm, TemplatedSQLService templatedSqlService){
 		this.guzzContext = guzzContext ;
 		this.omm = omm ;
+		this.templatedSqlService = templatedSqlService ;
 		this.sc = new SQLCompiler(omm, this) ;
 	}
 	
@@ -64,8 +69,6 @@ public class CompiledSQLBuilderImpl implements CompiledSQLBuilder {
 	}
 
 	public NormalCompiledSQL buildCompiledSQL(ObjectMapping mapping, String markedSQL) {
-		//TODO: add CompiledSQL cache here?
-		
 		return sc.compileNormalCS(mapping, markedSQL) ;
 	}
 
@@ -87,6 +90,14 @@ public class CompiledSQLBuilderImpl implements CompiledSQLBuilder {
 
 	public CustomCompiledSQL buildCustomCompiledSQL(Class domainClass, DynamicSQLProvider sqlProvider) {
 		return sc.compileCustom(domainClass.getName(), sqlProvider) ;
+	}
+
+	public TemplatedCompiledSQL buildTemplatedCompiledSQL(ObjectMapping mapping, String markedSQL) {
+		return TemplatedCompiledSQL.buildBySql(templatedSqlService, mapping, markedSQL) ;
+	}
+	
+	public TemplatedCompiledSQL buildTemplatedCompiledSQL(String businessName, String markedSQL) {
+		return TemplatedCompiledSQL.buildBySql(templatedSqlService, businessName, markedSQL) ;
 	}
 
 }

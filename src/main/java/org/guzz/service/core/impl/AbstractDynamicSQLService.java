@@ -17,9 +17,11 @@
 package org.guzz.service.core.impl;
 
 import org.guzz.GuzzContext;
+import org.guzz.Service;
 import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.service.AbstractService;
 import org.guzz.service.core.DynamicSQLService;
+import org.guzz.service.core.TemplatedSQLService;
 import org.guzz.web.context.GuzzContextAware;
 
 /**
@@ -30,11 +32,16 @@ import org.guzz.web.context.GuzzContextAware;
  */
 public abstract class AbstractDynamicSQLService extends AbstractService implements DynamicSQLService, GuzzContextAware {
 	protected GuzzContext guzzContext ;
+	
 	protected CompiledSQLBuilder compiledSQLBuilder ;
+	
+	protected TemplatedSQLService templatedSQLService ;
 
 	public void setGuzzContext(GuzzContext guzzContext) {
 		this.guzzContext = guzzContext ;
 		this.compiledSQLBuilder = guzzContext.getTransactionManager().getCompiledSQLBuilder() ;
+		
+		this.templatedSQLService = (TemplatedSQLService) guzzContext.getService(Service.FAMOUSE_SERVICE.TEMPLATED_SQL) ;
 	}
 
 }

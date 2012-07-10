@@ -31,6 +31,7 @@
 	<service name="onlyForTest2" configName="onlyForTest2Config" dependsOn="onlyForTest" class="org.guzz.test.sample.SampleTestService2" />
 	<service name="onlyForTest" configName="onlyForTestConfig" class="org.guzz.test.sample.SampleTestService" />
 	<service name="guzzDynamicSQL" configName="guzzDynamicSQL" class="org.guzz.service.core.impl.FileDynamicSQLServiceImpl" />
+	<service name="guzzTemplatedSQL" class="org.guzz.service.core.impl.VelocityTemplatedSQLService" />
 	
 	<import resource="include/part2.xml" />
 
@@ -77,8 +78,12 @@
 			select @id, @name, @vip, @favCount from @@user
 		</select>
 		
-		<select id="listCommentsByName" orm="commentMap">
-			select * from @@commentMap where @userName = :userName
+		<select id="listCommentsByName" orm="commentMap" templated="true">
+			select * from @@commentMap
+			
+			#notEmpty($userName)
+			 	where @userName = :userName
+			#end
 			
 			<paramsMapping>
 				<map paramName="userName" propName="userName" />
@@ -101,8 +106,8 @@
 	</sqlMap>
 	
 	<sqlMap dbgroup="cargoDB">
-		<select id="selectCrossSize" orm="cargo" result-class="org.guzz.orm.rdms.MyCrossStitch">
-			select name, price, gridNum, size, brand from @@cargo where id > :id
+		<select id="selectCrossSize" orm="cargo" result-class="org.guzz.orm.rdms.MyCrossStitch" templated="true">
+			select name, price, gridNum, size, brand from @@cargo where id > ${id}
 		</select>
 	</sqlMap>
 

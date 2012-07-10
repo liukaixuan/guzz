@@ -42,8 +42,11 @@ public class DynamicSQLServiceProxy extends ProxyService implements DynamicSQLSe
 		return dynamicSQLServiceImpl.overrideSqlInGuzzXML() ;
 	}
 	
-	public void setServiceImpl(Service service){
+	public Object setServiceImpl(Service service){
+		Object old = this.dynamicSQLServiceImpl ;
 		this.dynamicSQLServiceImpl = (DynamicSQLService) service ;
+		
+		return old ;
 	}
 
 	public Service getServiceImpl() {

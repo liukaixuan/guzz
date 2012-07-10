@@ -79,8 +79,11 @@ public class DebugServiceProxy extends ProxyService implements DebugService {
 		debugServiceImpl.onErrorProcess(msg, e) ;
 	}
 	
-	public void setServiceImpl(Service service){
+	public Object setServiceImpl(Service service){
+		Object old = this.debugServiceImpl ;
 		this.debugServiceImpl = (DebugService) service ;
+		
+		return old ;
 	}
 
 	public Service getServiceImpl() {

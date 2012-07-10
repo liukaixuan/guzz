@@ -77,10 +77,12 @@
 <!ATTLIST select id ID #REQUIRED>
 <!ATTLIST select orm CDATA #REQUIRED>
 <!ATTLIST select result-class CDATA #IMPLIED>
+<!ATTLIST select templated (true|false) "false">
 
 <!ELEMENT update (#PCDATA|paramsMapping)*>
 <!ATTLIST update id ID #REQUIRED>
 <!ATTLIST update orm CDATA #REQUIRED>
+<!ATTLIST update templated (true|false) "false">
 
 <!ELEMENT orm (result*)>
 <!ATTLIST orm id CDATA #REQUIRED>

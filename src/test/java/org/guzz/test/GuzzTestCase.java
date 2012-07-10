@@ -39,8 +39,8 @@ public abstract class GuzzTestCase extends TestCase {
 	public static String configFile = null ;
 	
 	protected void buildGF() throws Exception {
-		String configFile = "classpath:guzzmain_test1.xml" ;
-//		String configFile = "classpath:guzzmain_test1_annotation.xml" ;
+//		String configFile = "classpath:guzzmain_test1.xml" ;
+		String configFile = "classpath:guzzmain_test1_annotation.xml" ;
 		
 		FileResource fs = new FileResource(configFile) ;
 		
