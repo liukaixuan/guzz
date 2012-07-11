@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.taglib.util;
+package org.guzz.api.taglib;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +30,17 @@ import org.guzz.util.ViewFormat;
  */
 public class TypeConvertHashMap extends HashMap {
 	
+	public static int getIntParam(Map params, String key, int defaultValue){
+		Object v = params.get(key) ;
+		if(v == null) return defaultValue ;
+		
+		if(v instanceof Number){
+			return ((Number) v).intValue() ;
+		}else{
+			return Integer.parseInt(v.toString()) ;
+		}
+	}
+	
 	public TypeConvertHashMap(){
 		super() ;
 	}
@@ -39,9 +50,7 @@ public class TypeConvertHashMap extends HashMap {
 	}
 	
 	public int getAsInt(String key){
-		Object value = get(key) ;
-		if(value == null) return -1 ;
-		return StringUtil.toInt(get(key).toString()) ;
+		return getIntParam(this, key, -1) ;
 	}
 	
 	public String getAsString(String key){

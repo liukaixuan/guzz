@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2008-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,56 +14,47 @@
  * limitations under the License.
  *
  */
-package org.guzz.taglib.db;
+package org.guzz.api.velocity;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-
+import org.guzz.api.taglib.GhostGetTag;
 import org.guzz.orm.Business;
 import org.guzz.orm.se.SearchExpression;
 import org.guzz.transaction.ReadonlyTranSession;
+import org.guzz.util.StringUtil;
 
 /**
  * 
+ * See {@link GhostGetTag}.
  * 
- * @author liu kaixuan
+ * @author liukaixuan(liukaixuan@gmail.com)
  */
-public class GhostCountTag extends SummonTag {
-	
-	private String selectPhrase ;
-	
-	protected void init(){
-		this.selectPhrase = null ;
-		super.init() ;
-	}
+public class GuzzGetDirective extends SummonDirective {
 
-	protected Object summonGhosts(Business business, List conditions) throws JspException, IOException {
+	protected Object summonGhosts(Business business, Object tableCondition, List conditions, Map params) throws IOException {
+		String orderBy = (String) params.get("orderBy") ;
+		
 		SearchExpression se = SearchExpression.forBusiness(business.getName()) ;
-		se.setTableCondition(getTableCondition()) ;
-		
-		if(selectPhrase != null){
-			se.setCountSelectPhrase(selectPhrase) ;
-		}
-		
+		se.setTableCondition(tableCondition) ;
 		se.and(conditions) ;
+		if(StringUtil.notEmpty(orderBy)){
+			se.setOrderBy(orderBy) ;
+		}
 		
 		ReadonlyTranSession tran = guzzContext.getTransactionManager().openDelayReadTran() ;
 		
 		try{
-			return new Long(tran.count(se)) ;
+			return tran.findObject(se) ;
 		}finally{
 			tran.close() ;
 		}
 	}
 
-	public String getSelectPhrase() {
-		return selectPhrase;
-	}
-
-	public void setSelectPhrase(String selectPhrase) {
-		this.selectPhrase = selectPhrase;
+	public String getName() {
+		return "guzzGet" ;
 	}
 	
 }

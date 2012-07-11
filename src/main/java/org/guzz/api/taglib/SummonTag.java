@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.taglib.db;
+package org.guzz.api.taglib;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -29,11 +29,10 @@ import org.guzz.GuzzContext;
 import org.guzz.orm.Business;
 import org.guzz.orm.BusinessInterpreter;
 import org.guzz.orm.ObjectMapping;
-import org.guzz.taglib.util.TagSupportUtil;
 import org.guzz.web.context.GuzzWebApplicationContextUtil;
 
 /**
- * 召唤灵魂。此Tag按照条件实际的加载对象到var参数中。
+ * 召唤类，用于读取数据。此Tag按照条件实际的加载对象到var参数中。
  * 
  * @author liu kaixuan
  */
@@ -187,13 +186,7 @@ public abstract class SummonTag extends TagSupport {
 				m_limits.addAll(m_parentBoundaryLimits) ;
 			}
 		}
-		
-//		//接收来自配置或者Action, filter的强制条件。
-//		List forceConditions = (List) pageContext.getRequest().getAttribute(GhostWebContext.REQUEST_GHOST_TEMPLATE_FORCE_CONDTION) ;
-//		if(forceConditions != null){
-//			parentLimits.addAll(forceConditions) ;
-//		}
-		
+				
 		if(limit != null){
 			m_limits.addFirst(limit) ;
 		}

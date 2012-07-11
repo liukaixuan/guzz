@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.taglib;
+package org.guzz.api.taglib;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -24,7 +24,6 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import org.guzz.taglib.util.TagSupportUtil;
 import org.guzz.util.StringUtil;
 
 /**
@@ -39,8 +38,6 @@ public class GhostOutTag extends BodyTagSupport {
 	
 	protected boolean escapeXml; // tag attribute
 	protected boolean escapeScriptCode = true ; //去除javascript代码
-	protected boolean markFilterWord ; //是否标红过滤词
-	protected String filterWordGroupName ; //过滤词组，默认为所有。
 		
 	protected boolean escapeForScriptOutput ; //为js输出做过滤。
 	
@@ -64,8 +61,6 @@ public class GhostOutTag extends BodyTagSupport {
 		needBody = false;
 		
 		escapeScriptCode = true ;
-		markFilterWord = false ;
-		filterWordGroupName = null ;
 		escapeForScriptOutput = false ;
 		escapeForXslt = false ;
 		native2ascii = false ;
@@ -215,22 +210,6 @@ public class GhostOutTag extends BodyTagSupport {
 
 	public void setEscapeScriptCode(boolean escapeScriptCode) {
 		this.escapeScriptCode = escapeScriptCode;
-	}
-
-	public boolean isMarkFilterWord() {
-		return markFilterWord;
-	}
-
-	public void setMarkFilterWord(boolean markFilterWord) {
-		this.markFilterWord = markFilterWord;
-	}
-
-	public String getFilterWordGroupName() {
-		return filterWordGroupName;
-	}
-
-	public void setFilterWordGroupName(String filterWordGroupName) {
-		this.filterWordGroupName = filterWordGroupName;
 	}
 
 	public boolean isEscapeForScriptOutput() {

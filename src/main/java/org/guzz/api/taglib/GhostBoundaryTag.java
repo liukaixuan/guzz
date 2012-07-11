@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.taglib.db;
+package org.guzz.api.taglib;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +25,6 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.guzz.taglib.util.TagSupportUtil;
 
 /**
  * 用于定义一些公共的限制条件，规划Ghost应该处于的范围。

@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.taglib.db;
+package org.guzz.api.taglib;
 
 import java.io.IOException;
 import java.util.List;

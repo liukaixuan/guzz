@@ -33,8 +33,17 @@ import org.apache.velocity.exception.TemplateInitException;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 import org.guzz.GuzzContext;
+import org.guzz.api.velocity.GuzzAddInLimitDirective;
+import org.guzz.api.velocity.GuzzAddLimitDirective;
+import org.guzz.api.velocity.GuzzBoundaryDirective;
+import org.guzz.api.velocity.GuzzCountDirective;
+import org.guzz.api.velocity.GuzzGetDirective;
+import org.guzz.api.velocity.GuzzIncDirective;
+import org.guzz.api.velocity.GuzzListDirective;
+import org.guzz.api.velocity.GuzzPageDirective;
 import org.guzz.api.velocity.IsEmptyDirective;
 import org.guzz.api.velocity.NotEmptyDirective;
+import org.guzz.api.velocity.SummonDirective;
 import org.guzz.exception.InvalidConfigurationException;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.sql.CompiledSQL;
@@ -42,12 +51,13 @@ import org.guzz.orm.sql.CompiledSQLBuilder;
 import org.guzz.service.AbstractService;
 import org.guzz.service.ServiceConfig;
 import org.guzz.service.core.TemplatedSQLService;
+import org.guzz.util.StringUtil;
 import org.guzz.web.context.GuzzContextAware;
 
 
 /**
  * 
- * The basic implementation of {@link TemplatedSQLService}.
+ * The Velocity implementation of {@link TemplatedSQLService}.
  *
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
@@ -58,6 +68,10 @@ public final class VelocityTemplatedSQLService extends AbstractService implement
 	protected CompiledSQLBuilder compiledSQLBuilder ;
 	
 	protected VelocityEngine ve ;
+	
+	private boolean enableDBAccess ;
+	
+	private String userdirective ;
 	
 	private HashMap<String, TemplateData> templates = new HashMap<String, TemplateData>() ;
 	
@@ -141,6 +155,11 @@ public final class VelocityTemplatedSQLService extends AbstractService implement
 	}
 
 	public boolean configure(ServiceConfig[] scs) {
+		if(scs.length > 0){
+			this.enableDBAccess = StringUtil.toBoolean(scs[0].getProps().getProperty("enableDBAccess"), true) ;
+			this.userdirective = scs[0].getProps().getProperty("userdirective") ;
+		}
+		
 		return true;
 	}
 
@@ -156,11 +175,29 @@ public final class VelocityTemplatedSQLService extends AbstractService implement
         p.put("guzzvtsrl.resource.loader.class", PreStringResourceLoader.class.getName());
         
         String directive = IsEmptyDirective.class.getName() + ", " + NotEmptyDirective.class.getName() ;
+        
+        if(this.enableDBAccess){
+        	directive = directive
+			+ ", " + GuzzAddInLimitDirective.class.getName()
+			+ ", " + GuzzAddLimitDirective.class.getName()
+			+ ", " + GuzzBoundaryDirective.class.getName()
+			+ ", " + GuzzCountDirective.class.getName()
+			+ ", " + GuzzGetDirective.class.getName()
+			+ ", " + GuzzIncDirective.class.getName()
+			+ ", " + GuzzListDirective.class.getName()
+			+ ", " + GuzzPageDirective.class.getName() ;
+        }
+        
+        if(StringUtil.notEmpty(this.userdirective)){
+        	directive = directive
+			+ ", " + this.userdirective ;
+        }
+        
         p.setProperty("userdirective", directive) ;
         
 		this.ve = new VelocityEngine();
 		
-		ve.setApplicationAttribute("guzz_context_name", this.guzzContext) ;
+		ve.setApplicationAttribute(SummonDirective.GUZZ_CONTEXT_NAME, this.guzzContext) ;
 		ve.setApplicationAttribute("guzz_vts_templates_name", templates) ;
 
 		try {
