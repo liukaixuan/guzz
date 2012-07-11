@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.guzz.taglib.util;
+package org.guzz.api.taglib;
 
 import java.util.HashMap;
 import java.util.List;
@@ -162,8 +162,8 @@ public class TagSupportUtil {
      * Syntax defined in RFC 2045, section 5.1.
      */
     public static String getContentTypeAttribute(String input, String name) {
-	int begin;
-	int end;
+    	int begin;
+    	int end;
         int index = input.toUpperCase().indexOf(name.toUpperCase());
         if (index == -1) return null;
         index = index + name.length(); // positioned after the attribute name

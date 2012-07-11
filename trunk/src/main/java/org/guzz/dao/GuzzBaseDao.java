@@ -170,6 +170,39 @@ public class GuzzBaseDao {
 		}		
 	}
 	
+	/**
+	 * 
+	 * query without pagination.
+	 * 
+	 * @param id the id of the sql defined in the guzz.xml
+	 * @param params
+	 **/
+	public List list(String id, Map params) {
+		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
+		
+		try{
+			return session.list(id, params) ;
+		}finally{
+			session.close() ;
+		}	
+	}
+	
+	/**
+	 * @param id the id of the sql defined in the guzz.xml
+	 * @param params
+	 * @param startPos the first is 1, the second is 2...
+	 * @param maxSize
+	 **/
+	public List list(String id, Map params, int startPos, int maxSize) {
+		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
+		
+		try{
+			return session.list(id, params, startPos, maxSize) ;
+		}finally{
+			session.close() ;
+		}	
+	}
+	
 	/**执行se中的list操作。从slave数据库读取。*/
 	public List list(SearchExpression se){
 		ReadonlyTranSession session = transactionManager.openDelayReadTran() ;
