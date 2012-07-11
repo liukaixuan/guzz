@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.guzz.orm.sql.CompiledSQL;
 import org.guzz.test.DBBasedTestCase;
+import org.guzz.test.User;
 import org.guzz.transaction.ReadonlyTranSession;
 
 /**
@@ -61,12 +63,51 @@ public class TestDynamicSQL extends DBBasedTestCase {
 		
 		session.close() ;
 	}
+	
+	public void testTemplatedSQL() throws Exception{
+		assertNotNull(gf.getDialect("default")) ;
+		
+		String sql = "select count(*) as m_count  #if(${isVip}) , @vip #end  	from @@user  #notEmpty($nothingAtAll) test tag  #end   #if(${isVip}) group by @vip having @vip=:isVip #end " ;
+		
+		CompiledSQL cs = tm.getCompiledSQLBuilder().buildTemplatedCompiledSQL(User.class, sql) ;
+		cs.setResultClass(HashMap.class) ;
+		cs.addParamPropMapping("vip", "vip") ;
+		cs.addParamType("isVip", "boolean") ;
+		
+		ReadonlyTranSession session = tm.openDelayReadTran() ;
+		
+		try{
+			HashMap params = new HashMap() ;
+			params.put("isVip", true) ;
+			
+			List result = session.list(cs.bind(params)) ;
+			assertEquals(result.size(), 1) ;
+			
+			Map group = (Map) result.get(0) ;
+	
+			assertEquals(group.size(), 2) ;
+					
+			assertEquals(group.get("M_COUNT"), 499L) ;
+			assertEquals(group.get("vip"), true) ;
+			
+			//isVip为false查询所有
+			params.put("isVip", false) ;
+			result = session.list(cs.bind(params)) ;
+			assertEquals(result.size(), 1) ;
+			
+			group = (Map) result.get(0) ;
+	
+			assertEquals(group.size(), 1) ;
+			assertEquals(group.get("M_COUNT"), 999L) ;		
+		}finally{
+			session.close() ;
+		}
+	}
 
 	protected void prepareEnv() throws Exception{
 		for(int i = 1 ; i < 1000 ; i++){
 			executeUpdate(getDefaultConn(), "insert into TB_USER values(" + i + ", 'name " + i + "', 'psw " + i + "', " + ((i%2==0)?1:0) + ", " + i + ", " + getDateFunction() + ")") ;		
 		}
-		
 	}
 
 }

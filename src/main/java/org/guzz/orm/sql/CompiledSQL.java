@@ -57,6 +57,13 @@ public abstract class CompiledSQL {
 	}
 	
 	/**
+	 * @see #registerParamType(String, String)
+	 */
+	public CompiledSQL addParamType(String paramName, String dataType){
+		return registerParamType(paramName, dataType) ;
+	}
+	
+	/**
 	 * Register the dataType for a sql param.
 	 */
 	public CompiledSQL registerParamTypes(Map paramTypes){

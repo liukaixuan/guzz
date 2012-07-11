@@ -43,6 +43,7 @@ public interface CompiledSQLBuilder {
 		
 	public TemplatedCompiledSQL buildTemplatedCompiledSQL(ObjectMapping mapping, String markedSQL) ;	
 	public TemplatedCompiledSQL buildTemplatedCompiledSQL(String businessName, String markedSQL) ;	
+	public TemplatedCompiledSQL buildTemplatedCompiledSQL(Class domainClass, String markedSQL) ;	
 	
 	
 	public CustomCompiledSQL buildCustomCompiledSQL(String businessName, DynamicSQLProvider sqlProvider) ;	
