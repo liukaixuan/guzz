@@ -100,4 +100,8 @@ public class CompiledSQLBuilderImpl implements CompiledSQLBuilder {
 		return TemplatedCompiledSQL.buildBySql(templatedSqlService, businessName, markedSQL) ;
 	}
 
+	public TemplatedCompiledSQL buildTemplatedCompiledSQL(Class domainClass, String markedSQL) {
+		return buildTemplatedCompiledSQL(domainClass.getName(), markedSQL) ;
+	}
+
 }
