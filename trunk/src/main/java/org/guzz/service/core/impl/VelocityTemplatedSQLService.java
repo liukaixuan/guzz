@@ -156,7 +156,7 @@ public final class VelocityTemplatedSQLService extends AbstractService implement
 
 	public boolean configure(ServiceConfig[] scs) {
 		if(scs.length > 0){
-			this.enableDBAccess = StringUtil.toBoolean(scs[0].getProps().getProperty("enableDBAccess"), true) ;
+			this.enableDBAccess = StringUtil.toBoolean(scs[0].getProps().getProperty("enableDBAccess"), false) ;
 			this.userdirective = scs[0].getProps().getProperty("userdirective") ;
 		}
 		
