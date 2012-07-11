@@ -18,7 +18,7 @@
 
 1.2.9 beta3
 	1. new feature: distribute a big table into many machines.
-	2. new feature: support recording sql executed time in nanosecond.
+	2. new feature: support recording sql executing time in nanoseconds.
 	3. improvement: change LogService to InsertQueueService
 	4. new feature: support "package" attribute in hbm.xml.
 	5. clean codes.
@@ -34,16 +34,16 @@
 
 1.2.8 final
 	1. fix a bug in annotated Enumeration.
-	2. fix a bug: cann't insert blob into Mysql
+	2. fix bug: cann't insert blob into Mysql
 	3. fix bug: http://code.google.com/p/guzz/issues/detail?id=2
-	4. improvement: support result-class attribute for custom tables to perform joining queries.
+	4. improvement: support result-class attribute for custom tables when performing joining queries.
 
 1.2.8 beta2
 	1. new feature: support 2 new rpc protocols: hessian, burlap.
-	2. new feature: support escape character `` to avoid column name conflicting with the keywords of some database.
-	3. new feature: support JDK5's enum.
+	2. new feature: ORM: support escape character `` to avoid column name conflicting with the keywords of some databases.
+	3. new feature: ORM: support JDK5's enum.
 	3. new feature: allow pass a parameter to enum and date/time related data types.
-	4. new feature: support dynamic sql(say: Before this you define sqls in ibatis's config file; and from now, you can define sqls in anywhere(eg: database), and put the new sqls online dynamically.).
+	4. new feature: support dynamic sql(say: Before this you define sqls in ibatis's config file; and from now, you can define sqls in anywhere(eg: database), and active the new sqls online dynamically.).
 	
 1.2.8 beta1
 	1. limited(but enough for guzz) JPA annotation support.
