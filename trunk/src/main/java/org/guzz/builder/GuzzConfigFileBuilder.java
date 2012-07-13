@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2008-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -32,8 +34,8 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.guzz.GuzzContext;
 import org.guzz.GuzzContextImpl;
+import org.guzz.builder.HbmXMLBuilder.BusinessValidChecker;
 import org.guzz.config.ConfigServer;
-import org.guzz.connection.DBGroup;
 import org.guzz.connection.PhysicsDBGroup;
 import org.guzz.connection.VirtualDBGroup;
 import org.guzz.connection.VirtualDBView;
@@ -42,7 +44,6 @@ import org.guzz.exception.GuzzException;
 import org.guzz.exception.InvalidConfigurationException;
 import org.guzz.io.FileResource;
 import org.guzz.io.Resource;
-import org.guzz.orm.Business;
 import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.mapping.ObjectMappingManager;
 import org.guzz.orm.mapping.ObjectMappingUtil;
@@ -65,6 +66,10 @@ import org.guzz.util.StringUtil;
 import org.guzz.util.javabean.BeanCreator;
 import org.guzz.util.javabean.BeanWrapper;
 import org.guzz.util.javabean.JavaBeanWrapper;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -74,6 +79,7 @@ import org.xml.sax.SAXException;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class GuzzConfigFileBuilder {
+	private transient static final Log log = LogFactory.getLog(GuzzConfigFileBuilder.class) ;
 	
 	protected Element rootDoc  ;
 	
@@ -383,42 +389,87 @@ public class GuzzConfigFileBuilder {
 				throw new GuzzException("file not found. xml:[" + e.asXML() + "]") ;
 			}
 			
-			Class i_cls = null ;
-			if(StringUtil.notEmpty(m_interpret)){
-				i_cls = Class.forName(m_interpret) ;
-			}			
-			
-			if(StringUtil.isEmpty(m_dbgroup)){
-				m_dbgroup = "default" ;
-			}
-			
-			DBGroup db = this.gf.getDBGroup(m_dbgroup) ;
-			
-			if(StringUtil.isEmpty(m_class)){//从hbm文件中读取className
-				Resource r = new FileResource(m_file) ;
-				try{
-					m_class = HbmXMLBuilder.getDomainClassName(r) ;
-				}finally{
-					CloseUtil.close(r) ;
-				}
-			}
-						
-			Business business = gf.instanceNewGhost(m_name, m_dbgroup, i_cls, Class.forName(m_class)) ;
-			if(business.getInterpret() == null){
-				throw new GuzzException("cann't create new instance of ghost: " + business.getName()) ;
-			}
+			Class i_cls = StringUtil.notEmpty(m_interpret) ? Class.forName(m_interpret) : null ;
+			Class d_cls = StringUtil.notEmpty(m_class) ? Class.forName(m_class) : null ;
 			
 			Resource r = new FileResource(m_file) ;
 			
 			try{
-				POJOBasedObjectMapping map = HbmXMLBuilder.parseHbmStream(gf, db, business, r) ;				
+				POJOBasedObjectMapping map = HbmXMLBuilder.parseHbmStream(gf, m_dbgroup, null, m_name, d_cls, i_cls, r.getInputStream()) ;
 				mappings.addLast(map) ;
 			}finally{
 				CloseUtil.close(r) ;
 			}
-		}		
+		}
 		
         return mappings;
+	}
+	
+	public void loadScanedBusinessesToGuzz() throws IOException{
+		/*
+		 <business-scan dbgroup="default" resources="classpath*:org/guzz/test/*.hbm.xml" />
+		 */		
+		List bus = this.rootDoc.selectNodes("business-scan") ;
+		
+		for(int i = 0 ; i < bus.size() ; i++){
+			Element e = (Element) bus.get(i) ;
+
+			String m_dbgroup = e.attributeValue("dbgroup") ;
+			String resources = e.attributeValue("resources") ;
+			
+			if(StringUtil.isEmpty(resources)){
+				throw new GuzzException("attribute resources not found. xml:[" + e.asXML() + "]") ;
+			}
+			
+			PathMatchingResourcePatternResolver pr = new PathMatchingResourcePatternResolver() ;
+		    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory(pr);		    
+		    org.springframework.core.io.Resource[] rs = pr.getResources(resources) ;
+		    
+			for(org.springframework.core.io.Resource r : rs){
+				if(r.isReadable()){
+					try{
+						//Load as annotated class first.
+						MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(r);
+					    String className = metadataReader.getClassMetadata().getClassName() ;
+					    
+					    if(gf.getBusiness(className) != null){
+					    	log.info("business-scan ignored domain class [" + className + "] in resource [" + r.getURL() + "] business already registered.") ;
+					    	continue ;
+					    }
+					    					    
+					    POJOBasedObjectMapping map = JPA2AnnotationsBuilder.parseDomainClass(gf, m_dbgroup, null, Class.forName(className)) ;
+
+						log.info("business-scan add business [" + r.getURL() + "]") ;
+						gf.addNewGhostBusinessToSystem(map) ;
+					}catch(GuzzException e1){
+						log.debug("business-scan ignored invalid resource [" + r.getURL() + "]. msg:" + e1.getMessage()) ;
+					}catch(Exception eee){
+						//Not a class? Try to interpret it as a hbm.xml file.						
+						try{							
+							POJOBasedObjectMapping map = HbmXMLBuilder.parseHbmStream(gf, m_dbgroup, 
+									new BusinessValidChecker() {
+										public boolean shouldParse(Class domainClass) {
+											return gf.getBusiness(domainClass.getName()) == null;
+										}
+									},
+									null, null, null, r.getInputStream()) ;
+							
+							if(map == null){
+								log.info("business-scan ignored [" + r.getURL() + "]. business already registered.") ;
+						    	continue ;
+							}
+							
+							log.info("business-scan add business [" + r.getURL() + "]") ;
+							gf.addNewGhostBusinessToSystem(map) ;
+						}catch(GuzzException e1){
+							log.debug("business-scan ignored invalid resource [" + r.getURL() + "]. msg:" + e1.getMessage()) ;
+						}catch(Exception eeeee){
+							log.debug("business-scan ignored invalid resource [" + r.getURL() + "].") ;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	/**

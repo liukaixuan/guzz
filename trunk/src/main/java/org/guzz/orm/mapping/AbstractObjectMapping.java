@@ -25,7 +25,6 @@ import org.guzz.orm.ObjectMapping;
 import org.guzz.orm.rdms.Table;
 import org.guzz.orm.rdms.TableColumn;
 import org.guzz.orm.type.SQLDataType;
-import org.guzz.util.StringUtil;
 
 /**
  * 
