@@ -24,6 +24,8 @@
 	<!ATTLIST class name CDATA #REQUIRED>                            
 	<!ATTLIST class table CDATA #REQUIRED>
 	<!ATTLIST class shadow CDATA #IMPLIED>
+	<!ATTLIST class businessName CDATA #IMPLIED>
+	<!ATTLIST class dbGroup CDATA #IMPLIED>
 	<!ATTLIST class dynamic-update (true|false) "false">
 
 <!-- Declares the id type, column and generation algorithm for an entity class. -->

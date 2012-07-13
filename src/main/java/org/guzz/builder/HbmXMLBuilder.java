@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2008-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.guzz.builder;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -34,8 +35,8 @@ import org.guzz.exception.GuzzException;
 import org.guzz.id.Configurable;
 import org.guzz.id.IdentifierGenerator;
 import org.guzz.id.IdentifierGeneratorFactory;
-import org.guzz.io.Resource;
 import org.guzz.orm.Business;
+import org.guzz.orm.BusinessInterpreter;
 import org.guzz.orm.CustomTableView;
 import org.guzz.orm.ShadowTableView;
 import org.guzz.orm.mapping.ObjectMappingUtil;
@@ -60,17 +61,7 @@ import org.xml.sax.SAXException;
  */
 public class HbmXMLBuilder {
 	
-	public static String getDomainClassName(Resource r) throws DocumentException, IOException, SAXException{
-		SAXReader reader = null;
-		Document document = null;
-
-		reader = new SAXReader();
-		reader.setValidation(false) ;
-		// http://apache.org/xml/features/nonvalidating/load-external-dtd"  
-		reader.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);  
-		
-		document = reader.read(r.getInputStream());
-		final Element root = document.getRootElement();
+	public static String getDomainClassName(Element root) throws DocumentException, IOException, SAXException{		
 		String packageName = root.attributeValue("package") ;
 		
 		List bus = root.selectNodes("//class") ;
@@ -90,7 +81,35 @@ public class HbmXMLBuilder {
 		return className ;
 	}
 	
-	public static POJOBasedObjectMapping parseHbmStream(final GuzzContextImpl gf, final DBGroup dbGroup, final Business business, Resource r) throws DocumentException, IOException, SAXException, ClassNotFoundException{
+	public static String getDomainClassBusinessName(Element root) throws DocumentException, IOException, SAXException{		
+		List bus = root.selectNodes("//class") ;
+		
+		if(bus == null) return null ;
+		if(bus.size() != 1){
+			throw new DocumentException("too many class name") ;
+		}		
+		Element e = (Element) bus.get(0) ;
+		
+		return e.attributeValue("businessName") ;
+	}
+	
+	public static String getDomainClassDbGroup(Element root) throws DocumentException, IOException, SAXException{		
+		List bus = root.selectNodes("//class") ;
+		
+		if(bus == null) return null ;
+		if(bus.size() != 1){
+			throw new DocumentException("too many class name") ;
+		}		
+		Element e = (Element) bus.get(0) ;
+		
+		return e.attributeValue("dbGroup") ;
+	}
+	
+	public static POJOBasedObjectMapping parseHbmStream(
+			final GuzzContextImpl gf, String dbGroupName, BusinessValidChecker checker, 
+			String businessName, Class overridedDomainClass, Class interpreterClass, InputStream is) 
+			throws DocumentException, IOException, SAXException, ClassNotFoundException{
+		
 		SAXReader reader = null;
 		Document document = null;
 
@@ -99,10 +118,39 @@ public class HbmXMLBuilder {
 		// http://apache.org/xml/features/nonvalidating/load-external-dtd"  
 		reader.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);  
 		
-		document = reader.read(r.getInputStream());
+		document = reader.read(is);
 		final Element root = document.getRootElement();
+		
+		if(StringUtil.isEmpty(dbGroupName)){
+			dbGroupName = getDomainClassDbGroup(root) ;
+		}
+		if(StringUtil.isEmpty(dbGroupName)){
+			dbGroupName = "default" ;
+		}
+		
+		final DBGroup dbGroup = gf.getDBGroup(dbGroupName) ;
+		
 		final SimpleTable st = new SimpleTable(dbGroup.getDialect()) ;
-		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, st) ;
+		final POJOBasedObjectMapping map = new POJOBasedObjectMapping(gf, dbGroup, st) ;		
+		
+		if(overridedDomainClass == null){//从hbm文件中读取className
+			String m_class = HbmXMLBuilder.getDomainClassName(root) ;
+			
+			overridedDomainClass = ClassUtil.getClass(m_class) ;
+		}
+		
+		if(checker != null && !checker.shouldParse(overridedDomainClass)){
+			return null ;
+		}
+		
+		if(StringUtil.isEmpty(businessName)){
+			businessName = getDomainClassBusinessName(root) ;
+		}
+		
+		final Business business = gf.instanceNewGhost(businessName, dbGroup.getGroupName(), interpreterClass, overridedDomainClass) ;
+		if(business.getInterpret() == null){
+			throw new GuzzException("cann't create new instance of business: " + business.getName()) ;
+		}
 		
 		business.setTable(st) ;
 		business.setMapping(map) ;
@@ -270,7 +318,7 @@ public class HbmXMLBuilder {
 		//读取generator信息
 		List generator = root.selectNodes("//class/id/generator") ;
 		if(generator.size() != 1){
-			throw new GuzzException("id generator is not found for resource: " + r) ;
+			throw new GuzzException("id generator is not found for business: " + business) ;
 		}
 		
 		Element ge = (Element) generator.get(0) ;
@@ -308,6 +356,21 @@ public class HbmXMLBuilder {
 		st.setIdentifierGenerator(ig) ;
 		
 		return map ;
+	}
+	
+	/**
+	 * 检查域对象是否需要继续解析成 {@link POJOBasedObjectMapping} 。
+	 * 
+	 * <p/>因为对象解析时 {@link BusinessInterpreter} , {@link IdentifierGenerator} 等涉及到全局的注入与启动，
+	 * 因此如果域对象确认不需要加载，则不应该初始化它，以避免资源泄漏。
+	 */
+	public static interface BusinessValidChecker{
+		
+		/**
+		 * @return true 继续解析；false 直接返回null。
+		 */
+		public boolean shouldParse(Class domainClass) ;
+		
 	}
 
 }

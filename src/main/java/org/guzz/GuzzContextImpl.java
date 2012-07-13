@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2008-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -210,7 +210,9 @@ public class GuzzContextImpl implements GuzzContext{
 		List ghosts = builder.listBusinessObjectMappings() ;
 		for(int i = 0 ; i < ghosts.size() ; i++){
 			addNewGhostBusinessToSystem((POJOBasedObjectMapping) ghosts.get(i)) ;	
-		}		
+		}
+		//3.3 加载package-scan的business，如果business已经单独定义了，则会自动忽略掉。
+		builder.loadScanedBusinessesToGuzz() ;		
 		
 		//4. 加载配置的sql语句
 		Map predefinedSQLs = builder.listConfiguedCompiledSQLs(templatedSQLService) ;
@@ -391,7 +393,7 @@ public class GuzzContextImpl implements GuzzContext{
 		return (Business) ghosts.get(name) ;
 	}
 	
-	protected void addNewGhostBusinessToSystem(POJOBasedObjectMapping map){
+	public void addNewGhostBusinessToSystem(POJOBasedObjectMapping map){
 		Business b = map.getBusiness() ;
 		
 		//已经注册过
@@ -403,7 +405,9 @@ public class GuzzContextImpl implements GuzzContext{
 		this.compiledSQLManager.addDomainBusiness(map) ;
 		
 		ghosts.put(b.getDomainClass().getName(), b) ;
-		ghosts.put(b.getName(), b) ;
+		if(b.getName() != null){
+			ghosts.put(b.getName(), b) ;
+		}
 	}
 	
 	public void registerVirtualDBView(VirtualDBView view){
@@ -474,12 +478,14 @@ public class GuzzContextImpl implements GuzzContext{
 	/**添加hbm领域对象定义文件。添加后 @param resource 不会自动关闭。
 	 * @throws Exception */
 	public void addHbmConfig(Business business, Resource resource) throws Exception{
-		POJOBasedObjectMapping map = HbmXMLBuilder.parseHbmStream(this, this.getDBGroup(business.getDbGroup()), business, resource) ;
+		POJOBasedObjectMapping map = HbmXMLBuilder.parseHbmStream(
+				this, business.getDbGroup(), null, 
+				business.getName(), business.getDomainClass(), null, resource.getInputStream()) ; 
 		
-		if(business.getInterpret() == null){ //如果interpret为null，在完成hbm加载后，重新构建一次。
-			BusinessInterpreter ii = businessInterpreterManager.newInterpreter(business.getName(), null, business.getDomainClass()) ;
-			if(ii == null) throw new InvalidConfigurationException("cann't create new instance of ghost: " + business.getName()) ;
-			business.setInterpret(ii) ;
+		BusinessInterpreter bi = business.getInterpret() ;
+		
+		if(bi != null){
+			map.getBusiness().setInterpret(bi) ;
 		}
 		
 		addNewGhostBusinessToSystem(map) ;

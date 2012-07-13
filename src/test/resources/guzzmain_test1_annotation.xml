@@ -35,12 +35,13 @@
 	
 	<import resource="include/part2.xml" />
 
+	<business-scan resources="classpath*:org/guzz/test/shop/*.class" />
+	<business-scan dbgroup="default" resources="classpath*:org/guzz/test/*.hbm" />
 	<a-business name="user" dbgroup="default" class="org.guzz.test.User"/>
 	<a-business name="book" class="org.guzz.test.Book" />
 	<a-business name="userInfo" dbgroup="oracle" class="org.guzz.test.UserInfo" />
 	<a-business name="userInfo2" dbgroup="default" class="org.guzz.test.UserInfoH2" />
 	<a-business name="comment" dbgroup="commentDB" class="org.guzz.test.Comment"/>
-	<a-business name="cargo" dbgroup="cargoDB" class="org.guzz.test.shop.Cargo" />
 	<a-business name="sp" class="org.guzz.test.shop.SpecialProperty" />
 	
 	<sqlMap dbgroup="default">

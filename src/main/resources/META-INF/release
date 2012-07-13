@@ -1,9 +1,9 @@
 1.3.1 build20120714
-	1. hbm.xml增加部分version支持
-	2. sql中支持转义字符: \\, \@, \:, \", \'
-	3. 新增JNDI数据库连接池实现
-	4. 动态拼接sql支持
-
+	1. new feature: templated sql. concate sqls on the passed parameters.
+	2. new feature: business package scan
+	3. new feature: new JNDI datasource support
+	4. new feature: escape characters in sql
+	5. new feature: new attribute "version" support in hbm.xml
 
 1.3.0 build20120613
 

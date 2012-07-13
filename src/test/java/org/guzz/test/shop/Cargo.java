@@ -32,7 +32,7 @@ import javax.persistence.Enumerated;
 
 @javax.persistence.Entity
 @org.guzz.annotations.Entity(businessName="cargo")
-@org.guzz.annotations.Table(name="tb_cargo", shadow=CargoCustomTableView.class)
+@org.guzz.annotations.Table(name="tb_cargo", dbGroup="cargoDB" , shadow=CargoCustomTableView.class)
 public class Cargo {
 
 	@javax.persistence.Id

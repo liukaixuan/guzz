@@ -7,7 +7,7 @@
 <!--
 	The document root.
 -->
-<!ELEMENT guzz-configs (config-server? | tran? | dialect| service | import | business | a-business | sqlMap | orm)*>
+<!ELEMENT guzz-configs (config-server? | tran? | dialect| service | import | business | a-business | business-scan | sqlMap | orm)*>
 
 <!ELEMENT properties EMPTY>
 <!ATTLIST properties file CDATA #REQUIRED>
@@ -64,6 +64,10 @@
 <!ATTLIST a-business name CDATA #IMPLIED>
 <!ATTLIST a-business dbgroup CDATA "default">
 <!ATTLIST a-business class CDATA #REQUIRED>
+
+<!ELEMENT business-scan EMPTY>
+<!ATTLIST business-scan dbgroup CDATA "default">
+<!ATTLIST business-scan resources CDATA #REQUIRED>
 
 <!ELEMENT sqlMap ((select | update | orm)*)>
 <!ATTLIST sqlMap dbgroup CDATA "default">

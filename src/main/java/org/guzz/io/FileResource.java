@@ -85,7 +85,7 @@ public class FileResource implements Resource {
 		String classRootPath = FileResource.class.getResource("/").getFile() ;
 		String m_fileName = classpathFile.substring(CLASS_PATH_PREFIX.length()) ;
 		
-		//The warning is not reasonable. The file encoding should be the native one in this situation.
+		//This warning is not reasonable. The file encoding should be the native one in this situation.
 		this.file = new File(URLDecoder.decode(classRootPath), m_fileName) ;
 	}
 
