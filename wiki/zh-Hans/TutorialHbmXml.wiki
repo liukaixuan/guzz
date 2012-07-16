@@ -47,9 +47,9 @@ guzz mapping相对hibernate mapping也有一些变化。
 
 *class定义增加了3属性：*
 
- businessName：默认的business name。在guzz.xml中声明时可以覆盖。【guzz1.3.1新特性】
+ businessName：默认的business name。域对象在guzz.xml中声明时可以覆盖此设置。【guzz1.3.1新特性】
  
- dbGroup：对象默认存储在的数据库组。在guzz.xml中声明时可以覆盖。【guzz1.3.1新特性】
+ dbGroup：对象默认存储在的数据库组。域对象在guzz.xml中声明时可以覆盖此设置。【guzz1.3.1新特性】
  
  shadow：用于设置表分切和自定义表，使用方法在后面有详细的介绍。
 
@@ -117,9 +117,11 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
  * 2. Mysql和H2数据库，native表示默认使用identify（数据库中的自增ID）。param name="sequence"参数会自动忽略掉。
 
 
-== hbm.xml例子 ==
+
+== 一个hbm.xml映射文件的例子 ==
 
 {{{
+
 <?xml version="1.0"?>
 <!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
 <hibernate-mapping>
@@ -137,6 +139,7 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
         <property name="countToInc" type="int" column="gu_inc_count" />
     </class>
 </hibernate-mapping>
+
 }}}
 
 
