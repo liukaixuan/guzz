@@ -1,7 +1,7 @@
 
 == 批量添加领域对象映射 ==
 
- 对于大量的领域对象，可以通过 business-scan进行批量配置。guzz启动时，进行目录文件扫描，并自动加载。
+ 对于大量的领域对象，可以通过 business-scan 进行批量配置。guzz启动时，进行目录文件扫描，并自动加载。
  
  目录扫描支持hbm.xml文件和annotation映射两种，支持映射文件存储在单个文件中，也支持在jar包中。
 
@@ -26,7 +26,7 @@
  business-scan支持两个属性：
  
 || *属性名* || *Required* || *作用* ||
-|| resources || 必须  || 要扫描的目录。目录扫描使用的是spring的PathMatchingResourcePatternResolver，详细说明请参看 [PathMatchingResourcePatternResolver http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/core/io/support/PathMatchingResourcePatternResolver.html] ||
+|| resources || 必须  || 要扫描的目录。目录扫描使用的是spring的!PathMatchingResourcePatternResolver，详细说明请参看 [http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/core/io/support/PathMatchingResourcePatternResolver.html PathMatchingResourcePatternResolver] ||
 || dbgroup || 可选 || 对象存储到的数据库组。默认使用扫描到的hbm.xml或是java annotation中声明的dbgroup。如果设置了此项，则所有符合此package-scan的映射，dbgroup全部覆盖成这里设置的dbgroup。 ||
 
 
@@ -76,11 +76,11 @@ public class User implements Serializable {
 
  【仅供参考，以后可能会变】
 
- guzz启动时，使用spring的PathMatchingResourcePatternResolver加载所有符合resources条件的资源，只要资源可以读，则按照java类加载，然后根据annotation判断是否是域对象；是则加载，否则，按照hbm.xml加载。如果都不行，则忽略。
+ guzz启动时，使用spring的!PathMatchingResourcePatternResolver加载所有符合resources条件的资源，只要资源可以读，则按照java类加载，然后根据annotation判断是否是域对象；是则加载，否则，按照hbm.xml加载。如果都不行，则忽略。
  
  因此，package-scan时，guzz只考虑符合条件的文件内容，不考虑文件名称。
  
- 假如 resources="classpath*:org/guzz/test/shop/*" ，则此目录下即便有一个文件叫 abc.txt 或是 abc.hbm.xml.bak，或是NotUseAnyMore.class.bak，只要文件内容是映射文件内容，一样会被加载。
+ 假如 resources="classpath*:org/guzz/test/shop/*" ，则此目录下即便有一个文件叫 abc.txt 或是 abc.hbm.xml.bak，或是!NotUseAnyMore.class.bak，只要文件内容是映射文件内容，一样会被加载。
  
  
   如果您需要package-scan，但又不使用spring，请留言。如果有较多这种场景，我们会开发不依赖spring的package-scan。
