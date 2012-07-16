@@ -2,7 +2,7 @@
 
  TemplatedSQL is used to combine sqls dynamically.
  
- You write a single sql statement with conditions, and the sql will be parsed on the runtime parameters and executed differently.
+ You write a single sql statement with conditions, and the sql is parsed on the runtime parameters and executed differently.
  
  This is similar to IBatis, but more powerful. You can write the templated sqls both in guzz.xml and in java code.
  
@@ -104,9 +104,9 @@ Sample 3 :
 }}}
 
 
-== Writing the templated sqls ==
+== The syntax of templated sqls ==
 
- Just like writing a velocity template. Please Read this for the syntax: [http://velocity.apache.org/engine/releases/velocity-1.7/vtl-reference-guide.html]
+ Just like writing a velocity template, please read this for more details: [http://velocity.apache.org/engine/releases/velocity-1.7/vtl-reference-guide.html]
 
  Or Goolge search some velocity articles.
  
@@ -121,7 +121,7 @@ Sample 3 :
 
 == Performance ==
 
- The TemplatedSQL is a little slower than normal sqls.
+ The TemplatedSQL sqls run a little slower than normal sqls.
  
  In the shipped Velocity implementation, all sqls are loaded into memory to parse, so the extra consumption layered mainly on CPUs.
 
