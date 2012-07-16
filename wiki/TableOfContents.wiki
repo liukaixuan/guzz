@@ -12,6 +12,7 @@
     * [TutorialAppProperties Configure guzz_app.properties]
     * [TutorialHbmXml Configure orm: hbm.xml]
     * [TutorialHbmAnnotation Or through annotation]
+	* [TutorialHbmPackageScan Or By folders]
     * [TutorialTranSession Persist API]
     * [SearchExpression Search Expression]
     * [TutorialTaglib Guzz Taglib]
