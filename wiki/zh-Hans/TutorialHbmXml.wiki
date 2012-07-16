@@ -45,8 +45,12 @@
 
 guzz mapping相对hibernate mapping也有一些变化。
 
-*class定义增加了1属性：*
+*class定义增加了3属性：*
 
+ businessName：默认的business name。在guzz.xml中声明时可以覆盖。【guzz1.3.1新特性】
+ 
+ dbGroup：对象默认存储在的数据库组。在guzz.xml中声明时可以覆盖。【guzz1.3.1新特性】
+ 
  shadow：用于设置表分切和自定义表，使用方法在后面有详细的介绍。
 
 *property定义增加了2个属性：*
@@ -111,6 +115,31 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 }}}
 
  * 2. Mysql和H2数据库，native表示默认使用identify（数据库中的自增ID）。param name="sequence"参数会自动忽略掉。
+
+
+== hbm.xml例子 ==
+
+{{{
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.service.core.impl.IncUpdateBusiness" table="tb_guzz_su" businessName="guzzSlowUpdate" dbGroup="logDB">
+        <id name="id" type="bigint" column="gu_id">
+        	<generator class="native">
+        		<param name="sequence">seq_iub_id</param>
+        	</generator>
+        </id>
+        <property name="dbGroup" type="string" column="gu_db_group" />
+        <property name="tableName" type="string" column="gu_tab_name" />
+        <property name="columnToUpdate" type="string" column="gu_inc_col" />
+        <property name="pkColunName" type="string" column="gu_tab_pk_col" />
+        <property name="pkValue" type="string" column="gu_tab_pk_val" />
+        <property name="countToInc" type="int" column="gu_inc_count" />
+    </class>
+</hibernate-mapping>
+}}}
+
+
 
 == 类似ibatis的映射 ==
 
