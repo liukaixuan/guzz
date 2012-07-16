@@ -37,9 +37,11 @@
 
  * 17. [TutorialCustomTable 自定义属性表（Custom Table）]
 
- * 18. [TutorialTemplatedSQLService 动态拼接SQL（TemplatedSQL）]
+ * 18. [TutorialVirtualDB VirtualDB]
 
- * 19. [TutorialDynamicSQLService 动态加载SQL（DynamicSQL）]
+ * 19. [TutorialTemplatedSQLService 动态拼接SQL（TemplatedSQL）]
+
+ * 20. [TutorialDynamicSQLService 动态加载SQL（DynamicSQL）]
 
 == 附录： ==
 

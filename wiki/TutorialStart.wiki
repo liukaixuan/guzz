@@ -37,9 +37,11 @@
 
  * 17. [TutorialCustomTable Custom Table]
 
- * 18. [TutorialTemplatedSQLService Templated SQL]
+ * 18. [TutorialVirtualDB VirtualDB]
+    
+ * 19. [TutorialTemplatedSQLService Templated SQL]
 
- * 19. [TutorialDynamicSQLService Dynamic (Load) SQL]
+ * 20. [TutorialDynamicSQLService Dynamic (Load) SQL]
 
 == Appendix: ==
 
