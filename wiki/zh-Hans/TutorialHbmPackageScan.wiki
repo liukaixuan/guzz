@@ -80,7 +80,7 @@ public class User implements Serializable {
  
  因此，package-scan时，guzz只考虑符合条件的文件内容，不考虑文件名称。
  
- 假如 resources="classpath*:org/guzz/test/shop/`*`" ，则此目录下即便有一个文件叫 abc.txt 或是 abc.hbm.xml.bak，或是!NotUseAnyMore.class.bak，只要文件内容是映射文件内容，一样会被加载。
+ 假如 resources="classpath`*`:org/guzz/test/shop/`*`" ，则此目录下即便有一个文件叫 abc.txt 或是 abc.hbm.xml.bak，或是!NotUseAnyMore.class.bak，只要文件内容是映射文件内容，一样会被加载。
  
  
   如果您需要package-scan，但又不使用spring，请留言。如果有较多这种场景，我们会开发不依赖spring的package-scan。
