@@ -81,7 +81,7 @@ public class User implements Serializable {
 
 == Inside the implementation  ==
 
-*-Could be changed in the future*
+*--Could be changed in the future*
 
  While guzz is starting, it loads all resources matching spring's !PathMatchingResourcePatternResolver pattern.
 
