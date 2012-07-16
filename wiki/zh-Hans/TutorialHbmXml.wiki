@@ -147,6 +147,7 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 == 类似ibatis的映射 ==
 
  在guzz.xml中进行定义，示例：
+ 
 {{{
 	<sqlMap dbgroup="default">
 	
@@ -182,3 +183,4 @@ CREATE SEQUENCE guzz_sequence INCREMENT BY 1 START WITH 1
 	</sqlMap>
 
 }}}
+

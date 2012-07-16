@@ -1,0 +1,91 @@
+
+== 批量添加领域对象映射 ==
+
+ 对于大量的领域对象，可以通过 business-scan进行批量配置。guzz启动时，进行目录文件扫描，并自动加载。
+ 
+ 目录扫描支持hbm.xml文件和annotation映射两种，支持映射文件存储在单个文件中，也支持在jar包中。
+
+ 示例：
+ 
+{{{
+
+	<business-scan resources="classpath*:/org/guzz/test/*.class" />
+	<business-scan dbgroup="cargoDB" resources="classpath*:org/guzz/test/shop/*.hbm.xml" />
+	
+	<a-business name="article" dbgroup="appDB" class="xxx.xxx.Article" />
+}}}
+
+ business-scan 在guzz.xml中声明，和business，a-business相同。
+
+ business-scan 需guzz1.3.1以上版本支持，需要spring-core包支持。
+ 
+ business-scan 可以配置多个，按照在guzz.xml文件中从前往后的顺序加载。如果一个领域对象被声明多次，则第一次有效，其后的声明忽略。 同一个 business-scan 内，域对象加载顺序是随机的，不可控。
+
+ business和a-business 单独声明的域对象，优先级高于 business-scan。可以在 business-scan 声明目录后，用business或a-business进行单个配置的覆盖。
+ 
+ business-scan支持两个属性：
+ 
+|| *属性名* || *Required* || *作用* ||
+|| resources || 必须  || 要扫描的目录。目录扫描使用的是spring的PathMatchingResourcePatternResolver，详细说明请参看 [PathMatchingResourcePatternResolver http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/core/io/support/PathMatchingResourcePatternResolver.html] ||
+|| dbgroup || 可选 || 对象存储到的数据库组。默认使用扫描到的hbm.xml或是java annotation中声明的dbgroup。如果设置了此项，则所有符合此package-scan的映射，dbgroup全部覆盖成这里设置的dbgroup。 ||
+
+
+== 其他要求和例子  ==
+
+ 使用 package-scan，必须在类中或hbm.xml中声明 business name。否则，扫描时会忽略。
+ 
+ 例子，annotation方式：
+{{{
+
+@javax.persistence.Entity 
+@org.guzz.annotations.Entity(businessName="user")
+@org.guzz.annotations.Table(name="tb_user", dbGroup="mainDB")
+public class User implements Serializable {
+
+...
+
+}
+
+}}}
+
+ hbm.xml方式：
+{{{
+
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+<hibernate-mapping>
+    <class name="org.guzz.service.core.impl.IncUpdateBusiness" table="tb_guzz_su" businessName="guzzSlowUpdate" dbGroup="logDB">
+        <id name="id" type="bigint" column="gu_id">
+        	<generator class="native">
+        		<param name="sequence">seq_iub_id</param>
+        	</generator>
+        </id>
+        <property name="dbGroup" type="string" column="gu_db_group" />
+        <property name="tableName" type="string" column="gu_tab_name" />
+        <property name="columnToUpdate" type="string" column="gu_inc_col" />
+        <property name="pkColunName" type="string" column="gu_tab_pk_col" />
+        <property name="pkValue" type="string" column="gu_tab_pk_val" />
+        <property name="countToInc" type="int" column="gu_inc_count" />
+    </class>
+</hibernate-mapping>
+
+}}}
+ 
+
+== 内部实现原理  ==
+
+ 【仅供参考，以后可能会变】
+
+ guzz启动时，使用spring的PathMatchingResourcePatternResolver加载所有符合resources条件的资源，只要资源可以读，则按照java类加载，然后根据annotation判断是否是域对象；是则加载，否则，按照hbm.xml加载。如果都不行，则忽略。
+ 
+ 因此，package-scan时，guzz只考虑符合条件的文件内容，不考虑文件名称。
+ 
+ 假如 resources="classpath*:org/guzz/test/shop/*" ，则此目录下即便有一个文件叫 abc.txt 或是 abc.hbm.xml.bak，或是NotUseAnyMore.class.bak，只要文件内容是映射文件内容，一样会被加载。
+ 
+ 
+  如果您需要package-scan，但又不使用spring，请留言。如果有较多这种场景，我们会开发不依赖spring的package-scan。
+ 
+ 
+ 
+ 
+ 
