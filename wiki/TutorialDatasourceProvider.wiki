@@ -63,6 +63,7 @@ guzz.maxLoad=xxx
 || *Provider name* || *pool value* || *parameters* ||
 || C3P0(default) || c3p0 || http://www.mchange.com/projects/c3p0/index.html#configuration_properties ||
 || Apache DBCP || dbcp || http://commons.apache.org/dbcp/configuration.html ||
+|| JNDI || jndi || *jndiName*: jndiName <br> *contextFactory*: The value of javax.naming.Context.INITIAL_CONTEXT_FACTORY ||
 || No pool(connect on demand, and release on close.) || nopool || *driverClass*: driver class<br>*jdbcUrl*:jdbc url<br>*user*:user name<br>*password*:password ||
 
 == How to write a new provider? ==

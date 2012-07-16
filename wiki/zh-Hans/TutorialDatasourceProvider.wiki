@@ -63,6 +63,7 @@ guzz.maxLoad=xxx
 || *连接池名称* || *pool参数取值* || *调节参数* ||
 || C3P0（guzz默认连接池） || c3p0 || http://www.mchange.com/projects/c3p0/index.html#configuration_properties ||
 || Apache DBCP || dbcp || http://commons.apache.org/dbcp/configuration.html ||
+|| JNDI || jndi || *jndiName*: jndiName <br> *contextFactory*: The value of javax.naming.Context.INITIAL_CONTEXT_FACTORY ||
 || 无连接池（每次直接连接，关闭即释放） || nopool || *driverClass*: driver class<br>*jdbcUrl*:jdbc url<br>*user*:user name<br>*password*:password ||
 
 == 自定义连接池实现 ==
