@@ -1,11 +1,9 @@
 
-== 批量添加领域对象映射 ==
+== ORM by package scanning ==
 
- 对于大量的领域对象，可以通过 business-scan进行批量配置。guzz启动时，进行目录文件扫描，并自动加载。
+ To declare mappings for multiple businesses, business-scan can be used. 
  
- 目录扫描支持hbm.xml文件和annotation映射两种，支持映射文件存储在单个文件中，也支持在jar包中。
-
- 示例：
+ For example:
  
 {{{
 
@@ -15,26 +13,35 @@
 	<a-business name="article" dbgroup="appDB" class="xxx.xxx.Article" />
 }}}
 
- business-scan 在guzz.xml中声明，和business，a-business相同。
-
- business-scan 需guzz1.3.1以上版本支持，需要spring-core包支持。
+ In the above example, guzz scan all files matching classpath`*`:/org/guzz/test/`*`.class and classpath`*`:org/guzz/test/shop/*.hbm.xml, and load them as mapping files.
  
- business-scan 可以配置多个，按照在guzz.xml文件中从前往后的顺序加载。如果一个领域对象被声明多次，则第一次有效，其后的声明忽略。 同一个 business-scan 内，域对象加载顺序是随机的，不可控。
-
- business和a-business 单独声明的域对象，优先级高于 business-scan。可以在 business-scan 声明目录后，用business或a-business进行单个配置的覆盖。
+ The scanned mapping files could be a hbm.xml file, or a java annotation class; it can be existed as a single file, or be packaged in a jar.
  
- business-scan支持两个属性：
+ business-scan is declared similar to business and a-business elements in guzz.xml.
+
+ business-scan is a new feature in guzz1.3.1, and spring-core library is required.
+
+ You can write more than one business-scan elements, and guzz will load them in the sequence of head to tail written in the guzz.xml file. If a business is included multiple times in the business-scans, only the first time is valid, the others will be ignored.
+
+ Businesses loading sequences in the same business-scan are undefined.
  
-|| *属性名* || *Required* || *作用* ||
-|| resources || 必须  || 要扫描的目录。目录扫描使用的是spring的PathMatchingResourcePatternResolver，详细说明请参看 [PathMatchingResourcePatternResolver http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/core/io/support/PathMatchingResourcePatternResolver.html] ||
-|| dbgroup || 可选 || 对象存储到的数据库组。默认使用扫描到的hbm.xml或是java annotation中声明的dbgroup。如果设置了此项，则所有符合此package-scan的映射，dbgroup全部覆盖成这里设置的dbgroup。 ||
-
-
-== 其他要求和例子  ==
-
- 使用 package-scan，必须在类中或hbm.xml中声明 business name。否则，扫描时会忽略。
+ A business declared in a business or a-business element has a higher priority over the one loaded by business-scan. As a result, you can use business-scan to load all businesses for simplicities, and override some of them as needed with business and a-business declarations.
+   
  
- 例子，annotation方式：
+ business-scan has two attributes: 
+ 
+|| *attribute* || *Required* || *note* ||
+|| resources || Required  || The files to scan. Guzz uses spring's !PathMatchingResourcePatternResolver to match files, for pattern details please read:[http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/core/io/support/PathMatchingResourcePatternResolver.html PathMatchingResourcePatternResolver] ||
+|| dbgroup || Optional || The database group to store the scanned businesses. Use dbGroup declared in the scanned file(hbm.xml or java annotation) in default. Override all businesses's dbgroups to this value if this attribute is set here. ||
+
+
+== Cautions and samples  ==
+
+ The business's name is MUST declared in the hbm.xml file or the java annotated class, or package-scan will ignore it as a invalid mapping file.
+ 
+ Samples:
+ 
+ java annotation: 
 {{{
 
 @javax.persistence.Entity 
@@ -48,7 +55,7 @@ public class User implements Serializable {
 
 }}}
 
- hbm.xml方式：
+ hbm.xml: 
 {{{
 
 <?xml version="1.0"?>
@@ -72,20 +79,16 @@ public class User implements Serializable {
 }}}
  
 
-== 内部实现原理  ==
+== Inside the implementation  ==
 
- 【仅供参考，以后可能会变】
+ [Could be changed in the future.]
 
- guzz启动时，使用spring的PathMatchingResourcePatternResolver加载所有符合resources条件的资源，只要资源可以读，则按照java类加载，然后根据annotation判断是否是域对象；是则加载，否则，按照hbm.xml加载。如果都不行，则忽略。
+ While guzz is starting, it loads all resources matching spring's !PathMatchingResourcePatternResolver pattern.
+
+ Guzz iterator the loaded resources. If the resource is readable, it will be treated as a java annotated class and interpreted as a JAP mapping file. If failed, it is treated as a hbm.xml mapping file then. If this is failed again, the resource is ignored; or it will be loaded.
  
- 因此，package-scan时，guzz只考虑符合条件的文件内容，不考虑文件名称。
- 
- 假如 resources="classpath*:org/guzz/test/shop/*" ，则此目录下即便有一个文件叫 abc.txt 或是 abc.hbm.xml.bak，或是NotUseAnyMore.class.bak，只要文件内容是映射文件内容，一样会被加载。
- 
- 
-  如果您需要package-scan，但又不使用spring，请留言。如果有较多这种场景，我们会开发不依赖spring的package-scan。
- 
- 
- 
+ So be careful, package-scan only considers the contents of the matched files, the file names are never minded.
+
+ If you have a declaration as resources="classpath`*`:org/guzz/test/shop/`*`", then abc.txt, abc.hbm.xml.bak, and !NotUseAnyMore.class.bak will be loaded too if they existed in the org/guzz/test/shop/' folder and the contents are a mapping file or a annotated domain class. 
  
  
