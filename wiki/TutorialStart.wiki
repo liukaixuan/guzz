@@ -13,7 +13,7 @@
 
  * 6. [TutorialHbmAnnotation ORM by annotation]
  
- * 7. [TutorialHbmPackageScan Or By folders]
+ * 7. [TutorialHbmPackageScan ORM By folders]
 
  * 8. [TutorialTranSession Persist API]
 
