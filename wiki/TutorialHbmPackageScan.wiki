@@ -13,7 +13,7 @@
 	<a-business name="article" dbgroup="appDB" class="xxx.xxx.Article" />
 }}}
 
- In the above example, guzz scan all files matching classpath`*`:/org/guzz/test/`*`.class and classpath`*`:org/guzz/test/shop/*.hbm.xml, and load them as mapping files.
+ In the above example, guzz scan all files matching classpath`*`:/org/guzz/test/`*`.class and classpath`*`:org/guzz/test/shop/`*`.hbm.xml, and load them as mapping files.
  
  The scanned mapping files could be a hbm.xml file, or a java annotation class; it can be existed as a single file, or be packaged in a jar.
  
@@ -81,7 +81,7 @@ public class User implements Serializable {
 
 == Inside the implementation  ==
 
- [Could be changed in the future.]
+ [ Could be changed in the future ]
 
  While guzz is starting, it loads all resources matching spring's !PathMatchingResourcePatternResolver pattern.
 
