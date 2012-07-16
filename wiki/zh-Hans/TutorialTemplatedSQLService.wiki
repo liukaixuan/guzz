@@ -1,0 +1,170 @@
+== 什么是TemplatedSQL? ==
+
+ TemplatedSQL用于动态的拼接SQL语句，我们称做“模板SQL”。
+ 
+ 你可以写一个包含逻辑条件的sql语句，在调用时传入参数。guzz根据传入的参数，把配置的sql语句合成匹配参数条件的语句，然后执行。
+ 
+ 类似Ibatis在配置sql时，可以写各种逻辑条件，TemplatedSQL的功能更加强大，不仅允许在配置时写模板SQL，也可以在程序中直接通过模板SQL进行调用。
+ 
+ 同时，下一节介绍的 [TutorialDynamicSQLService] 也支持按照模板SQL。
+  
+  
+== 配置模板SQL ==
+
+ 模板SQL基于guzz服务来实现。目前guzz自带了基于Velocity模板引擎的条件解析。在guzz.xml中添加下面一行既可开启模板SQL：
+ 
+{{{
+
+<service name="guzzTemplatedSQL" class="org.guzz.service.core.impl.VelocityTemplatedSQLService" />
+
+}}}
+ 
+ 注意服务的名称为 guzzTemplatedSQL ，不可以更改。
+
+ 在添加以上服务后，对于需要模板化解析的sql语句，在 sql语句配置时，增加一个属性：templated="true" ，这样就可以使用velocity的模板语言来编写sql语句。
+
+ 举例：
+ 
+{{{
+	<select id="listCommentsByName" orm="commentMap" templated="true">
+			select * from @@commentMap
+			
+			#notEmpty($userName)
+			 	where @userName = :userName
+			#end
+			
+			<paramsMapping>
+				<map paramName="userName" propName="userName" />
+			</paramsMapping>
+		</select>
+
+}}} 
+
+在举例来说，这次我们把参数直接拼接到语句中【这种方式请特别注意sql注入的问题】。
+
+{{{
+
+	<sqlMap dbgroup="cargoDB">
+		<select id="selectCrossSize" orm="cargo" result-class="org.guzz.orm.rdms.MyCrossStitch" templated="true">
+			select name, price, gridNum, size, brand from @@cargo where id > ${id}
+		</select>
+	</sqlMap>
+
+}}} 
+ 
+一个orm到域对象的例子：
+{{{
+
+	<sqlMap dbgroup="default">
+		<select id="selectTimedDeletedPosts" orm="deletedPost" templated="true"><![CDATA[
+			select * from @@deletedPost where checkedTime<>'' and timediff(deletedTime,checkedTime) > :time 
+				 and timediff(deletedTime,now()) < :sTime
+			
+			#notEmpty($title)
+				and title like :title
+			#end
+			
+			#notEmpty($userNick)
+				and userNick = :userNick
+			#end
+			
+			order by id desc
+			]]> 
+			<paramsMapping>
+				<map paramName="time" type="string" />
+				<map paramName="sTime" type="string" />
+				<map paramName="title" propName="title" />
+				<map paramName="userNick" propName="userNick" />
+			</paramsMapping>
+		</select>
+		
+		<select id="countTimedDeletedPosts" orm="deletedPost" templated="true"><![CDATA[
+			select count(*) from @@deletedPost where checkedTime<>'' and timediff(deletedTime,checkedTime) > :time
+				 and timediff(deletedTime,now()) < :sTime
+			 
+			#notEmpty($title)
+				and title like :title
+			#end
+			
+			#notEmpty($userNick)
+				and userNick = :userNick
+			#end
+			]]>
+			<paramsMapping>
+				<map paramName="time" type="string" />
+				<map paramName="sTime" type="string" />
+				<map paramName="title" propName="title" />
+				<map paramName="userNick" propName="userNick" />
+			</paramsMapping>
+		</select>
+	</sqlMap>
+
+}}}
+
+
+== 模板SQL的条件语言 ==
+
+  完全基于Velocity实现，支持velocity的所有标签。具体可以参看：[http://velocity.apache.org/engine/releases/velocity-1.7/vtl-reference-guide.html]
+
+ 或者直接google velocity教程。
+
+ Velocity在处理“空”时，标签比较弱，再加上参数可能来自网友输入，用起来非常不方便，因此guzz内置了两个判断空的标签，对velocity进行扩展。分别是：
+ 
+{{{
+			#notEmpty($param)
+				something to go
+			#end
+			
+			#isEmpty($param)
+				something to go
+			#end
+
+}}} 
+ 
+ 当param不为空时，#notEmpty内语句被执行；当param为空时 #isEmpty内语句被执行。 
+ 
+ 空的条件如下：
+ 
+  1. 如果 param 为null，算做空；
+  
+  2. 如果 param 为String字符串，且 param.trim().length() == 0，算作空；
+  
+  3. 如果 param 为Collection集合，且 集合为空，则算作空；
+  
+  4. 如果 param 为数组，且数组长度为0，则算作空；
+  
+  5. 其他情况，视作不为空。
+ 
+
+== 程序中构建模板SQL ==
+
+ 与普通sql构造一样，先构造成!CompiledSQL，然后用  !CompiledSQL 绑定参数执行即可。
+
+ 区别在于，构造!CompiledSQL，调用 !CompiledSQLBuilder.buildTemplatedCompiledSQL 系列方式。传入的sql语句，为模板化的sql语句【如包含velocity条件的sql】。
+
+
+== 模板SQL的性能 ==
+
+ 模板SQL由于每次都需要解析，因此性能低于普通SQL。如果sql不是条件化的，请不要添加 templated="true" 属性。
+
+ 在默认的Velocity实现中，sql语句会全部加载到内存中，消耗主要是CPU运算。
+ 
+ 在guzz.xml中配置的sql语句，在velocity解析时，会使用解析好的结构化模板，加快速度。
+
+ 程序中构建的模板SQL，模板每次都是重新解析。
+
+
+ 
+== 自定义模板SQL的条件语言 ==
+ 
+ 如果是在velocity模板的基础上，增加新的条件语句，请实现velocity的自定义directive，然后通过服务配置的方式配置即可。【请看org.guzz.service.core.impl.!VelocityTemplatedSQLService源代码，里面为配置提供了支持】
+ 
+ 如果抛开velocity，实现一个继承了 org.guzz.service.core.TemplatedSQLService 接口的guzz服务，在上面配置中，将class换成你的实现即可，如：
+
+{{{
+
+<service name="guzzTemplatedSQL" class="xxx.xxx.xxx.YourTemplatedSQLServiceImplementation" />
+
+}}} 
+
+ 

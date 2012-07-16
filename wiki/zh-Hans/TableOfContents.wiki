@@ -26,6 +26,7 @@
    * [TutorialShadowTable 表分切（Shadow Table）]
    * [TutorialCustomTable 自定义属性表（Custom Table）]
    * [TutorialVirtualDB 分布式切表（Virtual DB）]
+   * [TutorialTemplatedSQLService 动态拼接 SQL]
    * [TutorialDynamicSQLService 动态（加载）SQL]
  * [TaglibBook JSP页面快速开发指南]
  * [http://www.guzz.org/docs/javadoc/index.html java doc]
