@@ -13,29 +13,33 @@
 
  * 6. [TutorialHbmAnnotation 或通过annotation声明ORM]
 
- * 7. [TutorialTranSession 编写数据库操作]
+ * 7. [TutorialHbmPackageScan 或按照目录声明ORM]
+ 
+ * 8. [TutorialTranSession 编写数据库操作]
 
- * 8. [SearchExpression 查询表达式]
+ * 9. [SearchExpression 查询表达式]
 
- * 9. [TutorialTaglib guzz taglib]
+ * 10. [TutorialTaglib guzz taglib]
 
- * 10. [TutorialDatasourceProvider 配置数据库连接池]
+ * 11. [TutorialDatasourceProvider 配置数据库连接池]
 
 == 高级设置： ==
 
- * 11. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
+ * 12. [TutorialLazyLoad 延迟加载(lazy load)与自定义加载(如从文件系统或Web Service中加载某些属性)]
 
- * 12. [TutorialLob Blob与Clob使用]
+ * 13. [TutorialLob Blob与Clob使用]
 
- * 13. [TutorialService Service1:服务的使用和编写]
+ * 14. [TutorialService Service1:服务的使用和编写]
 
- * 14. [TutorialFutureService Service2:编写支持异步调用的服务]
+ * 15. [TutorialFutureService Service2:编写支持异步调用的服务]
 
- * 15. [TutorialShadowTable 表分切（Shadow Table）]
+ * 16. [TutorialShadowTable 表分切（Shadow Table）]
 
- * 16. [TutorialCustomTable 自定义属性表（Custom Table）]
+ * 17. [TutorialCustomTable 自定义属性表（Custom Table）]
 
- * 17. [TutorialDynamicSQLService 动态（加载）SQL]
+ * 18. [TutorialTemplatedSQLService 动态拼接SQL（TemplatedSQL）]
+
+ * 19. [TutorialDynamicSQLService 动态加载SQL（DynamicSQL）]
 
 == 附录： ==
 

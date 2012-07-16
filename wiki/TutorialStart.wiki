@@ -12,30 +12,34 @@
  * 5. [TutorialHbmXml ORM by hbm.xml]
 
  * 6. [TutorialHbmAnnotation ORM by annotation]
+ 
+ * 7. [TutorialHbmPackageScan Or By folders]
 
- * 7. [TutorialTranSession Persist API]
+ * 8. [TutorialTranSession Persist API]
 
- * 8. [SearchExpression Database Query Expression]
+ * 9. [SearchExpression Database Query Expression]
 
- * 9. [TutorialTaglib Guzz JSP Taglib]
+ * 10. [TutorialTaglib Guzz JSP Taglib]
 
- * 10. [TutorialDatasourceProvider Setup connection pools]
+ * 11. [TutorialDatasourceProvider Setup connection pools]
 
 == Advanced: ==
 
- * 11. [TutorialLazyLoad Lazy Load and Custom Load(eg: load a property value from file system or web service)]
+ * 12. [TutorialLazyLoad Lazy Load and Custom Load(eg: load a property value from file system or web service)]
 
- * 12. [TutorialLob Blob & Clob]
+ * 13. [TutorialLob Blob & Clob]
 
- * 13. [TutorialService Service1:Write and Use Service]
+ * 14. [TutorialService Service1:Write and Use Service]
 
- * 14. [TutorialFutureService Service2:Asynchronous Service]
+ * 15. [TutorialFutureService Service2:Asynchronous Service]
 
- * 15. [TutorialShadowTable Shadow Table]
+ * 16. [TutorialShadowTable Shadow Table]
 
- * 16. [TutorialCustomTable Custom Table]
+ * 17. [TutorialCustomTable Custom Table]
 
- * 17. [TutorialDynamicSQLService Dynamic (Load) SQL]
+ * 18. [TutorialTemplatedSQLService Templated SQL]
+
+ * 19. [TutorialDynamicSQLService Dynamic (Load) SQL]
 
 == Appendix: ==
 

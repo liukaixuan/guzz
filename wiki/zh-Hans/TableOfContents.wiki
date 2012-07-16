@@ -27,7 +27,7 @@
    * [TutorialCustomTable 自定义属性表（Custom Table）]
    * [TutorialVirtualDB 分布式切表（Virtual DB）]
    * [TutorialTemplatedSQLService 动态拼接SQL（TemplatedSQL）]
-   * [TutorialDynamicSQLService 动态加载SQL （DynamicSQL）]
+   * [TutorialDynamicSQLService 动态加载SQL（DynamicSQL）]
  * [TaglibBook JSP页面快速开发指南]
  * [http://www.guzz.org/docs/javadoc/index.html java doc]
  * [http://www.guzz.org/docs/tlddocs/index.html taglib doc]
