@@ -1,0 +1,2 @@
+
+java -jar tlddoc-1.3.jar -doctitle "Guzz Taglib" -windowtitle "Guzz Taglib"  D:\coding\work_station\guzz\src\main\resources\META-INF\guzz.tld
