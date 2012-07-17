@@ -11,6 +11,8 @@
   
 == 配置模板SQL ==
 
+ 在工程中放入velocity最新的jar包，我们测试使用的是velocity 1.7的引擎。
+
  模板SQL基于guzz服务来实现。目前guzz自带了基于Velocity模板引擎的条件解析。在guzz.xml中添加下面一行既可开启模板SQL：
  
 {{{
