@@ -114,6 +114,7 @@
 *orm/result：*每1个Result代表一列的对应关系，property为java属性名，column为数据库属性，type为数据类型（与hbm.xml中的type含义和取值相同）；如果type没有指定，则通过orm/class按照property属性反射获取类型。
 
 
+
 == sql语句中特殊字符转义 ==
 
 在sql语句中，某些特殊的字符为sql语句保留或是guzz保留。如果这些字符仅仅是参数值的一部分，在拼接成sql语句中时，需要进行转义。
@@ -133,9 +134,10 @@ select * from @@article where @title=:title and @createdTime > to_date('20110101
 
 }}}
 
-在上面例子中，时间值包含“:”，则需要进行转义；否则guzz将把“:”后的内容当作命名参数处理，引发错误。
+在上面的例子中，时间值包含“:”，则需要进行转义；否则guzz将把“:”后的内容当作命名参数处理，引发错误。
 
 *注意：* 如果参数值通过命名参数传入，特殊字符也不需要转义。转义仅适用于直接的sql拼接。
+
 
 
 == guzz支持的数据库和dialect ==
@@ -147,6 +149,8 @@ select * from @@article where @title=:title and @createdTime > to_date('20110101
 || Oracle 10g || org.guzz.dialect.Oracle10gDialect || - ||
 || H2 Database || org.guzz.dialect.H2Dialect|| - ||
 || Microsoft SQL Server 2000+ || org.guzz.dialect.MSSQLDialect|| 不支持分页查询。未测试。 ||
+
+
 
 == guzz支持的数据类型 ==
 || *数据库* || *数据库数据类型* || *guzz中type取值* || *Java类型* || *含义* ||
@@ -187,3 +191,4 @@ select * from @@article where @title=:title and @createdTime > to_date('20110101
 || Oracle8i+ || varchar2 || string || java.lang.String || 字符型 ||
 || Oracle8i+ || nclob || clob || org.guzz.pojo.lob.TranClob || 大字符 ||
 || Oracle8i+ || raw || bytes || byte`[]` || 字节数组 ||
+
