@@ -30,9 +30,9 @@ java.sql.SQLException: No suitable driver
 
  Reason: The problem is caused by IDE which changed the properties file automatic, but wrong! Please extract the bigVote.properties from the jar again and open/edit it with common Properties File Editor, *NOT* the default Advanced Properties editor of MyEclipse. The reason of this error is that the advanced editor of MyEclipse will automatically combine the “configuration items with same name”. Due to the grouping of our properties, the configuration items of same name can be valid item in different groups, and can’t be combined!
 
-*2. Is jndi supported?*
+*2. Is JNDI supported?*
 
- NO! Maybe later.
+ Yes, since guzz 1.3.1.
 
 *3. Guzz mentions that “it supports a large amount of database and master-slave reading and writing separation.” What does it mean? Can you show me some details? Besides, “master-slave” is a term of Mysql, how about other databases? 
 
