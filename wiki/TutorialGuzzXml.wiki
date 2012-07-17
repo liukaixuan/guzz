@@ -116,6 +116,30 @@ Notes:
 *orm/result:* Each "result" represents a field mapping of the ORM. "property" is the java property name, "column" is the column name in the table, and "type" is the data type of the property. The "type" attribute is optional, it can be detected by reflection automaticly.
 
 
+== Special characters escaping in sqls ==
+
+Some characters are retained by guzz which should be escaped while concating them to sql values.
+
+The characters: 
+|| character || escaped || 
+|| : || \: || 
+|| @ || \@ || 
+|| ' || \' ||
+|| \ || \\ || 
+|| " || \" ||
+
+For example:
+{{{
+
+select * from @@article where @title=:title and @createdTime > to_date('20110101 0\:0\:0', 'YYYYMMDD HH24\:MI\:SS')
+
+}}}
+
+In the above example, ":" in the time segments are escaped to "\:", or guzz will treat them as named parameters and cause errors.
+
+*Caution:* If the parameter values are passed as named parameters, do not escape anything.
+
+
 == Dialect and Database Providers Supported ==
 
 || *Database Provider* || *Dialect* || *Notes* ||
