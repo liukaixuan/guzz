@@ -77,11 +77,11 @@ Select * from tb_gift where status!=5 and toUserId=...order  by  id desc
 
 这里要注意几个问题：
 
-(1)guzz标签中的business指的是针对的实体名称，也就是与数据库表映射的实体类名，并不是数据库表名。
+(1) guzz标签中的business指的是针对的实体名称，也就是与数据库表映射的实体类名，并不是数据库表名。
 
-(2)如果这里不需要指定要查询的条数，要全部显示，pageSize属性设置成一个非常大的值。
+(2) 如果这里不需要指定要查询的条数，要全部显示，pageSize属性设置成一个非常大的值。
 
-(3)如果查询条件较多，可以继续增加guzzAddLimit标签以设置多个查询条件，但条件之间为“与”的关系，不支持“或”的关系。比如：
+(3) 如果查询条件较多，可以继续增加guzzAddLimit标签以设置多个查询条件，但条件之间为“与”的关系，不支持“或”的关系。比如：
 {{{
 
 #guzzBoundary()
@@ -93,33 +93,34 @@ Select * from tb_gift where status!=5 and toUserId=...order  by  id desc
 
 }}}
 
-(4)guzz标签中可以引用vm中的变量，比如上述例子中就使用了$user.userId这个变量
+(4) guzz标签中可以引用vm中的变量，比如上述例子中就使用了$user.userId这个变量
 
  
 == 详细介绍下这里所使用到的guzz标签 ==
  
-*#guzzList()*是根据limit字段中设置的条件查询结果，并返回一个list。“business”：“gift”指出该查询针对的实体是gift，"var":"m_gifts"用来设置返回的list所在变量，"limit":"toUserId=$user.userId"用来设置条件,pageNo为页号，pageSize为每页显示条数，"orderBy":"id desc"为按id倒序显示。
+*#guzzList()* 根据limit字段中设置的条件查询结果，并返回一个list。“business”：“gift”指出该查询针对的实体是gift，"var":"m_gifts"用来设置返回的list所在变量，"limit":"toUserId=$user.userId"用来设置条件,pageNo为页号，pageSize为每页显示条数，"orderBy":"id desc"为按id倒序排列。
 
-*#guzzAddLimit()*是用来设置查询条件的，在这里我们假设要查询status字段值不等于5的记录
+*#guzzAddLimit()* 用来添加查询条件的，在这里我们设置要查询对象的status不等于5。
 
-*#guzzBoundary()*是用于为list/get/page等数据读取标签，设置查询条件，以#end结束。
+*#guzzBoundary()* 用于划定条件添加范围。放在 list/get/page等数据读取标签外部，以#end结束。
 
-在 *#guzzBoundary* 与#end之间加入 *guzzAddLimit* 标签，表示将guzzAddLimit设置的条件附加到随后出现的guzzList查询条件中。
- 
+在 *#guzzBoundary* 与#end之间加入 *guzzAddLimit* 标签，表示将guzzAddLimit设置的条件附加到随后出现的guzzList等查询请求中。
+
+
 *#guzzGet* 用来查询数据库中的单条记录，写法如下：
 
 {{{
 #guzzGet({"business":"giftInfo", "var": "m_gift_info",  "limit" : "id=$infoId", "orderBy" :  "id desc" })
 }}}
 
-其中business表示以giftInfo为要查询的实体对象。var表示查询后的结果用变量m_gift_info来引用，limit表示查询条件是id=$infoId, orderBy表示查询结果按id倒序显示。
+其中business指定要查询的实体对象为giftInfo。var表示查询后的结果用变量m_gift_info来存储引用，limit表示查询条件是id=$infoId, orderBy表示查询结果按id倒序后取第一个。
  
 
 
 *更完整的例子：*
 
 {{{
-<!--先查出所有符合limit条件的礼物记录，且只查前六条记录-->
+<!--查出所有符合limit条件礼物记录的前六条记录-->
 #guzzBoundary()
 	#guzzAddLimit(true, ["status=1"])
 	#guzzAddLimit(true,["public=1"])
@@ -130,7 +131,7 @@ Select * from tb_gift where status!=5 and toUserId=...order  by  id desc
     #if($m_gifts.size()>0)  
 		  <div class="sns_liwu clearfix">
 		    <ul>
-           <!--对查得的m_gifts进行遍历显示-->
+           <!--对找到的m_gifts进行遍历显示-->
              #foreach($m_gift in $m_gifts)
               <li>
               #set($infoId=$m_gift.giftInfoId)
