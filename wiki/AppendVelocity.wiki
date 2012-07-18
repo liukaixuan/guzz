@@ -16,9 +16,9 @@
 
 == Guzz's Velocity Directive ==
 
- 如果你用过 [TutorialTaglib Guzz JSP Taglib] ，Velocity Directive 就是翻版。
+ 如果你用过 [TutorialTaglib Guzz JSP Taglib] ，Velocity Directives 就是翻版。
  
- 可以直接理解为在Velocity模板中也可以通过声明的方式读取数据库数据，对字符串进行xml转义，过滤javascript等。
+ 可以直接理解为在Velocity模板中，也可以通过声明的方式读取数据库数据，或是对字符串进行xml转义，过滤javascript等。
 
 *Guzz提供的Directive：*
 
@@ -37,8 +37,9 @@
 || guzzPage  || 读取一页对象。返回的对象默认为org.guzz.dao.PageFlip 对象。  || 不可以  ||
 || guzzInc  || 按照主键对域对象的1个字段进行自增操作。g:inc需要配置 [AppendCoreService 计数器更新队列服务] 方可生效。  || 不可以  ||
 
+ 其中guzzXXX的Directive，与JSP taglib对应的g:XXX标签用途，含义，属性完全一样。请直接阅读 [TutorialTaglib Guzz JSP Taglib 帮助]
  
-
+ to be coninued
  
  
  
