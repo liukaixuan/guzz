@@ -137,6 +137,9 @@
   5. 其他情况，视作不为空。
  
 
+*更多Velocity：* guzz对velocity提供了完整的支持，不仅解析sql语句，如果项目中有其他内容模板需要解析，也可以使用guzz内置的自定义标签。[AppendVelocity 查看更多guzz对Velocity的支持特性]
+
+
 == 在程序中直接构建模板SQL ==
 
  与普通sql构造一样，先构造成CompiledSQL，然后用  CompiledSQL 绑定参数执行即可。
@@ -167,5 +170,4 @@
 <service name="guzzTemplatedSQL" class="xxx.xxx.xxx.YourTemplatedSQLServiceImplementation" />
 
 }}} 
-
  
