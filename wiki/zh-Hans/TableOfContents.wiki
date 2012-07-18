@@ -35,4 +35,7 @@
    * [AppendCoreService guzz自带的基础服务介绍]
    * [AppendSpringBean guzz与spring相互引用接口]
    * [AppendJPAAnnotation Guzz JPA Annotation参考]
+   * [AppendVelocity Velocity支持]
    * [AppendTestCoverage 单元测试覆盖情况]
+   
+   
