@@ -76,42 +76,46 @@ Select * from tb_gift where status!=5 and toUserId=...order  by  id desc
 }}}
 
 这里要注意几个问题：
+
 (1)guzz标签中的business指的是针对的实体名称，也就是与数据库表映射的实体类名，并不是数据库表名。
 
 (2)如果这里不需要指定要查询的条数，要全部显示，pageSize属性设置成一个非常大的值。
 
 (3)如果查询条件较多，可以继续增加guzzAddLimit标签以设置多个查询条件，但条件之间为“与”的关系，不支持“或”的关系。比如：
 {{{
+
 #guzzBoundary()
 	#guzzAddLimit(true, ["status=1"])
 	#guzzAddLimit(true,["public=1"])
 	#guzzAddLimit(true,["anonymous=1"])
 	#guzzList({"business":"gift", "var": "m_gifts",  "limit" : "toUserId=$user.id",  "pageNo" : 1, "pageSize" : 6,  "orderBy" :  "id desc" })
 #end
+
 }}}
 
 (4)guzz标签中可以引用vm中的变量，比如上述例子中就使用了$user.userId这个变量
 
  
-*下面详细介绍一下这里所使用到的guzz标签*
+== 详细介绍下这里所使用到的guzz标签 ==
  
-#guzzList()是根据limit字段中设置的条件查询结果，并返回一个list。“business”：“gift”指出该查询针对的实体是gift，"var":"m_gifts"用来设置返回的list所在变量，"limit":"toUserId=$user.userId"用来设置条件,pageNo为页号，pageSize为每页显示条数，"orderBy":"id desc"为按id倒序显示。
+*#guzzList()*是根据limit字段中设置的条件查询结果，并返回一个list。“business”：“gift”指出该查询针对的实体是gift，"var":"m_gifts"用来设置返回的list所在变量，"limit":"toUserId=$user.userId"用来设置条件,pageNo为页号，pageSize为每页显示条数，"orderBy":"id desc"为按id倒序显示。
 
-#guzzAddLimit()是用来设置查询条件的，在这里我们假设要查询status字段值不等于5的记录
+*#guzzAddLimit()*是用来设置查询条件的，在这里我们假设要查询status字段值不等于5的记录
 
-#guzzBoundary()是用于为list/get/page等数据读取标签，设置查询条件，以#end结束。
+*#guzzBoundary()*是用于为list/get/page等数据读取标签，设置查询条件，以#end结束。
 
-在#guzzBoundary与#end之间加入guzzAddLimit以及guzzList标签，共同表示根据guzzAddLimit中设置的条件结合其中的limit字段中设置的条件查询结果，并返回一个list。
+在*#guzzBoundary*与#end之间加入guzzAddLimit以及guzzList标签，共同表示根据guzzAddLimit中设置的条件结合其中的limit字段中设置的条件查询结果，并返回一个list。
  
-#guzzGet 用来查询数据库中的单条记录，写法如下：
+*#guzzGet* 用来查询数据库中的单条记录，写法如下：
 {{{
 #guzzGet({"business":"giftInfo", "var": "m_gift_info",  "limit" : "id=$infoId", "orderBy" :  "id desc" })
 }}}
 
 其中business表示以giftInfo为要查询的实体对象。Var表示查询后的结果用变量m_gift_info来引用，limit表示查询条件是id=$infoId,orderBy表示查询结果按id倒序显示。
  
- 
-*例子：*
+
+
+*更完整的例子：*
 
 {{{
 <!--先查出所有符合limit条件的礼物记录，且只查前六条记录-->
