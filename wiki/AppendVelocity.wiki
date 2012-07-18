@@ -156,6 +156,15 @@ Select * from tb_gift where status!=5 and toUserId=...order  by  id desc
 
 == 更多示例 ==
 
+ 分页查询（查询到的结果为 PageFlip 对象）：
+{{{
+#guzzBoundary()
+	#guzzAddLimit(true, ["averageScore>0"])
+	#guzzPage({"business":"filmInfo", "var": "films",  "limit" : "status=1", "pageNo" : 0, "pageSize" : 10,  "orderBy" :  "averageScore desc" })<!-- 好评电影 -->
+#end
+}}} 
+ 
+
 
 
 
