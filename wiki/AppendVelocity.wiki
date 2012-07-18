@@ -104,14 +104,15 @@ Select * from tb_gift where status!=5 and toUserId=...order  by  id desc
 
 *#guzzBoundary()*是用于为list/get/page等数据读取标签，设置查询条件，以#end结束。
 
-在*#guzzBoundary*与#end之间加入guzzAddLimit以及guzzList标签，共同表示根据guzzAddLimit中设置的条件结合其中的limit字段中设置的条件查询结果，并返回一个list。
+在 *#guzzBoundary* 与#end之间加入 *guzzAddLimit* 标签，表示将guzzAddLimit设置的条件附加到随后出现的guzzList查询条件中。
  
 *#guzzGet* 用来查询数据库中的单条记录，写法如下：
+
 {{{
 #guzzGet({"business":"giftInfo", "var": "m_gift_info",  "limit" : "id=$infoId", "orderBy" :  "id desc" })
 }}}
 
-其中business表示以giftInfo为要查询的实体对象。Var表示查询后的结果用变量m_gift_info来引用，limit表示查询条件是id=$infoId,orderBy表示查询结果按id倒序显示。
+其中business表示以giftInfo为要查询的实体对象。var表示查询后的结果用变量m_gift_info来引用，limit表示查询条件是id=$infoId, orderBy表示查询结果按id倒序显示。
  
 
 
