@@ -13,6 +13,10 @@
 
  对Velocity补充的其他自定义标签【Velocity中称做Directive】。
 
+ 使用方法为将需要的Directive配置到你项目的velocity engine中即可【使用Velocity userdirective参数配置】。
+ 
+ 可参考的使用例子：[http://code.google.com/p/halo-cloud/source/browse/JavaClient/src/main/java/misc/com/guzzservices/velocity/impl/VelocityEngineService.java]
+
 
 == Guzz's Velocity Directive ==
 
@@ -150,6 +154,7 @@ Select * from tb_gift where status!=5 and toUserId=...order  by  id desc
 }}}
 
 
+== 更多示例 ==
 
 
 
