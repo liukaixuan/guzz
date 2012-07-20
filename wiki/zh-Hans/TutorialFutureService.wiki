@@ -107,3 +107,21 @@ public FutureResult<T> sumbitTask(FutureDataFetcher<T> fetcher)
 || hessian  || hessian        || rpc.url 接口实现服务地址<br>com.caucho.hessian.client.HessianProxyFactory中能够通过setXXX方法注入的属性（属性名前加rpc.）。<br>eg: rpc.user, rpc.password, rpc.connectionFactoryName, rpc.debug, rpc.overloadEnabled, rpc.chunkedPost, rpc.readTimeout, rpc.hessian2Request. || http://hessian.caucho.com/ ||
 || burlap  || burlap  || rpc.url 接口实现服务地址<br>com.caucho.burlap.client.BurlapProxyFactory中能够通过setXXX方法注入的属性（属性名前加rpc.）。<br>eg: rpc.user, rpc.password, rpc.overloadEnabled. || http://hessian.caucho.com/doc/burlap.xtp ||
 || PHPRPC   || phprpc         || rpc.serviceURL 接口实现服务地址<br>org.phprpc.PHPRPC_Client中能够通过setXXX方法注入的属性（属性名前加rpc.）。 || http://www.phprpc.org/ ||
+
+
+
+
+=== 异步调用的一个实际例子 ===
+
+ 线上系统的真实例子，网络协议为自定义协议。
+ 
+ [http://code.google.com/p/halo-cloud/source/browse/JavaClient/src/main/java/storage/com/guzzservices/store/impl/MemcachedFixedLifeCountServiceImpl.java]#incCount
+ 
+
+
+
+
+
+
+
+
