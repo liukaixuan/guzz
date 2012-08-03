@@ -1,6 +1,8 @@
 == What is Custom Table? ==
 
- Custom Table sounds interesting, it maps a domain class to a (virtual) table with *unknown* columns! YES, unknown! The table may be a (virtual) table stored as many small tables like Shadow Table does, and each small table can own some unknown different columns.
+ Custom Table sounds interesting, it maps a domain class to a (virtual) table with *unknown* columns! YES, unknown! 
+ 
+ The table may be a (virtual) table stored as many small tables like Shadow Table does, and each small table can own some unknown different columns.
 
  Custom Table not only sounds interesting, it is also very useful, for example for shopping site. In a typical shopping site, there are thousands of cargoes, and they share some common attributes such as name,description,price,onlineTime,storeCount,rate and so on. In the meantime, each cargo has its own special attributes, for example Book owns ISBN, author, publisher, Clothe owns color, size, brand, and TV set owns screenSize, refreshRate, networkSupport, and so on. These special attributes are very important for a shopping site, as you cann't sell clothes if your customers cann't search it with size and brand.
 
