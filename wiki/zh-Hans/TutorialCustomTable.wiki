@@ -25,7 +25,7 @@ public class Cargo {
 	/*for the sake of concision, igore other useful properties.*/
 	
 	/**
-	 * special properties owned by only this Item.
+	 * special properties owned by this Item only.
 	 */
 	private Map specialProps = new HashMap() ;
 
@@ -73,13 +73,13 @@ public class SpecialProperty {
 	/**unqiue id for management.*/
 	private int id ;
 	
-	/**which cargo this property belongs.*/
+	/**which cargo this property belongs to.*/
 	private String cargoName ;
 	
 	/**property name of the cargo (used in java).*/
 	private String propName ;
 	
-	/**the column name in the table of database to store the propety.*/
+	/**the column name in the table of database to store this propety.*/
 	private String colName ;
 	
 	/**
@@ -405,7 +405,7 @@ public class CargoCustomTableView extends AbstractCustomTableView {
 
 == 注意事项 ==
 
- * 1. 自定义属性表不支持ibatis模式配置的映射，也就是说基础的映射必须在hbm.xml中。
+ * 1. 自定义属性表不支持ibatis模式配置的映射，也就是说基础的映射必须在hbm.xml中或是通过annotation声明的。
 
  * 2. 对于guzz.xml中配置的复杂sql语句，可以将orm设置为领域对象的名字(business name)，借用hbm.xml的映射。
 

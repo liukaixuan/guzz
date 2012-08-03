@@ -27,7 +27,7 @@ public class Cargo {
 	/*for the sake of concision, ignore other useful properties.*/
 	
 	/**
-	 * special properties owned by only this Item.
+	 * special properties owned by this Item only.
 	 */
 	private Map specialProps = new HashMap() ;
 
@@ -75,13 +75,13 @@ public class SpecialProperty {
 	/**unqiue id for management.*/
 	private int id ;
 	
-	/**which cargo this property belongs.*/
+	/**which cargo this property belongs to.*/
 	private String cargoName ;
 	
 	/**property name of the cargo (used in java).*/
 	private String propName ;
 	
-	/**the column name in the table of database to store the propety.*/
+	/**the column name in the table of database to store this propety.*/
 	private String colName ;
 	
 	/**
