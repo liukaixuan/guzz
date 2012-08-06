@@ -10,6 +10,27 @@
  
  如果需要执行加入当前写事务的读操作，或执行!GuzzBaseDao没有提供的写操作，可以通过 getWriteTemplate()获取当前的WriteTemplate进行事务读写。WriteTemplate类似HibernateTemplate和JDBCTemplate。
 
+== !GuzzBaseDao 在spring中配置 ==
+
+典型配置：
+
+{{{	
+    <bean id="abstractGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
+    	<property name="guzzContext" ref="guzzContext" />
+    </bean>
+    	
+    <bean id="abstractNoSpringGuzzDao" class="org.guzz.dao.GuzzBaseDao" abstract="true">
+    	<property name="guzzContext" ref="guzzContext" />
+    	<property name="writeTemplate">
+    		<bean class="org.guzz.transaction.SoloWriteTemplate">
+    			<property name="guzzContext" ref="guzzContext" />
+    		</bean>
+    	</property>
+    </bean>
+}}}
+
+对于需要加入spring事务的dao，bean的parent设置成abstractGuzzDao；对于配置了spring事务，但是不需要加入事务的dao，bean的parent配置成abstractNoSpringGuzzDao。
+
 == !ReadonlyTranSession读API： ==
 
  !ReadonlyTranSession为guzz对外提供的查询操作入口，获取方法：
