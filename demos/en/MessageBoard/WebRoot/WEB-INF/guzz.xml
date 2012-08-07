@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE guzz-configs PUBLIC "-//GUZZ//DTD MAIN CONFIG//EN" "http://www.guzz.org/dtd/guzz.dtd">
+
+<guzz-configs>
+	
+	<dialect class="org.guzz.dialect.Mysql5Dialect" />
+	
+	<tran>
+		<dbgroup name="default" masterDBConfigName="masterDB" slaveDBConfigName="slaveDB" />
+		<dbgroup name="userDB" masterDBConfigName="userMasterDB" slaveDBConfigName="userSlaveDB" />
+		<dbgroup name="tempDB" masterDBConfigName="tempMasterDB" />
+		
+		<virtualdbgroup name="messageDB" shadow="example.business.MessageVirtualDBView" />
+	</tran>
+	
+	<config-server>
+		<server class="org.guzz.config.LocalFileConfigServer">
+			<param name="resource" value="messageBoard.properties" />
+		</server>
+	</config-server>
+	
+	<service name="slowUpdateServer" configName="guzzSlowUpdateServer" class="org.guzz.service.db.impl.SlowUpdateServerImpl" />
+	
+	<!-- business starts -->
+	<business dbgroup="messageDB" name="message" file="classpath:example/business/Message.hbm.xml" />
+	<business dbgroup="userDB" name="user" file="classpath:example/business/User.hbm.xml" />
+	<business dbgroup="tempDB" name="guzzSlowUpdate" file="classpath:example/business/IncUpdateBusiness.hbm.xml" />
+	<!-- business ends -->
+
+</guzz-configs>

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE guzz-mapping PUBLIC "-//GUZZ//GUZZ MAPPING DTD//EN" "http://www.guzz.org/dtd/guzz-mapping.dtd">
+<guzz-mapping>
+    <class name="example.business.Message" table="tb_message" shadow="example.business.MessageShadowTableView">
+        <id name="id" type="int" column="id">
+        	<generator class="native" />
+        </id>
+        <property name="userId" type="int" column="userId" />
+        <property name="voteYes" type="int" column="voteYes" />
+        <property name="voteNo" type="int" column="voteNo" />
+        <property name="voteScore" type="int" column="voteScore" />
+        <property name="content" type="string" column="content" />
+        <property name="createdTime" type="datetime" column="createdTime" />
+    </class>
+</guzz-mapping>
+
+<!--
+mysql:
+create table tb_message(
+	id int not null auto_increment primary key, 
+	userId int(11),
+	voteYes int(11),
+	voteNo int(11),
+	voteScore int(11),
+	content text, 
+	createdTime datetime
+)engine=Innodb ;
+
+-->
