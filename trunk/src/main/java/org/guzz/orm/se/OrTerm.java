@@ -61,7 +61,21 @@ public class OrTerm extends AbstractConcatTerm {
 		}else if(StringUtil.isEmpty(right)){
 			return left ;
 		}else{
-			return " (" + left + ") or (" + right + ") " ; 
+			StringBuilder sb = new StringBuilder() ;
+			
+			if(leftTerm instanceof AbstractConcatTerm){
+				sb.append(" (").append(left).append(") or ") ;
+			}else{
+				sb.append(" ").append(left).append(" or ") ;
+			}
+			
+			if(rightTerm instanceof AbstractConcatTerm){
+				sb.append(" (").append(right).append(") ") ;
+			}else{
+				sb.append(" ").append(right).append(" ") ;
+			}
+			
+			return sb.toString() ;
 		}
 	}
 

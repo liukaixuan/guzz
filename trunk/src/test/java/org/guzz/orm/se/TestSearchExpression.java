@@ -52,7 +52,7 @@ public class TestSearchExpression extends DBBasedTestCase{
 		
 		sp = new SearchParams() ;
 		se.and(Terms.biggerOrEq("title", 10)) ;
-		assertEqualsIDWS(se.toLoadRecordsMarkedSQL(map, sp).getOrginalSQL(), "select NAME , createdTime from TB_ARTICLE where  (NAME = :title_0) and (NAME >= :title_1) order by NAME desc, id asc") ;
+		assertEqualsIDWS(se.toLoadRecordsMarkedSQL(map, sp).getOrginalSQL(), "select NAME , createdTime from TB_ARTICLE where  NAME = :title_0 and NAME >= :title_1 order by NAME desc, id asc") ;
 		assertEquals(sp.getSearchParams().size(), 2) ;
 		
 		
@@ -86,7 +86,7 @@ public class TestSearchExpression extends DBBasedTestCase{
 		
 		sp = new SearchParams() ;
 		se.and(Terms.biggerOrEq("title", 10)) ;
-		assertEqualsIDWS(se.toLoadRecordsMarkedSQL(map, sp).getOrginalSQL(), "select NAME , createdTime from TB_ARTICLE where  (NAME = :title_0) and (NAME >= :title_1) order by NAME desc, id asc") ;
+		assertEqualsIDWS(se.toLoadRecordsMarkedSQL(map, sp).getOrginalSQL(), "select NAME , createdTime from TB_ARTICLE where  NAME = :title_0 and NAME >= :title_1 order by NAME desc, id asc") ;
 		assertEquals(sp.getSearchParams().size(), 2) ;
 	}
 	

@@ -124,7 +124,11 @@ public abstract class SearchExpression {
 	 * 添加一个and类型的检索条件。
 	 */
 	public SearchExpression and(SearchTerm term){
-		conditionTerm = new AndTerm(conditionTerm, term) ;
+		if(conditionTerm == null){
+			conditionTerm = term ;
+		}else{
+			conditionTerm = new AndTerm(conditionTerm, term) ;
+		}
 		
 		return this ;
 	}
@@ -146,7 +150,11 @@ public abstract class SearchExpression {
 	 * 添加一个or类型的检索条件。
 	 */
 	public SearchExpression or(SearchTerm term){
-		conditionTerm = new OrTerm(conditionTerm, term) ;
+		if(this.conditionTerm == null){
+			this.conditionTerm = term ;
+		}else{
+			conditionTerm = new OrTerm(conditionTerm, term) ;
+		}
 		
 		return this ;
 	}

@@ -62,7 +62,21 @@ public class AndTerm extends AbstractConcatTerm {
 		}else if(StringUtil.isEmpty(right)){
 			return left ;
 		}else{
-			return " (" + left + ") and (" + right + ") " ; 
+			StringBuilder sb = new StringBuilder() ;
+			
+			if(leftTerm instanceof AbstractConcatTerm){
+				sb.append(" (").append(left).append(") and ") ;
+			}else{
+				sb.append(" ").append(left).append(" and ") ;
+			}
+			
+			if(rightTerm instanceof AbstractConcatTerm){
+				sb.append(" (").append(right).append(") ") ;
+			}else{
+				sb.append(" ").append(right).append(" ") ;
+			}
+			
+			return sb.toString() ;
 		}
 	}
 
