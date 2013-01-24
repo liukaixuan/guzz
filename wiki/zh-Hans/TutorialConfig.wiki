@@ -92,6 +92,11 @@ gc.shutdown() ;
 
  如果你忘了怎么配置，这是一篇很好的文章：[http://jie2workjava.iteye.com/blog/446250 Spring事务配置的五种方式]
  
+ 
+*注意：* 如果是基于annotation @Transactiona的事务声明，请下载  http://guzz.googlecode.com/svn/wiki/no-wikis/GuzzBaseDao.java 这个类，在自己的工程中建个org.guzz.dao然后放进去，覆盖jar包中的类。
+ 
+ 
+ 
  * 5. 至此，就完成了guzz和spring IOC的集成。guzzContext可以通过spring bean获取的，也可以通过GuzzWebApplicationContextUtil获取到。
  
 === 在web应用中获取GuzzContext： === 

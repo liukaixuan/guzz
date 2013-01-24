@@ -96,6 +96,10 @@ Most of the time, you should add another "BaseDao" bean for making up your own D
 </bean>
 }}}
 
+ 
+*Info: * If declared by @Transactiona annotation, create a package called org.guzz.dao and put http://guzz.googlecode.com/svn/wiki/no-wikis/GuzzBaseDao.java in it to override the same class in guzz.jar.
+
+
  It is done. Here is a example:
 
 {{{
