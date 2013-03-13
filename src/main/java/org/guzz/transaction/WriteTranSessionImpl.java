@@ -175,7 +175,7 @@ public class WriteTranSessionImpl extends AbstractTranSessionImpl implements Wri
 		 * 3. 如果设置了dynamic-update=true，只更新显式调用setXXX的属性（lazy属性的变化也包含在此，因此dynamic-update检测到的更改字段包含lazy的属性的更改）。
 		 */
 		String domainClassName = getRealDomainClass(domainObject).getName() ;
-		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) this.omm.getObjectMapping(domainClassName, Guzz.getTableCondition()) ;
+		POJOBasedObjectMapping mapping = (POJOBasedObjectMapping) this.omm.getObjectMapping(domainClassName, tableCondition) ;
 		
 		if(mapping == null){
 			throw new DaoException("ObjectMapping is null. class is:" + domainClassName) ;
