@@ -245,8 +245,12 @@ public class GuzzBaseDao {
 	public TransactionManager getTransactionManager() {
 		return transactionManager;
 	}
+	
+	public TransactionManager getGuzzTransactionManager() {
+		return transactionManager;
+	}
 
-	public void setTransactionManager(TransactionManager transactionManager) {
+	public void setGuzzTransactionManager(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 		
 		if(this.getWriteTemplate() == null){
@@ -256,7 +260,7 @@ public class GuzzBaseDao {
 	
 	public void setGuzzContext(GuzzContext guzzContext){
 		this.guzzContext = guzzContext ;
-		setTransactionManager(guzzContext.getTransactionManager()) ;
+		setGuzzTransactionManager(guzzContext.getTransactionManager()) ;
 	}
 	
 	public GuzzContext getGuzzContext(){
