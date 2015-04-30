@@ -4,8 +4,8 @@ Documents in Github: select branch, and choose wiki to view.
 
 Or:
 
-https://code.google.com/p/guzz/wiki/AboutGuzz?tm=6
+https://github.com/liukaixuan/guzz/wiki
 
 
-使用手册：https://code.google.com/p/guzz/wiki/AboutGuzz?tm=6
+使用手册：https://github.com/liukaixuan/guzz/wiki
 
