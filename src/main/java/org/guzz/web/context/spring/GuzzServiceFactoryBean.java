@@ -28,44 +28,51 @@ import org.springframework.context.ApplicationContextAware;
  * 
  * Helper class to export a guzz service as a spring bean.
  * 
- * <p>Perform {@link ApplicationContextAware#setApplicationContext(applicationContext)} if the service implements {@link ApplicationContextAware}</p>
- *
+ * <p>
+ * Perform {@link ApplicationContextAware#setApplicationContext(applicationContext)} if the service implements
+ * {@link ApplicationContextAware}
+ * </p>
+ * 
  * @author liu kaixuan(liukaixuan@gmail.com)
  */
 public class GuzzServiceFactoryBean extends AbstractFactoryBean implements ApplicationContextAware {
-	
-	private GuzzContext guzzContext ;
-	
-	private ApplicationContext applicationContext ;
-	
-	private String serviceName ;
-	
-	private Service service ;
+
+	private GuzzContext guzzContext;
+
+	private ApplicationContext applicationContext;
+
+	private String serviceName;
+
+	private Service service;
 
 	protected Object createInstance() throws Exception {
-		if(guzzContext == null){
-			guzzContext = (GuzzContext) this.getBeanFactory().getBean("guzzContext") ;
+		if (guzzContext == null) {
+			guzzContext = (GuzzContext) this.getBeanFactory().getBean("guzzContext");
 		}
-		
-		if(guzzContext == null){
-			throw new GuzzException("guzzContext not found. put guzzContext bean in front of this bean.") ;
+
+		if (guzzContext == null) {
+			throw new GuzzException("guzzContext not found. put guzzContext bean in front of this bean.");
 		}
-		
-		service = guzzContext.getService(serviceName) ;
-		
-		if(service == null){
-			throw new GuzzException("service not found. service name is:" + this.serviceName) ;
+
+		service = guzzContext.getService(serviceName);
+
+		if (service == null) {
+			throw new GuzzException("service not found. service name is:" + this.serviceName);
 		}
-		
-		if(service instanceof ApplicationContextAware){
-			((ApplicationContextAware) service).setApplicationContext(applicationContext) ;
+
+		if (service instanceof ApplicationContextAware) {
+			((ApplicationContextAware) service).setApplicationContext(applicationContext);
 		}
-		
+
 		return service;
 	}
 
 	public Class getObjectType() {
-		return service.getClass() ;
+		if (service == null) {
+			return null;
+		}
+
+		return service.getClass();
 	}
 
 	public GuzzContext getGuzzContext() {
@@ -85,7 +92,7 @@ public class GuzzServiceFactoryBean extends AbstractFactoryBean implements Appli
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext ;
+		this.applicationContext = applicationContext;
 	}
 
 }
