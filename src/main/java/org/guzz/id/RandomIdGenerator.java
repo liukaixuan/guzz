@@ -26,47 +26,47 @@ import org.guzz.orm.mapping.POJOBasedObjectMapping;
 import org.guzz.transaction.WriteTranSession;
 import org.guzz.util.StringUtil;
 
-
 /**
  * <b>random</b><br>
  * <br>
- * A <tt>RandomIdGenerator</tt> that returns a string of length 32 (or the length you given in parameter:length),
- * This string will consist of only a-z and 0-9, and is unable to predicate. 
+ * A <tt>RandomIdGenerator</tt> that returns a string of length 32 (or the length you given in parameter:length), This
+ * string will consist of only a-z and 0-9, and is unable to predicate.
  * 
- * <br><b>Note: the length maybe a little shorter than the given length.</b>
  * <br>
- * <br>Mapping parameters supported: length.
+ * <b>Note: the length maybe a little shorter than the given length.</b> <br>
+ * <br>
+ * Mapping parameters supported: length.
  */
 
 public class RandomIdGenerator implements IdentifierGenerator, Configurable {
-	private POJOBasedObjectMapping mapping ;
-	private String primaryKeyPropName ;
-	private SecureRandom random = new SecureRandom() ;
-	private int length = 32 ;
+	private POJOBasedObjectMapping mapping;
+	private String primaryKeyPropName;
+	private SecureRandom random = new SecureRandom();
+	private int length = 32;
 
 	protected String random() {
-		String s = new BigInteger(length*5, random).toString(36);
-		
-		if(s.length() > length){
-			return s.substring(0, s.length()) ;
+		String s = new BigInteger(length * 5, random).toString(36);
+
+		if (s.length() > length) {
+			return s.substring(0, length);
 		}
-		
-		return s ;
+
+		return s;
 	}
-	
-	protected void setPrimaryKey(Object domainObject, Object value){
-		mapping.getBeanWrapper().setValue(domainObject, primaryKeyPropName, value) ;
+
+	protected void setPrimaryKey(Object domainObject, Object value) {
+		mapping.getBeanWrapper().setValue(domainObject, primaryKeyPropName, value);
 	}
 
 	public void configure(Dialect dialect, POJOBasedObjectMapping mapping, Properties params) {
-		this.mapping = mapping ;
-		primaryKeyPropName = mapping.getTable().getPKPropName() ;
-		
-		this.length = StringUtil.toInt(params.getProperty("length"), 32) ;
+		this.mapping = mapping;
+		primaryKeyPropName = mapping.getTable().getPKPropName();
+
+		this.length = StringUtil.toInt(params.getProperty("length"), 32);
 	}
 
 	public boolean insertWithPKColumn() {
-		return true ;
+		return true;
 	}
 
 	public Serializable postInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
@@ -74,16 +74,16 @@ public class RandomIdGenerator implements IdentifierGenerator, Configurable {
 	}
 
 	public Serializable preInsert(WriteTranSession session, Object domainObject, Object tableCondition) {
-		String id = random() ;		
-		setPrimaryKey(domainObject, id) ;		
-		return id ;
+		String id = random();
+		setPrimaryKey(domainObject, id);
+		return id;
 	}
 
-	public static void main( String[] args ) throws Exception {
+	public static void main(String[] args) throws Exception {
 		RandomIdGenerator gen = new RandomIdGenerator();
 		RandomIdGenerator gen2 = new RandomIdGenerator();
 
-		for ( int i=0; i<10; i++) {
+		for (int i = 0; i < 10; i++) {
 			String id = (String) gen.random();
 			System.out.println(id.length() + "=" + id);
 			String id2 = (String) gen2.random();
