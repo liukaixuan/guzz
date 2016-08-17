@@ -69,7 +69,7 @@ public class FloatSQLDataType implements SQLDataType {
 	}
 	
 	public Class getDataType(){
-		return Long.class ;
+		return Float.class ;
 	}
 
 	public Object getFromString(String value) {
