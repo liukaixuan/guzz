@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -84,6 +85,11 @@ public class NoPooledDataSourceProvider implements DataSourceProvider{
 
 		public int getLoginTimeout() throws SQLException {
 			return loginTimeout ;
+		}
+
+		@SuppressWarnings("Since15")
+		public Logger getParentLogger() throws java.sql.SQLFeatureNotSupportedException {
+			throw new java.sql.SQLFeatureNotSupportedException() ;
 		}
 
 		public void setLogWriter(PrintWriter out) throws SQLException {

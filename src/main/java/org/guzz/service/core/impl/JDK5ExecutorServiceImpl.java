@@ -18,21 +18,20 @@ import java.util.concurrent.TimeoutException;
  * @author liukaixuan(liukaixuan@gmail.com)
  */
 public class JDK5ExecutorServiceImpl extends JDKExecutorService{
-	
-	public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
-		return executorService.invokeAll(tasks, timeout, unit);
-	}
 
-	public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks) throws InterruptedException {
+	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
 		return executorService.invokeAll(tasks);
 	}
 
-	public <T> T invokeAny(Collection<Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		return executorService.invokeAny(tasks, timeout, unit);
+	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
+		return executorService.invokeAll(tasks, timeout, unit);
 	}
 
-	public <T> T invokeAny(Collection<Callable<T>> tasks) throws InterruptedException, ExecutionException {
+	public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
 		return executorService.invokeAny(tasks);
 	}
 
+	public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+		return executorService.invokeAny(tasks, timeout, unit);
+	}
 }
