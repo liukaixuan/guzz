@@ -1,5 +1,15 @@
 # Documents
 
+Maven:
+
+            <dependency>
+                <groupId>org.guzz</groupId>
+                <artifactId>guzz</artifactId>
+                <version>1.3.3</version>
+            </dependency>
+            
+            
+
 Documents in Github: select branch, and choose wiki to view.
 
 Or:
