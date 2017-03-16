@@ -33,6 +33,7 @@ public final class IdentifierGeneratorFactory {
 		GENERATORS.put("silent", SilentIdGenerator.class.getName()) ;
 		GENERATORS.put("guid", GUIDIdGenerator.class.getName()) ;
 		GENERATORS.put("uuid", UUIDHexGenerator.class.getName()) ;
+		GENERATORS.put("uuid.hex", UUIDHexGenerator.class.getName()) ;
 		GENERATORS.put("random", RandomIdGenerator.class.getName()) ;
 		
 		GENERATORS.put("hilo", TableHiLoGenerator.class.getName()) ;
