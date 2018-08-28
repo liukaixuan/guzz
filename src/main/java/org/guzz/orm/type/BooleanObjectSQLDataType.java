@@ -76,7 +76,7 @@ public class BooleanObjectSQLDataType implements SQLDataType {
 
 	public Object getFromString(String value) {
 		//Object type allows null value. 
-		if(value == null) return null ;
+		if(value == null) return nullValue ;
 		
 		char c = value.charAt(0) ;
 		if(c == '1' || c =='y' || c == 'Y' || c == 't' || c == 'T') return Boolean.TRUE ;

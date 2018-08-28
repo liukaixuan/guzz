@@ -49,7 +49,11 @@ public class EnumStringSQLDataType implements SQLDataType, ParameteredType {
 	}
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = nullValue ;
+		if(nullValue == null) {
+			this.nullValue = nullValue;
+		}else{
+			this.nullValue = getEnumFromString((String) nullValue);
+		}
 	}
 	
 	protected Object getEnumFromString(String name){
@@ -92,7 +96,7 @@ public class EnumStringSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return null ;
+		if(value == null) return nullValue ;
 		
 		return getEnumFromString(value) ;
 	}

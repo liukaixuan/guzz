@@ -78,7 +78,7 @@ public class DoubleObjectSQLDataType implements SQLDataType {
 
 	public Object getFromString(String value) {
 		//Object type allows null value. 
-		if(value == null) return null ;
+		if(value == null) return nullValue ;
 		
 		return Double.valueOf(value) ;
 	}

@@ -31,6 +31,11 @@ public class BooleanSQLDataType implements SQLDataType {
 	private boolean nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
+		if(nullValue == null){
+			this.nullValue = Boolean.FALSE ;
+			return;
+		}
+
 		this.nullValue = ((Boolean) nullValue).booleanValue() ;
 	}
 
@@ -71,7 +76,7 @@ public class BooleanSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Boolean.FALSE ;
+		if(value == null) return nullValue ;
 		
 		char c = value.charAt(0) ;
 		if(c == '1' || c =='y' || c == 'Y' || c == 't' || c == 'T') return Boolean.TRUE ;

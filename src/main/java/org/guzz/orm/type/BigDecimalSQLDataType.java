@@ -60,7 +60,7 @@ public class BigDecimalSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return null ;
+		if(value == null) return nullValue ;
 		
 		return new BigDecimal(value);
 	}

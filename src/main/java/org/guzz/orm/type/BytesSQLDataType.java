@@ -78,7 +78,7 @@ public class BytesSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return null ;
+		if(value == null) return nullValue ;
 		
 		return value.getBytes() ;
 	}

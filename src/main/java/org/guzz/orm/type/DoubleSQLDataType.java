@@ -31,6 +31,11 @@ public class DoubleSQLDataType implements SQLDataType {
 	private double nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
+		if(nullValue == null){
+			this.nullValue = 0 ;
+			return;
+		}
+
 		this.nullValue = ((Double) nullValue).doubleValue() ;
 	}
 
@@ -73,7 +78,7 @@ public class DoubleSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Double.valueOf(0) ;
+		if(value == null) return nullValue ;
 		
 		return Double.valueOf(value) ;
 	}

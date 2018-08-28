@@ -130,7 +130,11 @@ public class TableColumn {
 		
 		//后续修改
 		if(orm != null && getSqlDataType() != null){
-			getSqlDataType().setNullToValue(getSqlDataType().getFromString(nullValue)) ;
+			if(nullValue == null){
+				getSqlDataType().setNullToValue(null);
+			}else {
+				getSqlDataType().setNullToValue(getSqlDataType().getFromString(nullValue));
+			}
 		}
 	}
 

@@ -41,6 +41,7 @@ public abstract class DataSourceProviderFactory {
 		systemProviders.put("dbcp", DBCPDataSourceProvider.class.getName()) ;
 		systemProviders.put("jndi", JNDIDataSourceProvider.class.getName()) ;
 		systemProviders.put("nopool", NoPooledDataSourceProvider.class.getName()) ;
+		systemProviders.put("druid", DruidDataSourceProvider.class.getName()) ;
 	}
 	
 	public static DataSourceProvider buildDataSourceProvicer(Properties props, int maxLoad){

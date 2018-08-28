@@ -77,7 +77,7 @@ public class ShortObjectSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Short.valueOf((short) 0) ;
+		if(value == null) return Short.valueOf((short) nullValue) ;
 		
 		return Short.valueOf(value) ;
 	}

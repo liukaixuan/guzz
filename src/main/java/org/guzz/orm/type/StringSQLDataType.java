@@ -55,6 +55,10 @@ public class StringSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
+		if(value == null){
+			return nullValue;
+		}
+
 		return value ;
 	}
 

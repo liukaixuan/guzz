@@ -31,6 +31,11 @@ public class ShortSQLDataType implements SQLDataType {
 	private short nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
+		if(nullValue == null){
+			this.nullValue = 0 ;
+			return;
+		}
+
 		this.nullValue = ((Short) nullValue).shortValue() ;
 	}
 	
@@ -73,7 +78,7 @@ public class ShortSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Short.valueOf((short) 0) ;
+		if(value == null) return Short.valueOf((short) nullValue) ;
 		
 		return Short.valueOf(value) ;
 	}

@@ -50,7 +50,7 @@ public class JavaUtilDateSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return null ;
+		if(value == null) return nullDate ;
 		
 		java.util.Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){

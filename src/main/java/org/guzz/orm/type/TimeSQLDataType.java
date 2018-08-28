@@ -50,7 +50,7 @@ public class TimeSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return null ;
+		if(value == null) return nullTime ;
 		
 		Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){

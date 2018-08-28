@@ -31,6 +31,11 @@ public class IntegerSQLDataType implements SQLDataType {
 	private int nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
+		if(nullValue == null){
+			this.nullValue = 0 ;
+			return;
+		}
+
 		this.nullValue = ((Integer) nullValue).intValue() ;
 	}
 	
@@ -73,7 +78,7 @@ public class IntegerSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Integer.valueOf(0) ;
+		if(value == null) return Integer.valueOf(nullValue) ;
 		
 		return Integer.valueOf(value) ;
 	}

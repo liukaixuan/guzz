@@ -78,7 +78,7 @@ public class IntegerObjectSQLDataType implements SQLDataType {
 
 	public Object getFromString(String value) {
 		//Type java.lang.Integer allows null value. 
-		if(value == null) return null ;
+		if(value == null) return nullValue ;
 		
 		return Integer.valueOf(value) ;
 	}

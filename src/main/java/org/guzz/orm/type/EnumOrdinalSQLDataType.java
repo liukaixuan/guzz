@@ -61,7 +61,11 @@ public class EnumOrdinalSQLDataType implements SQLDataType, ParameteredType {
 	}
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = nullValue ;
+		if(nullValue == null) {
+			this.nullValue = nullValue;
+		}else{
+			this.nullValue = getEnumFromOrdinal((Integer) nullValue);
+		}
 	}
 	
 	protected Object getEnumFromOrdinal(int ordinal){
@@ -128,7 +132,7 @@ public class EnumOrdinalSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return null ;
+		if(value == null) return nullValue ;
 		
 		return getEnumFromOrdinal(Integer.parseInt(value)) ;
 	}

@@ -31,27 +31,32 @@ public class FloatSQLDataType implements SQLDataType {
 	private float nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
-		this.nullValue = ((Float) nullValue).floatValue() ;
+		if(nullValue == null){
+			this.nullValue = 0 ;
+			return;
+		}
+
+		this.nullValue = (Float) nullValue ;
 	}
 
 	public Object getSQLValue(ResultSet rs, String colName) throws SQLException {
-		float value = rs.getFloat(colName) ;
+		Float value = rs.getFloat(colName) ;
 		
 		if(rs.wasNull()){
 			value = this.nullValue ;
 		}
 		
-		return new Float(value) ;
+		return value ;
 	}
 
 	public Object getSQLValue(ResultSet rs, int colIndex) throws SQLException {
-		float value = rs.getFloat(colIndex) ;
+		Float value = rs.getFloat(colIndex) ;
 		
 		if(rs.wasNull()){
 			value = this.nullValue ;
 		}
 		
-		return new Float(value) ;
+		return value ;
 	}
 
 	public void setSQLValue(PreparedStatement pstm, int parameterIndex, Object value)  throws SQLException {
@@ -59,6 +64,7 @@ public class FloatSQLDataType implements SQLDataType {
 			pstm.setFloat(parameterIndex, this.nullValue) ;
 			return ;
 		}
+
 		if(value instanceof String){
 			value = getFromString((String) value) ;
 		}
@@ -73,7 +79,7 @@ public class FloatSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Float.valueOf(0) ;
+		if(value == null) return nullValue ;
 		
 		return Float.valueOf(value) ;
 	}

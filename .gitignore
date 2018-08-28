@@ -5,4 +5,13 @@ target/test-classes/
 target/surefire-reports/
 target/surefire/
 target/classes/
-guzz.iml
+/build
+/.idea
+*.iml
+.DS_Store
+local.properties
+release.properties
+*.releaseBackup
+catalina.base_IS_UNDEFINED/
+.project
+.settings/

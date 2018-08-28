@@ -31,6 +31,11 @@ public class BigIntSQLDataType implements SQLDataType {
 	private long nullValue ;
 	
 	public void setNullToValue(Object nullValue) {
+		if(nullValue == null){
+			this.nullValue = 0 ;
+			return;
+		}
+
 		this.nullValue = ((Long) nullValue).longValue() ;
 	}
 	
@@ -73,7 +78,7 @@ public class BigIntSQLDataType implements SQLDataType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return Long.valueOf(0) ;
+		if(value == null) return nullValue ;
 		
 		return Long.valueOf(value) ;
 	}

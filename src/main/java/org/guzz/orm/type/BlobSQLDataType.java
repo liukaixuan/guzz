@@ -53,7 +53,7 @@ public class BlobSQLDataType implements SQLDataType, DialectAware {
 
 	public void setNullToValue(Object nullValue) {
 		if(nullValue != null){
-			throw new DataTypeException("null value unsupported. nullValue is:" + nullValue) ;
+			throw new DataTypeException("null default value unsupported. nullValue is:" + nullValue) ;
 		}
 	}
 

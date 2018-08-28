@@ -96,7 +96,7 @@ public class DateSQLDataType implements SQLDataType, ParameteredType {
 	}
 
 	public Object getFromString(String value) {
-		if(value == null) return null ;
+		if(value == null) return nullDate ;
 		
 		Date d = DateUtil.stringToDate(value, dateFormat) ;
 		if(d == null){
